@@ -88,7 +88,7 @@ export function ExportBackupButton({
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `projecthub-backup-${format(new Date(), 'yyyy-MM-dd-HHmm')}.json`;
+      link.download = `centralopusflow-backup-${format(new Date(), 'yyyy-MM-dd-HHmm')}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

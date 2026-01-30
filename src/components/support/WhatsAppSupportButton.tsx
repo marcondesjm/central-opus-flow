@@ -7,7 +7,7 @@ interface WhatsAppSupportButtonProps {
 
 export function WhatsAppSupportButton({ className }: WhatsAppSupportButtonProps) {
   const phoneNumber = '5548996029392';
-  const message = encodeURIComponent('Olá! Preciso de suporte com o ProjectHub.');
+  const message = encodeURIComponent('Olá! Preciso de suporte com o Central Opus Flow.');
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
   return (

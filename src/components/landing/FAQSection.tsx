@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     question: 'Como funciona o teste grátis?',
-    answer: 'Você tem 15 dias para usar todas as funcionalidades do ProjectHub sem precisar informar cartão de crédito. No final do período, escolha assinar ou continue com acesso limitado.',
+    answer: 'Você tem 15 dias para usar todas as funcionalidades do Central Opus Flow sem precisar informar cartão de crédito. No final do período, escolha assinar ou continue com acesso limitado.',
   },
   {
     question: 'Quantas contas Lovable posso conectar?',
@@ -25,15 +25,15 @@ const faqs = [
   },
   {
     question: 'Posso usar com minha equipe?',
-    answer: 'Atualmente o ProjectHub é focado em uso individual, mas você pode compartilhar projetos e contas com colaboradores. Funcionalidades avançadas de equipe estão em desenvolvimento.',
+    answer: 'Atualmente o Central Opus Flow é focado em uso individual, mas você pode compartilhar projetos e contas com colaboradores. Funcionalidades avançadas de equipe estão em desenvolvimento.',
   },
   {
     question: 'O que acontece se eu cancelar?',
     answer: 'Você mantém acesso até o final do período pago. Após isso, sua conta volta para o modo gratuito limitado, mas seus dados ficam salvos por 90 dias caso queira reativar.',
   },
   {
-    question: 'O ProjectHub sincroniza automaticamente com Lovable?',
-    answer: 'Os projetos são gerenciados manualmente no ProjectHub. Você adiciona as informações dos projetos que deseja acompanhar e atualiza status, notas e progresso conforme necessário.',
+    question: 'O Central Opus Flow sincroniza automaticamente com Lovable?',
+    answer: 'Os projetos são gerenciados manualmente no Central Opus Flow. Você adiciona as informações dos projetos que deseja acompanhar e atualiza status, notas e progresso conforme necessário.',
   },
 ];
 

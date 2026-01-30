@@ -37,7 +37,7 @@ export function DashboardPreview() {
               </div>
               <div className="flex-1 mx-4">
                 <div className="bg-background/80 rounded-lg px-4 py-1.5 text-xs text-muted-foreground text-center max-w-md mx-auto border border-border/50">
-                  🔒 app.projecthub.com.br
+                  🔒 app.centralopusflow.com.br
                 </div>
               </div>
             </div>

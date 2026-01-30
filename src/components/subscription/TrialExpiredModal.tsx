@@ -37,7 +37,7 @@ export function TrialExpiredModal() {
             
             <p className="text-muted-foreground mb-6">
               Seu período de teste de 15 dias chegou ao fim. 
-              Para continuar usando o ProjectHub com todos os recursos, 
+              Para continuar usando o Central Opus Flow com todos os recursos, 
               faça sua assinatura agora.
             </p>
 

@@ -95,7 +95,7 @@ export function Sidebar({
             <FolderKanban className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-semibold text-sidebar-foreground">ProjectHub</h1>
+            <h1 className="font-semibold text-sidebar-foreground text-sm">Central Opus Flow</h1>
             <p className="text-xs text-muted-foreground">Gerenciador Lovable</p>
           </div>
         </div>

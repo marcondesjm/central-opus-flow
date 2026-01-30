@@ -68,8 +68,11 @@ export function Sidebar({
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
 
-  const navItems = [
+  const topNavItems = [
     { id: 'all', label: 'Todos os Projetos', icon: LayoutDashboard },
+  ];
+
+  const bottomNavItems = [
     { id: 'favorites', label: 'Favoritos', icon: Star },
     { id: 'archived', label: 'Arquivados', icon: Archive },
     { id: 'tags', label: 'Tags', icon: Tag },
@@ -100,8 +103,9 @@ export function Sidebar({
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin" aria-label="Navegação principal">
+        {/* Todos os Projetos - primeiro item */}
         <ul role="list" className="space-y-1">
-          {navItems.map((item) => {
+          {topNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === item.id && !selectedAccount;
             
@@ -129,8 +133,8 @@ export function Sidebar({
           })}
         </ul>
 
-        {/* Accounts Section */}
-        <div className="pt-4">
+        {/* Accounts Section - logo após Todos os Projetos */}
+        <div className="pt-2">
           <Collapsible open={accountsOpen} onOpenChange={setAccountsOpen}>
             <CollapsibleTrigger 
               className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-sidebar-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar rounded-md"
@@ -247,6 +251,36 @@ export function Sidebar({
             </CollapsibleContent>
           </Collapsible>
         </div>
+
+        {/* Demais itens de navegação */}
+        <ul role="list" className="space-y-1 pt-2">
+          {bottomNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeView === item.id && !selectedAccount;
+            
+            return (
+              <li key={item.id}>
+                <button
+                  onClick={() => {
+                    onViewChange(item.id);
+                    onAccountChange(null);
+                  }}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                  )}
+                >
+                  <Icon className="w-4 h-4" aria-hidden="true" />
+                  {item.label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
 
       {/* Footer */}

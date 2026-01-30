@@ -36,7 +36,7 @@ interface PaymentModalProps {
 
 const PIX_KEY = '48996029392';
 const PIX_NAME = 'Marcondes Jorge Machado';
-const PIX_AMOUNT = 29.90;
+const PIX_AMOUNT = 19.90;
 const WHATSAPP_NUMBER = '5548996029392';
 
 // Generate PIX Copy-Paste payload (BR Code format)
@@ -157,7 +157,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
     }
 
     const message = encodeURIComponent(
-      `Olá! Estou enviando meu comprovante de pagamento da assinatura mensal (R$29,90).\n\n` +
+      `Olá! Estou enviando meu comprovante de pagamento da assinatura mensal (R$19,90).\n\n` +
       `📎 Comprovante: ${receiptUrl}\n\n` +
       `${notes ? `📝 Observação: ${notes}\n\n` : ''}` +
       `Aguardo a confirmação!`
@@ -224,25 +224,25 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
             Assinatura Mensal
           </DialogTitle>
           <DialogDescription>
-            Acesso completo a todas as funcionalidades por apenas R$29,90/mês
+            Acesso completo a todas as funcionalidades por apenas R$19,90/mês
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 max-h-[60vh] pr-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-6">
             {/* Price Card */}
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
               <p className="text-sm text-muted-foreground mb-1">Valor mensal</p>
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-sm text-muted-foreground">R$</span>
-                <span className="text-4xl font-bold text-foreground">29,90</span>
+                <span className="text-4xl font-bold text-foreground">19,90</span>
                 <span className="text-sm text-muted-foreground">/mês</span>
               </div>
               <div className="mt-3 flex flex-wrap justify-center gap-2">
@@ -420,7 +420,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
               </Button>
             </form>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

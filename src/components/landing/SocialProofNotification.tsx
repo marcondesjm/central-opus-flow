@@ -6,21 +6,22 @@ interface Buyer {
   name: string;
   location: string;
   plan: string;
+  price: string;
   timeAgo: string;
-  credits?: number;
+  badge?: string;
 }
 
 const buyers: Buyer[] = [
-  { name: 'Mariana R.', location: 'Brasília, DF', plan: 'Plano Pro', timeAgo: '2 min', credits: 500 },
-  { name: 'Lucas S.', location: 'São Paulo, SP', plan: 'Plano Anual', timeAgo: '5 min', credits: 1200 },
-  { name: 'Ana C.', location: 'Rio de Janeiro, RJ', plan: 'Plano Pro', timeAgo: '8 min', credits: 350 },
-  { name: 'Pedro M.', location: 'Curitiba, PR', plan: 'Plano Anual', timeAgo: '12 min', credits: 800 },
-  { name: 'Julia F.', location: 'Belo Horizonte, MG', plan: 'Plano Pro', timeAgo: '15 min', credits: 600 },
-  { name: 'Rafael B.', location: 'Porto Alegre, RS', plan: 'Plano Pro', timeAgo: '18 min', credits: 450 },
-  { name: 'Camila L.', location: 'Salvador, BA', plan: 'Plano Anual', timeAgo: '22 min', credits: 1500 },
-  { name: 'Thiago A.', location: 'Florianópolis, SC', plan: 'Plano Pro', timeAgo: '25 min', credits: 700 },
-  { name: 'Fernanda D.', location: 'Recife, PE', plan: 'Plano Pro', timeAgo: '30 min', credits: 550 },
-  { name: 'Gabriel N.', location: 'Fortaleza, CE', plan: 'Plano Anual', timeAgo: '35 min', credits: 900 },
+  { name: 'Mariana R.', location: 'Brasília, DF', plan: 'Plano Pro Mensal', price: 'R$19,90/mês', timeAgo: '2 min' },
+  { name: 'Lucas S.', location: 'São Paulo, SP', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '5 min', badge: 'Melhor custo-benefício' },
+  { name: 'Ana C.', location: 'Rio de Janeiro, RJ', plan: 'Oferta de Lançamento', price: 'R$9,90/mês', timeAgo: '8 min', badge: '-50% OFF' },
+  { name: 'Pedro M.', location: 'Curitiba, PR', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '12 min', badge: 'Melhor custo-benefício' },
+  { name: 'Julia F.', location: 'Belo Horizonte, MG', plan: 'Plano Pro Mensal', price: 'R$19,90/mês', timeAgo: '15 min' },
+  { name: 'Rafael B.', location: 'Porto Alegre, RS', plan: 'Oferta de Lançamento', price: 'R$9,90/mês', timeAgo: '18 min', badge: '-50% OFF' },
+  { name: 'Camila L.', location: 'Salvador, BA', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '22 min', badge: 'Melhor custo-benefício' },
+  { name: 'Thiago A.', location: 'Florianópolis, SC', plan: 'Plano Pro Mensal', price: 'R$19,90/mês', timeAgo: '25 min' },
+  { name: 'Fernanda D.', location: 'Recife, PE', plan: 'Oferta de Lançamento', price: 'R$9,90/mês', timeAgo: '30 min', badge: '-50% OFF' },
+  { name: 'Gabriel N.', location: 'Fortaleza, CE', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '35 min', badge: 'Melhor custo-benefício' },
 ];
 
 const DISMISSED_KEY = 'centralopusflow-social-proof-dismissed';
@@ -116,12 +117,17 @@ export function SocialProofNotification() {
                   {' '}adquiriu o{' '}
                   <span className="font-semibold">{currentBuyer.plan}</span>
                 </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                  {currentBuyer.credits && (
-                    <span className="text-primary font-medium">
-                      {currentBuyer.credits} créditos
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
+                  <span className="text-primary font-semibold">
+                    {currentBuyer.price}
+                  </span>
+                  {currentBuyer.badge && (
+                    <span className="bg-amber-500/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-medium">
+                      {currentBuyer.badge}
                     </span>
                   )}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
                     {currentBuyer.location}

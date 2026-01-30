@@ -1,8 +1,9 @@
 import { useSystemVersion, getFormattedVersion, getFormattedReleaseDate } from '@/hooks/useSystemVersion';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info, Loader2 } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ClearCacheButton } from '@/components/settings/ClearCacheButton';
 
 export function AppFooter() {
   const { data: systemVersion, isLoading } = useSystemVersion();
@@ -10,8 +11,9 @@ export function AppFooter() {
   return (
     <footer className="border-t border-border bg-card/50 backdrop-blur-sm px-4 py-3">
       <div className="container mx-auto flex items-center justify-between text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <span>© {new Date().getFullYear()} All Projects Hub</span>
+        <div className="flex items-center gap-3">
+          <span>© {new Date().getFullYear()} Central Opus Flow</span>
+          <ClearCacheButton />
         </div>
         
         {isLoading ? (

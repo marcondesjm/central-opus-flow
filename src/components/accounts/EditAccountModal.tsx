@@ -216,8 +216,8 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-            <ScrollArea className="flex-1 px-6 max-h-[calc(85vh-180px)]">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <ScrollArea className="flex-1 px-6" style={{ maxHeight: 'calc(85vh - 180px)' }}>
               <div className="space-y-4 py-4">
                 {/* Avatar e Cor de Identificação - Destaque visual */}
                 <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border">

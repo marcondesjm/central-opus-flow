@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, ArrowRight, Zap, Shield } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Zap, Shield, Flame, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const features = [
@@ -22,7 +22,7 @@ export function PricingSection() {
       <div className="absolute inset-0 bg-muted/20" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
-      <div className="container mx-auto max-w-4xl relative">
+      <div className="container mx-auto max-w-6xl relative">
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
@@ -44,69 +44,134 @@ export function PricingSection() {
           </p>
         </motion.div>
 
-        <motion.div
-          className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 md:p-10 max-w-lg mx-auto overflow-hidden shadow-xl"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          style={{ boxShadow: 'var(--shadow-glow)' }}
-        >
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-          
-          {/* Popular badge */}
-          <div className="absolute top-6 right-6">
-            <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-lg">
-              <Zap className="w-3 h-3 mr-1" />
-              Mais Popular
-            </Badge>
-          </div>
-          
-          <div className="relative">
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold mb-1">Plano Pro</h3>
-              <p className="text-muted-foreground">Tudo que você precisa</p>
+        {/* Pricing Cards Grid */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
+          {/* Monthly Plan */}
+          <motion.div
+            className="relative bg-card border border-border rounded-3xl p-8 overflow-hidden shadow-lg"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+            
+            <div className="relative">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold mb-1">Plano Pro Mensal</h3>
+                <p className="text-muted-foreground text-sm">Flexibilidade total</p>
+              </div>
+              
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$19</span>
+                <span className="text-xl font-bold">,90</span>
+                <span className="text-muted-foreground">/mês</span>
+              </div>
+              
+              <p className="text-sm text-muted-foreground mb-6">
+                Cobrado mensalmente
+              </p>
+              
+              <ul className="space-y-3 mb-8">
+                {features.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <Link to="/auth" className="block">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="w-full h-12 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Começar Teste Grátis
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              
+              <p className="text-xs text-muted-foreground mt-4 text-center">
+                15 dias grátis • Sem cartão
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Annual Plan */}
+          <motion.div
+            className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 overflow-hidden shadow-xl"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{ boxShadow: 'var(--shadow-glow)' }}
+          >
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+            
+            {/* Popular badge */}
+            <div className="absolute top-6 right-6">
+              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg">
+                <Flame className="w-3 h-3 mr-1" />
+                Melhor custo-benefício
+              </Badge>
             </div>
             
-            <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$29</span>
-              <span className="text-2xl font-bold">,90</span>
-              <span className="text-muted-foreground">/mês</span>
+            <div className="relative">
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Crown className="w-5 h-5 text-primary" />
+                  <h3 className="text-xl font-bold">Plano Pro Anual</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">Tudo que você precisa, com desconto</p>
+              </div>
+              
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$199</span>
+                <span className="text-muted-foreground">/ano</span>
+              </div>
+              
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-sm text-muted-foreground">
+                  💰 equivale a <strong className="text-foreground">R$ 16,58/mês</strong>
+                </span>
+                <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 border-0">
+                  Economize R$ 39,80
+                </Badge>
+              </div>
+              
+              <ul className="space-y-3 mb-8">
+                {features.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <Link to="/auth" className="block">
+                <Button 
+                  size="lg" 
+                  className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Começar Teste Grátis
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              
+              <p className="text-xs text-muted-foreground mt-4 text-center">
+                15 dias grátis • Sem cartão • PIX disponível
+              </p>
             </div>
-            
-            <p className="text-sm text-muted-foreground mb-8">
-              ou R$ 287,00/ano <span className="text-primary font-medium">(economize 20%)</span>
-            </p>
-            
-            <ul className="space-y-4 mb-8">
-              {features.map((feature, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            
-            <Link to="/auth" className="block">
-              <Button 
-                size="lg" 
-                className="w-full h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
-              >
-                Começar Teste Grátis de 15 Dias
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-            
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">✓ Sem cartão</span>
-              <span className="flex items-center gap-1">✓ PIX</span>
-              <span className="flex items-center gap-1">✓ Cancele quando quiser</span>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* Money back guarantee */}
         <motion.div 

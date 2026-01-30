@@ -219,6 +219,43 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
             <ScrollArea className="flex-1 px-6 max-h-[calc(85vh-180px)]">
               <div className="space-y-4 py-4">
+                {/* Avatar e Cor de Identificação - Destaque visual */}
+                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border">
+                  {/* Avatar */}
+                  <div className="relative">
+                    <div 
+                      className={cn(
+                        "w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md",
+                        colors.find(c => c.id === selectedColor)?.class || 'bg-blue-500'
+                      )}
+                    >
+                      {name ? name.charAt(0).toUpperCase() : '?'}
+                    </div>
+                  </div>
+                  
+                  {/* Cor de identificação */}
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-xs text-muted-foreground">Cor de identificação</Label>
+                    <div className="flex gap-2">
+                      {colors.map((color) => (
+                        <button
+                          key={color.id}
+                          type="button"
+                          onClick={() => setSelectedColor(color.id)}
+                          className={cn(
+                            'w-8 h-8 rounded-full transition-all duration-200',
+                            color.class,
+                            selectedColor === color.id 
+                              ? 'ring-2 ring-offset-2 ring-primary scale-110' 
+                              : 'hover:scale-105 opacity-60'
+                          )}
+                          title={color.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Informações Básicas */}
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -277,27 +314,6 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
                       value={credits}
                       onChange={(e) => setCredits(e.target.value)}
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Cor de identificação</Label>
-                    <div className="flex gap-2">
-                      {colors.map((color) => (
-                        <button
-                          key={color.id}
-                          type="button"
-                          onClick={() => setSelectedColor(color.id)}
-                          className={cn(
-                            'w-8 h-8 rounded-full transition-all duration-200',
-                            color.class,
-                            selectedColor === color.id 
-                              ? 'ring-2 ring-offset-2 ring-primary scale-110' 
-                              : 'hover:scale-105'
-                          )}
-                          title={color.label}
-                        />
-                      ))}
-                    </div>
                   </div>
                 </div>
 

@@ -8,6 +8,7 @@ import { TargetAudienceSection } from '@/components/landing/TargetAudienceSectio
 import { BenefitsSection } from '@/components/landing/BenefitsSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
 import { PricingSection } from '@/components/landing/PricingSection';
+import { LaunchPromoSection } from '@/components/landing/LaunchPromoSection';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { FAQSection } from '@/components/landing/FAQSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
@@ -45,6 +46,9 @@ export default function Landing() {
 
       {/* Pricing */}
       <PricingSection />
+
+      {/* Launch Promo */}
+      <LaunchPromoSection />
 
       {/* Trust Signals */}
       <TrustSection />

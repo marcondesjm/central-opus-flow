@@ -29,8 +29,8 @@ export function useTrial() {
         // Default trial info if no subscription exists
         return {
           isOnTrial: true,
-          daysRemaining: 15,
-          hoursRemaining: 15 * 24,
+          daysRemaining: 7,
+          hoursRemaining: 7 * 24,
           trialEndsAt: null,
           isExpired: false,
           paymentStatus: 'pending',
@@ -79,7 +79,7 @@ export function useSubmitPaymentReceipt() {
           user_id: user!.id,
           subscription_id: subscription?.id,
           receipt_url: receiptUrl,
-          amount: 29.90,
+          amount: 19.90,
           status: 'pending',
           notes,
         })

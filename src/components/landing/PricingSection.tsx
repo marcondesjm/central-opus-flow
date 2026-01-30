@@ -90,13 +90,13 @@ export function PricingSection() {
                   variant="outline"
                   className="w-full h-12 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  Começar Teste Grátis
+                  Começar Teste Grátis de 7 Dias
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               
               <p className="text-xs text-muted-foreground mt-4 text-center">
-                15 dias grátis • Sem cartão
+                7 dias grátis • Sem cartão
               </p>
             </div>
           </motion.div>
@@ -161,13 +161,13 @@ export function PricingSection() {
                   className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  Começar Teste Grátis
+                  Começar Teste Grátis de 7 Dias
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               
               <p className="text-xs text-muted-foreground mt-4 text-center">
-                15 dias grátis • Sem cartão • PIX disponível
+                7 dias grátis • Sem cartão • PIX disponível
               </p>
             </div>
           </motion.div>

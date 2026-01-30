@@ -36,7 +36,7 @@ export function TrialExpiredModal() {
             <h2 className="text-2xl font-bold mb-2">Período de Teste Expirado</h2>
             
             <p className="text-muted-foreground mb-6">
-              Seu período de teste de 15 dias chegou ao fim. 
+              Seu período de teste de 7 dias chegou ao fim. 
               Para continuar usando o Central Opus Flow com todos os recursos, 
               faça sua assinatura agora.
             </p>
@@ -44,7 +44,7 @@ export function TrialExpiredModal() {
             <div className="bg-muted/50 rounded-lg p-4 w-full mb-6">
               <div className="flex items-baseline justify-center gap-1 mb-2">
                 <span className="text-sm text-muted-foreground">R$</span>
-                <span className="text-3xl font-bold">29,90</span>
+                <span className="text-3xl font-bold">19,90</span>
                 <span className="text-sm text-muted-foreground">/mês</span>
               </div>
               <p className="text-sm text-muted-foreground">

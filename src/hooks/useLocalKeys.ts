@@ -6,6 +6,7 @@ export interface AccountLocalKeys {
   service_role_key?: string;
   openai_key?: string;
   notes?: string;
+  avatar_url?: string;
   custom_keys?: { name: string; value: string }[];
 }
 

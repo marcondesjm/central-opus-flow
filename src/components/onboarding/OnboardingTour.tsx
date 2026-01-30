@@ -191,23 +191,36 @@ const steps = [
 
 export function OnboardingTour({ currentStep, onStepChange, onComplete, onSkip }: OnboardingTourProps) {
   const [isVisible, setIsVisible] = useState(true);
-  const step = steps[currentStep] || steps[0];
+  // Usar estado local para navegação fluida do tour
+  const [localStep, setLocalStep] = useState(currentStep);
+  
+  const step = steps[localStep] || steps[0];
   const Icon = step.icon;
-  const isLastStep = currentStep === steps.length - 1;
+  const isLastStep = localStep === steps.length - 1;
 
   const handleNext = () => {
     if (isLastStep) {
       setIsVisible(false);
       setTimeout(onComplete, 300);
     } else {
-      onStepChange(currentStep + 1);
+      const nextStep = localStep + 1;
+      setLocalStep(nextStep);
+      // Também notifica o parent para persistir se necessário
+      onStepChange(nextStep);
     }
   };
 
   const handlePrev = () => {
-    if (currentStep > 0) {
-      onStepChange(currentStep - 1);
+    if (localStep > 0) {
+      const prevStep = localStep - 1;
+      setLocalStep(prevStep);
+      onStepChange(prevStep);
     }
+  };
+
+  const handleGoToStep = (index: number) => {
+    setLocalStep(index);
+    onStepChange(index);
   };
 
   const handleSkip = () => {
@@ -236,14 +249,14 @@ export function OnboardingTour({ currentStep, onStepChange, onComplete, onSkip }
               <motion.div
                 className="h-full bg-primary"
                 initial={{ width: 0 }}
-                animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                animate={{ width: `${((localStep + 1) / steps.length) * 100}%` }}
                 transition={{ duration: 0.3 }}
               />
             </div>
 
             {/* Step counter */}
             <div className="absolute top-4 right-4 text-xs text-muted-foreground">
-              {currentStep + 1} / {steps.length}
+              {localStep + 1} / {steps.length}
             </div>
 
             {/* Content */}
@@ -306,12 +319,12 @@ export function OnboardingTour({ currentStep, onStepChange, onComplete, onSkip }
                 {steps.map((_, index) => (
                   <button
                     key={index}
-                    onClick={() => onStepChange(index)}
+                    onClick={() => handleGoToStep(index)}
                     className={cn(
                       'w-2 h-2 rounded-full transition-all duration-300',
-                      index === currentStep
+                      index === localStep
                         ? 'bg-primary w-6'
-                        : index < currentStep
+                        : index < localStep
                           ? 'bg-primary/50'
                           : 'bg-muted-foreground/30'
                     )}
@@ -331,7 +344,7 @@ export function OnboardingTour({ currentStep, onStepChange, onComplete, onSkip }
                 </Button>
 
                 <div className="flex items-center gap-2">
-                  {currentStep > 0 && (
+                  {localStep > 0 && (
                     <Button variant="outline" size="sm" onClick={handlePrev}>
                       <ArrowLeft className="w-4 h-4 mr-1" />
                       Anterior

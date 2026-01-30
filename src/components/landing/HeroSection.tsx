@@ -80,7 +80,7 @@ export function HeroSection() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="text-base md:text-lg px-8 h-14 rounded-full border-2 hover:bg-secondary/50 transition-all duration-300 font-semibold"
+              className="text-base md:text-lg px-8 h-14 rounded-full border-2 border-primary/50 bg-background/80 backdrop-blur-sm hover:bg-primary/10 hover:border-primary transition-all duration-300 font-semibold text-foreground"
             >
               <Play className="w-5 h-5 mr-2" />
               Ver Demonstração

@@ -85,11 +85,33 @@ export default function Auth() {
         description: errorInfo.description,
         variant: 'destructive',
       });
+      setIsLoading(false);
+      return;
+    }
+
+    // Verificar se o usuário é admin para redirecionar
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (roleData?.role === 'admin') {
+        toast({
+          title: 'Bem-vindo, Administrador!',
+          description: 'Redirecionando para o painel administrativo.',
+        });
+        navigate('/admin');
+      } else {
+        toast({
+          title: 'Bem-vindo de volta!',
+          description: 'Login realizado com sucesso.',
+        });
+        navigate('/dashboard');
+      }
     } else {
-      toast({
-        title: 'Bem-vindo de volta!',
-        description: 'Login realizado com sucesso.',
-      });
       navigate('/dashboard');
     }
 

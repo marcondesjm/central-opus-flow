@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { clearServiceWorkerCache } from '@/lib/serviceWorker';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,11 +41,14 @@ export function ClearCacheButton() {
       // Clear sessionStorage
       sessionStorage.clear();
       
-      // Clear caches (if available)
+      // Clear browser caches (if available)
       if ('caches' in window) {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map(name => caches.delete(name)));
       }
+      
+      // Clear service worker cache
+      clearServiceWorkerCache();
 
       toast({
         title: 'Cache limpo com sucesso!',

@@ -630,39 +630,50 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                     />
                   </div>
 
-                  {/* Botão salvar */}
-                  {selectedQuickAccount && (
-                    <Button
-                      className="w-full mt-2"
-                      onClick={() => {
-                        if (!selectedQuickAccount) return;
-                        
-                        const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
-                                         quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
-                        
-                        if (!hasAnyKey) {
-                          toast({
-                            title: 'Preencha pelo menos um campo',
-                            variant: 'destructive',
-                          });
-                          return;
-                        }
-
-                        saveAccountLocalKeys(selectedQuickAccount, quickAddKeys);
-                        refreshKeys();
-                        setQuickAddKeys({});
-                        setSelectedQuickAccount('');
+                  {/* Botão salvar - sempre visível quando há conta selecionada ou só uma conta */}
+                  <Button
+                    className="w-full mt-2"
+                    onClick={() => {
+                      const targetAccount = selectedQuickAccount || (accountsWithoutKeys.length === 1 ? accountsWithoutKeys[0].id : null);
+                      
+                      if (!targetAccount) {
                         toast({
-                          title: 'Keys salvas!',
-                          description: `Keys adicionadas para ${getAccountName(selectedQuickAccount)}`,
+                          title: 'Selecione uma conta',
+                          description: 'Escolha a conta para salvar as keys',
+                          variant: 'destructive',
                         });
-                      }}
-                      disabled={!selectedQuickAccount}
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Salvar Keys para {selectedQuickAccount ? getAccountName(selectedQuickAccount) : 'conta'}
-                    </Button>
-                  )}
+                        return;
+                      }
+                      
+                      const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
+                                       quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
+                      
+                      if (!hasAnyKey) {
+                        toast({
+                          title: 'Preencha pelo menos um campo',
+                          variant: 'destructive',
+                        });
+                        return;
+                      }
+
+                      saveAccountLocalKeys(targetAccount, quickAddKeys);
+                      refreshKeys();
+                      setQuickAddKeys({});
+                      setSelectedQuickAccount('');
+                      toast({
+                        title: 'Keys salvas!',
+                        description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
+                      });
+                    }}
+                    disabled={accountsWithoutKeys.length === 0}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {selectedQuickAccount 
+                      ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
+                      : accountsWithoutKeys.length === 1 
+                        ? `Salvar Keys para ${accountsWithoutKeys[0].name}`
+                        : 'Salvar Keys'}
+                  </Button>
 
                   {!selectedQuickAccount && accountsWithoutKeys.length > 0 && (
                     <p className="text-xs text-muted-foreground text-center py-2">
@@ -680,6 +691,13 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
 
             </div>
           </ScrollArea>
+          
+          {/* Footer com botão de fechar/salvar */}
+          <div className="flex-shrink-0 p-6 pt-4 border-t flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Fechar
+            </Button>
+          </div>
           </div>
         </DialogContent>
       </Dialog>

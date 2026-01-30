@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useUpdateAccount, useDeleteAccount, LovableAccount } from '@/hooks/useProjects';
-import { useLocalKeys, deleteAccountLocalKeys, AccountLocalKeys } from '@/hooks/useLocalKeys';
+import { useLocalKeys, deleteAccountLocalKeys, AccountLocalKeys, getAccountLocalKeys, saveAccountLocalKeys } from '@/hooks/useLocalKeys';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Coins, Trash2, Key, Globe, User, Mail, FileText, HardDrive, Plus, AlertTriangle } from 'lucide-react';
 import { KeysBackupButtons } from '@/components/keys/KeysBackupButtons';
@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AccountAvatarUpload } from './AccountAvatarUpload';
 
 interface EditAccountModalProps {
   open: boolean;
@@ -69,6 +70,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
   const [customKeys, setCustomKeys] = useState<CustomKey[]>([]);
   const [notes, setNotes] = useState('');
   const [selectedColor, setSelectedColor] = useState<'blue' | 'emerald' | 'amber' | 'rose' | 'violet'>('blue');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   const updateAccount = useUpdateAccount();
@@ -90,7 +92,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
     }
   }, [account]);
 
-  // Carregar keys do localStorage quando disponíveis
+  // Carregar keys e avatar do localStorage quando disponíveis
   useEffect(() => {
     if (keysLoaded && account) {
       setSupabaseUrl(localKeys.supabase_url || '');
@@ -98,6 +100,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
       setServiceRoleKey(localKeys.service_role_key || '');
       setOpenaiKey(localKeys.openai_key || '');
       setCustomKeys(localKeys.custom_keys || []);
+      setAvatarUrl(localKeys.avatar_url || null);
     }
   }, [keysLoaded, localKeys, account]);
 
@@ -153,12 +156,13 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
         notes: notes.trim() || null,
       });
 
-      // Salvar keys localmente
+      // Salvar keys e avatar localmente
       const localKeysToSave: AccountLocalKeys = {};
       if (supabaseUrl.trim()) localKeysToSave.supabase_url = supabaseUrl.trim();
       if (anonKey.trim()) localKeysToSave.anon_key = anonKey.trim();
       if (serviceRoleKey.trim()) localKeysToSave.service_role_key = serviceRoleKey.trim();
       if (openaiKey.trim()) localKeysToSave.openai_key = openaiKey.trim();
+      if (avatarUrl) localKeysToSave.avatar_url = avatarUrl;
       
       const validCustomKeys = customKeys.filter(k => k.name.trim() && k.value.trim());
       if (validCustomKeys.length > 0) {
@@ -208,30 +212,26 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="flex-shrink-0 p-6 pb-4">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
             <DialogTitle>Editar Conta Lovable</DialogTitle>
             <DialogDescription>
               Atualize as informações da conta e configurações Supabase.
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
-            <ScrollArea className="flex-1 px-6" style={{ maxHeight: 'calc(85vh - 180px)' }}>
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-6">
               <div className="space-y-4 py-4">
                 {/* Avatar e Cor de Identificação - Destaque visual */}
                 <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border">
-                  {/* Avatar */}
-                  <div className="relative">
-                    <div 
-                      className={cn(
-                        "w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md",
-                        colors.find(c => c.id === selectedColor)?.class || 'bg-blue-500'
-                      )}
-                    >
-                      {name ? name.charAt(0).toUpperCase() : '?'}
-                    </div>
-                  </div>
+                  {/* Avatar com upload */}
+                  <AccountAvatarUpload
+                    name={name}
+                    avatarUrl={avatarUrl}
+                    onAvatarChange={setAvatarUrl}
+                    colorClass={colors.find(c => c.id === selectedColor)?.class || 'bg-blue-500'}
+                  />
                   
                   {/* Cor de identificação */}
                   <div className="flex-1 space-y-2">
@@ -485,7 +485,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
                   </AccordionItem>
                 </Accordion>
               </div>
-            </ScrollArea>
+            </div>
             
             <DialogFooter className="flex-shrink-0 p-6 pt-4 border-t flex-row justify-between gap-2">
               <Button

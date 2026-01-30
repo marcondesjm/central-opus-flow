@@ -83,8 +83,8 @@ export function LaunchPromoSection() {
               {/* Price */}
               <div className="mb-4">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-muted-foreground line-through text-lg">R$ 29,90</span>
-                  <Badge variant="destructive" className="text-xs">-67%</Badge>
+                  <span className="text-muted-foreground line-through text-lg">R$ 19,90</span>
+                  <Badge variant="destructive" className="text-xs">-50%</Badge>
                 </div>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-2xl font-bold text-muted-foreground">R$</span>
@@ -128,7 +128,7 @@ export function LaunchPromoSection() {
               <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl p-4 mb-6 border border-amber-500/20">
                 <p className="text-sm font-medium">
                   👉 Garanta agora e economize{' '}
-                  <span className="text-amber-500 font-bold">R$ 60,00</span>{' '}
+                  <span className="text-amber-500 font-bold">R$ 30,00</span>{' '}
                   nos 3 primeiros meses!
                 </p>
               </div>

@@ -28,7 +28,7 @@ export function HeroSection() {
             className="mb-8 px-5 py-2 text-sm font-medium border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
           >
             <Sparkles className="w-4 h-4 mr-2 text-primary" />
-            15 dias grátis • Sem cartão de crédito
+            7 dias grátis • Sem cartão de crédito
           </Badge>
         </motion.div>
         

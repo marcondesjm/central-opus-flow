@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const benefits = [
-  '15 dias grátis',
+  '7 dias grátis',
   'Sem cartão de crédito',
   'Cancele quando quiser',
 ];

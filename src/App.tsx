@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
+import { ServiceWorkerUpdatePrompt } from "@/components/pwa/ServiceWorkerUpdatePrompt";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -25,6 +26,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <PWAInstallPrompt />
+          <ServiceWorkerUpdatePrompt />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />

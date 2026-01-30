@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="projecthub-theme">
+    <ThemeProvider defaultTheme="system" storageKey="centralopusflow-theme">
       <AuthProvider>
         <TooltipProvider>
           <Toaster />

@@ -36,7 +36,7 @@ export function FinalCTASection() {
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Junte-se a centenas de criadores que já economizam tempo com o ProjectHub.
+            Junte-se a centenas de criadores que já economizam tempo com o Central Opus Flow.
             Comece gratuitamente hoje.
           </p>
           

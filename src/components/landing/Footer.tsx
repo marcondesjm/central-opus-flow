@@ -36,7 +36,7 @@ export function Footer() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
                   <FolderKanban className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <span className="font-bold text-xl">ProjectHub</span>
+                <span className="font-bold text-xl">Central Opus Flow</span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6 max-w-xs">
                 A melhor forma de organizar e gerenciar todos os seus projetos Lovable em um único lugar.
@@ -136,7 +136,7 @@ export function Footer() {
           {/* Bottom bar */}
           <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} ProjectHub. Todos os direitos reservados.
+              © {new Date().getFullYear()} Central Opus Flow. Todos os direitos reservados.
             </p>
             <p className="text-sm text-muted-foreground">
               Feito com ❤️ para criadores Lovable

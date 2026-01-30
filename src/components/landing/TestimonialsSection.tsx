@@ -5,14 +5,14 @@ const testimonials = [
   {
     name: 'Carlos Silva',
     role: 'Freelancer de Web',
-    content: 'Eu tinha 3 contas Lovable e perdia 30 minutos por dia só procurando projetos. Com o ProjectHub, encontro tudo em segundos.',
+    content: 'Eu tinha 3 contas Lovable e perdia 30 minutos por dia só procurando projetos. Com o Central Opus Flow, encontro tudo em segundos.',
     avatar: 'CS',
     rating: 5,
   },
   {
     name: 'Ana Rodrigues',
     role: 'Dona de Agência',
-    content: 'Gerencio 8 contas de clientes diferentes. O ProjectHub salvou minha sanidade mental. Recomendo para qualquer agência.',
+    content: 'Gerencio 8 contas de clientes diferentes. O Central Opus Flow salvou minha sanidade mental. Recomendo para qualquer agência.',
     avatar: 'AR',
     rating: 5,
   },
@@ -42,7 +42,7 @@ export function TestimonialsSection() {
             Quem usa, recomenda
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Veja o que desenvolvedores e agências dizem sobre o ProjectHub.
+            Veja o que desenvolvedores e agências dizem sobre o Central Opus Flow.
           </p>
         </motion.div>
 

@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Notification } from '@/components/notifications/NotificationCenter';
 
-const STORAGE_KEY = 'projecthub-notifications';
+const STORAGE_KEY = 'centralopusflow-notifications';
 
 // Generate a unique ID
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-const WELCOME_SHOWN_KEY = 'projecthub-welcome-shown';
+const WELCOME_SHOWN_KEY = 'centralopusflow-welcome-shown';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>(() => {
@@ -31,7 +31,7 @@ export function useNotifications() {
     if (!welcomeShown && notifications.length === 0) {
       const welcomeNotification: Notification = {
         id: generateId(),
-        title: 'Bem-vindo ao ProjectHub! 🎉',
+        title: 'Bem-vindo ao Central Opus Flow! 🎉',
         message: 'Gerencie todos os seus projetos Lovable em um só lugar. Comece adicionando sua primeira conta.',
         type: 'info',
         read: false,

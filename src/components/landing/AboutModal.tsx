@@ -27,7 +27,7 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
             Sobre o Desenvolvedor
           </DialogTitle>
           <DialogDescription>
-            Conheça quem está por trás do ProjectHub.
+            Conheça quem está por trás do Central Opus Flow.
           </DialogDescription>
         </DialogHeader>
 

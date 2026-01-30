@@ -21,13 +21,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUpdateProject, useAccounts, useTags, Project } from '@/hooks/useProjects';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, X, FileEdit, History, CheckSquare } from 'lucide-react';
+import { Loader2, X, FileEdit, History, CheckSquare, Key } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { CoverUpload } from './CoverUpload';
 import { DeadlinePicker } from './DeadlinePicker';
 import { ProjectHistoryPanel } from './ProjectHistoryPanel';
 import { ProjectChecklist } from './ProjectChecklist';
+import { ProjectKeysPanel } from './ProjectKeysPanel';
 
 interface EditProjectModalProps {
   open: boolean;
@@ -159,18 +160,22 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
         </DialogHeader>
         
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="details" className="gap-2">
               <FileEdit className="h-4 w-4" />
-              Detalhes
+              <span className="hidden sm:inline">Detalhes</span>
+            </TabsTrigger>
+            <TabsTrigger value="keys" className="gap-2">
+              <Key className="h-4 w-4" />
+              <span className="hidden sm:inline">Keys</span>
             </TabsTrigger>
             <TabsTrigger value="checklist" className="gap-2">
               <CheckSquare className="h-4 w-4" />
-              Checklist
+              <span className="hidden sm:inline">Checklist</span>
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
-              Histórico
+              <span className="hidden sm:inline">Histórico</span>
             </TabsTrigger>
           </TabsList>
           
@@ -354,6 +359,10 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
             </Button>
           </DialogFooter>
         </form>
+          </TabsContent>
+          
+          <TabsContent value="keys" className="mt-4">
+            <ProjectKeysPanel projectId={project.id} projectName={project.name} />
           </TabsContent>
           
           <TabsContent value="checklist" className="mt-4">

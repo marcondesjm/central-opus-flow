@@ -1,0 +1,293 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    /* Base - Clean white with subtle warmth */
+    --background: 0 0% 99%;
+    --foreground: 224 71% 4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Primary - Rich Indigo */
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Soft slate */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+
+    /* Muted - Gentle gray */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent - Vibrant Teal */
+    --accent: 172 66% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive - Warm coral */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 243 75% 59%;
+
+    --radius: 0.75rem;
+
+    /* Chart colors - Harmonious palette */
+    --chart-1: 243 75% 59%;
+    --chart-2: 172 66% 50%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 326 78% 60%;
+    --chart-5: 280 65% 60%;
+
+    /* Enhanced gradient tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(243, 75%, 59%) 0%, hsl(280, 65%, 55%) 50%, hsl(326, 78%, 60%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(172, 66%, 50%) 0%, hsl(187, 72%, 55%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(0, 0%, 99%) 0%, hsl(240, 20%, 98%) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(220, 20%, 98%) 0%, hsl(243, 20%, 97%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(243, 15%, 99%) 100%);
+    --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(243, 75%, 59%, 0.15), transparent);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(243, 75%, 59%, 0.1) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(172, 66%, 50%, 0.1) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(326, 78%, 60%, 0.05) 0px, transparent 50%);
+    
+    /* Shadow tokens */
+    --shadow-sm: 0 1px 2px 0 hsl(224 71% 4% / 0.03);
+    --shadow-md: 0 4px 6px -1px hsl(224 71% 4% / 0.05), 0 2px 4px -2px hsl(224 71% 4% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(224 71% 4% / 0.08), 0 4px 6px -4px hsl(224 71% 4% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(224 71% 4% / 0.1), 0 8px 10px -6px hsl(224 71% 4% / 0.05);
+    --shadow-2xl: 0 25px 50px -12px hsl(224 71% 4% / 0.25);
+    --shadow-card: 0 1px 3px hsl(224 71% 4% / 0.04), 0 4px 12px hsl(224 71% 4% / 0.06);
+    --shadow-card-hover: 0 4px 12px hsl(224 71% 4% / 0.08), 0 12px 28px hsl(243 75% 59% / 0.12);
+    --shadow-glow: 0 0 40px hsl(243, 75%, 59%, 0.25);
+    --shadow-glow-accent: 0 0 40px hsl(172, 66%, 50%, 0.25);
+
+    /* Account colors - Vibrant palette */
+    --account-blue: 217 91% 60%;
+    --account-emerald: 160 84% 39%;
+    --account-amber: 38 92% 50%;
+    --account-rose: 350 89% 60%;
+    --account-violet: 280 65% 60%;
+
+    /* Status colors */
+    --status-published: 160 84% 39%;
+    --status-draft: 38 92% 50%;
+    --status-archived: 220 9% 46%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 243 75% 59%;
+
+    /* Success/Warning/Info */
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+  }
+
+  .dark {
+    /* Base - Deep rich dark */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 71% 6%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 224 71% 6%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary - Vibrant Indigo (brighter in dark mode) */
+    --primary: 243 75% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 217 33% 14%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted */
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Accent - Teal */
+    --accent: 172 66% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders */
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 243 75% 65%;
+
+    /* Chart colors */
+    --chart-1: 243 75% 65%;
+    --chart-2: 172 66% 55%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 326 78% 65%;
+    --chart-5: 280 65% 65%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(243, 75%, 65%) 0%, hsl(280, 65%, 60%) 50%, hsl(326, 78%, 65%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(224, 71%, 4%) 0%, hsl(224, 71%, 6%) 100%);
+    --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(243, 75%, 65%, 0.2), transparent);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(243, 75%, 65%, 0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(172, 66%, 50%, 0.1) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(326, 78%, 60%, 0.08) 0px, transparent 50%);
+    
+    /* Shadows */
+    --shadow-card: 0 1px 3px hsl(224 71% 2% / 0.3), 0 4px 12px hsl(224 71% 2% / 0.4);
+    --shadow-card-hover: 0 4px 12px hsl(224 71% 2% / 0.4), 0 12px 28px hsl(243 75% 65% / 0.15);
+    --shadow-glow: 0 0 60px hsl(243, 75%, 65%, 0.35);
+    --shadow-glow-accent: 0 0 60px hsl(172, 66%, 50%, 0.3);
+
+    /* Status */
+    --status-published: 160 84% 45%;
+
+    /* Sidebar */
+    --sidebar-background: 224 71% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 243 75% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 243 75% 65%;
+
+    /* Success/Warning/Info */
+    --success: 160 84% 45%;
+    --warning: 38 92% 55%;
+    --info: 199 89% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .status-published {
+    @apply bg-[hsl(var(--status-published))] text-white;
+  }
+
+  .status-draft {
+    @apply bg-[hsl(var(--status-draft))] text-white;
+  }
+
+  .status-archived {
+    @apply bg-[hsl(var(--status-archived))] text-white;
+  }
+
+  .account-indicator {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* Safe area for devices with notch */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+#lovable-badge {
+  display: none !important;
+}

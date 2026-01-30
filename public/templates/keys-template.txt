@@ -1,0 +1,61 @@
+===========================================
+       TEMPLATE DE API KEYS - LOVABLE
+===========================================
+
+Preencha os campos abaixo com suas credenciais.
+Você pode importar este arquivo no formato JSON.
+
+-------------------------------------------
+SUPABASE
+-------------------------------------------
+
+URL Supabase:
+https://seu-projeto.supabase.co
+
+Anon Key (Chave Pública):
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sua-chave-aqui
+
+Service Role Key (Chave Privada):
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sua-service-role-key-aqui
+
+-------------------------------------------
+OPENAI
+-------------------------------------------
+
+OpenAI API Key:
+sk-proj-sua-chave-openai-aqui
+
+-------------------------------------------
+OUTROS (NOTAS, TOKENS, ETC.)
+-------------------------------------------
+
+Cole aqui outras informações importantes:
+- Tokens de acesso
+- Chaves de API adicionais
+- Anotações sobre configurações
+- URLs de webhooks
+- Credenciais de serviços externos
+
+-------------------------------------------
+KEYS PERSONALIZADAS
+-------------------------------------------
+
+Nome da Key: STRIPE_SECRET_KEY
+Valor: sk_live_sua-chave-stripe
+
+Nome da Key: RESEND_API_KEY
+Valor: re_sua-chave-resend
+
+Nome da Key: CLOUDFLARE_TOKEN
+Valor: seu-token-cloudflare
+
+-------------------------------------------
+NOTAS
+-------------------------------------------
+
+- Nunca compartilhe suas chaves privadas
+- Service Role Key tem acesso administrativo
+- Use Anon Key apenas para operações públicas
+- Faça backup regularmente das suas keys
+
+===========================================

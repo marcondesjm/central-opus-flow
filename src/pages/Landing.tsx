@@ -13,10 +13,14 @@ import { TrustSection } from '@/components/landing/TrustSection';
 import { FAQSection } from '@/components/landing/FAQSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
 import { Footer } from '@/components/landing/Footer';
+import { SocialProofNotification } from '@/components/landing/SocialProofNotification';
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Social Proof Notifications */}
+      <SocialProofNotification />
+      
       {/* Header */}
       <LandingHeader />
 

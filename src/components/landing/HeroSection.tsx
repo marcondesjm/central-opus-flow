@@ -68,7 +68,7 @@ export function HeroSection() {
           <Link to="/auth">
             <Button 
               size="lg" 
-              className="text-base md:text-lg px-8 h-14 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 group"
+              className="text-base md:text-lg px-8 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 group font-semibold"
               style={{ boxShadow: 'var(--shadow-glow)' }}
             >
               <Zap className="w-5 h-5 mr-2 group-hover:animate-pulse" />
@@ -80,7 +80,7 @@ export function HeroSection() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="text-base md:text-lg px-8 h-14 border-2 hover:bg-secondary/50 transition-all duration-300"
+              className="text-base md:text-lg px-8 h-14 rounded-full border-2 hover:bg-secondary/50 transition-all duration-300 font-semibold"
             >
               <Play className="w-5 h-5 mr-2" />
               Ver Demonstração

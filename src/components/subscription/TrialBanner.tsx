@@ -84,7 +84,7 @@ export function TrialBanner() {
             className="shrink-0"
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            Assinar R$29,90/mês
+            Assinar R$19,90/mês
           </Button>
         </div>
       </div>

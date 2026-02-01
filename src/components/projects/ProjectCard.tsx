@@ -220,67 +220,68 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
           </div>
         )}
 
-        {/* Progress Bar */}
-        {project.progress < 100 && (
-          <div className="mb-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Progresso</span>
-                    <span className="font-medium text-foreground">{project.progress}%</span>
-                  </div>
-                  <Progress value={project.progress} className="h-1.5" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{project.progress}% concluído</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        )}
-
-        {/* Checklist Progress */}
-        {checklistProgress && checklistProgress.total > 0 && (
-          <div className="mb-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 p-2 rounded-md bg-muted/50">
-                  <CheckSquare className={cn(
-                    "w-4 h-4",
-                    checklistProgress.percentage === 100 ? "text-status-published" : "text-primary"
-                  )} />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-muted-foreground">Tarefas</span>
-                      <span className={cn(
-                        "font-medium",
-                        checklistProgress.percentage === 100 ? "text-status-published" : "text-foreground"
-                      )}>
-                        {checklistProgress.completed}/{checklistProgress.total}
-                      </span>
+        {/* Progress Bar - Use checklist progress when available */}
+        {(() => {
+          // Prioritize checklist progress over manual progress
+          const hasChecklist = checklistProgress && checklistProgress.total > 0;
+          const progressValue = hasChecklist ? checklistProgress.percentage : project.progress;
+          const isComplete = progressValue >= 100;
+          
+          if (isComplete && !hasChecklist) return null;
+          
+          return (
+            <div className="mb-3">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={cn(
+                    "flex items-center gap-2 p-2 rounded-md",
+                    hasChecklist ? "bg-muted/50" : ""
+                  )}>
+                    {hasChecklist && (
+                      <CheckSquare className={cn(
+                        "w-4 h-4",
+                        isComplete ? "text-status-published" : "text-primary"
+                      )} />
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-muted-foreground">
+                          {hasChecklist ? 'Tarefas' : 'Progresso'}
+                        </span>
+                        <span className={cn(
+                          "font-medium",
+                          isComplete ? "text-status-published" : "text-foreground"
+                        )}>
+                          {hasChecklist 
+                            ? `${checklistProgress.completed}/${checklistProgress.total}`
+                            : `${progressValue}%`
+                          }
+                        </span>
+                      </div>
+                      <Progress 
+                        value={progressValue} 
+                        className={cn(
+                          "h-1.5",
+                          isComplete && "[&>div]:bg-status-published"
+                        )}
+                      />
                     </div>
-                    <Progress 
-                      value={checklistProgress.percentage} 
-                      className={cn(
-                        "h-1.5",
-                        checklistProgress.percentage === 100 && "[&>div]:bg-status-published"
-                      )}
-                    />
                   </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  {checklistProgress.percentage === 100 
-                    ? '✅ Todas as tarefas concluídas!' 
-                    : `${checklistProgress.completed} de ${checklistProgress.total} tarefas concluídas`
-                  }
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        )}
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {isComplete 
+                      ? '✅ Todas as tarefas concluídas!' 
+                      : hasChecklist 
+                        ? `${checklistProgress.completed} de ${checklistProgress.total} tarefas concluídas`
+                        : `${progressValue}% concluído`
+                    }
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          );
+        })()}
 
         {/* Deadline indicator */}
         {project.deadline && (

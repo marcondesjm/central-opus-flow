@@ -253,9 +253,10 @@ export function useCreateProject() {
 
 export function useUpdateProject() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   return useMutation({
-    mutationFn: async ({ id, tagIds, ...updates }: Partial<Project> & { id: string; tagIds?: string[] }) => {
+    mutationFn: async ({ id, tagIds, previousData, ...updates }: Partial<Project> & { id: string; tagIds?: string[]; previousData?: Partial<Project> }) => {
       const { data, error } = await supabase
         .from('projects')
         .update(updates)
@@ -283,6 +284,42 @@ export function useUpdateProject() {
             })));
           
           if (tagError) throw tagError;
+        }
+      }
+
+      // Log history if we have previous data to compare
+      if (previousData && user) {
+        // Get user profile for name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const fieldsToTrack = ['name', 'status', 'type', 'url', 'description', 'notes', 'deadline', 'progress'] as const;
+        const historyEntries = [];
+
+        for (const field of fieldsToTrack) {
+          const oldVal = previousData[field as keyof Project];
+          const newVal = updates[field as keyof Project];
+          
+          if (newVal !== undefined && oldVal !== newVal) {
+            historyEntries.push({
+              project_id: id,
+              user_id: user.id,
+              action: 'updated',
+              field_name: field,
+              old_value: oldVal?.toString() || null,
+              new_value: newVal?.toString() || null,
+              user_name: profile?.full_name || user.email || 'Usuário',
+              user_avatar: profile?.avatar_url || null,
+            });
+          }
+        }
+
+        // Insert all history entries
+        if (historyEntries.length > 0) {
+          await supabase.from('project_history').insert(historyEntries);
         }
       }
       

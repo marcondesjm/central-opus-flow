@@ -118,6 +118,16 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
         notes: notes.trim() || null,
         tagIds: selectedTags,
         deadline: deadline?.toISOString() || null,
+        // Pass previous data for history tracking
+        previousData: {
+          name: project.name,
+          description: project.description,
+          url: project.url,
+          status: project.status,
+          type: project.type,
+          notes: project.notes,
+          deadline: project.deadline,
+        },
       });
       
       toast({

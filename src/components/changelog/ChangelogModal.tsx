@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { useChangelogByVersion, ChangelogEntry } from '@/hooks/useChangelog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -18,7 +18,9 @@ import {
   Shield, 
   AlertTriangle,
   History,
-  Loader2
+  Loader2,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +39,42 @@ const typeConfig: Record<ChangelogEntry['type'], { icon: typeof Sparkles; label:
 
 export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   const { data: changelog, isLoading } = useChangelogByVersion();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (scrollRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+        setShowScrollTop(scrollTop > 100);
+        setShowScrollBottom(scrollTop + clientHeight < scrollHeight - 100);
+      }
+    };
+
+    const scrollEl = scrollRef.current;
+    if (scrollEl) {
+      scrollEl.addEventListener('scroll', checkScroll);
+      // Check initial state
+      setTimeout(checkScroll, 100);
+    }
+
+    return () => {
+      if (scrollEl) {
+        scrollEl.removeEventListener('scroll', checkScroll);
+      }
+    };
+  }, [open, changelog]);
+
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,69 +89,97 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 p-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : !changelog || changelog.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <History className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p>Nenhuma atualização registrada</p>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {changelog.map(({ version, entries, date }) => (
-                <div key={version} className="relative">
-                  {/* Version header */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <Badge variant="default" className="text-sm font-mono">
-                      v{version}
-                    </Badge>
-                    {date && (
-                      <span className="text-sm text-muted-foreground">
-                        {format(new Date(date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                      </span>
-                    )}
-                  </div>
+        <div className="relative flex-1 overflow-hidden">
+          <div 
+            ref={scrollRef}
+            className="h-full max-h-[60vh] overflow-y-auto p-6"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : !changelog || changelog.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <History className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p>Nenhuma atualização registrada</p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {changelog.map(({ version, entries, date }) => (
+                  <div key={version} className="relative">
+                    {/* Version header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <Badge variant="default" className="text-sm font-mono">
+                        v{version}
+                      </Badge>
+                      {date && (
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                        </span>
+                      )}
+                    </div>
 
-                  {/* Entries */}
-                  <div className="space-y-3 ml-2 border-l-2 border-border pl-4">
-                    {entries.map((entry) => {
-                      const config = typeConfig[entry.type];
-                      const Icon = config.icon;
+                    {/* Entries */}
+                    <div className="space-y-3 ml-2 border-l-2 border-border pl-4">
+                      {entries.map((entry) => {
+                        const config = typeConfig[entry.type];
+                        const Icon = config.icon;
 
-                      return (
-                        <div key={entry.id} className="relative">
-                          {/* Timeline dot */}
-                          <div className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
-                          
-                          <div className="flex items-start gap-3">
-                            <Badge 
-                              variant="outline" 
-                              className={cn("gap-1 text-xs shrink-0", config.color)}
-                            >
-                              <Icon className="w-3 h-3" />
-                              {config.label}
-                            </Badge>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm">{entry.title}</p>
-                              {entry.description && (
-                                <p className="text-sm text-muted-foreground mt-0.5">
-                                  {entry.description}
-                                </p>
-                              )}
+                        return (
+                          <div key={entry.id} className="relative">
+                            {/* Timeline dot */}
+                            <div className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
+                            
+                            <div className="flex items-start gap-3">
+                              <Badge 
+                                variant="outline" 
+                                className={cn("gap-1 text-xs shrink-0", config.color)}
+                              >
+                                <Icon className="w-3 h-3" />
+                                {config.label}
+                              </Badge>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm">{entry.title}</p>
+                                {entry.description && (
+                                  <p className="text-sm text-muted-foreground mt-0.5">
+                                    {entry.description}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Scroll buttons */}
+          {showScrollTop && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute top-2 right-6 h-8 w-8 rounded-full shadow-lg z-10 opacity-90 hover:opacity-100"
+              onClick={scrollToTop}
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
           )}
-        </ScrollArea>
+          
+          {showScrollBottom && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute bottom-2 right-6 h-8 w-8 rounded-full shadow-lg z-10 opacity-90 hover:opacity-100"
+              onClick={scrollToBottom}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

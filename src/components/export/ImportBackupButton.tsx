@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2 } from 'lucide-react';
-import { useCreateAccount, useCreateProject, useCreateTag, useAccounts, useTags } from '@/hooks/useProjects';
+import { useCreateAccount, useCreateProject, useCreateTag, useAccounts, useTags, useProjects, useUpdateProject } from '@/hooks/useProjects';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,16 +44,19 @@ export function ImportBackupButton({
   const [importing, setImporting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [backupData, setBackupData] = useState<BackupData | null>(null);
+  const [overwriteExisting, setOverwriteExisting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
-  // Fetch existing accounts and tags to match by email/name
+  // Fetch existing data to match by email/name
   const { data: existingAccounts = [] } = useAccounts();
   const { data: existingTags = [] } = useTags();
+  const { data: existingProjects = [] } = useProjects();
   
   const createAccount = useCreateAccount();
   const createProject = useCreateProject();
   const createTag = useCreateTag();
+  const updateProject = useUpdateProject();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -65,6 +70,7 @@ export function ImportBackupButton({
           throw new Error('Arquivo de backup inválido');
         }
         setBackupData(data);
+        setOverwriteExisting(false);
         setConfirmOpen(true);
       } catch (error: any) {
         toast({
@@ -91,6 +97,7 @@ export function ImportBackupButton({
     try {
       let accountsImported = 0;
       let projectsImported = 0;
+      let projectsUpdated = 0;
       let tagsImported = 0;
       let projectsSkipped = 0;
       
@@ -102,11 +109,9 @@ export function ImportBackupButton({
       for (const account of backupData.data.accounts) {
         const existingAccount = existingAccounts.find(a => a.email === account.email);
         if (existingAccount) {
-          // Account already exists, use its ID
           accountIdMap.set(account.id, existingAccount.id);
           console.log(`Conta existente encontrada: ${account.email} -> ${existingAccount.id}`);
         } else {
-          // Try to create new account
           try {
             const result = await createAccount.mutateAsync({
               name: account.name,
@@ -156,40 +161,70 @@ export function ImportBackupButton({
           continue;
         }
 
-        try {
-          await createProject.mutateAsync({
-            name: project.name,
-            description: project.description || '',
-            url: project.url || '',
-            status: project.status || 'draft',
-            type: project.type || 'other',
-            progress: project.progress || 0,
-            is_favorite: project.isFavorite || false,
-            notes: project.notes || '',
-            account_id: newAccountId,
-            screenshot: project.screenshot || null,
-            deadline: project.deadline || null,
-          });
-          projectsImported++;
-        } catch (e: any) {
-          // Check if it's a duplicate error
-          if (e.message?.includes('duplicate') || e.code === '23505') {
-            console.log('Projeto já existe:', project.name);
-            projectsSkipped++;
+        // Check if project already exists (by name and account)
+        const existingProject = existingProjects.find(
+          p => p.name.toLowerCase() === project.name.toLowerCase() && p.account_id === newAccountId
+        );
+
+        if (existingProject) {
+          if (overwriteExisting) {
+            // Update existing project
+            try {
+              await updateProject.mutateAsync({
+                id: existingProject.id,
+                description: project.description || '',
+                url: project.url || '',
+                status: project.status || 'draft',
+                type: project.type || 'other',
+                progress: project.progress || 0,
+                is_favorite: project.isFavorite || false,
+                notes: project.notes || '',
+                screenshot: project.screenshot || null,
+                deadline: project.deadline || null,
+              });
+              projectsUpdated++;
+            } catch (e) {
+              console.warn('Erro ao atualizar projeto:', project.name, e);
+              projectsSkipped++;
+            }
           } else {
+            console.log('Projeto já existe (ignorado):', project.name);
+            projectsSkipped++;
+          }
+        } else {
+          // Create new project
+          try {
+            await createProject.mutateAsync({
+              name: project.name,
+              description: project.description || '',
+              url: project.url || '',
+              status: project.status || 'draft',
+              type: project.type || 'other',
+              progress: project.progress || 0,
+              is_favorite: project.isFavorite || false,
+              notes: project.notes || '',
+              account_id: newAccountId,
+              screenshot: project.screenshot || null,
+              deadline: project.deadline || null,
+            });
+            projectsImported++;
+          } catch (e: any) {
             console.warn('Erro ao importar projeto:', project.name, e);
             projectsSkipped++;
           }
         }
       }
 
-      const message = projectsSkipped > 0 
-        ? `${accountsImported} contas, ${projectsImported} projetos e ${tagsImported} tags importados. ${projectsSkipped} projetos ignorados (já existem ou conta não encontrada).`
-        : `${accountsImported} contas, ${projectsImported} projetos e ${tagsImported} tags importados.`;
+      const parts = [];
+      if (accountsImported > 0) parts.push(`${accountsImported} contas criadas`);
+      if (projectsImported > 0) parts.push(`${projectsImported} projetos criados`);
+      if (projectsUpdated > 0) parts.push(`${projectsUpdated} projetos atualizados`);
+      if (tagsImported > 0) parts.push(`${tagsImported} tags criadas`);
+      if (projectsSkipped > 0) parts.push(`${projectsSkipped} projetos ignorados`);
 
       toast({
         title: 'Backup importado!',
-        description: message,
+        description: parts.join(', ') + '.',
       });
     } catch (error: any) {
       toast({
@@ -232,18 +267,37 @@ export function ImportBackupButton({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Importação</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>Deseja importar os dados do backup?</p>
-              {backupData && (
-                <div className="bg-muted p-3 rounded-lg text-sm mt-2">
-                  <p><strong>{backupData.summary.totalAccounts}</strong> contas</p>
-                  <p><strong>{backupData.summary.totalProjects}</strong> projetos</p>
-                  <p><strong>{backupData.summary.totalTags}</strong> tags</p>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>Deseja importar os dados do backup?</p>
+                {backupData && (
+                  <div className="bg-muted p-3 rounded-lg text-sm">
+                    <p><strong>{backupData.summary.totalAccounts}</strong> contas</p>
+                    <p><strong>{backupData.summary.totalProjects}</strong> projetos</p>
+                    <p><strong>{backupData.summary.totalTags}</strong> tags</p>
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-2 pt-2">
+                  <Checkbox 
+                    id="overwrite" 
+                    checked={overwriteExisting}
+                    onCheckedChange={(checked) => setOverwriteExisting(checked === true)}
+                  />
+                  <Label 
+                    htmlFor="overwrite" 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Sobrescrever projetos existentes
+                  </Label>
                 </div>
-              )}
-              <p className="text-xs text-muted-foreground mt-2">
-                Contas existentes serão reutilizadas. Projetos duplicados serão ignorados.
-              </p>
+                
+                <p className="text-xs text-muted-foreground">
+                  {overwriteExisting 
+                    ? 'Projetos existentes serão atualizados com os dados do backup.'
+                    : 'Projetos duplicados serão ignorados.'}
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

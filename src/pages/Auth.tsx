@@ -434,6 +434,127 @@ export default function Auth() {
             backgroundSize: '200% 200%, 200% 200%, 200% 200%',
           }}
         />
+        
+        {/* Floating Objects */}
+        {/* Diamond shape */}
+        <div 
+          className="absolute w-8 h-8 animate-float-diagonal"
+          style={{
+            top: '20%',
+            left: '-5%',
+            animationDelay: '0s',
+            animationDuration: '18s',
+          }}
+        >
+          <div 
+            className="w-full h-full rotate-45 border-2 border-purple-400/40 bg-purple-500/10 backdrop-blur-sm"
+            style={{ boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}
+          />
+        </div>
+        
+        {/* Circle */}
+        <div 
+          className="absolute w-6 h-6 rounded-full border-2 border-pink-400/30 bg-pink-500/10 animate-float-diagonal"
+          style={{
+            top: '60%',
+            left: '-5%',
+            animationDelay: '3s',
+            animationDuration: '22s',
+            boxShadow: '0 0 15px rgba(236, 72, 153, 0.3)',
+          }}
+        />
+        
+        {/* Triangle */}
+        <div 
+          className="absolute animate-float-horizontal"
+          style={{
+            top: '30%',
+            left: '-5%',
+            animationDelay: '5s',
+            animationDuration: '28s',
+          }}
+        >
+          <div 
+            className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-violet-400/40"
+            style={{ filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.4))' }}
+          />
+        </div>
+        
+        {/* Hexagon-ish shape */}
+        <div 
+          className="absolute w-10 h-10 animate-float-diagonal"
+          style={{
+            top: '80%',
+            left: '-5%',
+            animationDelay: '8s',
+            animationDuration: '25s',
+          }}
+        >
+          <div 
+            className="w-full h-full rounded-lg rotate-12 border-2 border-indigo-400/30 bg-indigo-500/10"
+            style={{ boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)' }}
+          />
+        </div>
+        
+        {/* Small dots */}
+        <div 
+          className="absolute w-3 h-3 rounded-full bg-purple-400/50 animate-float-vertical"
+          style={{
+            left: '15%',
+            bottom: '-5%',
+            animationDelay: '0s',
+            animationDuration: '35s',
+            boxShadow: '0 0 10px rgba(168, 85, 247, 0.5)',
+          }}
+        />
+        <div 
+          className="absolute w-2 h-2 rounded-full bg-pink-400/40 animate-float-vertical"
+          style={{
+            left: '45%',
+            bottom: '-5%',
+            animationDelay: '10s',
+            animationDuration: '40s',
+            boxShadow: '0 0 8px rgba(236, 72, 153, 0.4)',
+          }}
+        />
+        <div 
+          className="absolute w-4 h-4 rounded-full bg-violet-400/30 animate-float-vertical"
+          style={{
+            left: '75%',
+            bottom: '-5%',
+            animationDelay: '5s',
+            animationDuration: '32s',
+            boxShadow: '0 0 12px rgba(139, 92, 246, 0.4)',
+          }}
+        />
+        
+        {/* Ring */}
+        <div 
+          className="absolute w-12 h-12 rounded-full border-2 border-fuchsia-400/30 animate-float-diagonal animate-spin-slow"
+          style={{
+            top: '40%',
+            left: '-5%',
+            animationDelay: '12s',
+            animationDuration: '30s',
+          }}
+        />
+        
+        {/* Plus sign */}
+        <div 
+          className="absolute animate-float-horizontal"
+          style={{
+            top: '70%',
+            left: '-5%',
+            animationDelay: '15s',
+            animationDuration: '26s',
+          }}
+        >
+          <div className="relative w-6 h-6">
+            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-purple-400/40 -translate-y-1/2" style={{ boxShadow: '0 0 10px rgba(168, 85, 247, 0.4)' }} />
+            <div className="absolute left-1/2 top-0 w-0.5 h-full bg-purple-400/40 -translate-x-1/2" style={{ boxShadow: '0 0 10px rgba(168, 85, 247, 0.4)' }} />
+          </div>
+        </div>
+        
         {/* Floating orbs */}
         <div 
           className="absolute w-96 h-96 rounded-full blur-3xl animate-glow-pulse"

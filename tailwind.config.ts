@@ -136,6 +136,62 @@ export default {
             transform: "scale(1.1)",
           },
         },
+        "float-diagonal": {
+          "0%": {
+            transform: "translate(-100%, 100vh) rotate(0deg)",
+            opacity: "0",
+          },
+          "10%": {
+            opacity: "0.6",
+          },
+          "90%": {
+            opacity: "0.6",
+          },
+          "100%": {
+            transform: "translate(100vw, -100%) rotate(360deg)",
+            opacity: "0",
+          },
+        },
+        "float-horizontal": {
+          "0%": {
+            transform: "translateX(-100%) rotate(0deg)",
+            opacity: "0",
+          },
+          "10%": {
+            opacity: "0.5",
+          },
+          "90%": {
+            opacity: "0.5",
+          },
+          "100%": {
+            transform: "translateX(100vw) rotate(180deg)",
+            opacity: "0",
+          },
+        },
+        "float-vertical": {
+          "0%": {
+            transform: "translateY(100vh) rotate(0deg)",
+            opacity: "0",
+          },
+          "10%": {
+            opacity: "0.4",
+          },
+          "90%": {
+            opacity: "0.4",
+          },
+          "100%": {
+            transform: "translateY(-100%) rotate(-180deg)",
+            opacity: "0",
+          },
+        },
+        "spin-slow": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -144,6 +200,10 @@ export default {
         "slide-up": "slide-up 0.4s ease-out",
         "aurora": "aurora 15s ease-in-out infinite",
         "glow-pulse": "glow-pulse 4s ease-in-out infinite",
+        "float-diagonal": "float-diagonal 20s linear infinite",
+        "float-horizontal": "float-horizontal 25s linear infinite",
+        "float-vertical": "float-vertical 30s linear infinite",
+        "spin-slow": "spin-slow 20s linear infinite",
       },
     },
   },

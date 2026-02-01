@@ -18,6 +18,8 @@ import {
   MessageCircle,
   Clock,
   Key,
+  Crown,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,6 +31,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { LovableAccount } from '@/hooks/useProjects';
+import { useSubscription } from '@/hooks/useSubscription';
+import { Badge } from '@/components/ui/badge';
 
 interface SidebarProps {
   activeView: string;
@@ -67,6 +71,16 @@ export function Sidebar({
   const { signOut, user } = useAuth();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
+  const { data: subscription } = useSubscription();
+
+  const planConfig = {
+    free: { label: 'Free', icon: Sparkles, color: 'bg-muted text-muted-foreground' },
+    pro: { label: 'Pro', icon: Crown, color: 'bg-primary/20 text-primary' },
+    business: { label: 'Business', icon: Crown, color: 'bg-amber-500/20 text-amber-600' },
+  };
+
+  const currentPlan = subscription?.plan || 'free';
+  const planInfo = planConfig[currentPlan as keyof typeof planConfig];
 
   const topNavItems = [
     { id: 'all', label: 'Todos os Projetos', icon: LayoutDashboard },
@@ -286,10 +300,17 @@ export function Sidebar({
       {/* Footer */}
       <footer className="p-4 border-t border-sidebar-border space-y-1" role="contentinfo">
         {user && (
-          <div className="px-3 py-2 mb-2">
+          <div className="px-3 py-2 mb-2 space-y-1">
             <p className="text-xs text-muted-foreground truncate" aria-label={`Usuário logado: ${user.email}`}>
               {user.email}
             </p>
+            <Badge 
+              variant="secondary" 
+              className={cn("text-xs gap-1", planInfo.color)}
+            >
+              <planInfo.icon className="w-3 h-3" />
+              Plano {planInfo.label}
+            </Badge>
           </div>
         )}
         

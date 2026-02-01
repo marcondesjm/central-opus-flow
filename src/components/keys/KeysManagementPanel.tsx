@@ -230,8 +230,8 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="flex-shrink-0 p-6 pb-4">
+        <DialogContent className="sm:max-w-2xl h-[85vh] flex flex-col p-0">
+          <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
             <DialogTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
               Gerenciador de Keys
@@ -241,7 +241,7 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6">
+          <div className="flex-1 overflow-y-auto p-6" style={{ minHeight: 0 }}>
             <Alert className="bg-amber-500/10 border-amber-500/30 mb-4">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               <AlertDescription className="text-xs">
@@ -1005,7 +1005,7 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
           </div>
           
           {/* Footer */}
-          <div className="flex-shrink-0 p-6 pt-4 border-t flex justify-end gap-2">
+          <div className="flex-shrink-0 p-4 border-t flex justify-end gap-2 bg-background">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Fechar
             </Button>

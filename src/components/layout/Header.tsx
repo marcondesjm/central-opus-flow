@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Search, Grid3X3, List, Plus, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,9 +7,11 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationCenter, Notification } from '@/components/notifications/NotificationCenter';
 import { CollaborationNotifications } from '@/components/collaboration/CollaborationNotifications';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -39,6 +42,52 @@ export function Header({
   onClearNotifications = () => {},
 }: HeaderProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
+
+  // Fetch profile and subscribe to realtime updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_url, full_name')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data) {
+        setProfile(data);
+      }
+    };
+
+    fetchProfile();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('header-profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          setProfile({
+            avatar_url: payload.new.avatar_url,
+            full_name: payload.new.full_name,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   return (
     <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm gap-2 sm:gap-4">
       {/* Mobile Menu */}
@@ -164,6 +213,26 @@ export function Header({
             <p>Criar novo projeto (Ctrl+N)</p>
           </TooltipContent>
         </Tooltip>
+
+        {/* User Avatar */}
+        {user && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Avatar className="w-8 h-8 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
+                <AvatarImage 
+                  src={profile?.avatar_url || undefined} 
+                  alt={profile?.full_name || user.email || 'Avatar'} 
+                />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                  {(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{profile?.full_name || user.email}</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
     </header>
   );

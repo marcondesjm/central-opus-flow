@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, Shield, Palette, Database, Trash2, RotateCcw, HelpCircle, Bell, Key } from 'lucide-react';
+import { Loader2, User, Shield, Palette, Database, Trash2, RotateCcw, HelpCircle, Bell, Key, Camera, Briefcase, MapPin } from 'lucide-react';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { useSeedDemoData } from '@/hooks/useSeedDemoData';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -22,6 +22,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { DeadlineNotificationSettings } from './DeadlineNotificationSettings';
 import { KeysManagementPanel } from '@/components/keys/KeysManagementPanel';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface SettingsModalProps {
   open: boolean;
@@ -37,7 +39,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { resetOnboarding } = useOnboarding();
   
   const [fullName, setFullName] = useState('');
+  const [cargo, setCargo] = useState('');
+  const [areaAtuacao, setAreaAtuacao] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,6 +51,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [hasDemoData, setHasDemoData] = useState(false);
   const [checkingDemo, setCheckingDemo] = useState(true);
   const [keysModalOpen, setKeysModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user && open) {
@@ -65,12 +72,81 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     
     const { data, error } = await supabase
       .from('profiles')
-      .select('full_name')
+      .select('full_name, cargo, area_atuacao, avatar_url')
       .eq('user_id', user.id)
       .single();
     
     if (data && !error) {
       setFullName(data.full_name || '');
+      setCargo(data.cargo || '');
+      setAreaAtuacao(data.area_atuacao || '');
+      setAvatarUrl(data.avatar_url || null);
+    }
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Arquivo inválido',
+        description: 'Por favor, selecione uma imagem.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: 'Arquivo muito grande',
+        description: 'A imagem deve ter no máximo 2MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-covers')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('project-covers')
+        .getPublicUrl(filePath);
+
+      // Update profile with avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      toast({
+        title: 'Avatar atualizado!',
+        description: 'Sua foto de perfil foi alterada.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao enviar imagem',
+        description: error.message || 'Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -82,7 +158,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: fullName.trim() })
+        .update({ 
+          full_name: fullName.trim(),
+          cargo: cargo.trim() || null,
+          area_atuacao: areaAtuacao || null,
+        })
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -243,8 +323,102 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-4 mt-4">
+          <TabsContent value="profile" className="space-y-6 mt-4">
+            {/* Avatar Section */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="h-20 w-20 border-2 border-border">
+                  <AvatarImage src={avatarUrl || ''} alt={fullName || 'Avatar'} />
+                  <AvatarFallback className="text-lg bg-primary/10 text-primary">
+                    {fullName ? fullName.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className={cn(
+                    "absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-primary-foreground",
+                    "hover:bg-primary/90 transition-colors shadow-md",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
+                >
+                  {uploadingAvatar ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Camera className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">{fullName || 'Seu Nome'}</p>
+                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Clique no ícone para alterar a foto
+                </p>
+              </div>
+            </div>
+
             <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    Nome completo
+                  </Label>
+                  <Input
+                    id="fullName"
+                    placeholder="Seu nome completo"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cargo" className="flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-muted-foreground" />
+                    Cargo / Função
+                  </Label>
+                  <Input
+                    id="cargo"
+                    placeholder="Ex: Desenvolvedor, Designer..."
+                    value={cargo}
+                    onChange={(e) => setCargo(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="areaAtuacao" className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  Área de Atuação
+                </Label>
+                <Select value={areaAtuacao} onValueChange={setAreaAtuacao}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione sua área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desenvolvimento">Desenvolvimento</SelectItem>
+                    <SelectItem value="design">Design / UX</SelectItem>
+                    <SelectItem value="marketing">Marketing Digital</SelectItem>
+                    <SelectItem value="gestor-trafego">Gestor de Tráfego</SelectItem>
+                    <SelectItem value="copywriter">Copywriter</SelectItem>
+                    <SelectItem value="produto">Produto</SelectItem>
+                    <SelectItem value="vendas">Vendas</SelectItem>
+                    <SelectItem value="empreendedor">Empreendedor</SelectItem>
+                    <SelectItem value="freelancer">Freelancer</SelectItem>
+                    <SelectItem value="outro">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -259,17 +433,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nome completo</Label>
-                <Input
-                  id="fullName"
-                  placeholder="Seu nome"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
-
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="w-full">
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

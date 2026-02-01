@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff, User, Mail, Lock, Briefcase, Building2, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff, User, Mail, Lock, Briefcase, Building2, KeyRound, CheckCircle2, Check, X } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { Separator } from '@/components/ui/separator';
@@ -119,19 +120,52 @@ export default function Auth() {
     }
   }, [searchParams]);
 
+  // Password strength validation
+  const passwordChecks = {
+    minLength: newPassword.length >= 8,
+    hasUppercase: /[A-Z]/.test(newPassword),
+    hasLowercase: /[a-z]/.test(newPassword),
+    hasNumber: /[0-9]/.test(newPassword),
+  };
+
+  const passwordsMatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword;
+  
+  const passedChecks = Object.values(passwordChecks).filter(Boolean).length;
+  const strengthPercentage = (passedChecks / 4) * 100;
+  
+  const getStrengthLabel = () => {
+    if (passedChecks === 0) return { label: '', color: '' };
+    if (passedChecks === 1) return { label: 'Fraca', color: 'text-red-500' };
+    if (passedChecks === 2) return { label: 'Regular', color: 'text-orange-500' };
+    if (passedChecks === 3) return { label: 'Boa', color: 'text-yellow-500' };
+    return { label: 'Forte', color: 'text-green-500' };
+  };
+
+  const getProgressColor = () => {
+    if (passedChecks <= 1) return 'bg-red-500';
+    if (passedChecks === 2) return 'bg-orange-500';
+    if (passedChecks === 3) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+
+  const strengthInfo = getStrengthLabel();
+
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (newPassword.length < 6) {
+    // Validate all password requirements
+    const allRequirementsMet = Object.values(passwordChecks).every(Boolean);
+    
+    if (!allRequirementsMet) {
       toast({
-        title: 'Senha muito curta',
-        description: 'A senha deve ter no mínimo 6 caracteres.',
+        title: 'Requisitos não atendidos',
+        description: 'A senha deve ter no mínimo 8 caracteres, incluindo maiúscula, minúscula e número.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (!passwordsMatch) {
       toast({
         title: 'Senhas não conferem',
         description: 'A confirmação de senha deve ser igual à nova senha.',
@@ -462,7 +496,7 @@ export default function Auth() {
                   </div>
 
                   {/* New Password */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label htmlFor="new-password">Nova Senha</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -473,7 +507,7 @@ export default function Auth() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
-                        minLength={6}
+                        minLength={8}
                         className="pl-10 pr-10 h-11"
                       />
                       <button
@@ -488,6 +522,44 @@ export default function Auth() {
                         )}
                       </button>
                     </div>
+
+                    {/* Password Strength Indicator */}
+                    {newPassword.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Força:</span>
+                          <span className={`text-xs font-medium ${strengthInfo.color}`}>
+                            {strengthInfo.label}
+                          </span>
+                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-300 ${getProgressColor()}`}
+                              style={{ width: `${strengthPercentage}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Password Requirements Grid */}
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                          <div className={`flex items-center gap-1.5 text-xs ${passwordChecks.minLength ? 'text-green-500' : 'text-muted-foreground'}`}>
+                            {passwordChecks.minLength ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>8+ caracteres</span>
+                          </div>
+                          <div className={`flex items-center gap-1.5 text-xs ${passwordChecks.hasUppercase ? 'text-green-500' : 'text-muted-foreground'}`}>
+                            {passwordChecks.hasUppercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Maiúscula</span>
+                          </div>
+                          <div className={`flex items-center gap-1.5 text-xs ${passwordChecks.hasLowercase ? 'text-green-500' : 'text-muted-foreground'}`}>
+                            {passwordChecks.hasLowercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Minúscula</span>
+                          </div>
+                          <div className={`flex items-center gap-1.5 text-xs ${passwordChecks.hasNumber ? 'text-green-500' : 'text-muted-foreground'}`}>
+                            {passwordChecks.hasNumber ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Número</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Confirm Password */}
@@ -502,8 +574,8 @@ export default function Auth() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
-                        minLength={6}
-                        className="pl-10 pr-10 h-11"
+                        minLength={8}
+                        className={`pl-10 pr-10 h-11 ${passwordsMatch ? 'border-green-500 focus-visible:ring-green-500' : ''}`}
                       />
                       <button
                         type="button"
@@ -517,6 +589,14 @@ export default function Auth() {
                         )}
                       </button>
                     </div>
+                    
+                    {/* Passwords Match Indicator */}
+                    {confirmPassword.length > 0 && (
+                      <div className={`flex items-center gap-1.5 text-xs ${passwordsMatch ? 'text-green-500' : 'text-red-500'}`}>
+                        {passwordsMatch ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                        <span>{passwordsMatch ? 'Senhas coincidem' : 'Senhas não coincidem'}</span>
+                      </div>
+                    )}
                   </div>
 
                   <Button 

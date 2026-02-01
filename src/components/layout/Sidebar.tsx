@@ -94,22 +94,26 @@ export function Sidebar({
 
     fetchProfile();
 
-    // Subscribe to realtime updates
+    // Subscribe to realtime updates with unique channel name
+    const channelName = `sidebar-profile-${user.id}`;
     const channel = supabase
-      .channel('profile-changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'profiles',
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          setProfile({
-            avatar_url: payload.new.avatar_url,
-            full_name: payload.new.full_name,
-          });
+          if (payload.new && typeof payload.new === 'object') {
+            const newData = payload.new as { avatar_url?: string | null; full_name?: string | null };
+            setProfile({
+              avatar_url: newData.avatar_url ?? null,
+              full_name: newData.full_name ?? null,
+            });
+          }
         }
       )
       .subscribe();

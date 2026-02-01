@@ -5,6 +5,8 @@ import { useAccounts, useProjects, useTags } from '@/hooks/useProjects';
 import { useActivityLogs } from '@/hooks/useActivityLogs';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { getLocalKeys } from '@/hooks/useLocalKeys';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ExportBackupButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
@@ -28,9 +30,28 @@ export function ExportBackupButton({
     setExporting(true);
     
     try {
+      // Get all local keys
+      const localKeys = getLocalKeys();
+      
+      // Fetch checklists for all projects
+      const projectIds = projects.map(p => p.id);
+      let checklists: any[] = [];
+      
+      if (projectIds.length > 0) {
+        const { data: checklistData, error } = await supabase
+          .from('project_checklists')
+          .select('*')
+          .in('project_id', projectIds)
+          .order('position', { ascending: true });
+        
+        if (!error && checklistData) {
+          checklists = checklistData;
+        }
+      }
+
       const backupData = {
         exportedAt: new Date().toISOString(),
-        version: '1.0',
+        version: '1.1', // Bump version for new format
         data: {
           accounts: accounts.map(a => ({
             id: a.id,
@@ -53,6 +74,8 @@ export function ExportBackupButton({
             viewCount: p.view_count,
             notes: p.notes,
             accountId: p.account_id,
+            screenshot: p.screenshot,
+            deadline: p.deadline,
             tags: p.tags?.map(t => t.name) || [],
             createdAt: p.created_at,
             updatedAt: p.updated_at,
@@ -72,12 +95,26 @@ export function ExportBackupButton({
             metadata: log.metadata,
             createdAt: log.created_at,
           })),
+          // New: Include local keys (sensitive data - encrypted in localStorage)
+          localKeys: localKeys,
+          // New: Include checklists
+          checklists: checklists.map(c => ({
+            id: c.id,
+            projectId: c.project_id,
+            title: c.title,
+            isCompleted: c.is_completed,
+            completedAt: c.completed_at,
+            position: c.position,
+            createdAt: c.created_at,
+          })),
         },
         summary: {
           totalAccounts: accounts.length,
           totalProjects: projects.length,
           totalTags: tags.length,
           totalActivityLogs: activityLogs.length,
+          totalLocalKeys: Object.keys(localKeys).length,
+          totalChecklists: checklists.length,
         },
       };
 
@@ -96,7 +133,7 @@ export function ExportBackupButton({
 
       toast({
         title: 'Backup exportado!',
-        description: `${projects.length} projetos, ${accounts.length} contas e ${activityLogs.length} logs exportados.`,
+        description: `${projects.length} projetos, ${accounts.length} contas, ${checklists.length} itens de checklist e ${Object.keys(localKeys).length} keys exportados.`,
       });
     } catch (error: any) {
       toast({

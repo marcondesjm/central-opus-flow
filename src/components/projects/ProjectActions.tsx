@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -17,6 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { 
   MoreHorizontal, 
   Pencil, 
@@ -45,6 +45,7 @@ interface ProjectActionsProps {
 
 export function ProjectActions({ project, onEdit, isOwner = true }: ProjectActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [confirmName, setConfirmName] = useState('');
   const [shareModalOpen, setShareModalOpen] = useState(false);
   
   const deleteProject = useDeleteProject();
@@ -151,7 +152,10 @@ export function ProjectActions({ project, onEdit, isOwner = true }: ProjectActio
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => {
+        setDeleteDialogOpen(open);
+        if (!open) setConfirmName('');
+      }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir projeto?</AlertDialogTitle>
@@ -160,14 +164,28 @@ export function ProjectActions({ project, onEdit, isOwner = true }: ProjectActio
               permanentemente excluído.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Para confirmar, digite <span className="font-semibold text-foreground">"{project.name}"</span> abaixo:
+            </p>
+            <Input
+              value={confirmName}
+              onChange={(e) => setConfirmName(e.target.value)}
+              placeholder="Digite o nome do projeto"
+              className="w-full"
+            />
+          </div>
+          
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
+            <Button
               onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={confirmName !== project.name}
+              variant="destructive"
             >
               Excluir
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

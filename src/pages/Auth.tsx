@@ -306,8 +306,52 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md border-border/50 shadow-xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated Aurora Background */}
+      <div className="absolute inset-0 bg-[#0a0118]">
+        {/* Aurora gradient layers */}
+        <div 
+          className="absolute inset-0 animate-aurora"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 60% at 10% 20%, rgba(120, 60, 200, 0.4) 0%, transparent 60%),
+              radial-gradient(ellipse 70% 50% at 90% 10%, rgba(80, 20, 180, 0.3) 0%, transparent 50%),
+              radial-gradient(ellipse 60% 40% at 50% 90%, rgba(100, 40, 160, 0.2) 0%, transparent 40%)
+            `,
+            backgroundSize: '200% 200%, 200% 200%, 200% 200%',
+          }}
+        />
+        {/* Floating orbs */}
+        <div 
+          className="absolute w-96 h-96 rounded-full blur-3xl animate-glow-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(140, 80, 220, 0.3) 0%, transparent 70%)',
+            top: '10%',
+            left: '5%',
+          }}
+        />
+        <div 
+          className="absolute w-80 h-80 rounded-full blur-3xl animate-glow-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(100, 40, 180, 0.25) 0%, transparent 70%)',
+            top: '50%',
+            right: '10%',
+            animationDelay: '2s',
+          }}
+        />
+        <div 
+          className="absolute w-64 h-64 rounded-full blur-3xl animate-glow-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(160, 100, 240, 0.2) 0%, transparent 70%)',
+            bottom: '10%',
+            left: '30%',
+            animationDelay: '4s',
+          }}
+        />
+      </div>
+
+      {/* Card Container */}
+      <Card className="w-full max-w-md border-border/20 shadow-2xl overflow-hidden relative z-10 bg-card/95 backdrop-blur-sm">
         <div className="max-h-[85vh] overflow-y-auto">
           <CardContent className="p-6 sm:p-8">
             {/* Header */}

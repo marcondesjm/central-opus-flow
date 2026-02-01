@@ -21,9 +21,12 @@ import {
   Loader2,
   ChevronUp,
   ChevronDown,
-  User
+  User,
+  RefreshCw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface ChangelogModalProps {
   open: boolean;
@@ -39,10 +42,20 @@ const typeConfig: Record<ChangelogEntry['type'], { icon: typeof Sparkles; label:
 };
 
 export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
-  const { data: changelog, isLoading } = useChangelogByVersion();
+  const { data: changelog, isLoading, isFetching } = useChangelogByVersion();
+  const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
+    await queryClient.invalidateQueries({ queryKey: ['changelog'] });
+    toast.success('Histórico atualizado!');
+    setIsRefreshing(false);
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -81,10 +94,22 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0">
         <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
-            <History className="w-5 h-5 text-primary" />
-            Histórico de Atualizações
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <History className="w-5 h-5 text-primary" />
+              Histórico de Atualizações
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={isRefreshing || isFetching}
+              className="h-8 w-8"
+              title="Atualizar histórico"
+            >
+              <RefreshCw className={cn("h-4 w-4", (isRefreshing || isFetching) && "animate-spin")} />
+            </Button>
+          </div>
           <DialogDescription>
             Confira todas as alterações e melhorias do sistema.
           </DialogDescription>

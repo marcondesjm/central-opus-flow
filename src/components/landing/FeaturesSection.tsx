@@ -7,7 +7,8 @@ import {
   BarChart3, 
   Coins, 
   Download,
-  ArrowUpRight
+  ArrowUpRight,
+  KeyRound
 } from 'lucide-react';
 
 const features = [
@@ -45,6 +46,13 @@ const features = [
     benefit: 'Acompanhe os créditos de cada conta diretamente no painel principal.',
     highlight: 'Nunca fique zerado',
     color: 'from-violet-500 to-violet-600',
+  },
+  {
+    icon: KeyRound,
+    title: 'Keys Locais',
+    benefit: 'Armazene suas API Keys (Supabase, OpenAI, Stripe) localmente no seu dispositivo com segurança, sem enviar para nuvem.',
+    highlight: '100% privado',
+    color: 'from-orange-500 to-orange-600',
   },
   {
     icon: Download,

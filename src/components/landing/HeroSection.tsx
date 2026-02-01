@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Play, Sparkles, CheckCircle2, Zap } from 'lucide-react';
+import { ArrowRight, Play, Sparkles, CheckCircle2, Zap, Shield, HardDrive } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -105,6 +105,22 @@ export function HeroSection() {
               {text}
             </span>
           ))}
+        </motion.div>
+
+        {/* LocalStorage Security Highlight */}
+        <motion.div 
+          className="mt-8 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            <HardDrive className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-medium">
+            Suas Keys ficam armazenadas <strong>apenas no seu dispositivo</strong> (localStorage) — nunca enviamos para nuvem
+          </span>
         </motion.div>
       </div>
     </section>

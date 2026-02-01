@@ -11,6 +11,8 @@ export interface ChangelogEntry {
   created_at: string;
   created_by: string | null;
   is_public: boolean;
+  contributor_name: string | null;
+  contributor_email: string | null;
 }
 
 export function useChangelog() {

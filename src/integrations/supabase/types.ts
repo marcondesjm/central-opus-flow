@@ -224,6 +224,8 @@ export type Database = {
       }
       changelog_entries: {
         Row: {
+          contributor_email: string | null
+          contributor_name: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -234,6 +236,8 @@ export type Database = {
           version: string
         }
         Insert: {
+          contributor_email?: string | null
+          contributor_name?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -244,6 +248,8 @@ export type Database = {
           version: string
         }
         Update: {
+          contributor_email?: string | null
+          contributor_name?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null

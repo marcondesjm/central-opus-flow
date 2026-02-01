@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2 } from 'lucide-react';
-import { useCreateAccount, useCreateProject, useCreateTag } from '@/hooks/useProjects';
+import { useCreateAccount, useCreateProject, useCreateTag, useAccounts, useTags } from '@/hooks/useProjects';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -44,6 +44,10 @@ export function ImportBackupButton({
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Fetch existing accounts and tags to match by email/name
+  const { data: existingAccounts = [] } = useAccounts();
+  const { data: existingTags = [] } = useTags();
   
   const createAccount = useCreateAccount();
   const createProject = useCreateProject();
@@ -88,44 +92,58 @@ export function ImportBackupButton({
       let accountsImported = 0;
       let projectsImported = 0;
       let tagsImported = 0;
+      let projectsSkipped = 0;
       
       // Map old IDs to new IDs
       const accountIdMap = new Map<string, string>();
       const tagIdMap = new Map<string, string>();
 
-      // Import accounts
+      // First, map existing accounts by email to handle duplicates
       for (const account of backupData.data.accounts) {
-        try {
-          const result = await createAccount.mutateAsync({
-            name: account.name,
-            email: account.email,
-            color: account.color || 'blue',
-            credits: account.credits || 0,
-            admin_email: account.admin_email || null,
-            supabase_project_id: account.supabase_project_id || null,
-            supabase_url: account.supabase_url || null,
-            anon_key: account.anon_key || null,
-            service_role_key: account.service_role_key || null,
-            notes: account.notes || null,
-          });
-          accountIdMap.set(account.id, result.id);
-          accountsImported++;
-        } catch (e) {
-          console.warn('Conta já existe ou erro:', account.email);
+        const existingAccount = existingAccounts.find(a => a.email === account.email);
+        if (existingAccount) {
+          // Account already exists, use its ID
+          accountIdMap.set(account.id, existingAccount.id);
+          console.log(`Conta existente encontrada: ${account.email} -> ${existingAccount.id}`);
+        } else {
+          // Try to create new account
+          try {
+            const result = await createAccount.mutateAsync({
+              name: account.name,
+              email: account.email,
+              color: account.color || 'blue',
+              credits: account.credits || 0,
+              admin_email: account.admin_email || null,
+              supabase_project_id: account.supabase_project_id || null,
+              supabase_url: account.supabase_url || null,
+              anon_key: account.anon_key || null,
+              service_role_key: account.service_role_key || null,
+              notes: account.notes || null,
+            });
+            accountIdMap.set(account.id, result.id);
+            accountsImported++;
+          } catch (e) {
+            console.warn('Erro ao criar conta:', account.email, e);
+          }
         }
       }
 
-      // Import tags
+      // Map existing tags by name
       for (const tag of backupData.data.tags) {
-        try {
-          const result = await createTag.mutateAsync({
-            name: tag.name,
-            color: tag.color || 'blue',
-          });
-          tagIdMap.set(tag.id, result.id);
-          tagsImported++;
-        } catch (e) {
-          console.warn('Tag já existe ou erro:', tag.name);
+        const existingTag = existingTags.find(t => t.name.toLowerCase() === tag.name.toLowerCase());
+        if (existingTag) {
+          tagIdMap.set(tag.id, existingTag.id);
+        } else {
+          try {
+            const result = await createTag.mutateAsync({
+              name: tag.name,
+              color: tag.color || 'blue',
+            });
+            tagIdMap.set(tag.id, result.id);
+            tagsImported++;
+          } catch (e) {
+            console.warn('Erro ao criar tag:', tag.name, e);
+          }
         }
       }
 
@@ -133,7 +151,8 @@ export function ImportBackupButton({
       for (const project of backupData.data.projects) {
         const newAccountId = accountIdMap.get(project.accountId);
         if (!newAccountId) {
-          console.warn('Conta não encontrada para projeto:', project.name);
+          console.warn('Conta não encontrada para projeto:', project.name, 'accountId:', project.accountId);
+          projectsSkipped++;
           continue;
         }
 
@@ -152,14 +171,25 @@ export function ImportBackupButton({
             deadline: project.deadline || null,
           });
           projectsImported++;
-        } catch (e) {
-          console.warn('Erro ao importar projeto:', project.name);
+        } catch (e: any) {
+          // Check if it's a duplicate error
+          if (e.message?.includes('duplicate') || e.code === '23505') {
+            console.log('Projeto já existe:', project.name);
+            projectsSkipped++;
+          } else {
+            console.warn('Erro ao importar projeto:', project.name, e);
+            projectsSkipped++;
+          }
         }
       }
 
+      const message = projectsSkipped > 0 
+        ? `${accountsImported} contas, ${projectsImported} projetos e ${tagsImported} tags importados. ${projectsSkipped} projetos ignorados (já existem ou conta não encontrada).`
+        : `${accountsImported} contas, ${projectsImported} projetos e ${tagsImported} tags importados.`;
+
       toast({
         title: 'Backup importado!',
-        description: `${accountsImported} contas, ${projectsImported} projetos e ${tagsImported} tags importados.`,
+        description: message,
       });
     } catch (error: any) {
       toast({
@@ -212,7 +242,7 @@ export function ImportBackupButton({
                 </div>
               )}
               <p className="text-xs text-muted-foreground mt-2">
-                Dados duplicados serão ignorados.
+                Contas existentes serão reutilizadas. Projetos duplicados serão ignorados.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>

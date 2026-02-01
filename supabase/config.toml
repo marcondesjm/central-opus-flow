@@ -1,1 +1,7 @@
 project_id = "oxavonchhqceppmmggth"
+
+[functions.check-deadline-notifications]
+verify_jwt = false
+
+[functions.send-auth-email]
+verify_jwt = false

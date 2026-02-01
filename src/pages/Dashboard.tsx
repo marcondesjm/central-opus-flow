@@ -602,8 +602,8 @@ export default function Dashboard() {
         />
       )}
 
-      {/* WhatsApp Support Button (Mobile floating) */}
-      <WhatsAppSupportButton className="lg:hidden" />
+      {/* WhatsApp Support Button */}
+      <WhatsAppSupportButton />
       </div>
     </div>
   );

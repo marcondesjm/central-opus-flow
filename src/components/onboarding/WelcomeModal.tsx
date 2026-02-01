@@ -35,7 +35,11 @@ const FeatureCard = ({ icon, title, description, color }: FeatureCardProps) => (
   </div>
 );
 
-export function WelcomeModal() {
+interface WelcomeModalProps {
+  onComplete?: () => void;
+}
+
+export function WelcomeModal({ onComplete }: WelcomeModalProps) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [userName, setUserName] = useState('');
@@ -62,7 +66,9 @@ export function WelcomeModal() {
       }
     };
 
-    checkFirstLogin();
+    // Small delay to ensure dashboard is ready
+    const timer = setTimeout(checkFirstLogin, 500);
+    return () => clearTimeout(timer);
   }, [user]);
 
   const handleClose = () => {
@@ -70,6 +76,10 @@ export function WelcomeModal() {
       localStorage.setItem(`welcome_shown_${user.id}`, 'true');
     }
     setIsOpen(false);
+    // Notify parent that welcome is complete so tour can start
+    if (onComplete) {
+      setTimeout(onComplete, 300);
+    }
   };
 
   const features = [

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff, User, Mail, Lock, Briefcase, Building2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff, User, Mail, Lock, Briefcase, Building2, KeyRound, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { Separator } from '@/components/ui/separator';
@@ -79,9 +79,11 @@ const areaOptions = [
 ];
 
 export default function Auth() {
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);
+  const [isSetPasswordLoading, setIsSetPasswordLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -100,6 +102,83 @@ export default function Auth() {
   const [activeTab, setActiveTab] = useState('login');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
+
+  // Set password flow
+  const [showSetPassword, setShowSetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordSetSuccess, setPasswordSetSuccess] = useState(false);
+
+  // Check URL params for set-password flow
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'set-password' || tab === 'reset') {
+      setShowSetPassword(true);
+    }
+  }, [searchParams]);
+
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword.length < 6) {
+      toast({
+        title: 'Senha muito curta',
+        description: 'A senha deve ter no mínimo 6 caracteres.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: 'Senhas não conferem',
+        description: 'A confirmação de senha deve ser igual à nova senha.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSetPasswordLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        toast({
+          title: 'Erro ao definir senha',
+          description: error.message,
+          variant: 'destructive',
+        });
+        setIsSetPasswordLoading(false);
+        return;
+      }
+
+      setPasswordSetSuccess(true);
+      toast({
+        title: 'Senha criada com sucesso!',
+        description: 'Sua conta foi ativada. Redirecionando...',
+      });
+
+      // Redirect after success
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error setting password:', error);
+      toast({
+        title: 'Erro',
+        description: 'Ocorreu um erro ao definir sua senha. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+
+    setIsSetPasswordLoading(false);
+  };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
@@ -354,13 +433,114 @@ export default function Auth() {
       <Card className="w-full max-w-md border-border/20 shadow-2xl overflow-hidden relative z-10 bg-card/95 backdrop-blur-sm">
         <div className="max-h-[85vh] overflow-y-auto">
           <CardContent className="p-6 sm:p-8">
-            {/* Header */}
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-foreground">Bem-vindo</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Entre ou crie sua conta para começar
-              </p>
-            </div>
+            {/* Set Password Screen */}
+            {showSetPassword ? (
+              passwordSetSuccess ? (
+                <div className="text-center py-8 space-y-4">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">Conta Ativada!</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Sua senha foi criada com sucesso. Redirecionando para o painel...
+                  </p>
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                </div>
+              ) : (
+                <form onSubmit={handleSetPassword} className="space-y-6">
+                  {/* Header with Icon */}
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                      <KeyRound className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground">Criar Sua Senha</h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Bem-vindo! Crie sua senha para acessar a plataforma.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* New Password */}
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Nova Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="new-password"
+                        type={showNewPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        className="pl-10 pr-10 h-11"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        className="pl-10 pr-10 h-11"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-11 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70" 
+                    disabled={isSetPasswordLoading}
+                  >
+                    {isSetPasswordLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      'Ativar Minha Conta'
+                    )}
+                  </Button>
+                </form>
+              )
+            ) : (
+              <>
+                {/* Header */}
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl font-bold text-foreground">Bem-vindo</h1>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Entre ou crie sua conta para começar
+                  </p>
+                </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -655,6 +835,8 @@ export default function Auth() {
               {' · '}
               15 dias grátis
             </p>
+              </>
+            )}
           </CardContent>
         </div>
       </Card>

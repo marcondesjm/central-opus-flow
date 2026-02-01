@@ -14,12 +14,16 @@ import { FAQSection } from '@/components/landing/FAQSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
 import { Footer } from '@/components/landing/Footer';
 import { SocialProofNotification } from '@/components/landing/SocialProofNotification';
+import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButton';
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Social Proof Notifications */}
       <SocialProofNotification />
+      
+      {/* WhatsApp Support Button */}
+      <WhatsAppSupportButton />
       
       {/* Header */}
       <LandingHeader />

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,50 +20,96 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Hook para desabilitar inspeção de código
+function useDisableDevTools() {
+  useEffect(() => {
+    // Desabilitar menu de contexto (clique direito)
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    // Desabilitar atalhos de teclado para DevTools
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // F12
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+      if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+U (ver código fonte)
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+}
+
+function AppContent() {
+  useDisableDevTools();
+  
+  return (
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <PWAInstallPrompt />
+      <ServiceWorkerUpdatePrompt />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/demo" element={<Demo />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/collaborations"
+            element={
+              <ProtectedRoute>
+                <Collaborations />
+              </ProtectedRoute>
+            }
+          />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="centralopusflow-theme">
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <PWAInstallPrompt />
-          <ServiceWorkerUpdatePrompt />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/demo" element={<Demo />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <Admin />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/collaborations"
-                element={
-                  <ProtectedRoute>
-                    <Collaborations />
-                  </ProtectedRoute>
-                }
-              />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <AppContent />
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

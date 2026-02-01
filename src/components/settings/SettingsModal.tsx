@@ -171,6 +171,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         title: 'Perfil atualizado!',
         description: 'Suas informações foram salvas.',
       });
+      
+      // Fechar o modal após salvar com sucesso
+      onOpenChange(false);
     } catch (error: any) {
       toast({
         title: 'Erro ao atualizar',

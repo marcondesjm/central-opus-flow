@@ -71,6 +71,7 @@ export function Sidebar({
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
+  const [avatarLoading, setAvatarLoading] = useState(true);
   const { signOut, user } = useAuth();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
@@ -353,12 +354,19 @@ export function Sidebar({
           <div className="px-3 py-2 mb-2 space-y-2">
             <div className="flex items-center gap-3">
               <Avatar className="w-9 h-9 ring-2 ring-primary/20">
-                <AvatarImage 
-                  src={profile?.avatar_url || undefined} 
-                  alt={profile?.full_name || user.email || 'Avatar'} 
-                />
+                {profile?.avatar_url && (
+                  <AvatarImage 
+                    src={profile.avatar_url} 
+                    alt={profile?.full_name || user.email || 'Avatar'}
+                    onLoadingStatusChange={(status) => setAvatarLoading(status === 'loading')}
+                  />
+                )}
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                  {(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                  {avatarLoading && profile?.avatar_url ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    (profile?.full_name || user.email || 'U').charAt(0).toUpperCase()
+                  )}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">

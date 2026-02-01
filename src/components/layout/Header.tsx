@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -44,6 +44,7 @@ export function Header({
   const navigate = useNavigate();
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
+  const [avatarLoading, setAvatarLoading] = useState(true);
 
   // Fetch profile and subscribe to realtime updates
   useEffect(() => {
@@ -223,12 +224,19 @@ export function Header({
           <Tooltip>
             <TooltipTrigger asChild>
               <Avatar className="w-8 h-8 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
-                <AvatarImage 
-                  src={profile?.avatar_url || undefined} 
-                  alt={profile?.full_name || user.email || 'Avatar'} 
-                />
+                {profile?.avatar_url && (
+                  <AvatarImage 
+                    src={profile.avatar_url} 
+                    alt={profile?.full_name || user.email || 'Avatar'}
+                    onLoadingStatusChange={(status) => setAvatarLoading(status === 'loading')}
+                  />
+                )}
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                  {(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                  {avatarLoading && profile?.avatar_url ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    (profile?.full_name || user.email || 'U').charAt(0).toUpperCase()
+                  )}
                 </AvatarFallback>
               </Avatar>
             </TooltipTrigger>

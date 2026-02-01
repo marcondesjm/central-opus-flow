@@ -222,6 +222,39 @@ export type Database = {
           },
         ]
       }
+      changelog_entries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_public: boolean
+          title: string
+          type: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          title: string
+          type?: string
+          version: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          title?: string
+          type?: string
+          version?: string
+        }
+        Relationships: []
+      }
       collaboration_notifications: {
         Row: {
           actor_id: string | null

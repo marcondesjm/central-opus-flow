@@ -191,10 +191,13 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
   const accountsWithKeys = Object.keys(allKeys);
   const accountsWithoutKeys = accounts.filter(a => !allKeys[a.id]);
 
+  // Estado para adicionar keys a contas que já têm keys
+  const [addingToExistingAccount, setAddingToExistingAccount] = useState<string>('');
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
           <DialogHeader className="flex-shrink-0 p-6 pb-4">
             <DialogTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
@@ -205,18 +208,16 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            <div className="flex-shrink-0 px-6 pb-4">
-              <Alert className="bg-amber-500/10 border-amber-500/30">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <AlertDescription className="text-xs">
-                  <strong>⚠️ Armazenamento Local:</strong> Todas as keys são salvas apenas neste navegador. 
-                  Use o backup para transferir para outros dispositivos.
-                </AlertDescription>
-              </Alert>
-            </div>
+          <div className="flex-1 overflow-y-auto px-6">
+            <Alert className="bg-amber-500/10 border-amber-500/30 mb-4">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-xs">
+                <strong>⚠️ Armazenamento Local:</strong> Todas as keys são salvas apenas neste navegador. 
+                Use o backup para transferir para outros dispositivos.
+              </AlertDescription>
+            </Alert>
 
-            <div className="flex-shrink-0 px-6 pb-4 flex justify-between items-center border-b">
+            <div className="flex justify-between items-center border-b pb-4 mb-4">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="gap-1">
                   <HardDrive className="w-3 h-3" />
@@ -226,13 +227,18 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
               <KeysBackupButtons onImportSuccess={refreshKeys} />
             </div>
 
-            <ScrollArea className="flex-1 min-h-0">
-            <div className="py-4 px-6 space-y-4">
-              {accountsWithKeys.length === 0 ? (
+            <div className="space-y-4 pb-4">
+              {accountsWithKeys.length === 0 && accounts.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Key className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                  <p>Nenhuma conta cadastrada</p>
+                  <p className="text-xs mt-1">Crie uma conta primeiro para adicionar keys</p>
+                </div>
+              ) : accountsWithKeys.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Key className="w-12 h-12 mx-auto mb-4 opacity-30" />
                   <p>Nenhuma key cadastrada</p>
-                  <p className="text-xs mt-1">Adicione keys nas configurações de cada conta</p>
+                  <p className="text-xs mt-1">Use o formulário abaixo para adicionar keys</p>
                 </div>
               ) : (
                 <Accordion type="multiple" className="space-y-2">
@@ -514,11 +520,11 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                 </Accordion>
               )}
 
-              {/* Campos disponíveis e templates - formulário rápido */}
+              {/* Formulário para adicionar keys */}
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-sm font-medium">
-                    Adicionar keys rapidamente:
+                    Adicionar keys:
                   </p>
                   <div className="flex gap-1">
                     <Button
@@ -552,154 +558,168 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                   </div>
                 </div>
 
-                {/* Seletor de conta */}
-                {accountsWithoutKeys.length > 0 && (
+                {/* Seletor de conta - todas as contas */}
+                {accounts.length > 0 && (
                   <div className="mb-4">
                     <Label className="text-xs text-muted-foreground mb-2 block">Selecione uma conta:</Label>
                     <div className="flex flex-wrap gap-2">
-                      {accountsWithoutKeys.map((account) => (
-                        <Badge 
-                          key={account.id} 
-                          variant={selectedQuickAccount === account.id ? "default" : "outline"} 
-                          className={cn(
-                            "gap-1 cursor-pointer transition-all",
-                            selectedQuickAccount === account.id ? "opacity-100" : "opacity-60 hover:opacity-100"
-                          )}
-                          onClick={() => {
-                            setSelectedQuickAccount(account.id);
-                            setQuickAddKeys({});
-                          }}
-                        >
-                          <div className={cn(
-                            'w-2 h-2 rounded-full',
-                            colorClasses[account.color]
-                          )} />
-                          {account.name}
-                        </Badge>
-                      ))}
+                      {accounts.map((account) => {
+                        const isSelected = selectedQuickAccount === account.id || addingToExistingAccount === account.id;
+                        const hasKeys = !!allKeys[account.id];
+                        
+                        return (
+                          <Badge 
+                            key={account.id} 
+                            variant={isSelected ? "default" : "outline"} 
+                            className={cn(
+                              "gap-1 cursor-pointer transition-all",
+                              isSelected ? "opacity-100" : "opacity-60 hover:opacity-100"
+                            )}
+                            onClick={() => {
+                              if (hasKeys) {
+                                setAddingToExistingAccount(account.id);
+                                setSelectedQuickAccount('');
+                                // Load existing keys for editing
+                                setQuickAddKeys(getAccountLocalKeys(account.id));
+                              } else {
+                                setSelectedQuickAccount(account.id);
+                                setAddingToExistingAccount('');
+                                setQuickAddKeys({});
+                              }
+                            }}
+                          >
+                            <div className={cn(
+                              'w-2 h-2 rounded-full',
+                              colorClasses[account.color]
+                            )} />
+                            {account.name}
+                            {hasKeys && (
+                              <span className="text-[10px] opacity-70">(tem keys)</span>
+                            )}
+                          </Badge>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
                 {/* Campos editáveis */}
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <Label className="text-xs">URL Supabase</Label>
-                    <Input
-                      placeholder="https://xxx.supabase.co"
-                      value={quickAddKeys.supabase_url || ''}
-                      onChange={(e) => setQuickAddKeys(prev => ({ ...prev, supabase_url: e.target.value }))}
-                      disabled={!selectedQuickAccount && accountsWithoutKeys.length > 0}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Anon Key</Label>
-                    <Input
-                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                      value={quickAddKeys.anon_key || ''}
-                      onChange={(e) => setQuickAddKeys(prev => ({ ...prev, anon_key: e.target.value }))}
-                      disabled={!selectedQuickAccount && accountsWithoutKeys.length > 0}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Service Role Key</Label>
-                    <Input
-                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                      value={quickAddKeys.service_role_key || ''}
-                      onChange={(e) => setQuickAddKeys(prev => ({ ...prev, service_role_key: e.target.value }))}
-                      disabled={!selectedQuickAccount && accountsWithoutKeys.length > 0}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">OpenAI Key</Label>
-                    <Input
-                      placeholder="sk-proj-..."
-                      value={quickAddKeys.openai_key || ''}
-                      onChange={(e) => setQuickAddKeys(prev => ({ ...prev, openai_key: e.target.value }))}
-                      disabled={!selectedQuickAccount && accountsWithoutKeys.length > 0}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Outros (notas, tokens, etc.)</Label>
-                    <textarea
-                      placeholder="Cole aqui outras keys, tokens ou anotações..."
-                      value={quickAddKeys.notes || ''}
-                      onChange={(e) => setQuickAddKeys(prev => ({ ...prev, notes: e.target.value }))}
-                      disabled={!selectedQuickAccount && accountsWithoutKeys.length > 0}
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                    />
-                  </div>
+                {accounts.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">URL Supabase</Label>
+                      <Input
+                        placeholder="https://xxx.supabase.co"
+                        value={quickAddKeys.supabase_url || ''}
+                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, supabase_url: e.target.value }))}
+                        disabled={!selectedQuickAccount && !addingToExistingAccount}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Anon Key</Label>
+                      <Input
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        value={quickAddKeys.anon_key || ''}
+                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, anon_key: e.target.value }))}
+                        disabled={!selectedQuickAccount && !addingToExistingAccount}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Service Role Key</Label>
+                      <Input
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        value={quickAddKeys.service_role_key || ''}
+                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, service_role_key: e.target.value }))}
+                        disabled={!selectedQuickAccount && !addingToExistingAccount}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">OpenAI Key</Label>
+                      <Input
+                        placeholder="sk-proj-..."
+                        value={quickAddKeys.openai_key || ''}
+                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, openai_key: e.target.value }))}
+                        disabled={!selectedQuickAccount && !addingToExistingAccount}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Outros (notas, tokens, etc.)</Label>
+                      <textarea
+                        placeholder="Cole aqui outras keys, tokens ou anotações..."
+                        value={quickAddKeys.notes || ''}
+                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, notes: e.target.value }))}
+                        disabled={!selectedQuickAccount && !addingToExistingAccount}
+                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                      />
+                    </div>
 
-                  {/* Botão salvar - sempre visível quando há conta selecionada ou só uma conta */}
-                  <Button
-                    className="w-full mt-2"
-                    onClick={() => {
-                      const targetAccount = selectedQuickAccount || (accountsWithoutKeys.length === 1 ? accountsWithoutKeys[0].id : null);
-                      
-                      if (!targetAccount) {
+                    {/* Botão salvar */}
+                    <Button
+                      className="w-full mt-2"
+                      onClick={() => {
+                        const targetAccount = selectedQuickAccount || addingToExistingAccount;
+                        
+                        if (!targetAccount) {
+                          toast({
+                            title: 'Selecione uma conta',
+                            description: 'Escolha a conta para salvar as keys',
+                            variant: 'destructive',
+                          });
+                          return;
+                        }
+                        
+                        const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
+                                         quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
+                        
+                        if (!hasAnyKey) {
+                          toast({
+                            title: 'Preencha pelo menos um campo',
+                            variant: 'destructive',
+                          });
+                          return;
+                        }
+
+                        saveAccountLocalKeys(targetAccount, quickAddKeys);
+                        refreshKeys();
+                        setQuickAddKeys({});
+                        setSelectedQuickAccount('');
+                        setAddingToExistingAccount('');
                         toast({
-                          title: 'Selecione uma conta',
-                          description: 'Escolha a conta para salvar as keys',
-                          variant: 'destructive',
+                          title: 'Keys salvas!',
+                          description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
                         });
-                        return;
-                      }
-                      
-                      const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
-                                       quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
-                      
-                      if (!hasAnyKey) {
-                        toast({
-                          title: 'Preencha pelo menos um campo',
-                          variant: 'destructive',
-                        });
-                        return;
-                      }
+                      }}
+                      disabled={!selectedQuickAccount && !addingToExistingAccount}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {selectedQuickAccount 
+                        ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
+                        : addingToExistingAccount 
+                          ? `Atualizar Keys de ${getAccountName(addingToExistingAccount)}`
+                          : 'Selecione uma conta'}
+                    </Button>
 
-                      saveAccountLocalKeys(targetAccount, quickAddKeys);
-                      refreshKeys();
-                      setQuickAddKeys({});
-                      setSelectedQuickAccount('');
-                      toast({
-                        title: 'Keys salvas!',
-                        description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
-                      });
-                    }}
-                    disabled={accountsWithoutKeys.length === 0}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {selectedQuickAccount 
-                      ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
-                      : accountsWithoutKeys.length === 1 
-                        ? `Salvar Keys para ${accountsWithoutKeys[0].name}`
-                        : 'Salvar Keys'}
-                  </Button>
-
-                  {!selectedQuickAccount && accountsWithoutKeys.length > 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-2">
-                      Selecione uma conta acima para preencher as keys
-                    </p>
-                  )}
-
-                  {accountsWithoutKeys.length === 0 && accounts.length > 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-2">
-                      Todas as contas já possuem keys cadastradas
-                    </p>
-                  )}
-                </div>
+                    {!selectedQuickAccount && !addingToExistingAccount && (
+                      <p className="text-xs text-muted-foreground text-center py-2">
+                        Selecione uma conta acima para preencher as keys
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p className="text-sm">Nenhuma conta disponível</p>
+                    <p className="text-xs mt-1">Crie uma conta primeiro para adicionar keys</p>
+                  </div>
+                )}
               </div>
-
-              {/* Spacer para garantir scroll até o final */}
-              <div className="h-8" />
             </div>
-          </ScrollArea>
+          </div>
           
-          {/* Footer com botão de fechar/salvar */}
+          {/* Footer */}
           <div className="flex-shrink-0 p-6 pt-4 border-t flex justify-end gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Fechar
             </Button>
-          </div>
           </div>
         </DialogContent>
       </Dialog>

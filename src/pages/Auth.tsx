@@ -62,21 +62,27 @@ const getErrorMessage = (error: { message: string }) => {
 };
 
 const areaOptions = [
-  { value: 'tecnologia', label: 'Tecnologia' },
   { value: 'marketing', label: 'Marketing' },
   { value: 'vendas', label: 'Vendas' },
-  { value: 'financeiro', label: 'Financeiro' },
-  { value: 'rh', label: 'Recursos Humanos' },
-  { value: 'design', label: 'Design' },
+  { value: 'recursos_humanos', label: 'Recursos Humanos' },
   { value: 'operacoes', label: 'Operações' },
-  { value: 'outros', label: 'Outros' },
+  { value: 'gestao_lideranca', label: 'Gestão e Liderança' },
+  { value: 'tecnologia_ti', label: 'Tecnologia / TI' },
+  { value: 'financeiro_contabilidade', label: 'Financeiro / Contabilidade' },
+  { value: 'juridico', label: 'Jurídico' },
+  { value: 'atendimento_cliente', label: 'Atendimento ao Cliente' },
+  { value: 'logistica_supply', label: 'Logística / Supply Chain' },
+  { value: 'produto_design', label: 'Produto / Design' },
+  { value: 'educacao_treinamento', label: 'Educação / Treinamento' },
+  { value: 'saude', label: 'Saúde' },
+  { value: 'outro', label: 'Outro (especificar)' },
 ];
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -85,11 +91,11 @@ export default function Auth() {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   
   const [signupEmail, setSignupEmail] = useState('');
-  const [signupPassword, setSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
   const [signupCargo, setSignupCargo] = useState('');
   const [signupArea, setSignupArea] = useState('');
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [signupAreaOutro, setSignupAreaOutro] = useState('');
+  const [signupSent, setSignupSent] = useState(false);
   
   const [activeTab, setActiveTab] = useState('login');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -169,31 +175,96 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await signUp(signupEmail, signupPassword, signupName);
-
-    if (error) {
-      const errorInfo = getErrorMessage(error);
+    // Validações básicas
+    if (!signupName.trim()) {
       toast({
-        title: errorInfo.title,
-        description: errorInfo.description,
+        title: 'Nome obrigatório',
+        description: 'Por favor, informe seu nome completo.',
         variant: 'destructive',
       });
-      
-      if (errorInfo.suggestLogin) {
-        setLoginEmail(signupEmail);
-        setActiveTab('login');
-        toast({
-          title: 'Faça login',
-          description: 'Redirecionamos você para a tela de login.',
-        });
-      }
-    } else {
+      setIsLoading(false);
+      return;
+    }
+
+    if (!signupEmail.trim()) {
       toast({
-        title: 'Conta criada!',
-        description: 'Você já pode fazer login.',
+        title: 'Email obrigatório',
+        description: 'Por favor, informe seu email.',
+        variant: 'destructive',
       });
-      setLoginEmail(signupEmail);
-      setActiveTab('login');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Gera senha temporária aleatória
+      const tempPassword = crypto.randomUUID() + 'Aa1!';
+      
+      // Determina a área final (com suporte a "outro")
+      const areaFinal = signupArea === 'outro' && signupAreaOutro.trim() 
+        ? signupAreaOutro.trim() 
+        : signupArea;
+      
+      // Cria o usuário com senha temporária
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: signupEmail,
+        password: tempPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+          data: {
+            full_name: signupName,
+            cargo: signupCargo,
+            area_atuacao: areaFinal,
+          },
+        },
+      });
+
+      if (signUpError) {
+        const errorInfo = getErrorMessage(signUpError);
+        toast({
+          title: errorInfo.title,
+          description: errorInfo.description,
+          variant: 'destructive',
+        });
+        
+        if (errorInfo.suggestLogin) {
+          setLoginEmail(signupEmail);
+          setActiveTab('login');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // Envia email para definir senha
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(signupEmail, {
+        redirectTo: `${window.location.origin}/auth?tab=set-password`,
+      });
+
+      if (resetError) {
+        console.error('Error sending password reset:', resetError);
+      }
+
+      // Atualiza o perfil com cargo e área
+      if (signUpData.user) {
+        await supabase.from('profiles').update({
+          cargo: signupCargo || null,
+          area_atuacao: areaFinal || null,
+        }).eq('user_id', signUpData.user.id);
+      }
+
+      setSignupSent(true);
+      toast({
+        title: 'Email enviado!',
+        description: 'Verifique sua caixa de entrada para criar sua senha.',
+      });
+
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast({
+        title: 'Erro no cadastro',
+        description: 'Ocorreu um erro inesperado. Tente novamente.',
+        variant: 'destructive',
+      });
     }
 
     setIsLoading(false);
@@ -369,153 +440,166 @@ export default function Auth() {
 
               {/* Signup Tab */}
               <TabsContent value="signup" className="mt-0 space-y-4">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nome Completo</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder="Seu nome"
-                        value={signupName}
-                        onChange={(e) => setSignupName(e.target.value)}
-                        className="pl-10 h-11"
-                      />
+                {signupSent ? (
+                  <div className="text-center py-8 space-y-4">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                      <Mail className="h-8 w-8 text-primary" />
                     </div>
+                    <h3 className="text-lg font-semibold">Verifique seu email</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Enviamos um link para <strong>{signupEmail}</strong> para você criar sua senha e ativar sua conta.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSignupSent(false);
+                        setSignupEmail('');
+                        setSignupName('');
+                        setSignupCargo('');
+                        setSignupArea('');
+                        setSignupAreaOutro('');
+                      }}
+                      className="mt-4"
+                    >
+                      Cadastrar outro email
+                    </Button>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-cargo">Cargo</Label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-cargo"
-                        type="text"
-                        placeholder="Ex: Gerente"
-                        value={signupCargo}
-                        onChange={(e) => setSignupCargo(e.target.value)}
-                        className="pl-10 h-11"
-                      />
+                ) : (
+                  <form onSubmit={handleSignup} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name">Nome Completo</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-name"
+                          type="text"
+                          placeholder="Seu nome"
+                          value={signupName}
+                          onChange={(e) => setSignupName(e.target.value)}
+                          required
+                          className="pl-10 h-11"
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-area">Área de Atuação</Label>
-                    <Select value={signupArea} onValueChange={setSignupArea}>
-                      <SelectTrigger className="h-11">
-                        <Building2 className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Selecione sua área" className="pl-6" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {areaOptions.map((area) => (
-                          <SelectItem key={area.value} value={area.value}>
-                            {area.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={signupEmail}
-                        onChange={(e) => setSignupEmail(e.target.value)}
-                        required
-                        className="pl-10 h-11"
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-cargo">Cargo</Label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-cargo"
+                          type="text"
+                          placeholder="Ex: Gerente"
+                          value={signupCargo}
+                          onChange={(e) => setSignupCargo(e.target.value)}
+                          className="pl-10 h-11"
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        type={showSignupPassword ? "text" : "password"}
-                        placeholder="Mínimo 6 caracteres"
-                        value={signupPassword}
-                        onChange={(e) => setSignupPassword(e.target.value)}
-                        required
-                        minLength={6}
-                        className="pl-10 pr-10 h-11"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowSignupPassword(!showSignupPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showSignupPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-area">Área de Atuação</Label>
+                      <Select value={signupArea} onValueChange={setSignupArea}>
+                        <SelectTrigger className="h-11">
+                          <Building2 className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                          <SelectValue placeholder="Selecione sua área" className="pl-6" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {areaOptions.map((area) => (
+                            <SelectItem key={area.value} value={area.value}>
+                              {area.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      'Continuar'
+                    {signupArea === 'outro' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-area-outro">Especifique sua área</Label>
+                        <Input
+                          id="signup-area-outro"
+                          type="text"
+                          placeholder="Digite sua área de atuação"
+                          value={signupAreaOutro}
+                          onChange={(e) => setSignupAreaOutro(e.target.value)}
+                          className="h-11"
+                        />
+                      </div>
                     )}
-                  </Button>
 
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator className="w-full" />
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="seu@email.com"
+                          value={signupEmail}
+                          onChange={(e) => setSignupEmail(e.target.value)}
+                          required
+                          className="pl-10 h-11"
+                        />
+                      </div>
                     </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">ou</span>
-                    </div>
-                  </div>
 
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full h-11"
-                    onClick={handleGoogleSignIn}
-                    disabled={isGoogleLoading}
-                  >
-                    {isGoogleLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <>
-                        <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
-                          <path
-                            fill="currentColor"
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                          />
-                          <path
-                            fill="currentColor"
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                          />
-                          <path
-                            fill="currentColor"
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                          />
-                          <path
-                            fill="currentColor"
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                          />
-                        </svg>
-                        Cadastrar com Google
-                      </>
-                    )}
-                  </Button>
-                </form>
+                    <Button 
+                      type="submit" 
+                      className="w-full h-11 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Continuar'
+                      )}
+                    </Button>
+
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <Separator className="w-full" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">ou</span>
+                      </div>
+                    </div>
+
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full h-11"
+                      onClick={handleGoogleSignIn}
+                      disabled={isGoogleLoading}
+                    >
+                      {isGoogleLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
+                            <path
+                              fill="currentColor"
+                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            />
+                          </svg>
+                          Cadastrar com Google
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                )}
               </TabsContent>
             </Tabs>
 

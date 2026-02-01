@@ -19,6 +19,7 @@ import { SettingsModal } from '@/components/settings/SettingsModal';
 import { KeysManagementPanel } from '@/components/keys/KeysManagementPanel';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { OnboardingSidebar } from '@/components/onboarding/OnboardingSidebar';
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { TrialBanner } from '@/components/subscription/TrialBanner';
 import { TrialExpiredModal } from '@/components/subscription/TrialExpiredModal';
@@ -367,6 +368,9 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
+      {/* Welcome Modal - First time login */}
+      <WelcomeModal />
+      
       {/* Trial Banner */}
       <TrialBanner />
       

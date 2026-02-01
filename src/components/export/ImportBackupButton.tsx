@@ -5,6 +5,9 @@ import { useCreateAccount, useCreateProject, useCreateTag, useAccounts, useTags,
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { saveAccountLocalKeys, getLocalKeys } from '@/hooks/useLocalKeys';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,11 +31,15 @@ interface BackupData {
     accounts: any[];
     projects: any[];
     tags: any[];
+    localKeys?: Record<string, any>;
+    checklists?: any[];
   };
   summary: {
     totalAccounts: number;
     totalProjects: number;
     totalTags: number;
+    totalLocalKeys?: number;
+    totalChecklists?: number;
   };
 }
 
@@ -47,6 +54,7 @@ export function ImportBackupButton({
   const [overwriteExisting, setOverwriteExisting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Fetch existing data to match by email/name
   const { data: existingAccounts = [] } = useAccounts();
@@ -89,7 +97,7 @@ export function ImportBackupButton({
   };
 
   const handleImport = async () => {
-    if (!backupData) return;
+    if (!backupData || !user) return;
     
     setImporting(true);
     setConfirmOpen(false);
@@ -100,10 +108,13 @@ export function ImportBackupButton({
       let projectsUpdated = 0;
       let tagsImported = 0;
       let projectsSkipped = 0;
+      let keysImported = 0;
+      let checklistsImported = 0;
       
       // Map old IDs to new IDs
       const accountIdMap = new Map<string, string>();
       const tagIdMap = new Map<string, string>();
+      const projectIdMap = new Map<string, string>();
 
       // First, map existing accounts by email to handle duplicates
       for (const account of backupData.data.accounts) {
@@ -167,6 +178,8 @@ export function ImportBackupButton({
         );
 
         if (existingProject) {
+          projectIdMap.set(project.id, existingProject.id);
+          
           if (overwriteExisting) {
             // Update existing project
             try {
@@ -194,7 +207,7 @@ export function ImportBackupButton({
         } else {
           // Create new project
           try {
-            await createProject.mutateAsync({
+            const result = await createProject.mutateAsync({
               name: project.name,
               description: project.description || '',
               url: project.url || '',
@@ -207,10 +220,81 @@ export function ImportBackupButton({
               screenshot: project.screenshot || null,
               deadline: project.deadline || null,
             });
+            projectIdMap.set(project.id, result.id);
             projectsImported++;
           } catch (e: any) {
             console.warn('Erro ao importar projeto:', project.name, e);
             projectsSkipped++;
+          }
+        }
+      }
+
+      // Import local keys
+      if (backupData.data.localKeys) {
+        const existingLocalKeys = getLocalKeys();
+        
+        for (const [oldAccountId, keys] of Object.entries(backupData.data.localKeys)) {
+          const newAccountId = accountIdMap.get(oldAccountId);
+          if (newAccountId && keys && typeof keys === 'object') {
+            // Merge with existing keys if overwrite is enabled, otherwise only add new
+            if (overwriteExisting || !existingLocalKeys[newAccountId]) {
+              saveAccountLocalKeys(newAccountId, keys as any);
+              keysImported++;
+            }
+          }
+        }
+      }
+
+      // Import checklists
+      if (backupData.data.checklists && backupData.data.checklists.length > 0) {
+        for (const checklist of backupData.data.checklists) {
+          const newProjectId = projectIdMap.get(checklist.projectId);
+          if (!newProjectId) {
+            console.warn('Projeto não encontrado para checklist:', checklist.title);
+            continue;
+          }
+
+          try {
+            // Check if checklist item already exists
+            const { data: existing } = await supabase
+              .from('project_checklists')
+              .select('id')
+              .eq('project_id', newProjectId)
+              .eq('title', checklist.title)
+              .single();
+
+            if (existing && !overwriteExisting) {
+              console.log('Checklist já existe (ignorado):', checklist.title);
+              continue;
+            }
+
+            if (existing && overwriteExisting) {
+              // Update existing checklist
+              await supabase
+                .from('project_checklists')
+                .update({
+                  is_completed: checklist.isCompleted,
+                  completed_at: checklist.completedAt,
+                  position: checklist.position,
+                })
+                .eq('id', existing.id);
+              checklistsImported++;
+            } else {
+              // Create new checklist
+              await supabase
+                .from('project_checklists')
+                .insert({
+                  project_id: newProjectId,
+                  user_id: user.id,
+                  title: checklist.title,
+                  is_completed: checklist.isCompleted || false,
+                  completed_at: checklist.completedAt || null,
+                  position: checklist.position || 0,
+                });
+              checklistsImported++;
+            }
+          } catch (e) {
+            console.warn('Erro ao importar checklist:', checklist.title, e);
           }
         }
       }
@@ -220,6 +304,8 @@ export function ImportBackupButton({
       if (projectsImported > 0) parts.push(`${projectsImported} projetos criados`);
       if (projectsUpdated > 0) parts.push(`${projectsUpdated} projetos atualizados`);
       if (tagsImported > 0) parts.push(`${tagsImported} tags criadas`);
+      if (keysImported > 0) parts.push(`${keysImported} keys restauradas`);
+      if (checklistsImported > 0) parts.push(`${checklistsImported} itens de checklist`);
       if (projectsSkipped > 0) parts.push(`${projectsSkipped} projetos ignorados`);
 
       toast({
@@ -271,10 +357,16 @@ export function ImportBackupButton({
               <div className="space-y-3">
                 <p>Deseja importar os dados do backup?</p>
                 {backupData && (
-                  <div className="bg-muted p-3 rounded-lg text-sm">
+                  <div className="bg-muted p-3 rounded-lg text-sm space-y-1">
                     <p><strong>{backupData.summary.totalAccounts}</strong> contas</p>
                     <p><strong>{backupData.summary.totalProjects}</strong> projetos</p>
                     <p><strong>{backupData.summary.totalTags}</strong> tags</p>
+                    {backupData.summary.totalLocalKeys !== undefined && (
+                      <p><strong>{backupData.summary.totalLocalKeys}</strong> keys de integração</p>
+                    )}
+                    {backupData.summary.totalChecklists !== undefined && (
+                      <p><strong>{backupData.summary.totalChecklists}</strong> itens de checklist</p>
+                    )}
                   </div>
                 )}
                 
@@ -288,14 +380,14 @@ export function ImportBackupButton({
                     htmlFor="overwrite" 
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                   >
-                    Sobrescrever projetos existentes
+                    Sobrescrever dados existentes
                   </Label>
                 </div>
                 
                 <p className="text-xs text-muted-foreground">
                   {overwriteExisting 
-                    ? 'Projetos existentes serão atualizados com os dados do backup.'
-                    : 'Projetos duplicados serão ignorados.'}
+                    ? 'Projetos, keys e checklists existentes serão atualizados com os dados do backup.'
+                    : 'Dados duplicados serão ignorados.'}
                 </p>
               </div>
             </AlertDialogDescription>

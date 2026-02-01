@@ -20,7 +20,8 @@ import {
   History,
   Loader2,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -143,6 +144,12 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
                                 {entry.description && (
                                   <p className="text-sm text-muted-foreground mt-0.5">
                                     {entry.description}
+                                  </p>
+                                )}
+                                {entry.contributor_name && (
+                                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                    <User className="w-3 h-3" />
+                                    Feedback de <span className="font-medium">{entry.contributor_name}</span>
                                   </p>
                                 )}
                               </div>

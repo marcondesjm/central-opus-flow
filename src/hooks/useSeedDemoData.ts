@@ -71,6 +71,68 @@ const demoTags = [
   { name: 'SaaS', color: 'amber' },
 ];
 
+// Demo checklists for each project (index matches demoProjects)
+const demoChecklists = [
+  // E-commerce Fashion Store
+  [
+    { title: 'Configurar catálogo de produtos', is_completed: true },
+    { title: 'Integrar gateway de pagamento Stripe', is_completed: true },
+    { title: 'Implementar carrinho de compras', is_completed: true },
+    { title: 'Configurar checkout responsivo', is_completed: true },
+    { title: 'Adicionar sistema de cupons', is_completed: false },
+  ],
+  // Landing Page Startup
+  [
+    { title: 'Criar hero section impactante', is_completed: true },
+    { title: 'Configurar formulário de captura', is_completed: true },
+    { title: 'Integrar email marketing', is_completed: true },
+    { title: 'Otimizar para SEO', is_completed: false },
+  ],
+  // Dashboard Analytics
+  [
+    { title: 'Criar componentes de gráficos', is_completed: true },
+    { title: 'Implementar filtros por período', is_completed: true },
+    { title: 'Conectar API de dados', is_completed: false },
+    { title: 'Adicionar exportação PDF', is_completed: false },
+  ],
+  // Funil de Vendas Curso
+  [
+    { title: 'Gravar VSL principal', is_completed: true },
+    { title: 'Criar página de vendas', is_completed: false },
+    { title: 'Configurar checkout', is_completed: false },
+    { title: 'Implementar upsell', is_completed: false },
+  ],
+];
+
+// Demo history entries for each project (index matches demoProjects)
+const demoHistoryEntries = [
+  // E-commerce Fashion Store
+  [
+    { action: 'created', field_name: null, old_value: null, new_value: null },
+    { action: 'updated', field_name: 'status', old_value: 'draft', new_value: 'published' },
+    { action: 'updated', field_name: 'progress', old_value: '50', new_value: '80' },
+    { action: 'updated', field_name: 'is_favorite', old_value: 'false', new_value: 'true' },
+  ],
+  // Landing Page Startup
+  [
+    { action: 'created', field_name: null, old_value: null, new_value: null },
+    { action: 'updated', field_name: 'status', old_value: 'draft', new_value: 'published' },
+    { action: 'updated', field_name: 'progress', old_value: '60', new_value: '100' },
+  ],
+  // Dashboard Analytics
+  [
+    { action: 'created', field_name: null, old_value: null, new_value: null },
+    { action: 'updated', field_name: 'progress', old_value: '30', new_value: '65' },
+    { action: 'updated', field_name: 'description', old_value: 'Dashboard simples', new_value: 'Painel administrativo com gráficos e relatórios em tempo real' },
+  ],
+  // Funil de Vendas Curso
+  [
+    { action: 'created', field_name: null, old_value: null, new_value: null },
+    { action: 'updated', field_name: 'notes', old_value: null, new_value: 'Precisa finalizar urgente!' },
+    { action: 'updated', field_name: 'progress', old_value: '20', new_value: '40' },
+  ],
+];
+
 export function useSeedDemoData() {
   const { user } = useAuth();
   const [seeding, setSeeding] = useState(false);
@@ -204,6 +266,60 @@ export function useSeedDemoData() {
                   }))
                 );
             }
+          }
+        }
+      }
+
+      // Create demo checklists and history for each project
+      if (projects) {
+        // Get user profile for history entries
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const userName = profile?.full_name || user.email || 'Usuário';
+        const userAvatar = profile?.avatar_url || null;
+
+        for (let i = 0; i < projects.length; i++) {
+          const project = projects[i];
+          const checklists = demoChecklists[i] || [];
+          const historyEntries = demoHistoryEntries[i] || [];
+
+          // Insert checklists
+          if (checklists.length > 0) {
+            await supabase
+              .from('project_checklists')
+              .insert(
+                checklists.map((item, index) => ({
+                  project_id: project.id,
+                  user_id: user.id,
+                  title: item.title,
+                  is_completed: item.is_completed,
+                  position: index,
+                  completed_at: item.is_completed ? new Date().toISOString() : null,
+                  completed_by: item.is_completed ? user.id : null,
+                }))
+              );
+          }
+
+          // Insert history entries
+          if (historyEntries.length > 0) {
+            await supabase
+              .from('project_history')
+              .insert(
+                historyEntries.map((entry) => ({
+                  project_id: project.id,
+                  user_id: user.id,
+                  action: entry.action,
+                  field_name: entry.field_name,
+                  old_value: entry.old_value,
+                  new_value: entry.new_value,
+                  user_name: userName,
+                  user_avatar: userAvatar,
+                }))
+              );
           }
         }
       }

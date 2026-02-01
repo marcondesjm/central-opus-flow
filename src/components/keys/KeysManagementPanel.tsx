@@ -28,12 +28,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useAccounts } from '@/hooks/useProjects';
+import { useAccounts, useProjects } from '@/hooks/useProjects';
 import { 
   getLocalKeys, 
   getAccountLocalKeys, 
   saveAccountLocalKeys,
   deleteAccountLocalKeys,
+  getProjectLocalKeys,
+  getProjectKeys,
+  saveProjectLocalKeys,
+  deleteProjectLocalKeys,
   AccountLocalKeys 
 } from '@/hooks/useLocalKeys';
 import { KeysBackupButtons } from './KeysBackupButtons';
@@ -49,9 +53,12 @@ import {
   Plus,
   Shield,
   FileText,
-  FileJson
+  FileJson,
+  Building2,
+  FolderOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface KeysManagementPanelProps {
   open: boolean;
@@ -65,23 +72,29 @@ interface EditingKeys {
 
 export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelProps) {
   const { data: accounts = [] } = useAccounts();
-  const [allKeys, setAllKeys] = useState<Record<string, AccountLocalKeys>>({});
+  const { data: projects = [] } = useProjects();
+  const [allAccountKeys, setAllAccountKeys] = useState<Record<string, AccountLocalKeys>>({});
+  const [allProjectKeys, setAllProjectKeys] = useState<Record<string, AccountLocalKeys>>({});
   const [editingAccount, setEditingAccount] = useState<EditingKeys | null>(null);
   const [showValues, setShowValues] = useState<Record<string, boolean>>({});
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'account' | 'project' } | null>(null);
   const [quickAddKeys, setQuickAddKeys] = useState<AccountLocalKeys>({});
   const [selectedQuickAccount, setSelectedQuickAccount] = useState<string>('');
+  const [selectedQuickProject, setSelectedQuickProject] = useState<string>('');
+  const [addMode, setAddMode] = useState<'account' | 'project'>('account');
   const { toast } = useToast();
 
   // Carregar todas as keys
   useEffect(() => {
     if (open) {
-      setAllKeys(getLocalKeys());
+      setAllAccountKeys(getLocalKeys());
+      setAllProjectKeys(getProjectLocalKeys());
     }
   }, [open]);
 
   const refreshKeys = () => {
-    setAllKeys(getLocalKeys());
+    setAllAccountKeys(getLocalKeys());
+    setAllProjectKeys(getProjectLocalKeys());
   };
 
   const getAccountName = (accountId: string) => {
@@ -138,16 +151,6 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
     });
   };
 
-  const handleDeleteKeys = (accountId: string) => {
-    deleteAccountLocalKeys(accountId);
-    refreshKeys();
-    setDeleteConfirm(null);
-    
-    toast({
-      title: 'Keys removidas',
-      description: `Todas as keys da conta "${getAccountName(accountId)}" foram removidas.`,
-    });
-  };
 
   const updateEditingKey = (field: keyof AccountLocalKeys, value: string) => {
     if (!editingAccount) return;
@@ -188,11 +191,41 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
     });
   };
 
-  const accountsWithKeys = Object.keys(allKeys);
-  const accountsWithoutKeys = accounts.filter(a => !allKeys[a.id]);
+  const accountsWithKeys = Object.keys(allAccountKeys);
+  const projectsWithKeys = Object.keys(allProjectKeys);
+  const accountsWithoutKeys = accounts.filter(a => !allAccountKeys[a.id]);
+  const projectsWithoutKeys = projects.filter(p => !allProjectKeys[p.id]);
 
-  // Estado para adicionar keys a contas que já têm keys
+  // Estado para adicionar keys a contas/projetos que já têm keys
   const [addingToExistingAccount, setAddingToExistingAccount] = useState<string>('');
+  const [addingToExistingProject, setAddingToExistingProject] = useState<string>('');
+
+  const getProjectName = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return project?.name || 'Projeto desconhecido';
+  };
+
+  const handleDeleteAccountKeys = (accountId: string) => {
+    deleteAccountLocalKeys(accountId);
+    refreshKeys();
+    setDeleteConfirm(null);
+    
+    toast({
+      title: 'Keys removidas',
+      description: `Todas as keys da conta "${getAccountName(accountId)}" foram removidas.`,
+    });
+  };
+
+  const handleDeleteProjectKeys = (projectId: string) => {
+    deleteProjectLocalKeys(projectId);
+    refreshKeys();
+    setDeleteConfirm(null);
+    
+    toast({
+      title: 'Keys removidas',
+      description: `Todas as keys do projeto "${getProjectName(projectId)}" foram removidas.`,
+    });
+  };
 
   return (
     <>
@@ -243,7 +276,7 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
               ) : (
                 <Accordion type="multiple" className="space-y-2">
                   {accountsWithKeys.map((accountId) => {
-                    const keys = allKeys[accountId];
+                    const keys = allAccountKeys[accountId];
                     const isEditing = editingAccount?.accountId === accountId;
                     const currentKeys = isEditing ? editingAccount.keys : keys;
                     
@@ -504,7 +537,7 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                                     type="button"
                                     variant="destructive"
                                     size="sm"
-                                    onClick={() => setDeleteConfirm(accountId)}
+                                    onClick={() => setDeleteConfirm({ id: accountId, type: 'account' })}
                                   >
                                     <Trash2 className="w-3 h-3 mr-1" />
                                     Remover
@@ -558,159 +591,331 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                   </div>
                 </div>
 
-                {/* Seletor de conta - todas as contas */}
-                {accounts.length > 0 && (
-                  <div className="mb-4">
-                    <Label className="text-xs text-muted-foreground mb-2 block">Selecione uma conta:</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {accounts.map((account) => {
-                        const isSelected = selectedQuickAccount === account.id || addingToExistingAccount === account.id;
-                        const hasKeys = !!allKeys[account.id];
-                        
-                        return (
-                          <Badge 
-                            key={account.id} 
-                            variant={isSelected ? "default" : "outline"} 
-                            className={cn(
-                              "gap-1 cursor-pointer transition-all",
-                              isSelected ? "opacity-100" : "opacity-60 hover:opacity-100"
-                            )}
+                {/* Tabs para escolher Conta ou Projeto */}
+                <Tabs value={addMode} onValueChange={(v) => {
+                  setAddMode(v as 'account' | 'project');
+                  setQuickAddKeys({});
+                  setSelectedQuickAccount('');
+                  setSelectedQuickProject('');
+                  setAddingToExistingAccount('');
+                  setAddingToExistingProject('');
+                }} className="mb-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="account" className="gap-1">
+                      <Building2 className="w-3 h-3" />
+                      Conta
+                    </TabsTrigger>
+                    <TabsTrigger value="project" className="gap-1">
+                      <FolderOpen className="w-3 h-3" />
+                      Projeto
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="account" className="mt-4">
+                    {/* Seletor de conta */}
+                    {accounts.length > 0 ? (
+                      <>
+                        <div className="mb-4">
+                          <Label className="text-xs text-muted-foreground mb-2 block">Selecione uma conta:</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {accounts.map((account) => {
+                              const isSelected = selectedQuickAccount === account.id || addingToExistingAccount === account.id;
+                              const hasKeys = !!allAccountKeys[account.id];
+                              
+                              return (
+                                <Badge 
+                                  key={account.id} 
+                                  variant={isSelected ? "default" : "outline"} 
+                                  className={cn(
+                                    "gap-1 cursor-pointer transition-all",
+                                    isSelected ? "opacity-100" : "opacity-60 hover:opacity-100"
+                                  )}
+                                  onClick={() => {
+                                    if (hasKeys) {
+                                      setAddingToExistingAccount(account.id);
+                                      setSelectedQuickAccount('');
+                                      setQuickAddKeys(getAccountLocalKeys(account.id));
+                                    } else {
+                                      setSelectedQuickAccount(account.id);
+                                      setAddingToExistingAccount('');
+                                      setQuickAddKeys({});
+                                    }
+                                  }}
+                                >
+                                  <div className={cn(
+                                    'w-2 h-2 rounded-full',
+                                    colorClasses[account.color]
+                                  )} />
+                                  {account.name}
+                                  {hasKeys && (
+                                    <span className="text-[10px] opacity-70">(tem keys)</span>
+                                  )}
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Campos da conta */}
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs">URL Supabase</Label>
+                            <Input
+                              placeholder="https://xxx.supabase.co"
+                              value={quickAddKeys.supabase_url || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, supabase_url: e.target.value }))}
+                              disabled={!selectedQuickAccount && !addingToExistingAccount}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Anon Key</Label>
+                            <Input
+                              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                              value={quickAddKeys.anon_key || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, anon_key: e.target.value }))}
+                              disabled={!selectedQuickAccount && !addingToExistingAccount}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Service Role Key</Label>
+                            <Input
+                              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                              value={quickAddKeys.service_role_key || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, service_role_key: e.target.value }))}
+                              disabled={!selectedQuickAccount && !addingToExistingAccount}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">OpenAI Key</Label>
+                            <Input
+                              placeholder="sk-proj-..."
+                              value={quickAddKeys.openai_key || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, openai_key: e.target.value }))}
+                              disabled={!selectedQuickAccount && !addingToExistingAccount}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Outros (notas, tokens, etc.)</Label>
+                            <textarea
+                              placeholder="Cole aqui outras keys, tokens ou anotações..."
+                              value={quickAddKeys.notes || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, notes: e.target.value }))}
+                              disabled={!selectedQuickAccount && !addingToExistingAccount}
+                              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                            />
+                          </div>
+
+                          <Button
+                            className="w-full mt-2"
                             onClick={() => {
-                              if (hasKeys) {
-                                setAddingToExistingAccount(account.id);
-                                setSelectedQuickAccount('');
-                                // Load existing keys for editing
-                                setQuickAddKeys(getAccountLocalKeys(account.id));
-                              } else {
-                                setSelectedQuickAccount(account.id);
-                                setAddingToExistingAccount('');
-                                setQuickAddKeys({});
+                              const targetAccount = selectedQuickAccount || addingToExistingAccount;
+                              
+                              if (!targetAccount) {
+                                toast({
+                                  title: 'Selecione uma conta',
+                                  description: 'Escolha a conta para salvar as keys',
+                                  variant: 'destructive',
+                                });
+                                return;
                               }
+                              
+                              const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
+                                               quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
+                              
+                              if (!hasAnyKey) {
+                                toast({
+                                  title: 'Preencha pelo menos um campo',
+                                  variant: 'destructive',
+                                });
+                                return;
+                              }
+
+                              saveAccountLocalKeys(targetAccount, quickAddKeys);
+                              refreshKeys();
+                              setQuickAddKeys({});
+                              setSelectedQuickAccount('');
+                              setAddingToExistingAccount('');
+                              toast({
+                                title: 'Keys salvas!',
+                                description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
+                              });
                             }}
+                            disabled={!selectedQuickAccount && !addingToExistingAccount}
                           >
-                            <div className={cn(
-                              'w-2 h-2 rounded-full',
-                              colorClasses[account.color]
-                            )} />
-                            {account.name}
-                            {hasKeys && (
-                              <span className="text-[10px] opacity-70">(tem keys)</span>
-                            )}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                            <Save className="w-4 h-4 mr-2" />
+                            {selectedQuickAccount 
+                              ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
+                              : addingToExistingAccount 
+                                ? `Atualizar Keys de ${getAccountName(addingToExistingAccount)}`
+                                : 'Selecione uma conta'}
+                          </Button>
 
-                {/* Campos editáveis */}
-                {accounts.length > 0 ? (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs">URL Supabase</Label>
-                      <Input
-                        placeholder="https://xxx.supabase.co"
-                        value={quickAddKeys.supabase_url || ''}
-                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, supabase_url: e.target.value }))}
-                        disabled={!selectedQuickAccount && !addingToExistingAccount}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Anon Key</Label>
-                      <Input
-                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                        value={quickAddKeys.anon_key || ''}
-                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, anon_key: e.target.value }))}
-                        disabled={!selectedQuickAccount && !addingToExistingAccount}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Service Role Key</Label>
-                      <Input
-                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                        value={quickAddKeys.service_role_key || ''}
-                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, service_role_key: e.target.value }))}
-                        disabled={!selectedQuickAccount && !addingToExistingAccount}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">OpenAI Key</Label>
-                      <Input
-                        placeholder="sk-proj-..."
-                        value={quickAddKeys.openai_key || ''}
-                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, openai_key: e.target.value }))}
-                        disabled={!selectedQuickAccount && !addingToExistingAccount}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Outros (notas, tokens, etc.)</Label>
-                      <textarea
-                        placeholder="Cole aqui outras keys, tokens ou anotações..."
-                        value={quickAddKeys.notes || ''}
-                        onChange={(e) => setQuickAddKeys(prev => ({ ...prev, notes: e.target.value }))}
-                        disabled={!selectedQuickAccount && !addingToExistingAccount}
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                      />
-                    </div>
-
-                    {/* Botão salvar */}
-                    <Button
-                      className="w-full mt-2"
-                      onClick={() => {
-                        const targetAccount = selectedQuickAccount || addingToExistingAccount;
-                        
-                        if (!targetAccount) {
-                          toast({
-                            title: 'Selecione uma conta',
-                            description: 'Escolha a conta para salvar as keys',
-                            variant: 'destructive',
-                          });
-                          return;
-                        }
-                        
-                        const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
-                                         quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
-                        
-                        if (!hasAnyKey) {
-                          toast({
-                            title: 'Preencha pelo menos um campo',
-                            variant: 'destructive',
-                          });
-                          return;
-                        }
-
-                        saveAccountLocalKeys(targetAccount, quickAddKeys);
-                        refreshKeys();
-                        setQuickAddKeys({});
-                        setSelectedQuickAccount('');
-                        setAddingToExistingAccount('');
-                        toast({
-                          title: 'Keys salvas!',
-                          description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
-                        });
-                      }}
-                      disabled={!selectedQuickAccount && !addingToExistingAccount}
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      {selectedQuickAccount 
-                        ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
-                        : addingToExistingAccount 
-                          ? `Atualizar Keys de ${getAccountName(addingToExistingAccount)}`
-                          : 'Selecione uma conta'}
-                    </Button>
-
-                    {!selectedQuickAccount && !addingToExistingAccount && (
-                      <p className="text-xs text-muted-foreground text-center py-2">
-                        Selecione uma conta acima para preencher as keys
-                      </p>
+                          {!selectedQuickAccount && !addingToExistingAccount && (
+                            <p className="text-xs text-muted-foreground text-center py-2">
+                              Selecione uma conta acima para preencher as keys
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        <p className="text-sm">Nenhuma conta disponível</p>
+                        <p className="text-xs mt-1">Crie uma conta primeiro para adicionar keys</p>
+                      </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground">
-                    <p className="text-sm">Nenhuma conta disponível</p>
-                    <p className="text-xs mt-1">Crie uma conta primeiro para adicionar keys</p>
-                  </div>
-                )}
+                  </TabsContent>
+                  
+                  <TabsContent value="project" className="mt-4">
+                    {/* Seletor de projeto */}
+                    {projects.length > 0 ? (
+                      <>
+                        <div className="mb-4">
+                          <Label className="text-xs text-muted-foreground mb-2 block">Selecione um projeto:</Label>
+                          <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                            {projects.map((project) => {
+                              const isSelected = selectedQuickProject === project.id || addingToExistingProject === project.id;
+                              const hasKeys = !!allProjectKeys[project.id];
+                              
+                              return (
+                                <Badge 
+                                  key={project.id} 
+                                  variant={isSelected ? "default" : "outline"} 
+                                  className={cn(
+                                    "gap-1 cursor-pointer transition-all",
+                                    isSelected ? "opacity-100" : "opacity-60 hover:opacity-100"
+                                  )}
+                                  onClick={() => {
+                                    if (hasKeys) {
+                                      setAddingToExistingProject(project.id);
+                                      setSelectedQuickProject('');
+                                      setQuickAddKeys(getProjectKeys(project.id));
+                                    } else {
+                                      setSelectedQuickProject(project.id);
+                                      setAddingToExistingProject('');
+                                      setQuickAddKeys({});
+                                    }
+                                  }}
+                                >
+                                  <FolderOpen className="w-3 h-3" />
+                                  {project.name}
+                                  {hasKeys && (
+                                    <span className="text-[10px] opacity-70">(tem keys)</span>
+                                  )}
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Campos do projeto */}
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs">URL Supabase</Label>
+                            <Input
+                              placeholder="https://xxx.supabase.co"
+                              value={quickAddKeys.supabase_url || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, supabase_url: e.target.value }))}
+                              disabled={!selectedQuickProject && !addingToExistingProject}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Anon Key</Label>
+                            <Input
+                              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                              value={quickAddKeys.anon_key || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, anon_key: e.target.value }))}
+                              disabled={!selectedQuickProject && !addingToExistingProject}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Service Role Key</Label>
+                            <Input
+                              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                              value={quickAddKeys.service_role_key || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, service_role_key: e.target.value }))}
+                              disabled={!selectedQuickProject && !addingToExistingProject}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">OpenAI Key</Label>
+                            <Input
+                              placeholder="sk-proj-..."
+                              value={quickAddKeys.openai_key || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, openai_key: e.target.value }))}
+                              disabled={!selectedQuickProject && !addingToExistingProject}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Outros (notas, tokens, etc.)</Label>
+                            <textarea
+                              placeholder="Cole aqui outras keys, tokens ou anotações..."
+                              value={quickAddKeys.notes || ''}
+                              onChange={(e) => setQuickAddKeys(prev => ({ ...prev, notes: e.target.value }))}
+                              disabled={!selectedQuickProject && !addingToExistingProject}
+                              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                            />
+                          </div>
+
+                          <Button
+                            className="w-full mt-2"
+                            onClick={() => {
+                              const targetProject = selectedQuickProject || addingToExistingProject;
+                              
+                              if (!targetProject) {
+                                toast({
+                                  title: 'Selecione um projeto',
+                                  description: 'Escolha o projeto para salvar as keys',
+                                  variant: 'destructive',
+                                });
+                                return;
+                              }
+                              
+                              const hasAnyKey = quickAddKeys.supabase_url || quickAddKeys.anon_key || 
+                                               quickAddKeys.service_role_key || quickAddKeys.openai_key || quickAddKeys.notes;
+                              
+                              if (!hasAnyKey) {
+                                toast({
+                                  title: 'Preencha pelo menos um campo',
+                                  variant: 'destructive',
+                                });
+                                return;
+                              }
+
+                              saveProjectLocalKeys(targetProject, quickAddKeys);
+                              refreshKeys();
+                              setQuickAddKeys({});
+                              setSelectedQuickProject('');
+                              setAddingToExistingProject('');
+                              toast({
+                                title: 'Keys salvas!',
+                                description: `Keys adicionadas para ${getProjectName(targetProject)}`,
+                              });
+                            }}
+                            disabled={!selectedQuickProject && !addingToExistingProject}
+                          >
+                            <Save className="w-4 h-4 mr-2" />
+                            {selectedQuickProject 
+                              ? `Salvar Keys para ${getProjectName(selectedQuickProject)}`
+                              : addingToExistingProject 
+                                ? `Atualizar Keys de ${getProjectName(addingToExistingProject)}`
+                                : 'Selecione um projeto'}
+                          </Button>
+
+                          {!selectedQuickProject && !addingToExistingProject && (
+                            <p className="text-xs text-muted-foreground text-center py-2">
+                              Selecione um projeto acima para preencher as keys
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        <p className="text-sm">Nenhum projeto disponível</p>
+                        <p className="text-xs mt-1">Crie um projeto primeiro para adicionar keys</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </div>
@@ -730,14 +935,27 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
           <AlertDialogHeader>
             <AlertDialogTitle>Remover todas as keys?</AlertDialogTitle>
             <AlertDialogDescription>
-              Isso irá remover todas as keys salvas para a conta "{deleteConfirm ? getAccountName(deleteConfirm) : ''}". 
+              Isso irá remover todas as keys salvas para {deleteConfirm?.type === 'project' ? 'o projeto' : 'a conta'} "
+              {deleteConfirm 
+                ? (deleteConfirm.type === 'project' 
+                    ? getProjectName(deleteConfirm.id) 
+                    : getAccountName(deleteConfirm.id))
+                : ''}". 
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteConfirm && handleDeleteKeys(deleteConfirm)}
+              onClick={() => {
+                if (deleteConfirm) {
+                  if (deleteConfirm.type === 'project') {
+                    handleDeleteProjectKeys(deleteConfirm.id);
+                  } else {
+                    handleDeleteAccountKeys(deleteConfirm.id);
+                  }
+                }
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Remover

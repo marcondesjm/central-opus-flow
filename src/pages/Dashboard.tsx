@@ -29,6 +29,7 @@ import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { useAuth } from '@/hooks/useAuth';
 import { useSeedDemoData } from '@/hooks/useSeedDemoData';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useProjectPresence } from '@/hooks/useProjectPresence';
@@ -72,7 +73,9 @@ export default function Dashboard() {
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [historyProjectId, setHistoryProjectId] = useState<string | null>(null);
+  const [welcomeComplete, setWelcomeComplete] = useState(false);
 
+  const { user } = useAuth();
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { data: tags = [] } = useTags();
@@ -109,6 +112,17 @@ export default function Dashboard() {
   
   // Checklist progress for all projects
   const { data: checklistProgressMap = {} } = useMultipleChecklistProgress(projectIds);
+
+  // Check if user has already seen welcome modal on mount
+  useEffect(() => {
+    if (user) {
+      const welcomeKey = `welcome_shown_${user.id}`;
+      const hasSeenWelcome = localStorage.getItem(welcomeKey);
+      if (hasSeenWelcome) {
+        setWelcomeComplete(true);
+      }
+    }
+  }, [user]);
 
   // Seed demo data for new users
   useEffect(() => {
@@ -369,7 +383,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Welcome Modal - First time login */}
-      <WelcomeModal />
+      <WelcomeModal onComplete={() => setWelcomeComplete(true)} />
       
       {/* Trial Banner */}
       <TrialBanner />
@@ -585,8 +599,8 @@ export default function Dashboard() {
         onNewProject={() => setAddProjectOpen(true)}
       />
 
-      {/* Onboarding Tour */}
-      {showTour && onboarding && (
+      {/* Onboarding Tour - Only show after welcome modal is closed */}
+      {showTour && onboarding && welcomeComplete && (
         <OnboardingTour
           currentStep={onboarding.onboarding_step}
           onStepChange={completeStep}

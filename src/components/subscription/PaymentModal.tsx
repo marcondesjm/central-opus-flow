@@ -388,7 +388,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 />
               </div>
 
-              {/* WhatsApp Button */}
+              {/* WhatsApp Button - Primary */}
               <Button
                 type="button"
                 className="w-full bg-[#25D366] hover:bg-[#20BD5A] text-white"
@@ -403,20 +403,34 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 ) : (
                   <>
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    Enviar pelo WhatsApp
+                    Enviar pelo WhatsApp (Recomendado)
                   </>
                 )}
               </Button>
+              
+              <p className="text-xs text-muted-foreground text-center">
+                O WhatsApp permite acompanhamento em tempo real
+              </p>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-background px-2 text-muted-foreground">ou</span>
+                </div>
+              </div>
 
               {/* Alternative: Submit without WhatsApp */}
               <Button
                 type="submit"
-                variant="outline"
-                className="w-full"
+                variant="ghost"
+                className="w-full text-muted-foreground"
                 disabled={!receiptUrl.trim() || submitReceipt.isPending}
               >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Enviar sem WhatsApp
+                <Upload className="w-4 h-4 mr-2" />
+                Apenas registrar no sistema
               </Button>
             </form>
           </div>

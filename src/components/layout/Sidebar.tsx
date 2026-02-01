@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -33,6 +33,8 @@ import { useIsAdmin } from '@/hooks/useRoles';
 import { LovableAccount } from '@/hooks/useProjects';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SidebarProps {
   activeView: string;
@@ -68,10 +70,54 @@ export function Sidebar({
   onOpenKeys
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
+  const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const { signOut, user } = useAuth();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const { data: subscription } = useSubscription();
+
+  // Fetch profile data and subscribe to realtime updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_url, full_name')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data) {
+        setProfile(data);
+      }
+    };
+
+    fetchProfile();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          setProfile({
+            avatar_url: payload.new.avatar_url,
+            full_name: payload.new.full_name,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const planConfig = {
     free: { label: 'Free', icon: Sparkles, color: 'bg-muted text-muted-foreground' },
@@ -300,13 +346,31 @@ export function Sidebar({
       {/* Footer */}
       <footer className="p-4 border-t border-sidebar-border space-y-1" role="contentinfo">
         {user && (
-          <div className="px-3 py-2 mb-2 space-y-1">
-            <p className="text-xs text-muted-foreground truncate" aria-label={`Usuário logado: ${user.email}`}>
-              {user.email}
-            </p>
+          <div className="px-3 py-2 mb-2 space-y-2">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-9 h-9 ring-2 ring-primary/20">
+                <AvatarImage 
+                  src={profile?.avatar_url || undefined} 
+                  alt={profile?.full_name || user.email || 'Avatar'} 
+                />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                  {(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                {profile?.full_name && (
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">
+                    {profile.full_name}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground truncate" aria-label={`Usuário logado: ${user.email}`}>
+                  {user.email}
+                </p>
+              </div>
+            </div>
             <Badge 
               variant="secondary" 
-              className={cn("text-xs gap-1", planInfo.color)}
+              className={cn("text-xs gap-1 w-fit", planInfo.color)}
             >
               <planInfo.icon className="w-3 h-3" />
               Plano {planInfo.label}

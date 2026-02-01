@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClearCacheButton } from '@/components/settings/ClearCacheButton';
+import { FeedbackButton } from '@/components/support/FeedbackButton';
 
 export function AppFooter() {
   const { data: systemVersion, isLoading } = useSystemVersion();
@@ -14,6 +15,7 @@ export function AppFooter() {
         <div className="flex items-center gap-3">
           <span>© {new Date().getFullYear()} Central Opus Flow</span>
           <ClearCacheButton />
+          <FeedbackButton />
         </div>
         
         {isLoading ? (

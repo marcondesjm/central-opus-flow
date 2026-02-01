@@ -640,6 +640,9 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                                       setAddingToExistingAccount('');
                                       setQuickAddKeys({});
                                     }
+                                    // Limpar seleção de projeto ao trocar de conta
+                                    setSelectedQuickProject('');
+                                    setAddingToExistingProject('');
                                   }}
                                 >
                                   <div className={cn(
@@ -656,7 +659,73 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                           </div>
                         </div>
 
-                        {/* Campos da conta */}
+                        {/* Projetos da conta selecionada */}
+                        {(selectedQuickAccount || addingToExistingAccount) && (
+                          <div className="mb-4">
+                            <Label className="text-xs text-muted-foreground mb-2 block">
+                              Ou selecione um projeto desta conta (opcional):
+                            </Label>
+                            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+                              {projects
+                                .filter(p => p.account_id === (selectedQuickAccount || addingToExistingAccount))
+                                .map((project) => {
+                                  const isSelected = selectedQuickProject === project.id || addingToExistingProject === project.id;
+                                  const hasKeys = !!allProjectKeys[project.id];
+                                  
+                                  return (
+                                    <Badge 
+                                      key={project.id} 
+                                      variant={isSelected ? "default" : "outline"} 
+                                      className={cn(
+                                        "gap-1 cursor-pointer transition-all",
+                                        isSelected ? "opacity-100 bg-primary/80" : "opacity-60 hover:opacity-100"
+                                      )}
+                                      onClick={() => {
+                                        if (isSelected) {
+                                          // Desselecionar projeto - volta para conta
+                                          setSelectedQuickProject('');
+                                          setAddingToExistingProject('');
+                                          // Recarrega keys da conta
+                                          const accountId = selectedQuickAccount || addingToExistingAccount;
+                                          if (accountId && allAccountKeys[accountId]) {
+                                            setQuickAddKeys(getAccountLocalKeys(accountId));
+                                          } else {
+                                            setQuickAddKeys({});
+                                          }
+                                        } else if (hasKeys) {
+                                          setAddingToExistingProject(project.id);
+                                          setSelectedQuickProject('');
+                                          setQuickAddKeys(getProjectKeys(project.id));
+                                        } else {
+                                          setSelectedQuickProject(project.id);
+                                          setAddingToExistingProject('');
+                                          setQuickAddKeys({});
+                                        }
+                                      }}
+                                    >
+                                      <FolderOpen className="w-3 h-3" />
+                                      {project.name}
+                                      {hasKeys && (
+                                        <span className="text-[10px] opacity-70">(tem keys)</span>
+                                      )}
+                                    </Badge>
+                                  );
+                                })}
+                              {projects.filter(p => p.account_id === (selectedQuickAccount || addingToExistingAccount)).length === 0 && (
+                                <p className="text-xs text-muted-foreground">
+                                  Nenhum projeto nesta conta
+                                </p>
+                              )}
+                            </div>
+                            {(selectedQuickProject || addingToExistingProject) && (
+                              <p className="text-xs text-primary mt-2">
+                                ✓ Keys serão salvas para o projeto selecionado
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Campos da conta/projeto */}
                         <div className="space-y-3">
                           <div className="space-y-1">
                             <Label className="text-xs">URL Supabase</Label>
@@ -708,12 +777,14 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                           <Button
                             className="w-full mt-2"
                             onClick={() => {
+                              // Prioridade: projeto > conta
+                              const targetProject = selectedQuickProject || addingToExistingProject;
                               const targetAccount = selectedQuickAccount || addingToExistingAccount;
                               
-                              if (!targetAccount) {
+                              if (!targetAccount && !targetProject) {
                                 toast({
-                                  title: 'Selecione uma conta',
-                                  description: 'Escolha a conta para salvar as keys',
+                                  title: 'Selecione uma conta ou projeto',
+                                  description: 'Escolha onde salvar as keys',
                                   variant: 'destructive',
                                 });
                                 return;
@@ -730,24 +801,37 @@ export function KeysManagementPanel({ open, onOpenChange }: KeysManagementPanelP
                                 return;
                               }
 
-                              saveAccountLocalKeys(targetAccount, quickAddKeys);
+                              if (targetProject) {
+                                saveProjectLocalKeys(targetProject, quickAddKeys);
+                                toast({
+                                  title: 'Keys salvas!',
+                                  description: `Keys adicionadas para o projeto ${getProjectName(targetProject)}`,
+                                });
+                              } else if (targetAccount) {
+                                saveAccountLocalKeys(targetAccount, quickAddKeys);
+                                toast({
+                                  title: 'Keys salvas!',
+                                  description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
+                                });
+                              }
+                              
                               refreshKeys();
                               setQuickAddKeys({});
                               setSelectedQuickAccount('');
                               setAddingToExistingAccount('');
-                              toast({
-                                title: 'Keys salvas!',
-                                description: `Keys adicionadas para ${getAccountName(targetAccount)}`,
-                              });
+                              setSelectedQuickProject('');
+                              setAddingToExistingProject('');
                             }}
                             disabled={!selectedQuickAccount && !addingToExistingAccount}
                           >
                             <Save className="w-4 h-4 mr-2" />
-                            {selectedQuickAccount 
-                              ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
-                              : addingToExistingAccount 
-                                ? `Atualizar Keys de ${getAccountName(addingToExistingAccount)}`
-                                : 'Selecione uma conta'}
+                            {(selectedQuickProject || addingToExistingProject)
+                              ? `Salvar Keys para Projeto: ${getProjectName(selectedQuickProject || addingToExistingProject)}`
+                              : selectedQuickAccount 
+                                ? `Salvar Keys para ${getAccountName(selectedQuickAccount)}`
+                                : addingToExistingAccount 
+                                  ? `Atualizar Keys de ${getAccountName(addingToExistingAccount)}`
+                                  : 'Selecione uma conta'}
                           </Button>
 
                           {!selectedQuickAccount && !addingToExistingAccount && (

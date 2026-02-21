@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { saveAccountLocalKeys, getLocalKeys } from '@/hooks/useLocalKeys';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWordPressConnections, useCreateWordPressConnection } from '@/hooks/useWordPress';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ interface BackupData {
     tags: any[];
     localKeys?: Record<string, any>;
     checklists?: any[];
+    wordpressConnections?: any[];
   };
   summary: {
     totalAccounts: number;
@@ -40,6 +42,7 @@ interface BackupData {
     totalTags: number;
     totalLocalKeys?: number;
     totalChecklists?: number;
+    totalWordPressConnections?: number;
   };
 }
 
@@ -60,11 +63,13 @@ export function ImportBackupButton({
   const { data: existingAccounts = [] } = useAccounts();
   const { data: existingTags = [] } = useTags();
   const { data: existingProjects = [] } = useProjects();
+  const { data: existingWpConnections = [] } = useWordPressConnections();
   
   const createAccount = useCreateAccount();
   const createProject = useCreateProject();
   const createTag = useCreateTag();
   const updateProject = useUpdateProject();
+  const createWpConnection = useCreateWordPressConnection();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -299,6 +304,33 @@ export function ImportBackupButton({
         }
       }
 
+      // Import WordPress connections
+      let wpImported = 0;
+      if (backupData.data.wordpressConnections && backupData.data.wordpressConnections.length > 0) {
+        for (const wp of backupData.data.wordpressConnections) {
+          const exists = existingWpConnections.find(
+            e => e.site_url === wp.siteUrl && e.username === wp.username
+          );
+          if (exists && !overwriteExisting) {
+            console.log('Conexão WP já existe (ignorada):', wp.siteUrl);
+            continue;
+          }
+          if (!exists) {
+            try {
+              await createWpConnection.mutateAsync({
+                site_url: wp.siteUrl,
+                username: wp.username,
+                app_password: wp.appPassword,
+                site_name: wp.siteName || undefined,
+              });
+              wpImported++;
+            } catch (e) {
+              console.warn('Erro ao importar conexão WP:', wp.siteUrl, e);
+            }
+          }
+        }
+      }
+
       const parts = [];
       if (accountsImported > 0) parts.push(`${accountsImported} contas criadas`);
       if (projectsImported > 0) parts.push(`${projectsImported} projetos criados`);
@@ -306,6 +338,7 @@ export function ImportBackupButton({
       if (tagsImported > 0) parts.push(`${tagsImported} tags criadas`);
       if (keysImported > 0) parts.push(`${keysImported} keys restauradas`);
       if (checklistsImported > 0) parts.push(`${checklistsImported} itens de checklist`);
+      if (wpImported > 0) parts.push(`${wpImported} conexões WordPress`);
       if (projectsSkipped > 0) parts.push(`${projectsSkipped} projetos ignorados`);
 
       toast({
@@ -364,8 +397,11 @@ export function ImportBackupButton({
                     {backupData.summary.totalLocalKeys !== undefined && (
                       <p><strong>{backupData.summary.totalLocalKeys}</strong> keys de integração</p>
                     )}
-                    {backupData.summary.totalChecklists !== undefined && (
+                    {backupData.summary.totalChecklists !== undefined && backupData.summary.totalChecklists > 0 && (
                       <p><strong>{backupData.summary.totalChecklists}</strong> itens de checklist</p>
+                    )}
+                    {backupData.summary.totalWordPressConnections !== undefined && backupData.summary.totalWordPressConnections > 0 && (
+                      <p><strong>{backupData.summary.totalWordPressConnections}</strong> conexões WordPress</p>
                     )}
                   </div>
                 )}

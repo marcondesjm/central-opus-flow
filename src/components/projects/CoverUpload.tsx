@@ -119,6 +119,9 @@ export function CoverUpload({ coverUrl, onCoverChange, disabled }: CoverUploadPr
             src={coverUrl}
             alt="Capa do projeto"
             className="w-full h-32 object-cover rounded-lg border border-border"
+            onError={(e) => { 
+              e.currentTarget.style.display = 'none'; 
+            }}
           />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
             <Button

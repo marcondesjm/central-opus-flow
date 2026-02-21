@@ -467,6 +467,17 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               </div>
             )}
 
+            {/* Checklist inline */}
+            <div className="space-y-1.5">
+              <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <ListChecks className="w-3.5 h-3.5" />
+                Checklist:
+              </span>
+              <div className="bg-muted/30 rounded-lg p-3">
+                <ProjectChecklist projectId={project.id} />
+              </div>
+            </div>
+
             {/* Updated */}
             <div className="pt-2 border-t border-border text-xs text-muted-foreground">
               {t('cards.updated')} {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}

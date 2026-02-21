@@ -105,9 +105,15 @@ export default function Collaborations() {
 
   const handleAcceptInvitation = async (invitation: ProjectCollaborator | AccountCollaborator) => {
     if (isProjectInvitation(invitation)) {
-      await acceptProjectInvitation(invitation.id);
+      const result = await acceptProjectInvitation(invitation.id);
+      if (result.success) {
+        navigate('/dashboard');
+      }
     } else {
-      await acceptAccountInvitation(invitation.id);
+      const result = await acceptAccountInvitation(invitation.id);
+      if (result.success) {
+        navigate('/dashboard');
+      }
     }
   };
 
@@ -254,7 +260,7 @@ export default function Collaborations() {
                             onClick={() => handleAcceptInvitation(invitation)}
                           >
                             <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                            Aceitar
+                            Aceitar e {invitation.role === 'viewer' ? 'Visualizar' : 'Editar'}
                           </Button>
                         </div>
                       </div>

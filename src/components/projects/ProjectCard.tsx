@@ -365,7 +365,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               <img
                 src={project.screenshot}
                 alt={project.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground">

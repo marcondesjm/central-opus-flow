@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks } from 'lucide-react';
+import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ProjectChecklist } from './ProjectChecklist';
+import { ShareProjectModal } from '@/components/collaboration/ShareProjectModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,6 +61,7 @@ const statusConfigMap = {
 export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const { t } = useTranslation();
   const statusCfg = statusConfigMap[project.status];
   
@@ -206,6 +208,10 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               <DropdownMenuItem className="gap-2" onClick={() => setChecklistOpen(true)}>
                 <ListChecks className="w-4 h-4" />
                 {t('cards.checklist')}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => setShareOpen(true)}>
+                <Share2 className="w-4 h-4" />
+                {t('cards.share')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => onArchive?.(project.id)}>
@@ -477,6 +483,15 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         <ProjectChecklist projectId={project.id} />
       </DialogContent>
     </Dialog>
+
+    {/* Share Project Modal */}
+    <ShareProjectModal
+      open={shareOpen}
+      onOpenChange={setShareOpen}
+      projectId={project.id}
+      projectName={project.name}
+      isOwner={true}
+    />
     </>
   );
 }

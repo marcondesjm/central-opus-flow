@@ -22,6 +22,7 @@ import {
   Crown,
   Sparkles,
   BookOpen,
+  Share2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
@@ -348,6 +349,18 @@ export function Sidebar({
             );
           })}
         </ul>
+
+        {/* Collaborations button */}
+        <div className="pt-2">
+          <button
+            onClick={() => navigate('/collaborations')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label={t('sidebar.collaborations')}
+          >
+            <Share2 className="w-4 h-4" aria-hidden="true" />
+            {t('sidebar.collaborations')}
+          </button>
+        </div>
 
         {/* Blog button */}
         <div className="pt-2">

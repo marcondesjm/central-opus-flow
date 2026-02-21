@@ -7,7 +7,7 @@ import {
   ExternalLink, Eye, MoreHorizontal, ArrowLeft, Download,
   Bell, Search, Grid3X3, List, Users, Coins, Settings, LogOut,
   Calendar, Pencil, Trash2, Copy, X, FileText, Globe, AlertTriangle,
-  History, CheckSquare, BarChart3, ChevronDown, ChevronUp, Upload,
+  History, CheckSquare, BarChart3, ChevronDown, ChevronUp, Upload, Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -580,6 +580,9 @@ export default function Demo() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => toast.info('Checklist', { description: 'Na versão completa, você pode gerenciar tarefas do projeto aqui.' })}>
                   <CheckSquare className="w-4 h-4 mr-2" /> Checklist
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.info('Compartilhar', { description: 'Na versão completa, você pode convidar colaboradores para o projeto.' })}>
+                  <Share2 className="w-4 h-4 mr-2" /> Compartilhar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => duplicateProject(project.id)}>

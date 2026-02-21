@@ -358,7 +358,8 @@
     "apiKeys": "Clés API",
     "settings": "Paramètres",
     "plan": "Forfait",
-    "signOut": "Déconnexion"
+    "signOut": "Déconnexion",
+    "collaborations": "Collaborations"
   },
   "filters": {
     "filters": "Filtres",
@@ -400,7 +401,8 @@
     "tags": "Tags",
     "notes": "Notes",
     "updated": "Mis à jour",
-    "noAccount": "Pas de compte"
+    "noAccount": "Pas de compte",
+    "share": "Partager"
   },
   "dashboardPage": {
     "loadingProjects": "Chargement des projets...",

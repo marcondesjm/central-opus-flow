@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
@@ -63,6 +64,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const statusCfg = statusConfigMap[project.status];
   
   // Check if project is overdue
@@ -208,6 +210,10 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               <DropdownMenuItem className="gap-2" onClick={() => setChecklistOpen(true)}>
                 <ListChecks className="w-4 h-4" />
                 {t('cards.checklist')}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => navigate('/kanban')}>
+                <Columns3 className="w-4 h-4" />
+                Kanban
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={() => setShareOpen(true)}>
                 <Share2 className="w-4 h-4" />

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
-  MoreHorizontal, Search, Clock, Tag,
+  MoreHorizontal, Search, Clock, Tag, Mail, Phone,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
+import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
 function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -195,6 +196,8 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
     due_date: editDeal?.due_date ? new Date(editDeal.due_date) : undefined as Date | undefined,
     assignee_name: editDeal?.assignee_name || '',
     tags: editDeal?.tags?.join(', ') || '',
+    client_email: editDeal?.client_email || '',
+    client_whatsapp: editDeal?.client_whatsapp || '',
   });
 
   const handleSubmit = () => {
@@ -210,6 +213,8 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
       due_date: form.due_date ? form.due_date.toISOString() : null,
       assignee_name: form.assignee_name || null,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      client_email: form.client_email || null,
+      client_whatsapp: form.client_whatsapp || null,
     };
 
     if (editDeal) {
@@ -311,6 +316,16 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
             <div>
               <Label>Tags (separadas por vírgula)</Label>
               <Input placeholder="site, design, urgente" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Email do Cliente</Label>
+              <Input type="email" placeholder="cliente@email.com" value={form.client_email} onChange={e => setForm(f => ({ ...f, client_email: e.target.value }))} />
+            </div>
+            <div>
+              <Label>WhatsApp do Cliente</Label>
+              <Input placeholder="5548999999999" value={form.client_whatsapp} onChange={e => setForm(f => ({ ...f, client_whatsapp: e.target.value }))} />
             </div>
           </div>
         </div>
@@ -419,6 +434,13 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail }: {
           <div className="flex items-center gap-1 text-xs font-medium text-emerald-600">
             <DollarSign className="w-3 h-3" />
             R$ {Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </div>
+        )}
+
+        {(deal.client_email || deal.client_whatsapp) && (
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+            {deal.client_email && <span className="flex items-center gap-0.5"><Mail className="w-2.5 h-2.5" /> Email</span>}
+            {deal.client_whatsapp && <span className="flex items-center gap-0.5"><Phone className="w-2.5 h-2.5" /> WhatsApp</span>}
           </div>
         )}
       </CardContent>
@@ -598,6 +620,15 @@ export default function KanbanPage() {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
+    dealId: string;
+    clientName: string;
+    clientEmail: string | null;
+    clientWhatsapp: string | null;
+    companyName: string;
+    oldPhaseName: string;
+    newPhaseName: string;
+  } | null>(null);
 
   const filteredDeals = useMemo(() => {
     let result = deals || [];
@@ -635,11 +666,27 @@ export default function KanbanPage() {
     const deal = deals?.find(d => d.id === draggableId);
     if (!deal || deal.phase === newPhase) return;
 
+    const oldColumn = columns?.find(c => c.id === deal.phase);
+    const newColumn = columns?.find(c => c.id === newPhase);
+
     updateDeal.mutate({
       id: deal.id,
       phase: newPhase,
       position: destination.index,
     });
+
+    // Show notification modal if client has contact info
+    if (deal.client_email || deal.client_whatsapp) {
+      setPhaseChangeNotification({
+        dealId: deal.id,
+        clientName: deal.client_name,
+        clientEmail: deal.client_email,
+        clientWhatsapp: deal.client_whatsapp,
+        companyName: deal.company_name,
+        oldPhaseName: oldColumn?.name || 'Anterior',
+        newPhaseName: newColumn?.name || 'Nova',
+      });
+    }
   };
 
   const isLoading = dealsLoading || columnsLoading;
@@ -873,6 +920,20 @@ export default function KanbanPage() {
           open={!!paymentsDeal}
           onOpenChange={v => { if (!v) setPaymentsDeal(null); }}
           deal={paymentsDeal}
+        />
+      )}
+
+      {phaseChangeNotification && (
+        <PhaseChangeNotificationModal
+          open={!!phaseChangeNotification}
+          onOpenChange={v => { if (!v) setPhaseChangeNotification(null); }}
+          dealId={phaseChangeNotification.dealId}
+          clientName={phaseChangeNotification.clientName}
+          clientEmail={phaseChangeNotification.clientEmail}
+          clientWhatsapp={phaseChangeNotification.clientWhatsapp}
+          companyName={phaseChangeNotification.companyName}
+          oldPhaseName={phaseChangeNotification.oldPhaseName}
+          newPhaseName={phaseChangeNotification.newPhaseName}
         />
       )}
     </div>

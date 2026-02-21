@@ -559,7 +559,9 @@ export type Database = {
       kanban_deals: {
         Row: {
           assignee_name: string | null
+          client_email: string | null
           client_name: string
+          client_whatsapp: string | null
           color: string | null
           company_name: string
           completed_at: string | null
@@ -578,7 +580,9 @@ export type Database = {
         }
         Insert: {
           assignee_name?: string | null
+          client_email?: string | null
           client_name: string
+          client_whatsapp?: string | null
           color?: string | null
           company_name: string
           completed_at?: string | null
@@ -597,7 +601,9 @@ export type Database = {
         }
         Update: {
           assignee_name?: string | null
+          client_email?: string | null
           client_name?: string
+          client_whatsapp?: string | null
           color?: string | null
           company_name?: string
           completed_at?: string | null

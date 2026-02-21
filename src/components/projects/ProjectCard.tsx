@@ -18,7 +18,7 @@ import {
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ProjectHoverCard } from './ProjectHoverCard';
+
 import { ProjectCardOnlineUsers } from './ProjectCardOnlineUsers';
 import { ProjectUserPresence } from '@/hooks/useProjectPresence';
 

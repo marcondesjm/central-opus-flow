@@ -20,6 +20,7 @@ import {
   Key,
   Crown,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -346,6 +347,18 @@ export function Sidebar({
             );
           })}
         </ul>
+
+        {/* Blog button */}
+        <div className="pt-2">
+          <button
+            onClick={() => navigate('/blog')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label="Abrir Blog"
+          >
+            <BookOpen className="w-4 h-4" aria-hidden="true" />
+            Blog
+          </button>
+        </div>
       </nav>
 
       {/* Footer */}

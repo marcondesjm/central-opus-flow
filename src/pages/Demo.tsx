@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { 
   FolderKanban, Star, Archive, LayoutDashboard, Tag, Plus,
   ExternalLink, Eye, MoreHorizontal, ArrowLeft, Download,
@@ -149,59 +151,54 @@ const accountColorMap: Record<string, string> = {
   rose: 'bg-rose-500', violet: 'bg-violet-500',
 };
 
-const statusConfig: Record<string, { label: string; className: string }> = {
-  published: { label: 'Publicado', className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
-  draft: { label: 'Rascunho', className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
-  archived: { label: 'Arquivado', className: 'bg-muted text-muted-foreground border-border' },
+const statusConfigBase: Record<string, { key: string; className: string }> = {
+  published: { key: 'demo.published', className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+  draft: { key: 'demo.draft', className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+  archived: { key: 'demo.archivedStatus', className: 'bg-muted text-muted-foreground border-border' },
 };
 
-const typeLabels: Record<string, string> = {
-  website: 'Website', landing: 'Landing Page', app: 'Aplicativo', funnel: 'Funil', other: 'Outro',
+const typeKeysMap: Record<string, string> = {
+  website: 'demo.website', landing: 'demo.landingPage', app: 'demo.application', funnel: 'demo.funnel', other: 'demo.other',
 };
-
-function daysAgo(dateStr: string) {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-  if (diff === 0) return 'hoje';
-  if (diff === 1) return 'há 1 dia';
-  return `há ${diff} dias`;
-}
 
 // Demo Charts Component
 function DemoCharts({ projects }: { projects: typeof initialProjects }) {
   const isMobile = useIsMobile();
+  const { t, i18n } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(!isMobile);
 
   const statusData = useMemo(() => {
     const counts: Record<string, number> = { published: 0, draft: 0, archived: 0 };
     projects.forEach(p => { if (counts[p.status] !== undefined) counts[p.status]++; });
     return Object.entries(counts).filter(([, v]) => v > 0).map(([name, value]) => ({
-      name: statusConfig[name]?.label || name, value,
+      name: t(statusConfigBase[name]?.key || name), value,
       fill: name === 'published' ? 'hsl(var(--chart-1))' : name === 'draft' ? 'hsl(var(--chart-2))' : 'hsl(var(--chart-3))',
     }));
-  }, [projects]);
+  }, [projects, t]);
 
   const typeData = useMemo(() => {
     const counts: Record<string, number> = {};
     projects.forEach(p => { counts[p.type] = (counts[p.type] || 0) + 1; });
     const colors = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
     return Object.entries(counts).filter(([, v]) => v > 0).map(([name, value], i) => ({
-      name: typeLabels[name] || name, value, fill: colors[i % colors.length],
+      name: t(typeKeysMap[name] || name), value, fill: colors[i % colors.length],
     }));
-  }, [projects]);
+  }, [projects, t]);
 
+  const locale = i18n.language || 'pt';
   const monthlyData = useMemo(() => {
     const months: Record<string, number> = {};
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months[date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })] = 0;
+      months[date.toLocaleDateString(locale, { month: 'short', year: '2-digit' })] = 0;
     }
     projects.forEach(p => {
-      const key = new Date(p.createdAt).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+      const key = new Date(p.createdAt).toLocaleDateString(locale, { month: 'short', year: '2-digit' });
       if (months[key] !== undefined) months[key]++;
     });
     return Object.entries(months).map(([name, projetos]) => ({ name, projetos }));
-  }, [projects]);
+  }, [projects, locale]);
 
   const tooltipStyle = {
     backgroundColor: 'hsl(var(--popover))',
@@ -215,14 +212,14 @@ function DemoCharts({ projects }: { projects: typeof initialProjects }) {
     <div className="mb-6">
       <div className="sm:hidden mb-3">
         <Button variant="outline" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="w-full justify-between">
-          <span className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />Estatísticas</span>
+          <span className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />{t('demo.statistics')}</span>
           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </Button>
       </div>
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 ${!isExpanded && isMobile ? 'hidden' : ''}`}>
         <Card className="bg-card/50 backdrop-blur-sm border-border">
           <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Por Status</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">{t('demo.byStatus')}</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
             <div className="h-[150px] sm:h-[180px]">
@@ -240,7 +237,7 @@ function DemoCharts({ projects }: { projects: typeof initialProjects }) {
         </Card>
         <Card className="bg-card/50 backdrop-blur-sm border-border">
           <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Por Tipo</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">{t('demo.byType')}</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
             <div className="h-[150px] sm:h-[180px]">
@@ -258,7 +255,7 @@ function DemoCharts({ projects }: { projects: typeof initialProjects }) {
         </Card>
         <Card className="bg-card/50 backdrop-blur-sm border-border sm:col-span-2 lg:col-span-1">
           <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Projetos por Mês</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">{t('demo.projectsByMonth')}</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
             <div className="h-[150px] sm:h-[180px]">
@@ -303,7 +300,23 @@ function usePersistentState<T>(key: string, fallback: T): [T, React.Dispatch<Rea
 
 export default function Demo() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
+
+  const daysAgo = useCallback((dateStr: string) => {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+    if (diff === 0) return t('demo.today');
+    if (diff === 1) return t('demo.oneDayAgo');
+    return t('demo.daysAgo', { count: diff });
+  }, [t]);
+
+  const statusConfig = useMemo(() => {
+    const result: Record<string, { label: string; className: string }> = {};
+    for (const [key, val] of Object.entries(statusConfigBase)) {
+      result[key] = { label: t(val.key), className: val.className };
+    }
+    return result;
+  }, [t]);
   const [projects, setProjects] = usePersistentState('demo_projects', initialProjects);
   const [activeView, setActiveView] = useState('all');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -332,7 +345,7 @@ export default function Demo() {
     setProjects(prev => prev.map(p => p.id === id ? { ...p, isFavorite: !p.isFavorite } : p));
     const project = projects.find(p => p.id === id);
     if (project) {
-      toast.success(project.isFavorite ? `"${project.name}" removido dos favoritos` : `"${project.name}" adicionado aos favoritos`);
+      toast.success(project.isFavorite ? t('demo.removedFromFavorites', { name: project.name }) : t('demo.addedToFavorites', { name: project.name }));
     }
   };
 
@@ -340,7 +353,7 @@ export default function Demo() {
     setProjects(prev => prev.map(p => p.id === id ? { ...p, status: p.status === 'archived' ? 'draft' : 'archived' } : p));
     const project = projects.find(p => p.id === id);
     if (project) {
-      toast.success(project.status === 'archived' ? `"${project.name}" restaurado` : `"${project.name}" arquivado`);
+      toast.success(project.status === 'archived' ? t('demo.projectRestored', { name: project.name }) : t('demo.projectArchived', { name: project.name }));
     }
   };
 
@@ -353,7 +366,7 @@ export default function Demo() {
     if (deletingProjectId) {
       const project = projects.find(p => p.id === deletingProjectId);
       setProjects(prev => prev.filter(p => p.id !== deletingProjectId));
-      if (project) toast.success(`"${project.name}" excluído com sucesso`);
+      if (project) toast.success(t('demo.projectDeleted', { name: project.name }));
       setDeleteDialogOpen(false);
       setDeletingProjectId(null);
     }
@@ -367,7 +380,7 @@ export default function Demo() {
   const saveEdit = () => {
     if (editingProject) {
       setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...editForm, updatedAt: new Date().toISOString().split('T')[0] } : p));
-      toast.success(`"${editForm.name}" atualizado com sucesso!`);
+      toast.success(t('demo.projectUpdated', { name: editForm.name }));
       setEditingProject(null);
     }
   };
@@ -375,9 +388,9 @@ export default function Demo() {
   const duplicateProject = (id: string) => {
     const project = projects.find(p => p.id === id);
     if (project) {
-      const newProject = { ...project, id: String(Date.now()), name: `${project.name} (Cópia)`, status: 'draft', progress: 0, checklist: { total: project.checklist.total, completed: 0 } };
+      const newProject = { ...project, id: String(Date.now()), name: `${project.name} (${t('demo.duplicate')})`, status: 'draft', progress: 0, checklist: { total: project.checklist.total, completed: 0 } };
       setProjects(prev => [newProject, ...prev]);
-      toast.success(`"${project.name}" duplicado`);
+      toast.success(t('demo.projectDuplicated', { name: project.name }));
     }
   };
 
@@ -422,18 +435,18 @@ export default function Demo() {
   }, [projects]);
 
   const viewTitle = useMemo(() => {
-    if (selectedAccount) return accounts.find(a => a.id === selectedAccount)?.name || 'Projetos';
-    if (activeView === 'favorites') return 'Projetos Favoritos';
-    if (activeView === 'archived') return 'Projetos Arquivados';
-    if (activeView === 'tags') return selectedTag ? `Tag: ${selectedTag}` : 'Filtrar por Tags';
-    return 'Todos os Projetos';
-  }, [activeView, selectedAccount, selectedTag]);
+    if (selectedAccount) return accounts.find(a => a.id === selectedAccount)?.name || t('common.projects');
+    if (activeView === 'favorites') return t('demo.favoriteProj');
+    if (activeView === 'archived') return t('demo.archivedProj');
+    if (activeView === 'tags') return selectedTag ? t('demo.tagFilter', { tag: selectedTag }) : t('demo.filterByTags');
+    return t('demo.allProjects');
+  }, [activeView, selectedAccount, selectedTag, t]);
 
   const totalCredits = accounts.reduce((sum, acc) => sum + acc.credits, 0);
 
   const handleAddAccount = () => {
     if (!newAccountForm.name.trim()) {
-      toast.error('Digite o nome da conta');
+      toast.error(t('demo.enterAccountName'));
       return;
     }
     const newAccount = {
@@ -443,7 +456,7 @@ export default function Demo() {
       credits: 0,
     };
     setAccounts(prev => [...prev, newAccount]);
-    toast.success(`Conta "${newAccount.name}" criada com sucesso!`);
+    toast.success(t('demo.accountCreated', { name: newAccount.name }));
     setNewAccountForm({ name: '', color: 'blue' });
     setAddAccountOpen(false);
   };
@@ -451,10 +464,10 @@ export default function Demo() {
   const deletingProject = deletingProjectId ? projects.find(p => p.id === deletingProjectId) : null;
 
   const navItems = [
-    { id: 'all', label: 'Todos os Projetos', icon: LayoutDashboard },
-    { id: 'favorites', label: 'Favoritos', icon: Star },
-    { id: 'archived', label: 'Arquivados', icon: Archive },
-    { id: 'tags', label: 'Tags', icon: Tag },
+    { id: 'all', label: t('demo.allProjects'), icon: LayoutDashboard },
+    { id: 'favorites', label: t('demo.favorites'), icon: Star },
+    { id: 'archived', label: t('demo.archived'), icon: Archive },
+    { id: 'tags', label: t('demo.tags'), icon: Tag },
   ];
 
   const renderProjectCard = (project: typeof initialProjects[0]) => {
@@ -621,11 +634,11 @@ export default function Demo() {
     <div className="flex h-screen bg-background">
       {/* Demo Banner */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-primary text-primary-foreground py-2 px-4 text-center text-sm">
-        <span className="font-medium">🎯 Modo Demonstração</span>
+        <span className="font-medium">{t('demo.banner')}</span>
         <span className="mx-2">—</span>
-        <span>Esta é uma prévia completa do painel Pro. </span>
+        <span>{t('demo.bannerDesc')} </span>
         <Button variant="secondary" size="sm" className="ml-2 h-6" onClick={() => navigate('/auth')}>
-          Criar conta grátis
+          {t('demo.createAccount')}
         </Button>
       </div>
 
@@ -639,7 +652,7 @@ export default function Demo() {
             <div>
               <h1 className="font-semibold text-sidebar-foreground">ProjectHub</h1>
               <div className="flex items-center gap-1.5">
-                <p className="text-xs text-muted-foreground">Plano Pro</p>
+                <p className="text-xs text-muted-foreground">{t('demo.planPro')}</p>
                 <Badge variant="secondary" className="text-[10px] h-4 bg-primary/20 text-primary border-0">PRO</Badge>
               </div>
             </div>
@@ -677,8 +690,8 @@ export default function Demo() {
           )}
 
           <div className="pt-4">
-            <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5" /><span>Contas</span></div>
+              <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5" /><span>{t('demo.accounts')}</span></div>
               <span className="flex items-center gap-1 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-medium normal-case">
                 <Coins className="w-3 h-3" />{totalCredits}
               </span>
@@ -700,7 +713,7 @@ export default function Demo() {
               })}
               <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground mt-2"
                 onClick={() => setAddAccountOpen(true)}>
-                <Plus className="w-4 h-4" />Adicionar Conta
+                <Plus className="w-4 h-4" />{t('demo.addAccount')}
               </Button>
             </div>
           </div>
@@ -708,20 +721,20 @@ export default function Demo() {
 
         <div className="p-4 border-t border-sidebar-border space-y-1">
           <div className="px-3 py-2">
-            <p className="text-sm font-medium text-sidebar-foreground">Usuário Demo</p>
+            <p className="text-sm font-medium text-sidebar-foreground">{t('demo.demoUser')}</p>
             <p className="text-xs text-muted-foreground truncate">demo@projecthub.com</p>
           </div>
           <button onClick={() => navigate('/blog')}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
-            <FileText className="w-4 h-4" />Blog
+            <FileText className="w-4 h-4" />{t('demo.blog')}
           </button>
-          <button onClick={() => toast.info('Configurações', { description: 'Crie uma conta para acessar configurações completas.' })}
+          <button onClick={() => toast.info(t('demo.settings'), { description: t('demo.settingsDesc') })}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
-            <Settings className="w-4 h-4" />Configurações
+            <Settings className="w-4 h-4" />{t('demo.settings')}
           </button>
           <button onClick={() => navigate('/auth')}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
-            <LogOut className="w-4 h-4" />Sair do Demo
+            <LogOut className="w-4 h-4" />{t('demo.exitDemo')}
           </button>
         </div>
       </aside>
@@ -735,7 +748,7 @@ export default function Demo() {
           <div className="flex-1 max-w-md">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Buscar projetos... (Ctrl+K)" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 bg-muted/50" />
+              <Input placeholder={t('demo.searchPlaceholder')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 bg-muted/50" />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
                   <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
@@ -744,6 +757,7 @@ export default function Demo() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <div className="hidden sm:flex items-center border border-border rounded-lg overflow-hidden">
               <Button variant="ghost" size="icon" className={cn("rounded-none h-9 w-9", viewMode === 'grid' && "bg-primary/10")} onClick={() => setViewMode('grid')}>
                 <Grid3X3 className="w-4 h-4" />
@@ -763,7 +777,7 @@ export default function Demo() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <div className="p-2 font-semibold text-sm">Notificações</div>
+                <div className="p-2 font-semibold text-sm">{t('demo.notifications')}</div>
                 <DropdownMenuSeparator />
                 {notifications.map(n => (
                   <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 py-3">
@@ -776,8 +790,8 @@ export default function Demo() {
 
             <Button className="gap-2" onClick={() => {
               const newProject = {
-                id: String(Date.now()), name: `Novo Projeto ${projects.length + 1}`,
-                description: 'Projeto criado na demonstração',
+                id: String(Date.now()), name: t('demo.newProjectName', { number: projects.length + 1 }),
+                description: t('demo.newProjectDesc'),
                 screenshot: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop',
                 url: '', status: 'draft', progress: 0, isFavorite: false, type: 'other',
                 tags: ['Novo'], accountName: 'Trabalho Principal', accountColor: 'blue',
@@ -786,9 +800,9 @@ export default function Demo() {
                 deadline: null, checklist: { total: 0, completed: 0 },
               };
               setProjects(prev => [newProject, ...prev]);
-              toast.success('Projeto criado!', { description: `"${newProject.name}" adicionado com sucesso.` });
+              toast.success(t('demo.projectCreatedToast'), { description: t('demo.projectCreatedDesc', { name: newProject.name }) });
             }}>
-              <Plus className="w-4 h-4" /><span className="hidden sm:inline">Novo Projeto</span>
+              <Plus className="w-4 h-4" /><span className="hidden sm:inline">{t('demo.newProject')}</span>
             </Button>
           </div>
         </header>

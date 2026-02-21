@@ -23,6 +23,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
@@ -447,6 +448,9 @@ export function Sidebar({
           <Settings className="w-4 h-4" aria-hidden="true" />
           Configurações
         </button>
+        <div className="px-3 py-1">
+          <LanguageSwitcher />
+        </div>
         <button 
           onClick={handleSignOut}
           aria-label="Sair da conta"

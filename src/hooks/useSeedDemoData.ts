@@ -104,13 +104,14 @@ const demoChecklists = [
   ],
 ];
 
-// Demo kanban deals
+// Demo kanban deals - phase will be mapped to column IDs at runtime
+// columnIndex maps to DEFAULT_COLUMNS order: 0=Prospecção, 1=Fechamento, 2=Contrato, 3=Em Andamento, 4=Entrega, 5=Concluído
 const demoKanbanDeals = [
   {
     company_name: 'TechNova Solutions',
     client_name: 'Carlos Mendes',
     description: 'Desenvolvimento de landing page para lançamento de produto SaaS',
-    phase: 'prospeccao',
+    columnIndex: 0, // Prospecção
     progress: 20,
     revenue: 3500,
     priority: 'high',
@@ -123,7 +124,7 @@ const demoKanbanDeals = [
     company_name: 'Moda Express',
     client_name: 'Ana Beatriz',
     description: 'E-commerce completo com integração de pagamentos e gestão de estoque',
-    phase: 'negociacao',
+    columnIndex: 1, // Fechamento
     progress: 45,
     revenue: 12000,
     priority: 'urgent',
@@ -137,7 +138,7 @@ const demoKanbanDeals = [
     company_name: 'FitLife Academy',
     client_name: 'Roberto Alves',
     description: 'Plataforma de cursos online com área de membros',
-    phase: 'proposta',
+    columnIndex: 2, // Contrato
     progress: 60,
     revenue: 8500,
     priority: 'medium',
@@ -150,7 +151,7 @@ const demoKanbanDeals = [
     company_name: 'Restaurante Sabor & Arte',
     client_name: 'Lucia Fernandes',
     description: 'Website institucional com cardápio digital e reservas online',
-    phase: 'em_andamento',
+    columnIndex: 3, // Em Andamento
     progress: 75,
     revenue: 4200,
     priority: 'medium',
@@ -163,7 +164,7 @@ const demoKanbanDeals = [
     company_name: 'ImoTech',
     client_name: 'Fernando Lima',
     description: 'Dashboard de analytics para gestão imobiliária',
-    phase: 'em_andamento',
+    columnIndex: 3, // Em Andamento
     progress: 90,
     revenue: 15000,
     priority: 'high',
@@ -177,7 +178,7 @@ const demoKanbanDeals = [
     company_name: 'StartUp Boost',
     client_name: 'Camila Rocha',
     description: 'MVP de aplicativo de produtividade',
-    phase: 'concluido',
+    columnIndex: 5, // Concluído
     progress: 100,
     revenue: 6800,
     priority: 'low',
@@ -185,6 +186,32 @@ const demoKanbanDeals = [
     color: '#16a34a',
     position: 0,
     completed_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    company_name: 'Clinica Bem Estar',
+    client_name: 'Dra. Mariana Souza',
+    description: 'Sistema de agendamento online com integração WhatsApp',
+    columnIndex: 4, // Entrega
+    progress: 95,
+    revenue: 5500,
+    priority: 'medium',
+    due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    tags: ['Saúde', 'Agendamento'],
+    assignee_name: 'Maria Costa',
+    color: '#10b981',
+    position: 0,
+  },
+  {
+    company_name: 'Petshop Amigão',
+    client_name: 'Ricardo Gomes',
+    description: 'Loja virtual com delivery e programa de fidelidade',
+    columnIndex: 0, // Prospecção
+    progress: 10,
+    revenue: 3800,
+    priority: 'low',
+    tags: ['E-commerce', 'Pet'],
+    color: '#f97316',
+    position: 1,
   },
 ];
 
@@ -440,42 +467,70 @@ export function useSeedDemoData() {
         }
       }
 
-      // Create demo kanban deals
-      const kanbanDealsToInsert = demoKanbanDeals.map(deal => ({
-        ...deal,
-        user_id: user.id,
-      }));
+      // Create demo kanban deals - first get/create columns to map phase IDs
+      let kanbanColumns: { id: string; position: number }[] = [];
+      const { data: existingCols } = await supabase
+        .from('kanban_columns')
+        .select('id, position')
+        .order('position', { ascending: true });
 
-      const { data: createdDeals, error: dealsError } = await supabase
-        .from('kanban_deals')
-        .insert(kanbanDealsToInsert)
-        .select();
+      if (existingCols && existingCols.length > 0) {
+        kanbanColumns = existingCols;
+      } else {
+        // Create default columns
+        const defaultCols = [
+          { name: 'Prospecção', color: '#3b82f6', position: 0 },
+          { name: 'Fechamento', color: '#f59e0b', position: 1 },
+          { name: 'Contrato', color: '#8b5cf6', position: 2 },
+          { name: 'Em Andamento', color: '#06b6d4', position: 3 },
+          { name: 'Entrega', color: '#10b981', position: 4 },
+          { name: 'Concluído', color: '#16a34a', position: 5 },
+        ];
+        const { data: newCols } = await supabase
+          .from('kanban_columns')
+          .insert(defaultCols.map(c => ({ ...c, user_id: user.id })))
+          .select('id, position');
+        if (newCols) kanbanColumns = newCols.sort((a, b) => a.position - b.position);
+      }
 
-      if (dealsError) {
-        console.error('Error creating kanban deals:', dealsError);
-      } else if (createdDeals) {
-        console.log('Created kanban deals:', createdDeals.length);
+      if (kanbanColumns.length > 0) {
+        const kanbanDealsToInsert = demoKanbanDeals.map(({ columnIndex, ...deal }) => ({
+          ...deal,
+          user_id: user.id,
+          phase: kanbanColumns[Math.min(columnIndex, kanbanColumns.length - 1)].id,
+        }));
 
-        // Create payments for each deal
-        for (let i = 0; i < createdDeals.length; i++) {
-          const payments = demoKanbanPayments[i] || [];
-          if (payments.length > 0) {
-            await supabase
-              .from('kanban_payments')
-              .insert(
-                payments.map(p => ({
-                  ...p,
-                  deal_id: createdDeals[i].id,
-                  user_id: user.id,
-                }))
-              );
+        const { data: createdDeals, error: dealsError } = await supabase
+          .from('kanban_deals')
+          .insert(kanbanDealsToInsert)
+          .select();
+
+        if (dealsError) {
+          console.error('Error creating kanban deals:', dealsError);
+        } else if (createdDeals) {
+          console.log('Created kanban deals:', createdDeals.length);
+
+          // Create payments for each deal
+          for (let i = 0; i < createdDeals.length; i++) {
+            const payments = demoKanbanPayments[i] || [];
+            if (payments.length > 0) {
+              await supabase
+                .from('kanban_payments')
+                .insert(
+                  payments.map(p => ({
+                    ...p,
+                    deal_id: createdDeals[i].id,
+                    user_id: user.id,
+                  }))
+                );
+            }
           }
         }
       }
 
       console.log('Demo data seeded successfully');
       toast.success('Projetos de demonstração criados!', {
-        description: '4 projetos e 6 tarefas Kanban de exemplo foram adicionados.'
+        description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
       });
       setSeeding(false);
       return true;

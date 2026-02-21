@@ -152,12 +152,12 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
         {/* Favorite Button */}
         <button
-          onClick={() => onToggleFavorite(project.id)}
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(project.id); }}
           className={cn(
-            'absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200',
+            'absolute top-3 right-3 z-10 p-1.5 rounded-full transition-all duration-200',
             project.isFavorite
-              ? 'bg-amber-500 text-white'
-              : 'bg-white/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-white hover:text-amber-500'
+              ? 'bg-amber-500 text-white shadow-md'
+              : 'bg-white/80 text-muted-foreground md:opacity-0 md:group-hover:opacity-100 hover:bg-white hover:text-amber-500'
           )}
         >
           <Star className={cn('w-4 h-4', project.isFavorite && 'fill-current')} />

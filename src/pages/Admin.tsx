@@ -75,6 +75,7 @@ import {
   ArrowDown,
   Timer,
   AlertTriangle,
+  Calendar,
 } from 'lucide-react';
 import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -159,6 +160,7 @@ export default function Admin() {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [newPlan, setNewPlan] = useState<SubscriptionPlan>('free');
+  const [newSubscriptionType, setNewSubscriptionType] = useState<'monthly' | 'annual'>('monthly');
   const [newStatus, setNewStatus] = useState<UserStatus>('active');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>('created_at');
@@ -285,6 +287,7 @@ export default function Admin() {
   const handleChangePlan = (user: AdminUser, plan: SubscriptionPlan) => {
     setSelectedUser(user);
     setNewPlan(plan);
+    setNewSubscriptionType((user.subscription_type as 'monthly' | 'annual') || 'monthly');
     setChangePlanDialogOpen(true);
   };
 
@@ -319,6 +322,26 @@ export default function Admin() {
       };
       const planLimits = limits[newPlan];
 
+      // Calculate expires_at based on subscription type
+      const now = new Date();
+      const expiresAt = newPlan === 'free' ? null : 
+        newSubscriptionType === 'monthly' 
+          ? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          : new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
+      const subscriptionData = {
+        plan: newPlan,
+        max_accounts: planLimits.accounts,
+        max_projects: planLimits.projects,
+        features: JSON.parse(JSON.stringify(planLimits.features)),
+        is_trial: false,
+        payment_status: 'verified' as string,
+        user_status: 'active' as string,
+        subscription_type: newPlan === 'free' ? 'monthly' : newSubscriptionType,
+        expires_at: expiresAt,
+        started_at: now.toISOString(),
+      };
+
       // Check if subscription exists
       const { data: existing } = await supabase
         .from('subscriptions')
@@ -329,15 +352,7 @@ export default function Admin() {
       if (existing) {
         const { error } = await supabase
           .from('subscriptions')
-          .update({
-            plan: newPlan,
-            max_accounts: planLimits.accounts,
-            max_projects: planLimits.projects,
-            features: JSON.parse(JSON.stringify(planLimits.features)),
-            is_trial: false,
-            payment_status: 'verified',
-            user_status: 'active',
-          })
+          .update(subscriptionData)
           .eq('user_id', selectedUser.user_id);
         if (error) throw error;
       } else {
@@ -345,13 +360,7 @@ export default function Admin() {
           .from('subscriptions')
           .insert({
             user_id: selectedUser.user_id,
-            plan: newPlan,
-            max_accounts: planLimits.accounts,
-            max_projects: planLimits.projects,
-            features: JSON.parse(JSON.stringify(planLimits.features)),
-            is_trial: false,
-            payment_status: 'verified',
-            user_status: 'active',
+            ...subscriptionData,
           });
         if (error) throw error;
       }
@@ -875,6 +884,7 @@ export default function Admin() {
                           const userStatus = user.user_status || 'active';
                           const isFrozen = userStatus === 'frozen';
                           const isPending = userStatus === 'pending_approval';
+                          const isSubscriptionExpired = user.subscription_expires_at && differenceInDays(new Date(user.subscription_expires_at), new Date()) <= 0;
                           
                           return (
                             <TableRow key={user.id} className={cn(isFrozen && "opacity-60", isPending && "bg-amber-500/5")}>
@@ -895,9 +905,33 @@ export default function Admin() {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Badge className={planColors[user.plan || 'free']}>
-                                  {planLabels[user.plan || 'free']}
-                                </Badge>
+                                <div className="space-y-1">
+                                  <Badge className={planColors[user.plan || 'free']}>
+                                    {planLabels[user.plan || 'free']}
+                                  </Badge>
+                                  {user.plan && user.plan !== 'free' && (
+                                    <div className="flex flex-col gap-0.5">
+                                      <span className="text-[10px] text-muted-foreground">
+                                        {user.subscription_type === 'annual' ? 'Anual' : 'Mensal'}
+                                      </span>
+                                      {user.subscription_expires_at && (() => {
+                                        const daysLeft = differenceInDays(new Date(user.subscription_expires_at), new Date());
+                                        const isExpired = daysLeft <= 0;
+                                        const isExpiring = daysLeft <= 7;
+                                        return (
+                                          <span className={cn(
+                                            "text-[10px] font-medium flex items-center gap-0.5",
+                                            isExpired ? "text-destructive" :
+                                            isExpiring ? "text-amber-600" : "text-muted-foreground"
+                                          )}>
+                                            <Clock className="w-3 h-3" />
+                                            {isExpired ? 'Expirado' : `${daysLeft}d restantes`}
+                                          </span>
+                                        );
+                                      })()}
+                                    </div>
+                                  )}
+                                </div>
                               </TableCell>
                               <TableCell>
                                 <Badge className={statusColors[userStatus]}>
@@ -934,11 +968,17 @@ export default function Admin() {
                                       Visualizar Conteúdo
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem 
-                                      onClick={() => handleChangePlan(user, user.plan === 'pro' ? 'business' : 'pro')}
-                                    >
+                                    <DropdownMenuItem onClick={() => handleChangePlan(user, 'free')}>
                                       <CreditCard className="w-4 h-4 mr-2" />
-                                      Alterar Plano
+                                      Plano Free
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleChangePlan(user, 'pro')}>
+                                      <CreditCard className="w-4 h-4 mr-2" />
+                                      Plano Pro
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleChangePlan(user, 'business')}>
+                                      <CreditCard className="w-4 h-4 mr-2" />
+                                      Plano Business
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     {isPending ? (
@@ -956,6 +996,15 @@ export default function Admin() {
                                         <Snowflake className="w-4 h-4 mr-2 text-blue-600" />
                                         <span className="text-blue-600">Congelar Conta</span>
                                       </DropdownMenuItem>
+                                    )}
+                                    {isSubscriptionExpired && user.plan !== 'free' && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => handleChangePlan(user, 'free')}>
+                                          <AlertTriangle className="w-4 h-4 mr-2 text-destructive" />
+                                          <span className="text-destructive">Desativar (Expirado)</span>
+                                        </DropdownMenuItem>
+                                      </>
                                     )}
                                     <DropdownMenuSeparator />
                                     {user.role !== 'admin' && (
@@ -1114,10 +1163,47 @@ export default function Admin() {
       <AlertDialog open={changePlanDialogOpen} onOpenChange={setChangePlanDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Alterar plano?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Deseja alterar o plano de <strong>{selectedUser?.email}</strong> para{' '}
-              <Badge className={planColors[newPlan]}>{planLabels[newPlan]}</Badge>?
+            <AlertDialogTitle>Alterar plano</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-4">
+                <p>
+                  Alterar o plano de <strong>{selectedUser?.email}</strong> para{' '}
+                  <Badge className={planColors[newPlan]}>{planLabels[newPlan]}</Badge>
+                </p>
+                
+                {newPlan !== 'free' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Tipo de assinatura</label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={newSubscriptionType === 'monthly' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setNewSubscriptionType('monthly')}
+                        className="flex-1"
+                      >
+                        <Calendar className="w-4 h-4 mr-1" />
+                        Mensal (30 dias)
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={newSubscriptionType === 'annual' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setNewSubscriptionType('annual')}
+                        className="flex-1"
+                      >
+                        <Calendar className="w-4 h-4 mr-1" />
+                        Anual (365 dias)
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {newSubscriptionType === 'monthly' 
+                        ? 'O plano expira em 30 dias. Uma contagem regressiva será exibida.'
+                        : 'O plano expira em 365 dias.'}
+                    </p>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

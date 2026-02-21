@@ -25,7 +25,9 @@ import {
   Eye,
   Share2,
   Archive,
-  Trash2
+  Trash2,
+  Columns3,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -160,6 +162,30 @@ const steps = [
   },
   {
     id: 12,
+    title: 'Kanban de Vendas 📋',
+    description: 'Gerencie seu pipeline de vendas com quadro Kanban visual. Crie deals, defina prioridades, adicione checklists e acompanhe o progresso de cada negociação.',
+    icon: Columns3,
+    color: 'bg-gradient-to-br from-indigo-500 to-indigo-600',
+    highlights: [
+      { icon: Columns3, text: 'Quadro visual com drag & drop' },
+      { icon: Check, text: 'Checklists internos por deal' },
+      { icon: Clock, text: 'Prazos e prioridades' },
+    ],
+  },
+  {
+    id: 13,
+    title: 'Faturamento e Finanças 💰',
+    description: 'Controle receitas, despesas e lucro líquido. Registre pagamentos com método (PIX, cartão, etc.), acompanhe margens e veja projeções financeiras.',
+    icon: DollarSign,
+    color: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+    highlights: [
+      { icon: DollarSign, text: 'Lucro líquido e margem automáticos' },
+      { icon: BarChart3, text: 'Gráficos de receita vs despesa' },
+      { icon: Clock, text: 'Projeção para os próximos meses' },
+    ],
+  },
+  {
+    id: 14,
     title: 'Exportar e Importar',
     description: 'Faça backup dos seus dados ou migre projetos entre contas. Os botões Importar/Exportar ficam acima da lista de projetos.',
     icon: Download,
@@ -170,7 +196,7 @@ const steps = [
     ],
   },
   {
-    id: 13,
+    id: 15,
     title: 'Configurações',
     description: 'Acesse as configurações no menu lateral para personalizar seu perfil, gerenciar assinatura e mais.',
     icon: Settings,
@@ -180,7 +206,7 @@ const steps = [
     ],
   },
   {
-    id: 14,
+    id: 16,
     title: 'Pronto para Começar! 🎉',
     description: 'Você já conhece o básico! Os projetos de demonstração são seus - edite, exclua ou use como referência. Divirta-se organizando seus projetos!',
     icon: Check,

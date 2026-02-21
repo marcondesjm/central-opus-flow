@@ -355,57 +355,37 @@ export default function Demo() {
   const [showDemoTour, setShowDemoTour] = useState(() => !localStorage.getItem('demo_tour_completed'));
   const [demoTourStep, setDemoTourStep] = useState(0);
 
-  const toggleFavorite = (id: string) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, isFavorite: !p.isFavorite } : p));
-    const project = projects.find(p => p.id === id);
-    if (project) {
-      toast.success(project.isFavorite ? t('demo.removedFromFavorites', { name: project.name }) : t('demo.addedToFavorites', { name: project.name }));
-    }
+  const demoReadOnlyMsg = () => {
+    toast.error('🔒 Modo demonstração: apenas o administrador pode alterar dados. Crie sua conta para ter acesso completo!');
   };
 
-  const archiveProject = (id: string) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: p.status === 'archived' ? 'draft' : 'archived' } : p));
-    const project = projects.find(p => p.id === id);
-    if (project) {
-      toast.success(project.status === 'archived' ? t('demo.projectRestored', { name: project.name }) : t('demo.projectArchived', { name: project.name }));
-    }
+  const toggleFavorite = (_id: string) => {
+    demoReadOnlyMsg();
   };
 
-  const handleDeleteProject = (id: string) => {
-    setDeletingProjectId(id);
-    setDeleteDialogOpen(true);
+  const archiveProject = (_id: string) => {
+    demoReadOnlyMsg();
+  };
+
+  const handleDeleteProject = (_id: string) => {
+    demoReadOnlyMsg();
   };
 
   const confirmDelete = () => {
-    if (deletingProjectId) {
-      const project = projects.find(p => p.id === deletingProjectId);
-      setProjects(prev => prev.filter(p => p.id !== deletingProjectId));
-      if (project) toast.success(t('demo.projectDeleted', { name: project.name }));
-      setDeleteDialogOpen(false);
-      setDeletingProjectId(null);
-    }
+    setDeleteDialogOpen(false);
+    setDeletingProjectId(null);
   };
 
-  const openEdit = (project: typeof initialProjects[0]) => {
-    setEditingProject(project);
-    setEditForm({ name: project.name, description: project.description, url: project.url, status: project.status, type: project.type });
+  const openEdit = (_project: typeof initialProjects[0]) => {
+    demoReadOnlyMsg();
   };
 
   const saveEdit = () => {
-    if (editingProject) {
-      setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...editForm, updatedAt: new Date().toISOString().split('T')[0] } : p));
-      toast.success(t('demo.projectUpdated', { name: editForm.name }));
-      setEditingProject(null);
-    }
+    setEditingProject(null);
   };
 
-  const duplicateProject = (id: string) => {
-    const project = projects.find(p => p.id === id);
-    if (project) {
-      const newProject = { ...project, id: String(Date.now()), name: `${project.name} (${t('demo.duplicate')})`, status: 'draft', progress: 0, checklist: { total: project.checklist.total, completed: 0 } };
-      setProjects(prev => [newProject, ...prev]);
-      toast.success(t('demo.projectDuplicated', { name: project.name }));
-    }
+  const duplicateProject = (_id: string) => {
+    demoReadOnlyMsg();
   };
 
   const showHistory = (project: typeof initialProjects[0]) => {
@@ -459,19 +439,7 @@ export default function Demo() {
   const totalCredits = accounts.reduce((sum, acc) => sum + acc.credits, 0);
 
   const handleAddAccount = () => {
-    if (!newAccountForm.name.trim()) {
-      toast.error(t('demo.enterAccountName'));
-      return;
-    }
-    const newAccount = {
-      id: String(Date.now()),
-      name: newAccountForm.name.trim(),
-      color: newAccountForm.color,
-      credits: 0,
-    };
-    setAccounts(prev => [...prev, newAccount]);
-    toast.success(t('demo.accountCreated', { name: newAccount.name }));
-    setNewAccountForm({ name: '', color: 'blue' });
+    demoReadOnlyMsg();
     setAddAccountOpen(false);
   };
   const hasActiveFilters = statusFilter !== 'all' || typeFilter !== 'all';

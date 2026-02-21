@@ -19,7 +19,7 @@ export function SolutionSection() {
             <span className="text-primary">todos os seus projetos</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            O ProjectHub centraliza todas as suas contas Lovable em um dashboard 
+            O Central Opus Flow centraliza todas as suas contas <strong className="text-foreground font-semibold">Lovable</strong>, <strong className="text-foreground font-semibold">Cursor</strong>, <strong className="text-foreground font-semibold">Base44</strong> e outras integrações inteligentes em um dashboard 
             inteligente, para você encontrar qualquer projeto em segundos.
           </p>
         </motion.div>

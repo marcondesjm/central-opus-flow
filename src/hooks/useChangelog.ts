@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export interface ChangelogEntry {
   id: string;
@@ -31,6 +32,27 @@ export function useChangelog() {
 }
 
 export function useChangelogByVersion() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('changelog-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'changelog_entries' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
+          queryClient.invalidateQueries({ queryKey: ['changelog'] });
+          queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ['changelog-by-version'],
     queryFn: async () => {
@@ -41,7 +63,6 @@ export function useChangelogByVersion() {
 
       if (error) throw error;
 
-      // Group by version
       const grouped = (data as ChangelogEntry[]).reduce((acc, entry) => {
         if (!acc[entry.version]) {
           acc[entry.version] = [];
@@ -50,7 +71,6 @@ export function useChangelogByVersion() {
         return acc;
       }, {} as Record<string, ChangelogEntry[]>);
 
-      // Convert to array sorted by version (most recent first)
       return Object.entries(grouped)
         .sort((a, b) => {
           const versionA = a[0].split('.').map(Number);

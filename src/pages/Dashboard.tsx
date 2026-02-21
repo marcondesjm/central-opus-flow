@@ -460,8 +460,6 @@ export default function Dashboard() {
       setEditingAccount(account);
       setEditAccountOpen(true);
     },
-    onOpenSettings: () => setSettingsOpen(true),
-    onOpenKeys: () => setKeysModalOpen(true),
   };
 
   return (
@@ -499,6 +497,8 @@ export default function Dashboard() {
           onDeleteNotification={deleteNotification}
           onClearNotifications={clearNotifications}
           onAcceptInvite={handleAcceptInviteFromNotification}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenKeys={() => setKeysModalOpen(true)}
         />
         
         <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">

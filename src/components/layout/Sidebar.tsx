@@ -7,7 +7,6 @@ import {
   FolderKanban, 
   Star, 
   Archive, 
-  Settings, 
   Plus,
   ChevronDown,
   Users,
@@ -16,10 +15,6 @@ import {
   Loader2,
   Coins,
   Pencil,
-  Shield,
-  MessageCircle,
-  Clock,
-  Key,
   Crown,
   Sparkles,
   BookOpen,
@@ -27,7 +22,6 @@ import {
   Kanban,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
@@ -35,7 +29,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useAuth } from '@/hooks/useAuth';
-import { useIsAdmin } from '@/hooks/useRoles';
+
 import { LovableAccount } from '@/hooks/useProjects';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useBlogPosts } from '@/hooks/useBlog';
@@ -52,8 +46,6 @@ interface SidebarProps {
   isLoading?: boolean;
   onAddAccount?: () => void;
   onEditAccount?: (account: LovableAccount) => void;
-  onOpenSettings?: () => void;
-  onOpenKeys?: () => void;
 }
 
 const accountColorMap: Record<string, string> = {
@@ -110,14 +102,12 @@ export function Sidebar({
   isLoading,
   onAddAccount,
   onEditAccount,
-  onOpenSettings,
-  onOpenKeys
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { signOut, user } = useAuth();
-  const isAdmin = useIsAdmin();
+  
   const navigate = useNavigate();
   const { data: subscription } = useSubscription();
   const { t } = useTranslation();
@@ -472,54 +462,7 @@ export function Sidebar({
             </Badge>
           </div>
         )}
-        
-        {/* WhatsApp Support Button */}
-        <a
-          href="https://wa.me/5548996029392?text=Olá! Preciso de suporte com o ProjectHub."
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Abrir suporte via WhatsApp"
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar group"
-        >
-          <MessageCircle className="w-4 h-4" aria-hidden="true" />
-          <div className="flex flex-col items-start">
-            <span>{t('sidebar.support')}</span>
-            <span className="text-[10px] text-muted-foreground group-hover:text-emerald-600/70 flex items-center gap-1">
-              <Clock className="w-2.5 h-2.5" />
-              {t('sidebar.supportHours')}
-            </span>
-          </div>
-        </a>
 
-        {isAdmin && (
-          <button 
-            onClick={() => navigate('/admin')}
-            aria-label="Abrir painel administrativo"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-amber-600 hover:text-amber-700 hover:bg-amber-500/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-          >
-            <Shield className="w-4 h-4" aria-hidden="true" />
-            {t('sidebar.adminPanel')}
-          </button>
-        )}
-        <button 
-          onClick={onOpenKeys}
-          aria-label="Gerenciar API Keys"
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-        >
-          <Key className="w-4 h-4" aria-hidden="true" />
-          {t('sidebar.apiKeys')}
-        </button>
-        <button
-          onClick={onOpenSettings}
-          aria-label="Abrir configurações"
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-        >
-          <Settings className="w-4 h-4" aria-hidden="true" />
-          {t('sidebar.settings')}
-        </button>
-        <div className="px-3 py-1">
-          <LanguageSwitcher />
-        </div>
         <button 
           onClick={handleSignOut}
           aria-label="Sair da conta"

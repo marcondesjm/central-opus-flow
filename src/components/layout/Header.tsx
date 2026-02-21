@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useRoles';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +38,8 @@ interface HeaderProps {
   onDeleteNotification?: (id: string) => void;
   onClearNotifications?: () => void;
   onAcceptInvite?: (notification: Notification) => Promise<void>;
+  onOpenSettings?: () => void;
+  onOpenKeys?: () => void;
 }
 
 export function Header({ 
@@ -53,6 +56,8 @@ export function Header({
   onDeleteNotification = () => {},
   onClearNotifications = () => {},
   onAcceptInvite,
+  onOpenSettings,
+  onOpenKeys,
 }: HeaderProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -60,6 +65,7 @@ export function Header({
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { data: subscription } = useSubscription();
+  const isAdmin = useIsAdmin();
 
   // Fetch profile and subscribe to realtime updates
   useEffect(() => {
@@ -289,7 +295,7 @@ export function Header({
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium">{profile?.full_name || user.email}</p>
                 {profile?.full_name && (
@@ -314,6 +320,42 @@ export function Header({
                 <UserPen className="w-4 h-4" />
                 {t('header.editProfile', 'Editar Perfil')}
               </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={onOpenSettings}>
+                <Settings className="w-4 h-4" />
+                {t('sidebar.settings', 'Configurações')}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={onOpenKeys}>
+                <Key className="w-4 h-4" />
+                {t('sidebar.apiKeys', 'API Keys')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <a
+                  href="https://wa.me/5548996029392?text=Olá! Preciso de suporte com o ProjectHub."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="gap-2 text-emerald-600 focus:text-emerald-600 cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <div className="flex flex-col">
+                    <span>{t('sidebar.support', 'Suporte')}</span>
+                    <span className="text-[10px] text-muted-foreground">{t('sidebar.supportHours', 'Seg-Sex 8h às 18h')}</span>
+                  </div>
+                </a>
+              </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="gap-2 text-amber-600 focus:text-amber-600" onClick={() => navigate('/admin')}>
+                    <Shield className="w-4 h-4" />
+                    {t('sidebar.adminPanel', 'Painel Admin')}
+                  </DropdownMenuItem>
+                </>
+              )}
+              <DropdownMenuSeparator />
+              <div className="px-2 py-1.5">
+                <LanguageSwitcher />
+              </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive" onClick={() => signOut()}>
                 <LogOut className="w-4 h-4" />

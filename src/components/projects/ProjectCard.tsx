@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare } from 'lucide-react';
+import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { ProjectChecklist } from './ProjectChecklist';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,7 @@ const statusConfigMap = {
 
 export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [checklistOpen, setChecklistOpen] = useState(false);
   const { t } = useTranslation();
   const statusCfg = statusConfigMap[project.status];
   
@@ -200,6 +202,10 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               <DropdownMenuItem className="gap-2" onClick={() => onShowHistory?.(project.id)}>
                 <History className="w-4 h-4" />
                 {t('cards.viewHistory')}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => setChecklistOpen(true)}>
+                <ListChecks className="w-4 h-4" />
+                {t('cards.checklist')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => onArchive?.(project.id)}>
@@ -461,6 +467,14 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             </div>
           </div>
         </div>
+      </DialogContent>
+    </Dialog>
+
+    {/* Checklist Dialog */}
+    <Dialog open={checklistOpen} onOpenChange={setChecklistOpen}>
+      <DialogContent className="max-w-lg">
+        <DialogTitle>{t('cards.checklist')} - {project.name}</DialogTitle>
+        <ProjectChecklist projectId={project.id} />
       </DialogContent>
     </Dialog>
     </>

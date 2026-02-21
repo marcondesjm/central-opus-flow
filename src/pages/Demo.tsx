@@ -578,6 +578,9 @@ export default function Demo() {
                 <DropdownMenuItem onClick={() => showHistory(project)}>
                   <History className="w-4 h-4 mr-2" /> Ver Histórico
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.info('Checklist', { description: 'Na versão completa, você pode gerenciar tarefas do projeto aqui.' })}>
+                  <CheckSquare className="w-4 h-4 mr-2" /> Checklist
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => duplicateProject(project.id)}>
                   <Copy className="w-4 h-4 mr-2" /> Duplicar

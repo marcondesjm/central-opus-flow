@@ -12,8 +12,8 @@ const faqs = [
     answer: 'Você tem 15 dias para usar todas as funcionalidades do Central Opus Flow sem precisar informar cartão de crédito. No final do período, escolha assinar ou continue com acesso limitado.',
   },
   {
-    question: 'Quantas contas Lovable posso conectar?',
-    answer: 'Com o plano Pro, você pode conectar contas ilimitadas. Não há limite para o número de projetos ou contas que você pode gerenciar.',
+    question: 'Quantas contas Lovable, Cursor, Base44 e outras integrações posso conectar?',
+    answer: 'Com o plano Pro, você pode conectar contas ilimitadas de Lovable, Cursor, Base44 e outras integrações. Não há limite para o número de projetos ou contas que você pode gerenciar.',
   },
   {
     question: 'Meus dados estão seguros?',
@@ -32,8 +32,8 @@ const faqs = [
     answer: 'Você mantém acesso até o final do período pago. Após isso, sua conta volta para o modo gratuito limitado, mas seus dados ficam salvos por 90 dias caso queira reativar.',
   },
   {
-    question: 'O Central Opus Flow sincroniza automaticamente com Lovable?',
-    answer: 'Os projetos são gerenciados manualmente no Central Opus Flow. Você adiciona as informações dos projetos que deseja acompanhar e atualiza status, notas e progresso conforme necessário.',
+    question: 'O Central Opus Flow sincroniza automaticamente com Lovable, Cursor e Base44?',
+    answer: 'Os projetos são gerenciados manualmente no Central Opus Flow. Você adiciona as informações dos projetos de Lovable, Cursor, Base44 e outras integrações que deseja acompanhar e atualiza status, notas e progresso conforme necessário.',
   },
 ];
 

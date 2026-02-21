@@ -568,6 +568,50 @@ export type Database = {
         }
         Relationships: []
       }
+      kanban_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          deal_id: string
+          description: string | null
+          id: string
+          payment_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          deal_id: string
+          description?: string | null
+          id?: string
+          payment_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          deal_id?: string
+          description?: string | null
+          id?: string
+          payment_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_payments_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lovable_accounts: {
         Row: {
           admin_email: string | null

@@ -340,9 +340,16 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             )}
             {!account && <span>{t('cards.noAccount')}</span>}
           </div>
-          <span>
-            {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-default">
+                {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{format(new Date(project.updatedAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </div>

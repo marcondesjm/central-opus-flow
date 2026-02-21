@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft,
-  Building2, User, FileText, DollarSign, Loader2, BarChart3,
+  Building2, User, FileText, DollarSign, Loader2, BarChart3, Receipt,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KANBAN_PHA
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 
 function AddDealModal({ open, onOpenChange, editDeal }: { open: boolean; onOpenChange: (v: boolean) => void; editDeal?: KanbanDeal | null }) {
   const createDeal = useCreateDeal();
@@ -93,7 +94,7 @@ function AddDealModal({ open, onOpenChange, editDeal }: { open: boolean; onOpenC
   );
 }
 
-function DealCard({ deal, onEdit, onDelete }: { deal: KanbanDeal; onEdit: () => void; onDelete: () => void }) {
+function DealCard({ deal, onEdit, onDelete, onPayments }: { deal: KanbanDeal; onEdit: () => void; onDelete: () => void; onPayments: () => void }) {
   return (
     <Card className="group hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: `var(--deal-${deal.phase})` }}>
       <CardContent className="p-3 space-y-2">
@@ -109,6 +110,7 @@ function DealCard({ deal, onEdit, onDelete }: { deal: KanbanDeal; onEdit: () => 
             </p>
           </div>
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={onPayments} className="p-1 rounded hover:bg-muted" title="Faturamento"><Receipt className="w-3.5 h-3.5" /></button>
             <button onClick={onEdit} className="p-1 rounded hover:bg-muted"><Pencil className="w-3.5 h-3.5" /></button>
             <button onClick={onDelete} className="p-1 rounded hover:bg-destructive/10 text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
           </div>
@@ -181,6 +183,7 @@ export default function KanbanPage() {
   const [editDeal, setEditDeal] = useState<KanbanDeal | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showChart, setShowChart] = useState(false);
+  const [paymentsDeal, setPaymentsDeal] = useState<KanbanDeal | null>(null);
 
   const dealsByPhase = useMemo(() => {
     const map: Record<string, KanbanDeal[]> = {};
@@ -291,6 +294,7 @@ export default function KanbanPage() {
                                 deal={deal}
                                 onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
                                 onDelete={() => setDeletingId(deal.id)}
+                                onPayments={() => setPaymentsDeal(deal)}
                               />
                             </div>
                           )}
@@ -331,6 +335,14 @@ export default function KanbanPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {paymentsDeal && (
+        <DealPaymentsModal
+          open={!!paymentsDeal}
+          onOpenChange={v => { if (!v) setPaymentsDeal(null); }}
+          deal={paymentsDeal}
+        />
+      )}
     </div>
   );
 }

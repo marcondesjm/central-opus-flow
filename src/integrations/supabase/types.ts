@@ -526,43 +526,91 @@ export type Database = {
           },
         ]
       }
-      kanban_deals: {
+      kanban_columns: {
         Row: {
-          client_name: string
-          company_name: string
-          completed_at: string | null
+          color: string
           created_at: string
-          description: string | null
           id: string
-          phase: string
-          progress: number
-          revenue: number | null
+          name: string
+          position: number
           updated_at: string
           user_id: string
         }
         Insert: {
-          client_name: string
-          company_name: string
-          completed_at?: string | null
+          color?: string
           created_at?: string
-          description?: string | null
           id?: string
-          phase?: string
-          progress?: number
-          revenue?: number | null
+          name: string
+          position?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kanban_deals: {
+        Row: {
+          assignee_name: string | null
+          client_name: string
+          color: string | null
+          company_name: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          phase: string
+          position: number
+          priority: string
+          progress: number
+          revenue: number | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assignee_name?: string | null
+          client_name: string
+          color?: string | null
+          company_name: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          phase?: string
+          position?: number
+          priority?: string
+          progress?: number
+          revenue?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assignee_name?: string | null
           client_name?: string
+          color?: string | null
           company_name?: string
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          due_date?: string | null
           id?: string
           phase?: string
+          position?: number
+          priority?: string
           progress?: number
           revenue?: number | null
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
@@ -605,6 +653,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "kanban_payments_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kanban_task_checklist: {
+        Row: {
+          created_at: string
+          deal_id: string
+          id: string
+          is_completed: boolean
+          position: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          id?: string
+          is_completed?: boolean
+          position?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          id?: string
+          is_completed?: boolean
+          position?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_task_checklist_deal_id_fkey"
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "kanban_deals"

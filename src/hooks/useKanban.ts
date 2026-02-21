@@ -12,18 +12,22 @@ export interface KanbanDeal {
   phase: string;
   progress: number;
   revenue: number;
+  priority: string;
+  due_date: string | null;
+  position: number;
+  tags: string[];
+  assignee_name: string | null;
+  color: string | null;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
 }
 
-export const KANBAN_PHASES = [
-  { id: 'prospeccao', label: 'Prospecção', color: 'bg-blue-500' },
-  { id: 'fechamento', label: 'Fechamento', color: 'bg-amber-500' },
-  { id: 'contrato', label: 'Contrato', color: 'bg-purple-500' },
-  { id: 'andamento', label: 'Em Andamento', color: 'bg-cyan-500' },
-  { id: 'entrega', label: 'Entrega', color: 'bg-emerald-500' },
-  { id: 'concluido', label: 'Concluído', color: 'bg-green-600' },
+export const PRIORITY_OPTIONS = [
+  { id: 'urgent', label: 'Urgente', color: 'bg-red-500', textColor: 'text-red-700', bgLight: 'bg-red-50' },
+  { id: 'high', label: 'Alta', color: 'bg-orange-500', textColor: 'text-orange-700', bgLight: 'bg-orange-50' },
+  { id: 'medium', label: 'Média', color: 'bg-yellow-500', textColor: 'text-yellow-700', bgLight: 'bg-yellow-50' },
+  { id: 'low', label: 'Baixa', color: 'bg-green-500', textColor: 'text-green-700', bgLight: 'bg-green-50' },
 ] as const;
 
 export function useKanbanDeals() {
@@ -35,7 +39,7 @@ export function useKanbanDeals() {
       const { data, error } = await supabase
         .from('kanban_deals')
         .select('*')
-        .order('updated_at', { ascending: false });
+        .order('position', { ascending: true });
 
       if (error) throw error;
       return data as KanbanDeal[];
@@ -57,6 +61,12 @@ export function useCreateDeal() {
       phase?: string;
       progress?: number;
       revenue?: number;
+      priority?: string;
+      due_date?: string | null;
+      tags?: string[];
+      assignee_name?: string | null;
+      color?: string | null;
+      position?: number;
     }) => {
       const { data, error } = await supabase
         .from('kanban_deals')
@@ -69,10 +79,10 @@ export function useCreateDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
-      toast({ title: 'Deal criado com sucesso!' });
+      toast({ title: 'Tarefa criada com sucesso!' });
     },
     onError: () => {
-      toast({ title: 'Erro ao criar deal', variant: 'destructive' });
+      toast({ title: 'Erro ao criar tarefa', variant: 'destructive' });
     },
   });
 }
@@ -101,7 +111,7 @@ export function useUpdateDeal() {
       queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
     },
     onError: () => {
-      toast({ title: 'Erro ao atualizar deal', variant: 'destructive' });
+      toast({ title: 'Erro ao atualizar tarefa', variant: 'destructive' });
     },
   });
 }
@@ -117,10 +127,10 @@ export function useDeleteDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
-      toast({ title: 'Deal removido com sucesso!' });
+      toast({ title: 'Tarefa removida com sucesso!' });
     },
     onError: () => {
-      toast({ title: 'Erro ao remover deal', variant: 'destructive' });
+      toast({ title: 'Erro ao remover tarefa', variant: 'destructive' });
     },
   });
 }

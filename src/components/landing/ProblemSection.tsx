@@ -1,30 +1,33 @@
 import { motion } from 'framer-motion';
 import { XCircle, Clock, Search, Brain, ArrowDown } from 'lucide-react';
-
-const problems = [
-  {
-    icon: Clock,
-    title: 'Tempo perdido',
-    description: 'Você gasta minutos preciosos toda vez que precisa encontrar um projeto em outra conta.',
-  },
-  {
-    icon: Search,
-    title: 'Busca manual',
-    description: 'Sem busca centralizada, você navega manualmente entre dezenas de projetos.',
-  },
-  {
-    icon: Brain,
-    title: 'Sobrecarga mental',
-    description: 'Lembrar qual projeto está em qual conta é cansativo e improdutivo.',
-  },
-  {
-    icon: XCircle,
-    title: 'Falta de organização',
-    description: 'Sem tags, favoritos ou filtros, seus projetos viram uma bagunça.',
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 export function ProblemSection() {
+  const { t } = useTranslation();
+
+  const problems = [
+    {
+      icon: Clock,
+      title: t('landing.problemTimeLost'),
+      description: t('landing.problemTimeLostDesc'),
+    },
+    {
+      icon: Search,
+      title: t('landing.problemManualSearch'),
+      description: t('landing.problemManualSearchDesc'),
+    },
+    {
+      icon: Brain,
+      title: t('landing.problemOverload'),
+      description: t('landing.problemOverloadDesc'),
+    },
+    {
+      icon: XCircle,
+      title: t('landing.problemDisorganization'),
+      description: t('landing.problemDisorganizationDesc'),
+    },
+  ];
+
   return (
     <section className="py-16 md:py-24 px-4 bg-muted/30">
       <div className="container mx-auto max-w-5xl">
@@ -35,15 +38,13 @@ export function ProblemSection() {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-destructive uppercase tracking-wider">
-            O Problema
+            {t('landing.problemLabel')}
           </span>
           <h2 className="text-2xl md:text-4xl font-bold mt-3 mb-4">
-            Gerenciar múltiplas contas Lovable é{' '}
-            <span className="text-destructive">frustrante</span>
+            {t('landing.problemTitle')}{' '}
+            <span className="text-destructive">{t('landing.problemTitleHighlight')}</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Se você usa <strong className="text-foreground font-semibold">Lovable</strong>, <strong className="text-foreground font-semibold">Cursor</strong>, <strong className="text-foreground font-semibold">Base44</strong> e outras integrações inteligentes, provavelmente já passou por isso:
-          </p>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg" dangerouslySetInnerHTML={{ __html: t('landing.problemSubtitle') }} />
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

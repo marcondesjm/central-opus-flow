@@ -2,7 +2,9 @@ import { Button } from '@/components/ui/button';
 import { FolderKanban, Play, ArrowRight, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -12,6 +14,7 @@ import {
 
 export function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,18 +45,19 @@ export function LandingHeader() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Funcionalidades
+            {t('common.features')}
           </a>
           <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Preços
+            {t('common.pricing')}
           </a>
           <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            FAQ
+            {t('common.faq')}
           </a>
         </nav>
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
           <ThemeToggle />
           <Link to="/demo">
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
@@ -63,7 +67,7 @@ export function LandingHeader() {
           </Link>
           <Link to="/auth">
             <Button size="sm" className="shadow-md hover:shadow-lg transition-shadow">
-              Começar Grátis
+              {t('common.startFree')}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
@@ -71,6 +75,7 @@ export function LandingHeader() {
 
         {/* Mobile Nav */}
         <div className="flex md:hidden items-center gap-2">
+          <LanguageSwitcher />
           <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
@@ -82,25 +87,25 @@ export function LandingHeader() {
               <div className="flex flex-col gap-6 mt-8">
                 <nav className="flex flex-col gap-4">
                   <a href="#features" className="text-lg font-medium hover:text-primary transition-colors">
-                    Funcionalidades
+                    {t('common.features')}
                   </a>
                   <a href="#pricing" className="text-lg font-medium hover:text-primary transition-colors">
-                    Preços
+                    {t('common.pricing')}
                   </a>
                   <a href="#faq" className="text-lg font-medium hover:text-primary transition-colors">
-                    FAQ
+                    {t('common.faq')}
                   </a>
                 </nav>
                 <div className="h-px bg-border" />
                 <Link to="/demo">
                   <Button variant="outline" className="w-full justify-start">
                     <Play className="w-4 h-4 mr-2" />
-                    Ver Demonstração
+                    {t('common.viewDemo')}
                   </Button>
                 </Link>
                 <Link to="/auth">
                   <Button className="w-full">
-                    Começar Grátis
+                    {t('common.startFree')}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>

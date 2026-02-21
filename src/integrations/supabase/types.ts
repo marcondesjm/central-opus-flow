@@ -273,7 +273,10 @@ export type Database = {
           is_published: boolean
           locale: string
           published_at: string | null
+          secondary_image: string | null
+          show_attachment: boolean
           slug: string
+          subtitle: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -292,7 +295,10 @@ export type Database = {
           is_published?: boolean
           locale?: string
           published_at?: string | null
+          secondary_image?: string | null
+          show_attachment?: boolean
           slug: string
+          subtitle?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -311,7 +317,10 @@ export type Database = {
           is_published?: boolean
           locale?: string
           published_at?: string | null
+          secondary_image?: string | null
+          show_attachment?: boolean
           slug?: string
+          subtitle?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string

@@ -104,6 +104,122 @@ const demoChecklists = [
   ],
 ];
 
+// Demo kanban deals
+const demoKanbanDeals = [
+  {
+    company_name: 'TechNova Solutions',
+    client_name: 'Carlos Mendes',
+    description: 'Desenvolvimento de landing page para lançamento de produto SaaS',
+    phase: 'prospeccao',
+    progress: 20,
+    revenue: 3500,
+    priority: 'high',
+    tags: ['Landing Page', 'SaaS'],
+    assignee_name: 'João Silva',
+    color: '#3b82f6',
+    position: 0,
+  },
+  {
+    company_name: 'Moda Express',
+    client_name: 'Ana Beatriz',
+    description: 'E-commerce completo com integração de pagamentos e gestão de estoque',
+    phase: 'negociacao',
+    progress: 45,
+    revenue: 12000,
+    priority: 'urgent',
+    due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    tags: ['E-commerce', 'Urgente'],
+    assignee_name: 'Maria Costa',
+    color: '#ef4444',
+    position: 0,
+  },
+  {
+    company_name: 'FitLife Academy',
+    client_name: 'Roberto Alves',
+    description: 'Plataforma de cursos online com área de membros',
+    phase: 'proposta',
+    progress: 60,
+    revenue: 8500,
+    priority: 'medium',
+    due_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    tags: ['Educação', 'Membros'],
+    color: '#8b5cf6',
+    position: 0,
+  },
+  {
+    company_name: 'Restaurante Sabor & Arte',
+    client_name: 'Lucia Fernandes',
+    description: 'Website institucional com cardápio digital e reservas online',
+    phase: 'em_andamento',
+    progress: 75,
+    revenue: 4200,
+    priority: 'medium',
+    tags: ['Website', 'Gastronomia'],
+    assignee_name: 'Pedro Santos',
+    color: '#f59e0b',
+    position: 0,
+  },
+  {
+    company_name: 'ImoTech',
+    client_name: 'Fernando Lima',
+    description: 'Dashboard de analytics para gestão imobiliária',
+    phase: 'em_andamento',
+    progress: 90,
+    revenue: 15000,
+    priority: 'high',
+    due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    tags: ['Dashboard', 'Imobiliário'],
+    assignee_name: 'João Silva',
+    color: '#06b6d4',
+    position: 1,
+  },
+  {
+    company_name: 'StartUp Boost',
+    client_name: 'Camila Rocha',
+    description: 'MVP de aplicativo de produtividade',
+    phase: 'concluido',
+    progress: 100,
+    revenue: 6800,
+    priority: 'low',
+    tags: ['App', 'MVP'],
+    color: '#16a34a',
+    position: 0,
+    completed_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// Demo payments for kanban deals (index matches demoKanbanDeals)
+const demoKanbanPayments = [
+  // TechNova - no payments yet
+  [],
+  // Moda Express - partial payment
+  [
+    { amount: 4000, status: 'pago', description: 'Entrada - 1ª parcela', payment_date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+    { amount: 4000, status: 'pendente', description: '2ª parcela', payment_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+    { amount: 4000, status: 'pendente', description: '3ª parcela', payment_date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  ],
+  // FitLife - deposit paid
+  [
+    { amount: 2500, status: 'pago', description: 'Sinal do projeto', payment_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  ],
+  // Restaurante - half paid
+  [
+    { amount: 2100, status: 'pago', description: '50% na aprovação do layout', payment_date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+    { amount: 2100, status: 'pendente', description: '50% na entrega', payment_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  ],
+  // ImoTech - most paid
+  [
+    { amount: 5000, status: 'pago', description: '1ª parcela', payment_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+    { amount: 5000, status: 'pago', description: '2ª parcela', payment_date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+    { amount: 5000, status: 'pendente', description: '3ª parcela - entrega', payment_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  ],
+  // StartUp Boost - fully paid
+  [
+    { amount: 3400, status: 'pago', description: 'Parcela 1', payment_date: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+    { amount: 3400, status: 'pago', description: 'Parcela 2 - final', payment_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  ],
+];
+
 // Demo history entries for each project (index matches demoProjects)
 const demoHistoryEntries = [
   // E-commerce Fashion Store
@@ -324,9 +440,42 @@ export function useSeedDemoData() {
         }
       }
 
+      // Create demo kanban deals
+      const kanbanDealsToInsert = demoKanbanDeals.map(deal => ({
+        ...deal,
+        user_id: user.id,
+      }));
+
+      const { data: createdDeals, error: dealsError } = await supabase
+        .from('kanban_deals')
+        .insert(kanbanDealsToInsert)
+        .select();
+
+      if (dealsError) {
+        console.error('Error creating kanban deals:', dealsError);
+      } else if (createdDeals) {
+        console.log('Created kanban deals:', createdDeals.length);
+
+        // Create payments for each deal
+        for (let i = 0; i < createdDeals.length; i++) {
+          const payments = demoKanbanPayments[i] || [];
+          if (payments.length > 0) {
+            await supabase
+              .from('kanban_payments')
+              .insert(
+                payments.map(p => ({
+                  ...p,
+                  deal_id: createdDeals[i].id,
+                  user_id: user.id,
+                }))
+              );
+          }
+        }
+      }
+
       console.log('Demo data seeded successfully');
       toast.success('Projetos de demonstração criados!', {
-        description: '4 projetos de exemplo foram adicionados ao seu painel.'
+        description: '4 projetos e 6 tarefas Kanban de exemplo foram adicionados.'
       });
       setSeeding(false);
       return true;
@@ -364,6 +513,21 @@ export function useSeedDemoData() {
           .from('lovable_accounts')
           .delete()
           .eq('id', demoAccountData.id);
+      }
+
+      // Delete kanban deals and their payments
+      const demoCompanyNames = demoKanbanDeals.map(d => d.company_name);
+      const { data: demoDeals } = await supabase
+        .from('kanban_deals')
+        .select('id')
+        .eq('user_id', user.id)
+        .in('company_name', demoCompanyNames);
+
+      if (demoDeals && demoDeals.length > 0) {
+        const dealIds = demoDeals.map(d => d.id);
+        await supabase.from('kanban_payments').delete().in('deal_id', dealIds);
+        await supabase.from('kanban_task_checklist').delete().in('deal_id', dealIds);
+        await supabase.from('kanban_deals').delete().in('id', dealIds);
       }
 
       // Delete demo tags

@@ -13,7 +13,9 @@ import {
   Settings, 
   Key, 
   Bell,
-  Sparkles
+  Sparkles,
+  Columns3,
+  DollarSign
 } from 'lucide-react';
 
 interface FeatureCardProps {
@@ -96,10 +98,22 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
       color: 'bg-blue-500',
     },
     {
+      icon: <Columns3 className="h-5 w-5 text-white" />,
+      title: 'Kanban',
+      description: 'Gerencie deals e pipeline de vendas',
+      color: 'bg-indigo-500',
+    },
+    {
+      icon: <DollarSign className="h-5 w-5 text-white" />,
+      title: 'Faturamento',
+      description: 'Controle receitas, despesas e lucro',
+      color: 'bg-emerald-500',
+    },
+    {
       icon: <BarChart3 className="h-5 w-5 text-white" />,
       title: 'Analytics',
       description: 'Visualize estatísticas e progresso',
-      color: 'bg-emerald-500',
+      color: 'bg-cyan-500',
     },
     {
       icon: <Key className="h-5 w-5 text-white" />,

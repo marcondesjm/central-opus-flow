@@ -28,6 +28,7 @@ import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // Demo data
 const demoAccounts = [
@@ -129,6 +130,12 @@ export default function Demo() {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('all');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<Record<string, boolean>>(
+    Object.fromEntries(demoProjects.map(p => [p.id, p.isFavorite]))
+  );
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  const demoAction = (msg: string) => toast.info(msg, { description: 'Crie uma conta para usar esta funcionalidade.' });
 
   const navItems = [
     { id: 'all', label: 'Todos os Projetos', icon: LayoutDashboard },
@@ -138,6 +145,13 @@ export default function Demo() {
   ];
 
   const totalCredits = demoAccounts.reduce((sum, acc) => sum + acc.credits, 0);
+
+  const filteredProjects = demoProjects.filter(p => {
+    if (activeView === 'favorites') return favorites[p.id];
+    if (activeView === 'archived') return p.status === 'archived';
+    if (selectedAccount) return demoAccounts.find(a => a.id === selectedAccount)?.name === p.accountName;
+    return true;
+  });
 
   return (
     <div className="flex h-screen bg-background">
@@ -238,7 +252,7 @@ export default function Demo() {
                 );
               })}
 
-              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground mt-2">
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground mt-2" onClick={() => demoAction('Adicionar Conta')}>
                 <Plus className="w-4 h-4" />
                 Adicionar Conta
               </Button>
@@ -251,7 +265,7 @@ export default function Demo() {
           <div className="px-3 py-2">
             <p className="text-xs text-muted-foreground truncate">demo@projecthub.com</p>
           </div>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
+          <button onClick={() => demoAction('Configurações')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
             <Settings className="w-4 h-4" />
             Configurações
           </button>
@@ -288,20 +302,20 @@ export default function Demo() {
           {/* Actions */}
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center border border-border rounded-lg overflow-hidden">
-              <Button variant="ghost" size="icon" className="rounded-none h-9 w-9 bg-primary/10">
+              <Button variant="ghost" size="icon" className={cn("rounded-none h-9 w-9", viewMode === 'grid' && "bg-primary/10")} onClick={() => setViewMode('grid')}>
                 <Grid3X3 className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="rounded-none h-9 w-9">
+              <Button variant="ghost" size="icon" className={cn("rounded-none h-9 w-9", viewMode === 'list' && "bg-primary/10")} onClick={() => setViewMode('list')}>
                 <List className="w-4 h-4" />
               </Button>
             </div>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" onClick={() => demoAction('Notificações')}>
               <Bell className="w-5 h-5" />
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
                 3
               </span>
             </Button>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => demoAction('Novo Projeto')}>
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Novo Projeto</span>
             </Button>
@@ -362,19 +376,19 @@ export default function Demo() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-foreground">Todos os Projetos</h2>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => demoAction('Exportar Backup')}>
                 <Download className="w-4 h-4 mr-2" />
                 Exportar Backup
               </Button>
               <span className="text-sm text-muted-foreground">
-                {demoProjects.length} projetos
+                {filteredProjects.length} projetos
               </span>
             </div>
           </div>
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {demoProjects.map((project) => (
+            {filteredProjects.map((project) => (
               <div
                 key={project.id}
                 className="group bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
@@ -390,7 +404,7 @@ export default function Demo() {
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                      <button className="flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-colors">
+                      <button onClick={() => demoAction(`Abrir ${project.name}`)} className="flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-colors">
                         <ExternalLink className="w-3.5 h-3.5" />
                         Abrir
                       </button>
@@ -402,14 +416,15 @@ export default function Demo() {
 
                   {/* Favorite Button */}
                   <button
+                    onClick={() => setFavorites(prev => ({ ...prev, [project.id]: !prev[project.id] }))}
                     className={cn(
                       'absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200',
-                      project.isFavorite
+                      favorites[project.id]
                         ? 'bg-amber-500 text-white'
                         : 'bg-white/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-white hover:text-amber-500'
                     )}
                   >
-                    <Star className={cn('w-4 h-4', project.isFavorite && 'fill-current')} />
+                    <Star className={cn('w-4 h-4', favorites[project.id] && 'fill-current')} />
                   </button>
 
                   {/* Account Indicator */}
@@ -422,7 +437,7 @@ export default function Demo() {
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h3 className="font-semibold text-card-foreground line-clamp-1">{project.name}</h3>
-                    <button className="p-1 rounded-md hover:bg-muted transition-colors opacity-0 group-hover:opacity-100">
+                    <button onClick={() => demoAction(`Opções de ${project.name}`)} className="p-1 rounded-md hover:bg-muted transition-colors opacity-0 group-hover:opacity-100">
                       <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>

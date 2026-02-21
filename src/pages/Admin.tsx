@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, Eye } from 'lucide-react';
+import { AdminMonitoringCharts } from '@/components/admin/AdminMonitoringCharts';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, getTrialDaysRemaining, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
@@ -126,6 +127,21 @@ export default function Admin() {
   const upgradeSubscription = useUpgradeSubscription();
   const updateUserStatus = useUpdateUserStatus();
   const deleteUser = useDeleteUser();
+
+  // Fetch all projects for monitoring charts
+  const { data: allProjects = [], isLoading: projectsLoading } = useQuery({
+    queryKey: ['admin-all-projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, status, progress, user_id, created_at')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isAdmin,
+    refetchInterval: 15000,
+  });
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -720,7 +736,14 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users">
+          <TabsContent value="users" className="space-y-6">
+            {/* Monitoring Charts */}
+            <AdminMonitoringCharts 
+              users={users} 
+              projects={allProjects} 
+              isLoading={projectsLoading} 
+            />
+
             {/* Users Table */}
             <Card>
               <CardHeader>

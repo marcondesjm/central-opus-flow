@@ -23,6 +23,7 @@ import { OnboardingSidebar } from '@/components/onboarding/OnboardingSidebar';
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { TrialBanner } from '@/components/subscription/TrialBanner';
+import { SubscriptionExpirationBanner } from '@/components/subscription/SubscriptionExpirationBanner';
 import { TrialExpiredModal } from '@/components/subscription/TrialExpiredModal';
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
@@ -470,6 +471,9 @@ export default function Dashboard() {
       
       {/* Trial Banner */}
       <TrialBanner />
+      
+      {/* Subscription Expiration Banner */}
+      <SubscriptionExpirationBanner />
       
       {/* Trial Expired Modal */}
       <TrialExpiredModal />

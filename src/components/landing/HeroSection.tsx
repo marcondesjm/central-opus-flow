@@ -3,8 +3,11 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Play, Sparkles, CheckCircle2, Zap, Shield, HardDrive } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation, Trans } from 'react-i18next';
 
 export function HeroSection() {
+  const { t } = useTranslation();
+
   return (
     <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 px-4 overflow-hidden">
       {/* Background gradient glow */}
@@ -28,7 +31,7 @@ export function HeroSection() {
             className="mb-8 px-5 py-2 text-sm font-medium border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
           >
             <Sparkles className="w-4 h-4 mr-2 text-primary" />
-            7 dias grátis • Sem cartão de crédito
+            {t('landing.badge')}
           </Badge>
         </motion.div>
         
@@ -38,15 +41,15 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Gerencie{' '}
+          {t('landing.heroTitle1')}{' '}
           <span className="relative inline-block">
             <span className="relative z-10 bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              todos os projetos
+              {t('landing.heroTitle2')}
             </span>
             <span className="absolute -bottom-2 left-0 right-0 h-3 bg-primary/20 rounded-full blur-sm" />
           </span>
           <br />
-          em um só lugar
+          {t('landing.heroTitle3')}
         </motion.h1>
         
         <motion.p 
@@ -54,12 +57,8 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          Unifique múltiplas contas <strong className="text-foreground font-semibold">Lovable</strong>, encontre qualquer projeto em segundos
-          e ganhe até <strong className="text-foreground font-semibold">2 horas por semana</strong> em produtividade.
-          <br />
-          Com <strong className="text-foreground font-semibold">Cursor</strong>, <strong className="text-foreground font-semibold">Base44</strong> e outras integrações inteligentes, você centraliza tudo em um só lugar e trabalha com muito mais eficiência.
-        </motion.p>
+          dangerouslySetInnerHTML={{ __html: t('landing.heroSubtitle') + '<br />' + t('landing.heroSubtitle2') }}
+        />
         
         <motion.div 
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
@@ -74,7 +73,7 @@ export function HeroSection() {
               style={{ boxShadow: 'var(--shadow-glow)' }}
             >
               <Zap className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-              Começar Grátis
+              {t('common.startFree')}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
@@ -85,7 +84,7 @@ export function HeroSection() {
               className="text-base md:text-lg px-8 h-14 rounded-full border-2 border-primary/50 bg-background/80 backdrop-blur-sm hover:bg-primary/10 hover:border-primary transition-all duration-300 font-semibold text-foreground"
             >
               <Play className="w-5 h-5 mr-2" />
-              Ver Demonstração
+              {t('common.viewDemo')}
             </Button>
           </Link>
         </motion.div>
@@ -98,9 +97,9 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           {[
-            'Setup em 2 minutos',
-            'Sem cartão de crédito',
-            'Cancele quando quiser',
+            t('landing.trustSetup'),
+            t('landing.trustNoCard'),
+            t('landing.trustCancel'),
           ].map((text) => (
             <span key={text} className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-primary" />
@@ -120,9 +119,7 @@ export function HeroSection() {
             <Shield className="w-5 h-5" />
             <HardDrive className="w-4 h-4" />
           </div>
-          <span className="text-sm font-medium">
-            Suas Keys ficam armazenadas <strong>apenas no seu dispositivo</strong> (localStorage) — nunca enviamos para nuvem
-          </span>
+          <span className="text-sm font-medium" dangerouslySetInnerHTML={{ __html: t('landing.securityNote') }} />
         </motion.div>
       </div>
     </section>

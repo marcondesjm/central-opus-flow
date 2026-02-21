@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { CheckCircle2, Zap, Target, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function SolutionSection() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-16 md:py-24 px-4">
       <div className="container mx-auto max-w-5xl">
@@ -12,15 +15,13 @@ export function SolutionSection() {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">
-            A Solução
+            {t('landing.solutionLabel')}
           </span>
           <h2 className="text-2xl md:text-4xl font-bold mt-3 mb-4">
-            Um único painel para{' '}
-            <span className="text-primary">todos os seus projetos</span>
+            {t('landing.solutionTitle')}{' '}
+            <span className="text-primary">{t('landing.solutionTitleHighlight')}</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            O Central Opus Flow centraliza todas as suas contas <strong className="text-foreground font-semibold">Lovable</strong>, <strong className="text-foreground font-semibold">Cursor</strong>, <strong className="text-foreground font-semibold">Base44</strong> e outras integrações em um dashboard inteligente, para você encontrar qualquer projeto em segundos.
-          </p>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg" dangerouslySetInnerHTML={{ __html: t('landing.solutionSubtitle') }} />
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -34,18 +35,18 @@ export function SolutionSection() {
             {[
               {
                 icon: Zap,
-                title: 'Busca instantânea',
-                description: 'Encontre qualquer projeto digitando Ctrl+K. Busca em todas as contas ao mesmo tempo.',
+                title: t('landing.solutionInstantSearch'),
+                description: t('landing.solutionInstantSearchDesc'),
               },
               {
                 icon: Target,
-                title: 'Organização visual',
-                description: 'Tags coloridas, favoritos e filtros para nunca mais perder um projeto.',
+                title: t('landing.solutionVisualOrg'),
+                description: t('landing.solutionVisualOrgDesc'),
               },
               {
                 icon: Sparkles,
-                title: 'Visão completa',
-                description: 'Estatísticas, créditos e status de todos os projetos em tempo real.',
+                title: t('landing.solutionFullView'),
+                description: t('landing.solutionFullViewDesc'),
               },
             ].map((feature, index) => (
               <div key={feature.title} className="flex gap-4">
@@ -73,7 +74,7 @@ export function SolutionSection() {
                 {/* Search bar mockup */}
                 <div className="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">
                   <span className="text-muted-foreground">🔍</span>
-                  <span className="text-muted-foreground">Buscar projetos...</span>
+                  <span className="text-muted-foreground">{t('dashboard.searchProjects')}</span>
                   <span className="ml-auto text-xs bg-background px-2 py-1 rounded">⌘K</span>
                 </div>
                 
@@ -88,12 +89,12 @@ export function SolutionSection() {
                     <div className="flex-1">
                       <p className="font-medium text-sm">{account.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {account.projects} projetos
+                        {account.projects} {t('common.projects').toLowerCase()}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-sm text-primary">
-                        {account.credits} créditos
+                        {account.credits} {t('dashboard.credits').toLowerCase()}
                       </p>
                     </div>
                   </div>

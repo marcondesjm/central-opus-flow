@@ -55,8 +55,10 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Unifique múltiplas contas Lovable, encontre qualquer projeto em segundos 
-          e ganhe até <strong className="text-foreground font-semibold">2 horas por semana</strong> de produtividade.
+          Unifique múltiplas contas Lovable, encontre qualquer projeto em segundos
+          e ganhe até <strong className="text-foreground font-semibold">2 horas por semana</strong> em produtividade.
+          <br />
+          Com Cursor, Base44 e outras integrações inteligentes, você centraliza tudo em um só lugar e trabalha com muito mais eficiência.
         </motion.p>
         
         <motion.div 

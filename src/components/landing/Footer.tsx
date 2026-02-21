@@ -52,7 +52,7 @@ export function Footer() {
                 <span className="font-bold text-xl">Central Opus Flow</span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6 max-w-xs">
-                A melhor forma de organizar e gerenciar todos os seus projetos Lovable em um único lugar.
+                A melhor forma de organizar e gerenciar todos os seus projetos em um único lugar.
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -158,10 +158,10 @@ export function Footer() {
           {/* Bottom bar */}
           <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Central Opus Flow. Todos os direitos reservados.
+              © {new Date().getFullYear()} Central Opus Flow — <a href="https://www.doorvii.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline-offset-2 hover:underline transition-colors">DoorVII®</a> Todos os direitos reservados.
             </p>
             <p className="text-sm text-muted-foreground">
-              Feito com ❤️ para criadores Lovable
+              Feito com ❤️ para criadores
             </p>
           </div>
         </div>

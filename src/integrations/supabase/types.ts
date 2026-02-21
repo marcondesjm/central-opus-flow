@@ -616,36 +616,86 @@ export type Database = {
         }
         Relationships: []
       }
+      kanban_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          deal_id: string | null
+          description: string | null
+          expense_date: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          deal_id?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          deal_id?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_expenses_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kanban_payments: {
         Row: {
           amount: number
+          category: string | null
           created_at: string
           deal_id: string
           description: string | null
           id: string
           payment_date: string
+          payment_method: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
           amount?: number
+          category?: string | null
           created_at?: string
           deal_id: string
           description?: string | null
           id?: string
           payment_date?: string
+          payment_method?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
+          category?: string | null
           created_at?: string
           deal_id?: string
           description?: string | null
           id?: string
           payment_date?: string
+          payment_method?: string | null
           status?: string
           updated_at?: string
           user_id?: string

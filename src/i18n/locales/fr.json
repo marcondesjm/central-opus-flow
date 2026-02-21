@@ -427,5 +427,21 @@
     "projectArchivedDesc": "Le projet \"{{name}}\" a été archivé.",
     "projectRestoredDesc": "Le projet \"{{name}}\" a été restauré.",
     "error": "Erreur"
+  },
+  "header": {
+    "searchPlaceholder": "Rechercher des projets... (⌘K)",
+    "searchAriaLabel": "Rechercher des projets par nom, tag ou description",
+    "globalSearch": "Recherche globale (⌘K ou Ctrl+K)",
+    "gridView": "Vue en grille",
+    "listView": "Vue en liste",
+    "manageCollaborations": "Gérer les collaborations",
+    "newProject": "Nouveau Projet",
+    "newProjectTooltip": "Créer un nouveau projet (Ctrl+N)"
+  },
+  "stats": {
+    "totalProjects": "Total des Projets",
+    "favorites": "Favoris",
+    "published": "Publiés",
+    "overdue": "En retard"
   }
 }

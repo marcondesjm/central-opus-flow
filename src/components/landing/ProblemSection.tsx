@@ -42,7 +42,7 @@ export function ProblemSection() {
             <span className="text-destructive">frustrante</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Se você tem mais de uma conta Lovable, provavelmente já passou por isso:
+            Se você usa <strong className="text-foreground font-semibold">Lovable</strong>, <strong className="text-foreground font-semibold">Cursor</strong>, <strong className="text-foreground font-semibold">Base44</strong> e outras integrações inteligentes, provavelmente já passou por isso:
           </p>
         </motion.div>
 

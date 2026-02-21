@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
+import { DataProtectionBanner } from "@/components/privacy/DataProtectionBanner";
 import { ServiceWorkerUpdatePrompt } from "@/components/pwa/ServiceWorkerUpdatePrompt";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
@@ -107,6 +108,7 @@ function AppContent() {
       <Sonner />
       <PWAInstallPrompt />
       <ServiceWorkerUpdatePrompt />
+      <DataProtectionBanner />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />

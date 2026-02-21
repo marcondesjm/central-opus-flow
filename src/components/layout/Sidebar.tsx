@@ -404,37 +404,44 @@ export function Sidebar({
 
         {/* Faturamento with submenu */}
         <div className="pt-1">
-          <button
-            onClick={() => setBillingOpen(!billingOpen)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
-            aria-label="Abrir Faturamento"
-          >
-            <div className="flex items-center gap-3">
-              <Receipt className="w-4 h-4" aria-hidden="true" />
-              Faturamento
-            </div>
-            {billingOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-          </button>
-          {billingOpen && (
-            <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-sidebar-border pl-3">
-              {[
-                { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
-                { id: 'clients', label: 'Por Cliente', icon: Building2 },
-                { id: 'ai-costs', label: 'IA & Créditos', icon: Bot },
-                { id: 'expenses', label: 'Despesas', icon: Minus },
-                { id: 'history', label: 'Histórico', icon: Clock },
-              ].map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => navigate(`/billing?tab=${item.id}`)}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-all duration-150"
-                >
-                  <item.icon className="w-3.5 h-3.5" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
+          <Collapsible open={billingOpen} onOpenChange={setBillingOpen}>
+            <CollapsibleTrigger 
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+              aria-label="Abrir submenu Faturamento"
+            >
+              <div className="flex items-center gap-3">
+                <Receipt className="w-4 h-4" aria-hidden="true" />
+                Faturamento
+              </div>
+              <ChevronDown 
+                className={cn(
+                  'w-3.5 h-3.5 transition-transform duration-200',
+                  billingOpen ? 'rotate-0' : '-rotate-90'
+                )} 
+                aria-hidden="true"
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-0.5">
+              <div className="ml-4 space-y-0.5 border-l-2 border-sidebar-border pl-3">
+                {[
+                  { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
+                  { id: 'clients', label: 'Por Cliente', icon: Building2 },
+                  { id: 'ai-costs', label: 'IA & Créditos', icon: Bot },
+                  { id: 'expenses', label: 'Despesas', icon: Minus },
+                  { id: 'history', label: 'Histórico', icon: Clock },
+                ].map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => navigate(`/billing?tab=${item.id}`)}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-all duration-150"
+                  >
+                    <item.icon className="w-3.5 h-3.5" aria-hidden="true" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
         {/* Collaborations button */}

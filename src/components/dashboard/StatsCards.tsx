@@ -1,5 +1,6 @@
 import { FolderKanban, Star, Globe, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface StatsCardsProps {
   totalProjects: number;
@@ -10,30 +11,31 @@ interface StatsCardsProps {
 }
 
 export function StatsCards({ totalProjects, favorites, published, archived, overdue = 0 }: StatsCardsProps) {
+  const { t } = useTranslation();
   const stats = [
     {
-      label: 'Total de Projetos',
+      label: t('stats.totalProjects'),
       value: totalProjects,
       icon: FolderKanban,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
     },
     {
-      label: 'Favoritos',
+      label: t('stats.favorites'),
       value: favorites,
       icon: Star,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
     },
     {
-      label: 'Publicados',
+      label: t('stats.published'),
       value: published,
       icon: Globe,
       color: 'text-status-published',
       bgColor: 'bg-status-published/10',
     },
     {
-      label: 'Atrasados',
+      label: t('stats.overdue'),
       value: overdue,
       icon: AlertTriangle,
       color: 'text-destructive',

@@ -427,5 +427,21 @@
     "projectArchivedDesc": "Das Projekt \"{{name}}\" wurde archiviert.",
     "projectRestoredDesc": "Das Projekt \"{{name}}\" wurde wiederhergestellt.",
     "error": "Fehler"
+  },
+  "header": {
+    "searchPlaceholder": "Projekte suchen... (⌘K)",
+    "searchAriaLabel": "Projekte nach Name, Tag oder Beschreibung suchen",
+    "globalSearch": "Globale Suche (⌘K oder Strg+K)",
+    "gridView": "Rasteransicht",
+    "listView": "Listenansicht",
+    "manageCollaborations": "Zusammenarbeit verwalten",
+    "newProject": "Neues Projekt",
+    "newProjectTooltip": "Neues Projekt erstellen (Strg+N)"
+  },
+  "stats": {
+    "totalProjects": "Gesamtprojekte",
+    "favorites": "Favoriten",
+    "published": "Veröffentlicht",
+    "overdue": "Überfällig"
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Grid3X3, List, Plus, Users, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -43,6 +44,7 @@ export function Header({
 }: HeaderProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
 
@@ -109,7 +111,7 @@ export function Header({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Buscar projetos... (⌘K)"
+                placeholder={t('header.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 onClick={(e) => {
@@ -117,13 +119,13 @@ export function Header({
                   onOpenSearch?.();
                 }}
                 className="pl-10 bg-background border-border focus-visible:ring-primary/20 text-sm cursor-pointer"
-                aria-label="Buscar projetos por nome, tag ou descrição"
+                aria-label={t('header.searchAriaLabel')}
                 readOnly={!!onOpenSearch}
               />
             </div>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <p>Busca global (⌘K ou Ctrl+K)</p>
+            <p>{t('header.globalSearch')}</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -136,7 +138,7 @@ export function Header({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onViewModeChange('grid')}
-                aria-label="Visualização em grade"
+                aria-label={t('header.gridView')}
                 aria-pressed={viewMode === 'grid'}
                 className={cn(
                   'p-1.5 rounded-md transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
@@ -149,14 +151,14 @@ export function Header({
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Visualização em grade</p>
+              <p>{t('header.gridView')}</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 onClick={() => onViewModeChange('list')}
-                aria-label="Visualização em lista"
+                aria-label={t('header.listView')}
                 aria-pressed={viewMode === 'list'}
                 className={cn(
                   'p-1.5 rounded-md transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
@@ -169,7 +171,7 @@ export function Header({
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Visualização em lista</p>
+              <p>{t('header.listView')}</p>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -190,7 +192,7 @@ export function Header({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Gerenciar colaborações</p>
+              <p>{t('header.manageCollaborations')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -211,11 +213,11 @@ export function Header({
           <TooltipTrigger asChild>
             <Button className="gap-2 shadow-sm text-sm" onClick={onNewProject} size="sm">
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Novo Projeto</span>
+              <span className="hidden sm:inline">{t('header.newProject')}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Criar novo projeto (Ctrl+N)</p>
+            <p>{t('header.newProjectTooltip')}</p>
           </TooltipContent>
         </Tooltip>
 

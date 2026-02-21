@@ -538,8 +538,8 @@ export default function Demo() {
                       <h3 className="font-semibold text-card-foreground line-clamp-1">{project.name}</h3>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="p-1 rounded-md hover:bg-muted transition-colors opacity-0 group-hover:opacity-100">
-                            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                          <button className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20">
+                            <MoreHorizontal className="w-4 h-4 text-primary" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

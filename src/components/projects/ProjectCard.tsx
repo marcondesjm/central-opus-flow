@@ -335,18 +335,129 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
     {/* Screenshot Preview Dialog */}
     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-      <DialogContent className="max-w-4xl p-2">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden">
         <DialogTitle className="sr-only">Preview de {project.name}</DialogTitle>
-        {project.screenshot && (
-          <img
-            src={project.screenshot}
-            alt={project.name}
-            className="w-full h-auto rounded-lg"
-          />
-        )}
-        <div className="px-2 pb-2">
-          <h3 className="font-semibold text-foreground">{project.name}</h3>
-          <p className="text-sm text-muted-foreground">{project.description}</p>
+        <div className="grid md:grid-cols-2 gap-0">
+          {/* Image */}
+          <div className="aspect-video md:aspect-auto md:min-h-[400px] bg-muted overflow-hidden">
+            {project.screenshot ? (
+              <img
+                src={project.screenshot}
+                alt={project.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                <Eye className="w-12 h-12" />
+              </div>
+            )}
+          </div>
+
+          {/* Details */}
+          <div className="p-6 space-y-4 overflow-y-auto max-h-[500px]">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-bold text-lg text-foreground">{project.name}</h3>
+                <Badge variant="secondary" className={cn('text-xs', status.className)}>
+                  {status.label}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{project.description || 'Sem descrição'}</p>
+            </div>
+
+            {/* Info Grid */}
+            <div className="space-y-3 text-sm">
+              {project.type && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tipo:</span>
+                  <span className="font-medium text-foreground capitalize">{project.type}</span>
+                </div>
+              )}
+
+              {account && (
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Conta:</span>
+                  <div className="flex items-center gap-2">
+                    <span className={cn('w-2.5 h-2.5 rounded-full', accountColorMap[account.color])} />
+                    <span className="font-medium text-foreground">{account.name}</span>
+                  </div>
+                </div>
+              )}
+
+              {project.url && (
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">URL:</span>
+                  <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-[200px] flex items-center gap-1">
+                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                    {project.url.replace(/^https?:\/\//, '')}
+                  </a>
+                </div>
+              )}
+
+              {account && (
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Créditos:</span>
+                  <span className="flex items-center gap-1 font-medium text-primary">
+                    <Coins className="w-3.5 h-3.5" />
+                    {account.credits}
+                  </span>
+                </div>
+              )}
+
+              {project.deadline && (
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Prazo:</span>
+                  <span className={cn("font-medium flex items-center gap-1", isOverdue ? "text-destructive" : "text-foreground")}>
+                    <Calendar className="w-3.5 h-3.5" />
+                    {format(new Date(project.deadline), "dd/MM/yyyy", { locale: ptBR })}
+                    {isOverdue && <AlertTriangle className="w-3.5 h-3.5" />}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Progress / Checklist */}
+            {(() => {
+              const hasChecklist = checklistProgress && checklistProgress.total > 0;
+              const progressValue = hasChecklist ? checklistProgress.percentage : project.progress;
+              return (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{hasChecklist ? 'Tarefas:' : 'Progresso:'}</span>
+                    <span className="font-medium text-foreground">
+                      {hasChecklist ? `${checklistProgress.completed}/${checklistProgress.total}` : `${progressValue}%`}
+                    </span>
+                  </div>
+                  <Progress value={progressValue} className="h-2" />
+                </div>
+              );
+            })()}
+
+            {/* Tags */}
+            {project.tags.length > 0 && (
+              <div className="space-y-1.5">
+                <span className="text-sm text-muted-foreground">Tags:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {project.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs font-normal">{tag}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            {project.notes && (
+              <div className="space-y-1.5">
+                <span className="text-sm text-muted-foreground">Notas:</span>
+                <p className="text-sm text-foreground bg-muted/50 p-2 rounded-md">{project.notes}</p>
+              </div>
+            )}
+
+            {/* Updated */}
+            <div className="pt-2 border-t border-border text-xs text-muted-foreground">
+              Atualizado {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -15,9 +15,12 @@ import {
   FolderKanban,
   Users,
   UserPlus,
-  Pencil
+  Pencil,
+  Loader2
 } from 'lucide-react';
 import { useCollaboration, CollaborationNotification } from '@/hooks/useCollaboration';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -31,16 +34,69 @@ const notificationIcons: Record<string, React.ReactNode> = {
 
 export function CollaborationNotifications() {
   const [open, setOpen] = useState(false);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const { user } = useAuth();
   const { 
     notifications, 
     unreadNotificationsCount, 
     markNotificationAsRead,
-    markAllNotificationsAsRead 
+    markAllNotificationsAsRead,
+    acceptProjectInvitation,
+    acceptAccountInvitation,
   } = useCollaboration();
 
   const handleNotificationClick = (notification: CollaborationNotification) => {
     if (!notification.read_at) {
       markNotificationAsRead(notification.id);
+    }
+  };
+
+  const isInvite = (n: CollaborationNotification) =>
+    n.type === 'project_invitation' || n.type === 'account_invitation';
+
+  const handleAcceptInvite = async (e: React.MouseEvent, notification: CollaborationNotification) => {
+    e.stopPropagation();
+    if (!user?.email) return;
+
+    setAcceptingId(notification.id);
+    try {
+      if (notification.type === 'project_invitation') {
+        const { data } = await supabase
+          .from('project_collaborators')
+          .select('id')
+          .eq('project_id', notification.entity_id)
+          .eq('invited_email', user.email)
+          .is('accepted_at', null)
+          .maybeSingle();
+
+        if (data) {
+          const result = await acceptProjectInvitation(data.id);
+          if (result.success) {
+            markNotificationAsRead(notification.id);
+            setOpen(false);
+            window.location.reload();
+          }
+        }
+      } else if (notification.type === 'account_invitation') {
+        const { data } = await supabase
+          .from('account_collaborators')
+          .select('id')
+          .eq('account_id', notification.entity_id)
+          .eq('invited_email', user.email)
+          .is('accepted_at', null)
+          .maybeSingle();
+
+        if (data) {
+          const result = await acceptAccountInvitation(data.id);
+          if (result.success) {
+            markNotificationAsRead(notification.id);
+            setOpen(false);
+            window.location.reload();
+          }
+        }
+      }
+    } finally {
+      setAcceptingId(null);
     }
   };
 
@@ -75,7 +131,7 @@ export function CollaborationNotifications() {
           )}
         </div>
 
-        <ScrollArea className="h-80">
+        <ScrollArea className="max-h-[400px]">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
               <Bell className="w-8 h-8 mb-2 opacity-50" />
@@ -108,7 +164,7 @@ export function CollaborationNotifications() {
                             <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                           {notification.message}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -117,6 +173,22 @@ export function CollaborationNotifications() {
                             locale: ptBR 
                           })}
                         </p>
+                        {/* Accept Invite Button */}
+                        {isInvite(notification) && !notification.read_at && (
+                          <Button
+                            size="sm"
+                            className="mt-2 h-7 text-xs"
+                            disabled={acceptingId === notification.id}
+                            onClick={(e) => handleAcceptInvite(e, notification)}
+                          >
+                            {acceptingId === notification.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                            ) : (
+                              <UserPlus className="w-3 h-3 mr-1" />
+                            )}
+                            Aceitar Convite
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </button>

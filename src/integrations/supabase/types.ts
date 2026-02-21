@@ -56,6 +56,13 @@ export type Database = {
             referencedRelation: "lovable_accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "account_collaborators_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "lovable_accounts_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       activity_logs: {
@@ -807,6 +814,13 @@ export type Database = {
             referencedRelation: "lovable_accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "projects_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "lovable_accounts_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       subscriptions: {
@@ -969,6 +983,66 @@ export type Database = {
           trial_ends_at: string | null
           user_id: string | null
           user_status: string | null
+        }
+        Relationships: []
+      }
+      lovable_accounts_safe: {
+        Row: {
+          admin_email: string | null
+          anon_key_masked: string | null
+          color: string | null
+          created_at: string | null
+          credits: number | null
+          credits_updated_at: string | null
+          email: string | null
+          has_anon_key: boolean | null
+          has_service_role_key: boolean | null
+          id: string | null
+          name: string | null
+          notes: string | null
+          service_role_key_masked: string | null
+          supabase_project_id: string | null
+          supabase_url: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_email?: string | null
+          anon_key_masked?: never
+          color?: string | null
+          created_at?: string | null
+          credits?: number | null
+          credits_updated_at?: string | null
+          email?: string | null
+          has_anon_key?: never
+          has_service_role_key?: never
+          id?: string | null
+          name?: string | null
+          notes?: string | null
+          service_role_key_masked?: never
+          supabase_project_id?: string | null
+          supabase_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_email?: string | null
+          anon_key_masked?: never
+          color?: string | null
+          created_at?: string | null
+          credits?: number | null
+          credits_updated_at?: string | null
+          email?: string | null
+          has_anon_key?: never
+          has_service_role_key?: never
+          id?: string | null
+          name?: string | null
+          notes?: string | null
+          service_role_key_masked?: never
+          supabase_project_id?: string | null
+          supabase_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

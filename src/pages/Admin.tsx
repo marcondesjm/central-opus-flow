@@ -94,12 +94,14 @@ const statusColors: Record<string, string> = {
   active: 'bg-emerald-500/10 text-emerald-600',
   frozen: 'bg-blue-500/10 text-blue-600',
   deleted: 'bg-destructive/10 text-destructive',
+  pending_approval: 'bg-amber-500/10 text-amber-600',
 };
 
 const statusLabels: Record<string, string> = {
   active: 'Ativo',
   frozen: 'Congelado',
   deleted: 'Excluído',
+  pending_approval: 'Aguardando Aprovação',
 };
 
 const roleIcons: Record<string, React.ReactNode> = {
@@ -430,6 +432,24 @@ export default function Admin() {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Pending Approval Alert */}
+        {stats.pendingApproval > 0 && (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Clock className="w-5 h-5 text-amber-600" />
+              <div>
+                <p className="font-medium text-amber-700 dark:text-amber-400">
+                  {stats.pendingApproval} conta{stats.pendingApproval !== 1 ? 's' : ''} aguardando aprovação
+                </p>
+                <p className="text-sm text-amber-600/80">
+                  Aprove ou rejeite as contas pendentes na lista de usuários.
+                </p>
+              </div>
+            </div>
+            <Badge className="bg-amber-500 text-white">{stats.pendingApproval}</Badge>
+          </div>
+        )}
+
         {/* Pending Receipts Alert */}
         {pendingReceipts.length > 0 && (
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-center justify-between">
@@ -635,6 +655,7 @@ export default function Admin() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="pending_approval">Aguardando Aprovação</SelectItem>
                         <SelectItem value="active">Ativos</SelectItem>
                         <SelectItem value="frozen">Congelados</SelectItem>
                       </SelectContent>
@@ -724,9 +745,10 @@ export default function Admin() {
                         {filteredUsers.map((user) => {
                           const userStatus = user.user_status || 'active';
                           const isFrozen = userStatus === 'frozen';
+                          const isPending = userStatus === 'pending_approval';
                           
                           return (
-                            <TableRow key={user.id} className={cn(isFrozen && "opacity-60")}>
+                            <TableRow key={user.id} className={cn(isFrozen && "opacity-60", isPending && "bg-amber-500/5")}>
                               <TableCell>
                                 <div className="flex items-center gap-3">
                                   <Avatar className="w-8 h-8">
@@ -783,7 +805,12 @@ export default function Admin() {
                                       Alterar Plano
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    {isFrozen ? (
+                                    {isPending ? (
+                                      <DropdownMenuItem onClick={() => handleStatusChange(user, 'active')}>
+                                        <Check className="w-4 h-4 mr-2 text-emerald-600" />
+                                        <span className="text-emerald-600">Aprovar Conta</span>
+                                      </DropdownMenuItem>
+                                    ) : isFrozen ? (
                                       <DropdownMenuItem onClick={() => handleStatusChange(user, 'active')}>
                                         <Play className="w-4 h-4 mr-2 text-emerald-600" />
                                         <span className="text-emerald-600">Ativar Conta</span>

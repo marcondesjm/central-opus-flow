@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
-export type UserStatus = 'active' | 'frozen' | 'deleted';
+export type UserStatus = 'active' | 'frozen' | 'deleted' | 'pending_approval';
 
 export interface AdminUser {
   id: string;
@@ -130,6 +130,7 @@ export function useAdminStats() {
     admins: users.filter(u => u.role === 'admin').length,
     activeUsers: users.filter(u => u.user_status === 'active' || u.user_status === null).length,
     frozenUsers: users.filter(u => u.user_status === 'frozen').length,
+    pendingApproval: users.filter(u => u.user_status === 'pending_approval').length,
     trialUsers: users.filter(u => u.is_trial).length,
     totalAccounts: users.reduce((sum, u) => sum + (u.accounts_count || 0), 0),
     totalProjects: users.reduce((sum, u) => sum + (u.projects_count || 0), 0),

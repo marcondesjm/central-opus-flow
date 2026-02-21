@@ -42,7 +42,7 @@ const steps = [
   {
     id: 1,
     title: 'Bem-vindo ao ProjectHub! 🚀',
-    description: 'Gerencie todos os seus projetos Lovable em um só lugar. Vamos fazer um tour rápido para você conhecer todas as funcionalidades.',
+    description: 'Gerencie todos os seus projetos em um só lugar. Vamos fazer um tour rápido para você conhecer todas as funcionalidades.',
     icon: Sparkles,
     color: 'bg-gradient-to-br from-primary to-primary/60',
     highlights: [],
@@ -74,7 +74,7 @@ const steps = [
   {
     id: 4,
     title: 'Barra Lateral (Menu)',
-    description: 'À esquerda você encontra o menu principal. Navegue entre todos os projetos, favoritos, arquivados e suas contas Lovable.',
+    description: 'À esquerda você encontra o menu principal. Navegue entre todos os projetos, favoritos, arquivados e suas contas.',
     icon: LayoutDashboard,
     color: 'bg-gradient-to-br from-blue-500 to-blue-600',
     highlights: [
@@ -85,8 +85,8 @@ const steps = [
   },
   {
     id: 5,
-    title: 'Contas Lovable',
-    description: 'Na seção "CONTAS" da barra lateral, adicione várias contas Lovable. Cada conta pode ter uma cor diferente para fácil identificação.',
+    title: 'Suas Contas',
+    description: 'Na seção "CONTAS" da barra lateral, adicione várias contas. Cada conta pode ter uma cor diferente para fácil identificação.',
     icon: Users,
     color: 'bg-gradient-to-br from-violet-500 to-violet-600',
     highlights: [

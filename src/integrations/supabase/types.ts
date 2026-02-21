@@ -1196,6 +1196,7 @@ export type Database = {
       }
     }
     Functions: {
+      get_auth_email: { Args: never; Returns: string }
       get_user_project_count: { Args: never; Returns: number }
       get_user_role: {
         Args: { _user_id: string }

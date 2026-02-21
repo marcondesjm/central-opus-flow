@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, DollarSign, TrendingUp, Receipt, Plus,
   Calendar, Building2, Loader2, PieChart, Minus,
@@ -286,10 +286,19 @@ export default function BillingPage() {
   const { data: allExpenses, isLoading: expensesLoading } = useKanbanExpenses();
   const deleteExpense = useDeleteExpense();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [period, setPeriod] = useState('3');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
+
+  // Sync tab from URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['overview', 'clients', 'ai-costs', 'expenses', 'history'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const isLoading = dealsLoading || paymentsLoading || expensesLoading;
 

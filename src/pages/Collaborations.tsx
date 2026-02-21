@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, FolderOpen, UserPlus, Clock, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, FolderOpen, UserPlus, Clock, CheckCircle2, XCircle, Trash2, Share2, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { ShareProjectModal } from '@/components/collaboration/ShareProjectModal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +58,9 @@ export default function Collaborations() {
 
   const [projectCollaborators, setProjectCollaborators] = useState<Record<string, ProjectCollaborator[]>>({});
   const [accountCollaborators, setAccountCollaborators] = useState<Record<string, AccountCollaborator[]>>({});
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [projectPickerOpen, setProjectPickerOpen] = useState(false);
 
   // Fetch collaborators for all projects and accounts
   useEffect(() => {
@@ -143,14 +149,20 @@ export default function Collaborations() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-semibold">Colaborações</h1>
-            <p className="text-sm text-muted-foreground">Gerencie compartilhamentos e convites</p>
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-semibold">Colaborações</h1>
+              <p className="text-sm text-muted-foreground">Gerencie compartilhamentos e convites</p>
+            </div>
           </div>
+          <Button onClick={() => setProjectPickerOpen(true)} className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Novo Convite
+          </Button>
         </div>
       </header>
 
@@ -489,6 +501,61 @@ export default function Collaborations() {
           </TabsContent>
         </Tabs>
       </main>
+      {/* Project Picker Modal */}
+      <Dialog open={projectPickerOpen} onOpenChange={setProjectPickerOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5" />
+              Selecionar Projeto
+            </DialogTitle>
+            <DialogDescription>
+              Escolha o projeto que deseja compartilhar
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {projects.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhum projeto encontrado
+              </p>
+            ) : (
+              projects.map((project) => (
+                <Button
+                  key={project.id}
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-auto py-3"
+                  onClick={() => {
+                    setSelectedProjectId(project.id);
+                    setProjectPickerOpen(false);
+                    setShareModalOpen(true);
+                  }}
+                >
+                  <FolderOpen className="h-4 w-4 text-primary shrink-0" />
+                  <div className="text-left">
+                    <p className="font-medium">{project.name}</p>
+                    {project.description && (
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                        {project.description}
+                      </p>
+                    )}
+                  </div>
+                </Button>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Project Modal */}
+      {selectedProjectId && (
+        <ShareProjectModal
+          open={shareModalOpen}
+          onOpenChange={setShareModalOpen}
+          projectId={selectedProjectId}
+          projectName={projects.find(p => p.id === selectedProjectId)?.name || ''}
+          isOwner={true}
+        />
+      )}
     </div>
   );
 }

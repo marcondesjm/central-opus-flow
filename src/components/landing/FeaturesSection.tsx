@@ -8,7 +8,9 @@ import {
   Coins, 
   Download,
   ArrowUpRight,
-  KeyRound
+  KeyRound,
+  Columns3,
+  DollarSign
 } from 'lucide-react';
 
 const features = [
@@ -34,6 +36,20 @@ const features = [
     color: 'from-amber-500 to-amber-600',
   },
   {
+    icon: Columns3,
+    title: 'Kanban',
+    benefit: 'Gerencie deals, pipeline de vendas e tarefas com quadro visual, checklists e prioridades.',
+    highlight: 'Pipeline completo',
+    color: 'from-indigo-500 to-indigo-600',
+  },
+  {
+    icon: DollarSign,
+    title: 'Faturamento',
+    benefit: 'Controle receitas, despesas, lucro líquido e margens com gráficos e projeções financeiras.',
+    highlight: 'Visão financeira total',
+    color: 'from-emerald-500 to-emerald-600',
+  },
+  {
     icon: BarChart3,
     title: 'Estatísticas',
     benefit: 'Gráficos de status, tipo e progresso para entender seu portfólio completo.',
@@ -50,7 +66,7 @@ const features = [
   {
     icon: KeyRound,
     title: 'Keys Locais',
-    benefit: 'Armazene suas API Keys (Supabase, OpenAI, Stripe) localmente no seu dispositivo com segurança, sem enviar para nuvem.',
+    benefit: 'Armazene suas API Keys localmente no seu dispositivo com segurança, sem enviar para nuvem.',
     highlight: '100% privado',
     color: 'from-orange-500 to-orange-600',
   },

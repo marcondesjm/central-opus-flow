@@ -79,7 +79,6 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
   return (
     <>
-    <ProjectHoverCard project={project} account={account}>
     <div className={cn(
       "group bg-card rounded-xl border shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden hover-lift",
       isOverdue ? "border-destructive/50 ring-1 ring-destructive/20" : "border-border"
@@ -333,7 +332,6 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         </div>
       </div>
     </div>
-    </ProjectHoverCard>
 
     {/* Screenshot Preview Dialog */}
     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>

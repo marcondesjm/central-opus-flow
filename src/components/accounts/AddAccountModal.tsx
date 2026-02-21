@@ -162,9 +162,9 @@ export function AddAccountModal({ open, onOpenChange }: AddAccountModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col p-0 overflow-hidden">
         <DialogHeader className="flex-shrink-0 p-6 pb-4">
-          <DialogTitle>Adicionar Conta Lovable</DialogTitle>
+          <DialogTitle>Adicionar Conta</DialogTitle>
           <DialogDescription>
-            Adicione uma nova conta Lovable com informações do projeto Supabase.
+            Adicione uma nova conta com informações do projeto.
           </DialogDescription>
         </DialogHeader>
         
@@ -190,7 +190,7 @@ export function AddAccountModal({ open, onOpenChange }: AddAccountModalProps) {
                 <div className="space-y-2">
                   <Label htmlFor="account-email" className="flex items-center gap-2">
                     <Mail className="w-4 h-4" />
-                    Email de cadastro Lovable *
+                    Email de cadastro *
                   </Label>
                   <Input
                     id="account-email"

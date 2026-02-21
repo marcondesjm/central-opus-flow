@@ -213,7 +213,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="edit-project-account">Conta Lovable *</Label>
+            <Label htmlFor="edit-project-account">Conta *</Label>
             <Select value={accountId} onValueChange={setAccountId}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma conta" />

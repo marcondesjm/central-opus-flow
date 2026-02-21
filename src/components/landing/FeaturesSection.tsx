@@ -15,7 +15,7 @@ const features = [
   {
     icon: FolderKanban,
     title: 'Multi-Contas',
-    benefit: 'Conecte todas as suas contas Lovable e acesse todos os projetos em um único lugar.',
+    benefit: 'Conecte todas as suas contas e acesse todos os projetos em um único lugar.',
     highlight: 'Sem trocar de conta',
     color: 'from-blue-500 to-blue-600',
   },

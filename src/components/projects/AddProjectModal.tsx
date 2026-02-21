@@ -167,7 +167,7 @@ export function AddProjectModal({ open, onOpenChange }: AddProjectModalProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="project-account">Conta Lovable *</Label>
+            <Label htmlFor="project-account">Conta *</Label>
             <Select value={accountId} onValueChange={setAccountId}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma conta" />
@@ -188,7 +188,7 @@ export function AddProjectModal({ open, onOpenChange }: AddProjectModalProps) {
             </Select>
             {accounts.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                Adicione uma conta Lovable primeiro.
+                Adicione uma conta primeiro.
               </p>
             )}
           </div>

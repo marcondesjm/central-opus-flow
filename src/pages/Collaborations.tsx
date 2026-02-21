@@ -441,7 +441,7 @@ export default function Collaborations() {
                   Colaborações em Contas
                 </CardTitle>
                 <CardDescription>
-                  Pessoas que têm acesso às suas contas Lovable
+                  Pessoas que têm acesso às suas contas
                 </CardDescription>
               </CardHeader>
               <CardContent>

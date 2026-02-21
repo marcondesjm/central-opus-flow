@@ -19,6 +19,7 @@ import Pricing from "./pages/Pricing";
 import Collaborations from "./pages/Collaborations";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
+import Kanban from "./pages/Kanban";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -177,6 +178,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Collaborations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/kanban"
+            element={
+              <ProtectedRoute>
+                <Kanban />
               </ProtectedRoute>
             }
           />

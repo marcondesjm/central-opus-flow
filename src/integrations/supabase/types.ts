@@ -1112,6 +1112,42 @@ export type Database = {
         }
         Relationships: []
       }
+      wordpress_connections: {
+        Row: {
+          app_password: string
+          created_at: string
+          id: string
+          last_sync_at: string | null
+          site_name: string | null
+          site_url: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          app_password: string
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          site_name?: string | null
+          site_url: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          app_password?: string
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          site_name?: string | null
+          site_url?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       admin_users_view: {

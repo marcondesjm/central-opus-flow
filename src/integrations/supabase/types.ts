@@ -259,6 +259,41 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_post_sections: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          position: number
+          post_id: string
+          title: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          position?: number
+          post_id: string
+          title?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          position?: number
+          post_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_sections_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           attachment_name: string | null

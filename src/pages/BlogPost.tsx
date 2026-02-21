@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useBlogPost } from '@/hooks/useBlog';
+import { useBlogPost, useBlogPostSections } from '@/hooks/useBlog';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { Footer } from '@/components/landing/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,6 +57,7 @@ export default function BlogPost() {
   const { t, i18n } = useTranslation();
   const currentLocale = i18n.language?.substring(0, 2) || 'pt';
   const { data: post, isLoading } = useBlogPost(slug || '');
+  const { data: sections } = useBlogPostSections(post?.id || '');
 
   const [userRating, setUserRating] = useState(0);
   const [avgRating] = useState(5);
@@ -254,7 +255,7 @@ export default function BlogPost() {
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 
-            {/* Subtitle (segundo título destacado) */}
+            {/* Legacy subtitle (backward compat) */}
             {(post as any).subtitle && (
               <div className="mt-10 mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold border-l-4 border-primary pl-4 py-1">
@@ -267,6 +268,22 @@ export default function BlogPost() {
                 )}
               </div>
             )}
+
+            {/* Dynamic Sections */}
+            {sections && sections.length > 0 && sections.map((section) => (
+              <div key={section.id} className="mt-10 mb-6">
+                {section.title && (
+                  <h2 className="text-xl sm:text-2xl font-bold border-l-4 border-primary pl-4 py-1">
+                    {section.title}
+                  </h2>
+                )}
+                {section.content && (
+                  <p className="mt-3 text-base text-muted-foreground leading-relaxed pl-5">
+                    {section.content}
+                  </p>
+                )}
+              </div>
+            ))}
 
             {/* Secondary Image */}
             {(post as any).secondary_image && (

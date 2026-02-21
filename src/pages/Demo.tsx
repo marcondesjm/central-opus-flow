@@ -275,8 +275,17 @@ function DemoCharts({ projects }: { projects: typeof initialProjects }) {
   );
 }
 
+const DEMO_DATA_VERSION = 'v3';
+
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
+    const currentVersion = localStorage.getItem('demo_data_version');
+    if (currentVersion !== DEMO_DATA_VERSION) {
+      localStorage.removeItem('demo_projects');
+      localStorage.removeItem('demo_viewMode');
+      localStorage.setItem('demo_data_version', DEMO_DATA_VERSION);
+      return fallback;
+    }
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : fallback;
   } catch {
@@ -482,7 +491,17 @@ export default function Demo() {
         isOverdue ? "border-destructive/50 ring-1 ring-destructive/20" : "border-border"
       )}>
         <div className="relative aspect-video bg-muted overflow-hidden">
-          <img src={project.screenshot} alt={project.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          {project.screenshot ? (
+            <img 
+              src={project.screenshot} 
+              alt={project.name} 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
+            />
+          ) : null}
+          <div className={cn("w-full h-full flex items-center justify-center text-muted-foreground", project.screenshot ? "hidden" : "")}>
+            <Eye className="w-8 h-8" />
+          </div>
           
           {isOverdue && (
             <Tooltip>
@@ -913,7 +932,18 @@ export default function Demo() {
                     "group flex items-center gap-4 p-4 bg-card rounded-xl border hover:border-primary/30 transition-all",
                     isOverdue ? "border-destructive/50" : "border-border"
                   )}>
-                    <img src={project.screenshot} alt={project.name} className="w-24 h-14 object-cover rounded-lg shrink-0" />
+                    {project.screenshot ? (
+                      <img 
+                        src={project.screenshot} 
+                        alt={project.name} 
+                        className="w-24 h-14 object-cover rounded-lg shrink-0"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    ) : (
+                      <div className="w-24 h-14 bg-muted rounded-lg shrink-0 flex items-center justify-center">
+                        <Eye className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-card-foreground truncate">{project.name}</h3>

@@ -5,6 +5,7 @@ import {
   Calendar, Building2, Loader2, PieChart, Minus,
   BarChart3, ArrowUpRight, ArrowDownRight, Wallet, CreditCard,
   Clock, CheckCircle, XCircle, Trash2, Percent,
+  Bot, Coins,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -510,9 +511,10 @@ export default function BillingPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="clients">Por Cliente</TabsTrigger>
+            <TabsTrigger value="ai-costs">🤖 IA & Créditos</TabsTrigger>
             <TabsTrigger value="expenses">Despesas</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
@@ -629,7 +631,125 @@ export default function BillingPage() {
             </div>
           </TabsContent>
 
-          {/* Clients Tab */}
+          {/* AI & Credits Tab */}
+          <TabsContent value="ai-costs" className="mt-4 space-y-4">
+            {(() => {
+              const aiCategories = ['ia', 'tokens', 'creditos'];
+              const aiExpenses = filteredExpenses.filter(e => aiCategories.includes(e.category));
+              const totalAI = aiExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+              const byCategory = aiCategories.map(cat => {
+                const catExpenses = aiExpenses.filter(e => e.category === cat);
+                const total = catExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+                const catLabel = EXPENSE_CATEGORIES.find(c => c.value === cat)?.label || cat;
+                return { category: cat, label: catLabel, total, count: catExpenses.length };
+              }).filter(c => c.total > 0 || c.count > 0);
+
+              return (
+                <>
+                  {/* AI Stats */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <StatCard
+                      title="Total IA & Créditos"
+                      value={formatCurrency(totalAI)}
+                      subtitle={`${aiExpenses.length} registros`}
+                      icon={Bot}
+                      trend="down"
+                    />
+                    <StatCard
+                      title="Tokens / API"
+                      value={formatCurrency(aiExpenses.filter(e => e.category === 'tokens').reduce((s, e) => s + Number(e.amount), 0))}
+                      subtitle="Custos com APIs de IA"
+                      icon={Coins}
+                      trend="neutral"
+                    />
+                    <StatCard
+                      title="Créditos"
+                      value={formatCurrency(aiExpenses.filter(e => e.category === 'creditos').reduce((s, e) => s + Number(e.amount), 0))}
+                      subtitle="Lovable, Vercel, etc"
+                      icon={CreditCard}
+                      trend="neutral"
+                    />
+                  </div>
+
+                  {/* Quick Add AI Expense */}
+                  <Card>
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Bot className="w-4 h-4" />
+                        Registrar Gasto com IA
+                      </CardTitle>
+                      <Button size="sm" variant="outline" onClick={() => {
+                        setShowAddExpense(true);
+                      }} className="gap-1.5">
+                        <Plus className="w-3.5 h-3.5" />
+                        Nova Despesa IA
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Registre seus gastos com inteligência artificial, tokens de API (OpenAI, Claude, etc) e créditos de plataformas (Lovable, Vercel, etc).
+                      </p>
+
+                      {/* Category Breakdown */}
+                      {byCategory.length > 0 ? (
+                        <div className="space-y-3 mb-6">
+                          {byCategory.map(cat => {
+                            const pct = totalAI > 0 ? (cat.total / totalAI * 100) : 0;
+                            return (
+                              <div key={cat.category} className="space-y-1">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">{cat.label} ({cat.count})</span>
+                                  <span className="font-medium">{formatCurrency(cat.total)} ({pct.toFixed(0)}%)</span>
+                                </div>
+                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+
+                      {/* AI Expense List */}
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="grid grid-cols-[1fr,1.5fr,1fr,1fr,60px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                          <span>Data</span>
+                          <span>Descrição</span>
+                          <span>Tipo</span>
+                          <span className="text-right">Valor</span>
+                          <span />
+                        </div>
+                        {aiExpenses.length > 0 ? (
+                          aiExpenses.map(expense => {
+                            const cat = EXPENSE_CATEGORIES.find(c => c.value === expense.category);
+                            return (
+                              <div key={expense.id} className="grid grid-cols-[1fr,1.5fr,1fr,1fr,60px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                                <span className="text-muted-foreground">{format(parseISO(expense.expense_date), 'dd/MM/yyyy')}</span>
+                                <span className="truncate">{expense.description || '—'}</span>
+                                <Badge variant="secondary" className="text-[10px] w-fit">{cat?.label || expense.category}</Badge>
+                                <span className="text-right font-semibold text-violet-600">{formatCurrency(Number(expense.amount))}</span>
+                                <button onClick={() => deleteExpense.mutate(expense.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive">
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-12 space-y-2">
+                            <Bot className="w-8 h-8 mx-auto text-muted-foreground/50" />
+                            <p className="text-sm text-muted-foreground">Nenhum gasto com IA registrado</p>
+                            <p className="text-xs text-muted-foreground">Clique em "Nova Despesa IA" para começar a rastrear</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              );
+            })()}
+          </TabsContent>
+
+
           <TabsContent value="clients" className="mt-4">
             <Card>
               <CardHeader className="pb-2">

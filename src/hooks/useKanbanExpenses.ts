@@ -17,6 +17,9 @@ export interface KanbanExpense {
 
 export const EXPENSE_CATEGORIES = [
   { value: 'geral', label: 'Geral' },
+  { value: 'ia', label: '🤖 IA / Inteligência Artificial' },
+  { value: 'tokens', label: '🪙 Tokens / API' },
+  { value: 'creditos', label: '💳 Créditos (Lovable/Vercel/etc)' },
   { value: 'ferramenta', label: 'Ferramentas/Software' },
   { value: 'hospedagem', label: 'Hospedagem/Servidor' },
   { value: 'marketing', label: 'Marketing/Ads' },

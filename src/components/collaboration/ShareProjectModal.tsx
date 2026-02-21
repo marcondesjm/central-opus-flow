@@ -116,7 +116,7 @@ export function ShareProjectModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="w-5 h-5" />
@@ -201,26 +201,26 @@ export function ShareProjectModal({
                 {collaborators.map((collab) => (
                   <div 
                     key={collab.id} 
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-muted/50 rounded-lg"
                   >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-8 h-8">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="w-8 h-8 shrink-0">
                         <AvatarImage src={collab.profile?.avatar_url || undefined} />
                         <AvatarFallback>
                           {collab.invited_email.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">
                           {collab.profile?.full_name || collab.invited_email}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground truncate">
                           {collab.invited_email}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0 ml-11 sm:ml-0">
                       {!collab.accepted_at && (
                         <Badge variant="outline" className="text-xs">
                           Pendente

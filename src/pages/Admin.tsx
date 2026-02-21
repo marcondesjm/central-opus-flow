@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, getTrialDaysRemaining, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
 import { useUserRole, useIsAdmin } from '@/hooks/useRoles';
 import { useUpgradeSubscription, SubscriptionPlan } from '@/hooks/useSubscription';
@@ -146,6 +147,28 @@ export default function Admin() {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [previewUser, setPreviewUser] = useState<AdminUser | null>(null);
+  const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[] } | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
+  const handlePreviewUser = async (user: AdminUser) => {
+    setPreviewUser(user);
+    setLoadingPreview(true);
+    try {
+      const [accountsRes, projectsRes] = await Promise.all([
+        supabase.from('lovable_accounts').select('id, name, email, color, created_at').eq('user_id', user.user_id),
+        supabase.from('projects').select('id, name, description, status, url, progress, created_at, updated_at').eq('user_id', user.user_id),
+      ]);
+      setPreviewData({
+        accounts: accountsRes.data || [],
+        projects: projectsRes.data || [],
+      });
+    } catch {
+      setPreviewData({ accounts: [], projects: [] });
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
 
   // Real-time subscription for users - syncs when new accounts are created
   useEffect(() => {
@@ -882,6 +905,13 @@ export default function Admin() {
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
                                     <DropdownMenuItem 
+                                      onClick={() => handlePreviewUser(user)}
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      Visualizar Conteúdo
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
                                       onClick={() => handleChangePlan(user, user.plan === 'pro' ? 'business' : 'pro')}
                                     >
                                       <CreditCard className="w-4 h-4 mr-2" />
@@ -1149,6 +1179,90 @@ export default function Admin() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* User Preview Dialog */}
+      <Dialog open={!!previewUser} onOpenChange={(open) => { if (!open) { setPreviewUser(null); setPreviewData(null); } }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              Conteúdo de {previewUser?.full_name || previewUser?.email}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto space-y-6">
+            {loadingPreview ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : previewData ? (
+              <>
+                {/* Accounts */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <Building2 className="w-4 h-4" />
+                    Contas ({previewData.accounts.length})
+                  </h3>
+                  {previewData.accounts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhuma conta criada.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {previewData.accounts.map((acc: any) => (
+                        <div key={acc.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: acc.color || 'hsl(var(--primary))' }} />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{acc.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{acc.email}</p>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(acc.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Projects */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <FolderKanban className="w-4 h-4" />
+                    Projetos ({previewData.projects.length})
+                  </h3>
+                  {previewData.projects.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhum projeto criado.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {previewData.projects.map((proj: any) => (
+                        <div key={proj.id} className="p-3 rounded-lg border border-border bg-card space-y-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-sm">{proj.name}</p>
+                            <Badge variant="outline" className="text-xs">{proj.status}</Badge>
+                          </div>
+                          {proj.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">{proj.description}</p>
+                          )}
+                          {proj.url && (
+                            <a href={proj.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                              <ExternalLink className="w-3 h-3" />
+                              {proj.url}
+                            </a>
+                          )}
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Progresso: {proj.progress}%</span>
+                            <span>{format(new Date(proj.updated_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

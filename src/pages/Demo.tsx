@@ -8,7 +8,7 @@ import {
   Bell, Search, Grid3X3, List, Users, Coins, Settings, LogOut,
   Calendar, Pencil, Trash2, Copy, X, FileText, Globe, AlertTriangle,
   History, CheckSquare, BarChart3, ChevronDown, ChevronUp, Upload, Share2,
-  Kanban, Building2, User, Flag, DollarSign,
+  Kanban, Building2, User, Flag, DollarSign, Clock, TrendingUp, Minus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -483,6 +483,7 @@ export default function Demo() {
     { id: 'archived', label: t('demo.archived'), icon: Archive },
     { id: 'tags', label: t('demo.tags'), icon: Tag },
     { id: 'kanban', label: 'Kanban', icon: Kanban },
+    { id: 'billing', label: 'Faturamento', icon: DollarSign },
     { id: 'wordpress', label: 'WordPress', icon: Globe },
   ];
 
@@ -883,7 +884,124 @@ export default function Demo() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          {activeView === 'kanban' ? (
+          {activeView === 'billing' ? (
+            /* Demo Billing Dashboard */
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold">Faturamento</h2>
+                <Badge variant="outline" className="text-xs">Período: Últimos 3 meses</Badge>
+              </div>
+
+              {/* Financial Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                {[
+                  { label: 'Receita Total', value: 'R$ 59.300', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50', trend: '+23.5%' },
+                  { label: 'Pendente', value: 'R$ 12.000', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', trend: '3 pagamentos' },
+                  { label: 'Lucro Líquido', value: 'R$ 41.510', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', trend: 'Margem: 70%' },
+                  { label: 'Despesas', value: 'R$ 17.790', icon: Minus, color: 'text-destructive', bg: 'bg-destructive/10', trend: '8 registros' },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <Card key={stat.label} className="overflow-hidden">
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                            <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+                            <p className="text-xs text-muted-foreground">{stat.trend}</p>
+                          </div>
+                          <div className={cn('p-2.5 rounded-xl', stat.bg)}>
+                            <Icon className={cn('w-5 h-5', stat.color)} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Receita x Despesas</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[220px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={[
+                          { month: 'Dez/25', receita: 8200, despesas: 2800 },
+                          { month: 'Jan/26', receita: 12500, despesas: 4200 },
+                          { month: 'Fev/26', receita: 15800, despesas: 5100 },
+                        ]}>
+                          <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={50} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} />
+                          <RechartsTooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '12px' }} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
+                          <Legend formatter={(v) => <span className="text-xs text-muted-foreground capitalize">{v}</span>} />
+                          <Bar dataKey="receita" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="despesas" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Por Status</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[220px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={[
+                            { name: 'Pago', value: 47300, fill: '#10b981' },
+                            { name: 'Pendente', value: 12000, fill: '#f59e0b' },
+                          ]} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" stroke="none">
+                            {[0, 1].map((i) => <Cell key={i} fill={['#10b981', '#f59e0b'][i]} />)}
+                          </Pie>
+                          <RechartsTooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '12px' }} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
+                          <Legend formatter={(v) => <span className="text-xs text-muted-foreground">{v}</span>} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Recent Payments */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium">Últimos Pagamentos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { company: 'ImoTech', client: 'Fernando Lima', amount: 15000, status: 'pago', method: 'PIX', date: '20/02/2026' },
+                      { company: 'Moda Express', client: 'Ana Beatriz', amount: 12000, status: 'pendente', method: 'Boleto', date: '18/02/2026' },
+                      { company: 'FitLife Academy', client: 'Roberto Alves', amount: 8500, status: 'pago', method: 'Cartão', date: '15/02/2026' },
+                      { company: 'StartUp Boost', client: 'Camila Rocha', amount: 6800, status: 'pago', method: 'PIX', date: '12/02/2026' },
+                      { company: 'Clínica Bem Estar', client: 'Dra. Mariana', amount: 5500, status: 'pago', method: 'Transferência', date: '10/02/2026' },
+                    ].map((payment, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => toast.info(payment.company, { description: 'Crie sua conta para ver detalhes completos!' })}>
+                        <div className="flex items-center gap-3">
+                          <div className={cn('w-2 h-2 rounded-full', payment.status === 'pago' ? 'bg-emerald-500' : 'bg-amber-500')} />
+                          <div>
+                            <p className="text-sm font-medium">{payment.company}</p>
+                            <p className="text-xs text-muted-foreground">{payment.client} • {payment.method}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold">R$ {payment.amount.toLocaleString('pt-BR')}</p>
+                          <p className="text-xs text-muted-foreground">{payment.date}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : activeView === 'kanban' ? (
             /* Kanban Demo Board */
             <div>
               <div className="flex items-center justify-between mb-4">

@@ -32,7 +32,7 @@ function useDisableDevTools() {
       return false;
     };
 
-    // Desabilitar atalhos de teclado para DevTools
+    // Desabilitar atalhos de teclado para DevTools e cópia
     const handleKeyDown = (e: KeyboardEvent) => {
       // F12
       if (e.key === 'F12') {
@@ -46,6 +46,30 @@ function useDisableDevTools() {
       }
       // Ctrl+U (ver código fonte)
       if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+S (salvar página)
+      if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+A (selecionar tudo)
+      if (e.ctrlKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+C (copiar)
+      if (e.ctrlKey && (e.key === 'C' || e.key === 'c')) {
+        // Permitir copiar apenas em inputs e textareas
+        const target = e.target as HTMLElement;
+        if (!target.closest('input, textarea, [contenteditable]')) {
+          e.preventDefault();
+          return false;
+        }
+      }
+      // Ctrl+P (imprimir)
+      if (e.ctrlKey && (e.key === 'P' || e.key === 'p')) {
         e.preventDefault();
         return false;
       }
@@ -64,6 +88,11 @@ function useDisableDevTools() {
         e.preventDefault();
         return false;
       }
+      // PrintScreen
+      if (e.key === 'PrintScreen') {
+        e.preventDefault();
+        return false;
+      }
     };
 
     // Desabilitar arrastar elementos
@@ -71,10 +100,18 @@ function useDisableDevTools() {
       e.preventDefault();
     };
 
-    // Desabilitar seleção de texto em elementos sensíveis
+    // Desabilitar seleção de texto globalmente (exceto inputs)
     const handleSelectStart = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (target.closest('[data-no-select]')) {
+      if (!target.closest('input, textarea, [contenteditable]')) {
+        e.preventDefault();
+      }
+    };
+
+    // Desabilitar cópia
+    const handleCopy = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('input, textarea, [contenteditable]')) {
         e.preventDefault();
       }
     };
@@ -82,18 +119,20 @@ function useDisableDevTools() {
     // Limpar console periodicamente
     const consoleClearInterval = setInterval(() => {
       console.clear();
-    }, 5000);
+    }, 3000);
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('dragstart', handleDragStart);
     document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('copy', handleCopy);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('dragstart', handleDragStart);
       document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('copy', handleCopy);
       clearInterval(consoleClearInterval);
     };
   }, []);

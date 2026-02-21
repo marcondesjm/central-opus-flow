@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
-  Plus, GripVertical, Pencil, Trash2, ArrowLeft,
+  Plus, Pencil, Trash2, ArrowLeft,
   Building2, User, FileText, DollarSign, Loader2, BarChart3,
 } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KANBAN_PHASES, KanbanDeal } from '@/hooks/useKanban';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { format } from 'date-fns';
@@ -94,11 +93,9 @@ function AddDealModal({ open, onOpenChange, editDeal }: { open: boolean; onOpenC
   );
 }
 
-function DealCard({ deal, onEdit, onDelete, onMove }: { deal: KanbanDeal; onEdit: () => void; onDelete: () => void; onMove: (phase: string) => void }) {
-  const phaseInfo = KANBAN_PHASES.find(p => p.id === deal.phase);
-
+function DealCard({ deal, onEdit, onDelete }: { deal: KanbanDeal; onEdit: () => void; onDelete: () => void }) {
   return (
-    <Card className="group hover:shadow-md transition-shadow cursor-pointer border-l-4" style={{ borderLeftColor: `var(--deal-${deal.phase})` }}>
+    <Card className="group hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: `var(--deal-${deal.phase})` }}>
       <CardContent className="p-3 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
@@ -135,18 +132,6 @@ function DealCard({ deal, onEdit, onDelete, onMove }: { deal: KanbanDeal; onEdit
             R$ {Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </div>
         )}
-        {/* Quick move buttons */}
-        <div className="flex flex-wrap gap-1 pt-1">
-          {KANBAN_PHASES.filter(p => p.id !== deal.phase).map(p => (
-            <button
-              key={p.id}
-              onClick={() => onMove(p.id)}
-              className={cn("text-[10px] px-1.5 py-0.5 rounded-full text-white transition-opacity hover:opacity-80", p.color)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
       </CardContent>
     </Card>
   );
@@ -161,7 +146,6 @@ function RevenueChart({ deals }: { deals: KanbanDeal[] }) {
       const key = deal.company_name.slice(0, 15);
       monthMap[month][key] = (monthMap[month][key] || 0) + Number(deal.revenue);
     });
-
     const companies = [...new Set(deals.filter(d => d.revenue > 0).map(d => d.company_name.slice(0, 15)))];
     return { data: Object.entries(monthMap).map(([month, revenues]) => ({ month, ...revenues })), companies };
   }, [deals]);
@@ -210,6 +194,20 @@ export default function KanbanPage() {
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
+  const handleDragEnd = (result: DropResult) => {
+    const { draggableId, destination } = result;
+    if (!destination) return;
+    const newPhase = destination.droppableId;
+    const deal = deals?.find(d => d.id === draggableId);
+    if (!deal || deal.phase === newPhase) return;
+
+    updateDeal.mutate({
+      id: deal.id,
+      phase: newPhase,
+      ...(newPhase === 'concluido' ? { progress: 100 } : {}),
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -220,7 +218,6 @@ export default function KanbanPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between px-4 py-3 max-w-[1800px] mx-auto">
           <div className="flex items-center gap-3">
@@ -247,7 +244,6 @@ export default function KanbanPage() {
         </div>
       </header>
 
-      {/* Chart */}
       {showChart && (
         <div className="max-w-[1800px] mx-auto px-4 pt-4">
           <Card>
@@ -262,41 +258,57 @@ export default function KanbanPage() {
         </div>
       )}
 
-      {/* Kanban Board */}
-      <div className="max-w-[1800px] mx-auto px-4 py-4 overflow-x-auto">
-        <div className="flex gap-4 min-w-max pb-4">
-          {KANBAN_PHASES.map(phase => (
-            <div key={phase.id} className="w-72 flex-shrink-0">
-              <div className={cn("flex items-center gap-2 px-3 py-2 rounded-t-lg text-white text-sm font-medium", phase.color)}>
-                <span>{phase.label}</span>
-                <Badge variant="secondary" className="ml-auto bg-white/20 text-white text-xs">
-                  {dealsByPhase[phase.id]?.length || 0}
-                </Badge>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="max-w-[1800px] mx-auto px-4 py-4 overflow-x-auto">
+          <div className="flex gap-4 min-w-max pb-4">
+            {KANBAN_PHASES.map(phase => (
+              <div key={phase.id} className="w-72 flex-shrink-0">
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-t-lg text-white text-sm font-medium ${phase.color}`}>
+                  <span>{phase.label}</span>
+                  <Badge variant="secondary" className="ml-auto bg-white/20 text-white text-xs">
+                    {dealsByPhase[phase.id]?.length || 0}
+                  </Badge>
+                </div>
+                <Droppable droppableId={phase.id}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0 transition-colors ${
+                        snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                      }`}
+                    >
+                      {dealsByPhase[phase.id]?.map((deal, index) => (
+                        <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={snapshot.isDragging ? 'opacity-90 rotate-1' : ''}
+                            >
+                              <DealCard
+                                deal={deal}
+                                onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
+                                onDelete={() => setDeletingId(deal.id)}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      {dealsByPhase[phase.id]?.length === 0 && !snapshot.isDraggingOver && (
+                        <p className="text-xs text-muted-foreground text-center py-8">Nenhum deal</p>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-              <div className="bg-muted/30 rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0">
-                {dealsByPhase[phase.id]?.map(deal => (
-                  <DealCard
-                    key={deal.id}
-                    deal={deal}
-                    onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
-                    onDelete={() => setDeletingId(deal.id)}
-                    onMove={(newPhase) => updateDeal.mutate({
-                      id: deal.id,
-                      phase: newPhase,
-                      ...(newPhase === 'concluido' ? { progress: 100 } : {}),
-                    })}
-                  />
-                ))}
-                {dealsByPhase[phase.id]?.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-8">Nenhum deal</p>
-                )}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </DragDropContext>
 
-      {/* Modals */}
       {showAddModal && (
         <AddDealModal
           open={showAddModal}

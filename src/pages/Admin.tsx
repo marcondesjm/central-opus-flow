@@ -526,7 +526,7 @@ export default function Admin() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -578,6 +578,28 @@ export default function Admin() {
                 <div>
                   <p className="text-2xl font-bold">{stats.totalProjects}</p>
                   <p className="text-xs text-muted-foreground">Projetos</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => {
+              const blogTab = document.querySelector('[data-value="blog"]') as HTMLElement;
+              if (blogTab) blogTab.click();
+            }}
+          >
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-orange-500/10">
+                  <BookOpen className="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold flex items-center gap-2">
+                    Blog
+                  </p>
+                  <p className="text-xs text-muted-foreground">Gerenciar Posts</p>
                 </div>
               </div>
             </CardContent>
@@ -669,7 +691,7 @@ export default function Admin() {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="blog" className="gap-2">
+            <TabsTrigger value="blog" className="gap-2" data-value="blog">
               <BookOpen className="w-4 h-4" />
               Blog
             </TabsTrigger>

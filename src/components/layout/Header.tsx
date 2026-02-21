@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -191,6 +191,36 @@ export function Header({
 
         {/* Language Switcher */}
         <LanguageSwitcher />
+
+        {/* Subscription Days Left */}
+        {subscription?.plan !== 'free' && (subscription as any)?.expires_at && (() => {
+          const daysLeft = Math.ceil((new Date((subscription as any).expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+          const isExpired = daysLeft <= 0;
+          const isUrgent = daysLeft <= 7;
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn(
+                  "hidden sm:flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border",
+                  isExpired 
+                    ? "bg-destructive/10 text-destructive border-destructive/30" 
+                    : isUrgent 
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                      : "bg-muted text-muted-foreground border-border"
+                )}>
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{isExpired ? 'Expirado' : `${daysLeft}d`}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isExpired 
+                  ? 'Sua assinatura expirou. Renove para continuar.' 
+                  : `${daysLeft} dia${daysLeft !== 1 ? 's' : ''} restante${daysLeft !== 1 ? 's' : ''} na assinatura`
+                }</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })()}
 
         {/* Theme Toggle */}
         <ThemeToggle />

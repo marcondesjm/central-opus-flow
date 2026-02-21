@@ -1,19 +1,14 @@
-import { useState, useRef } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState, useRef, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useSubmitPaymentReceipt, useTrial } from '@/hooks/useTrial';
 import { QRCodeSVG } from 'qrcode.react';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Copy, 
   Check, 
@@ -21,66 +16,28 @@ import {
   QrCode, 
   CreditCard,
   CheckCircle2,
-  Clock,
   Upload,
-  MessageCircle,
+  FileCheck,
+  Send,
+  Shield,
+  Clock,
   Image as ImageIcon,
+  MessageCircle,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 
 interface PaymentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const PIX_KEY = '48996029392';
-const PIX_NAME = 'Marcondes Jorge Machado';
-const PIX_AMOUNT = 19.90;
 const WHATSAPP_NUMBER = '5548996029392';
 
-// Generate PIX Copy-Paste payload (BR Code format)
-function generatePixPayload() {
-  return PIX_KEY;
-}
-
-// CRC16-CCITT for PIX BR Code
-function crc16ccitt(str: string): string {
-  let crc = 0xFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      if (crc & 0x8000) {
-        crc = (crc << 1) ^ 0x1021;
-      } else {
-        crc = crc << 1;
-      }
-    }
-    crc &= 0xFFFF;
-  }
-  return crc.toString(16).toUpperCase().padStart(4, '0');
-}
-
-function tlv(id: string, value: string): string {
-  const len = value.length.toString().padStart(2, '0');
-  return `${id}${len}${value}`;
-}
-
-// Generate PIX BR Code for QR Code (EMV standard with CRC16)
-function generatePixBRCode() {
-  const gui = tlv('00', 'br.gov.bcb.pix');
-  const key = tlv('01', PIX_KEY);
-  const mai = tlv('26', gui + key); // Merchant Account Information
-  const mcc = tlv('52', '0000');
-  const currency = tlv('53', '986'); // BRL
-  const amount = tlv('54', PIX_AMOUNT.toFixed(2));
-  const country = tlv('58', 'BR');
-  const name = tlv('59', PIX_NAME.substring(0, 25));
-  const city = tlv('60', 'BRASILIA');
-  const addData = tlv('62', tlv('05', '***'));
-  const payload = tlv('00', '01') + mai + mcc + currency + amount + country + name + city + addData;
-  const crc = crc16ccitt(payload + '6304');
-  return payload + '6304' + crc;
+interface PixData {
+  brCode: string;
+  maskedKey: string;
+  pixKey: string;
+  name: string;
+  amount: number;
 }
 
 export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
@@ -90,25 +47,44 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [step, setStep] = useState<'payment' | 'confirm'>('payment');
   const [uploading, setUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState('');
+  const [pixData, setPixData] = useState<PixData | null>(null);
+  const [pixLoading, setPixLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
   const submitReceipt = useSubmitPaymentReceipt();
   const { data: trial } = useTrial();
 
+  // Fetch PIX data from backend when modal opens
+  useEffect(() => {
+    if (open && !pixData) {
+      setPixLoading(true);
+      supabase.functions.invoke('generate-pix')
+        .then(({ data, error }) => {
+          if (error) throw error;
+          setPixData(data as PixData);
+        })
+        .catch(() => {
+          toast({ title: 'Erro ao carregar dados PIX', variant: 'destructive' });
+        })
+        .finally(() => setPixLoading(false));
+    }
+  }, [open]);
+
   const handleCopyPix = async () => {
+    if (!pixData) return;
     try {
-      await navigator.clipboard.writeText(PIX_KEY);
+      await navigator.clipboard.writeText(pixData.pixKey);
       setCopied(true);
       toast({
         title: 'Chave PIX copiada!',
         description: 'Cole no seu app do banco.',
       });
       setTimeout(() => setCopied(false), 3000);
-    } catch (error) {
+    } catch {
       toast({
         title: 'Erro ao copiar',
-        description: 'Copie manualmente: ' + PIX_KEY,
+        description: 'Copie manualmente a chave PIX.',
         variant: 'destructive',
       });
     }
@@ -299,20 +275,27 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 Pagamento via PIX
               </h4>
 
-              {/* QR Code Real */}
+              {/* QR Code from backend */}
               <div className="flex justify-center">
-                <div className="bg-white p-4 rounded-lg border shadow-sm">
-                  <QRCodeSVG
-                    value={generatePixBRCode()}
-                    size={160}
-                    level="M"
-                    includeMargin={true}
-                    className="rounded"
-                  />
-                  <p className="text-xs text-center text-muted-foreground mt-2">
-                    Escaneie com seu app do banco
-                  </p>
-                </div>
+                {pixLoading ? (
+                  <div className="flex flex-col items-center gap-2 py-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Carregando QR Code...</p>
+                  </div>
+                ) : pixData ? (
+                  <div className="bg-white p-4 rounded-lg border shadow-sm">
+                    <QRCodeSVG
+                      value={pixData.brCode}
+                      size={160}
+                      level="M"
+                      includeMargin={true}
+                      className="rounded"
+                    />
+                    <p className="text-xs text-center text-muted-foreground mt-2">
+                      Escaneie com seu app do banco
+                    </p>
+                  </div>
+                ) : null}
               </div>
 
               {/* PIX Key */}
@@ -320,7 +303,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 <Label>Chave PIX (Celular)</Label>
                 <div className="flex gap-2">
                   <Input 
-                    value={PIX_KEY} 
+                    value={pixData?.maskedKey || '•••••••••••'} 
                     readOnly 
                     className="bg-muted font-mono"
                   />
@@ -339,8 +322,12 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Favorecido: <strong>{PIX_NAME}</strong>
+                  Favorecido: <strong>{pixData?.name || '...'}</strong>
                 </p>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Shield className="w-3 h-3" />
+                  Dados protegidos via servidor seguro
+                </div>
               </div>
             </div>
 

@@ -396,7 +396,24 @@ export default function Demo() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button className="gap-2" onClick={() => toast.info('Novo Projeto', { description: 'Crie uma conta para adicionar projetos.' })}>
+            <Button className="gap-2" onClick={() => {
+              const newId = String(Date.now());
+              const newProject = {
+                id: newId,
+                name: `Novo Projeto ${projects.length + 1}`,
+                description: 'Projeto criado na demonstração',
+                screenshot: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop',
+                status: 'draft',
+                progress: 0,
+                isFavorite: false,
+                tags: ['Novo'],
+                accountName: 'Trabalho Principal',
+                accountColor: 'blue',
+                updatedAt: new Date().toISOString().split('T')[0],
+              };
+              setProjects(prev => [newProject, ...prev]);
+              toast.success('Projeto criado!', { description: `"${newProject.name}" adicionado com sucesso.` });
+            }}>
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Novo Projeto</span>
             </Button>

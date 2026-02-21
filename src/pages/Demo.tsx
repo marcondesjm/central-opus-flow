@@ -295,6 +295,9 @@ export default function Demo() {
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [historyProject, setHistoryProject] = useState<typeof initialProjects[0] | null>(null);
+  const [addAccountOpen, setAddAccountOpen] = useState(false);
+  const [accounts, setAccounts] = useState(demoAccounts);
+  const [newAccountForm, setNewAccountForm] = useState({ name: '', color: 'blue' });
   const [notifications] = useState([
     { id: 1, text: 'Projeto "E-commerce" publicado com sucesso', time: 'há 2h' },
     { id: 2, text: 'Novo colaborador adicionado ao projeto "Dashboard"', time: 'há 5h' },
@@ -372,7 +375,7 @@ export default function Demo() {
     else if (activeView === 'archived') result = result.filter(p => p.status === 'archived');
     else if (activeView === 'tags' && selectedTag) result = result.filter(p => p.tags.includes(selectedTag));
     else if (activeView !== 'tags' && selectedAccount) {
-      const accountName = demoAccounts.find(a => a.id === selectedAccount)?.name;
+      const accountName = accounts.find(a => a.id === selectedAccount)?.name;
       result = result.filter(p => p.accountName === accountName);
     }
     if (statusFilter !== 'all') result = result.filter(p => p.status === statusFilter);
@@ -396,14 +399,31 @@ export default function Demo() {
   }, [projects]);
 
   const viewTitle = useMemo(() => {
-    if (selectedAccount) return demoAccounts.find(a => a.id === selectedAccount)?.name || 'Projetos';
+    if (selectedAccount) return accounts.find(a => a.id === selectedAccount)?.name || 'Projetos';
     if (activeView === 'favorites') return 'Projetos Favoritos';
     if (activeView === 'archived') return 'Projetos Arquivados';
     if (activeView === 'tags') return selectedTag ? `Tag: ${selectedTag}` : 'Filtrar por Tags';
     return 'Todos os Projetos';
   }, [activeView, selectedAccount, selectedTag]);
 
-  const totalCredits = demoAccounts.reduce((sum, acc) => sum + acc.credits, 0);
+  const totalCredits = accounts.reduce((sum, acc) => sum + acc.credits, 0);
+
+  const handleAddAccount = () => {
+    if (!newAccountForm.name.trim()) {
+      toast.error('Digite o nome da conta');
+      return;
+    }
+    const newAccount = {
+      id: String(Date.now()),
+      name: newAccountForm.name.trim(),
+      color: newAccountForm.color,
+      credits: 0,
+    };
+    setAccounts(prev => [...prev, newAccount]);
+    toast.success(`Conta "${newAccount.name}" criada com sucesso!`);
+    setNewAccountForm({ name: '', color: 'blue' });
+    setAddAccountOpen(false);
+  };
   const hasActiveFilters = statusFilter !== 'all' || typeFilter !== 'all';
   const deletingProject = deletingProjectId ? projects.find(p => p.id === deletingProjectId) : null;
 
@@ -564,7 +584,7 @@ export default function Demo() {
               <span className="font-medium text-foreground">{project.accountName}</span>
               <span className="flex items-center gap-0.5 text-primary">
                 <Coins className="w-3 h-3" />
-                {demoAccounts.find(a => a.name === project.accountName)?.credits || 0}
+                {accounts.find(a => a.name === project.accountName)?.credits || 0}
               </span>
             </div>
             <span>{daysAgo(project.updatedAt)}</span>
@@ -641,7 +661,7 @@ export default function Demo() {
               </span>
             </div>
             <div className="space-y-1 mt-1">
-              {demoAccounts.map((account) => {
+              {accounts.map((account) => {
                 const isActive = selectedAccount === account.id;
                 return (
                   <button key={account.id} onClick={() => { setSelectedAccount(isActive ? null : account.id); setActiveView('all'); setSelectedTag(null); }}
@@ -656,7 +676,7 @@ export default function Demo() {
                 );
               })}
               <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground mt-2"
-                onClick={() => toast.info('Adicionar Conta', { description: 'Crie uma conta para usar esta funcionalidade.' })}>
+                onClick={() => setAddAccountOpen(true)}>
                 <Plus className="w-4 h-4" />Adicionar Conta
               </Button>
             </div>
@@ -1030,6 +1050,41 @@ export default function Demo() {
               </div>
             ))}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Account Modal */}
+      <Dialog open={addAccountOpen} onOpenChange={setAddAccountOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Adicionar Conta</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="account-name">Nome da Conta</Label>
+              <Input id="account-name" placeholder="Ex: Minha Agência" value={newAccountForm.name} onChange={(e) => setNewAccountForm(prev => ({ ...prev, name: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Cor</Label>
+              <div className="flex gap-2">
+                {['blue', 'emerald', 'amber', 'rose', 'violet'].map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setNewAccountForm(prev => ({ ...prev, color }))}
+                    className={cn(
+                      'w-8 h-8 rounded-full transition-all',
+                      accountColorMap[color],
+                      newAccountForm.color === color ? 'ring-2 ring-offset-2 ring-primary' : 'opacity-60 hover:opacity-100'
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddAccountOpen(false)}>Cancelar</Button>
+            <Button onClick={handleAddAccount}>Criar Conta</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

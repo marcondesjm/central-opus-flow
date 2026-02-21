@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileSidebar } from '@/components/layout/MobileSidebar';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
@@ -29,6 +30,7 @@ import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
+import { useCollaboration } from '@/hooks/useCollaboration';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useAuth } from '@/hooks/useAuth';
 import { useSeedDemoData } from '@/hooks/useSeedDemoData';
@@ -38,6 +40,7 @@ import { useMultipleChecklistProgress } from '@/hooks/useChecklistProgress';
 import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButton';
 import { ProjectStatus, ProjectType } from '@/types/project';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -108,6 +111,8 @@ export default function Dashboard() {
   } = useOnboarding();
 
   const { seedDemoData } = useSeedDemoData();
+  const navigate = useNavigate();
+  const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
   const [demoSeeded, setDemoSeeded] = useState(false);
 
   // Project presence for online users
@@ -169,6 +174,78 @@ export default function Dashboard() {
     setTagFilter(tagName);
     setActiveView('all');
   }, []);
+
+  // Handle accepting invite from notification
+  const handleAcceptInviteFromNotification = useCallback(async (notification: any) => {
+    const entityId = notification.entityId;
+    const entityType = notification.entityType;
+    const notifType = notification.notificationType;
+
+    if (!entityId) return;
+
+    // Find matching pending invitation
+    let invitationId: string | null = null;
+    
+    if (notifType === 'project_invitation') {
+      // Look for matching project invitation in pending invitations
+      const invite = pendingInvitations.find(
+        (inv) => 'project_id' in inv && (inv as any).project_id === entityId
+      );
+      if (invite) {
+        invitationId = invite.id;
+        const result = await acceptProjectInvitation(invitationId);
+        if (result.success) {
+          markAsRead(notification.id);
+          // Redirect to dashboard to see the project
+          window.location.reload();
+        }
+      } else {
+        // Try to accept directly by finding via supabase
+        const { data } = await supabase
+          .from('project_collaborators')
+          .select('id')
+          .eq('project_id', entityId)
+          .eq('invited_email', user?.email || '')
+          .is('accepted_at', null)
+          .maybeSingle();
+        
+        if (data) {
+          const result = await acceptProjectInvitation(data.id);
+          if (result.success) {
+            markAsRead(notification.id);
+            window.location.reload();
+          }
+        }
+      }
+    } else if (notifType === 'account_invitation') {
+      const invite = pendingInvitations.find(
+        (inv) => 'account_id' in inv && (inv as any).account_id === entityId
+      );
+      if (invite) {
+        const result = await acceptAccountInvitation(invite.id);
+        if (result.success) {
+          markAsRead(notification.id);
+          window.location.reload();
+        }
+      } else {
+        const { data } = await supabase
+          .from('account_collaborators')
+          .select('id')
+          .eq('account_id', entityId)
+          .eq('invited_email', user?.email || '')
+          .is('accepted_at', null)
+          .maybeSingle();
+        
+        if (data) {
+          const result = await acceptAccountInvitation(data.id);
+          if (result.success) {
+            markAsRead(notification.id);
+            window.location.reload();
+          }
+        }
+      }
+    }
+  }, [pendingInvitations, acceptProjectInvitation, acceptAccountInvitation, markAsRead, user?.email]);
 
   // Update onboarding checklist when accounts/projects change
   useEffect(() => {
@@ -417,6 +494,7 @@ export default function Dashboard() {
           onMarkAllAsRead={markAllAsRead}
           onDeleteNotification={deleteNotification}
           onClearNotifications={clearNotifications}
+          onAcceptInvite={handleAcceptInviteFromNotification}
         />
         
         <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">

@@ -47,9 +47,12 @@ export function useNotifications() {
           id: `collab-${n.id}`,
           title: n.title,
           message: n.message,
-          type: n.type === 'project_invitation' || n.type === 'account_invitation' ? 'info' as const : 'info' as const,
+          type: 'info' as const,
           read: !!n.read_at,
           createdAt: new Date(n.created_at),
+          entityType: n.entity_type,
+          entityId: n.entity_id,
+          notificationType: n.type,
         }));
         setCollabNotifications(mapped);
       }
@@ -77,6 +80,9 @@ export function useNotifications() {
             type: 'info',
             read: false,
             createdAt: new Date(n.created_at),
+            entityType: n.entity_type,
+            entityId: n.entity_id,
+            notificationType: n.type,
           };
           setCollabNotifications(prev => [mapped, ...prev]);
         }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, Check, Trash2, X } from 'lucide-react';
+import { Bell, Check, Trash2, X, UserPlus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -19,6 +19,10 @@ export interface Notification {
   type: 'info' | 'success' | 'warning' | 'error';
   read: boolean;
   createdAt: Date;
+  // Optional metadata for actionable notifications
+  entityType?: string;
+  entityId?: string;
+  notificationType?: string;
 }
 
 interface NotificationCenterProps {
@@ -27,6 +31,7 @@ interface NotificationCenterProps {
   onMarkAllAsRead: () => void;
   onDelete: (id: string) => void;
   onClearAll: () => void;
+  onAcceptInvite?: (notification: Notification) => Promise<void>;
 }
 
 export function NotificationCenter({
@@ -35,9 +40,26 @@ export function NotificationCenter({
   onMarkAllAsRead,
   onDelete,
   onClearAll,
+  onAcceptInvite,
 }: NotificationCenterProps) {
   const [open, setOpen] = useState(false);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const isInviteNotification = (n: Notification) =>
+    n.notificationType === 'project_invitation' || n.notificationType === 'account_invitation';
+
+  const handleAcceptInvite = async (e: React.MouseEvent, notification: Notification) => {
+    e.stopPropagation();
+    if (!onAcceptInvite) return;
+    setAcceptingId(notification.id);
+    try {
+      await onAcceptInvite(notification);
+      setOpen(false);
+    } finally {
+      setAcceptingId(null);
+    }
+  };
 
   const getTypeStyles = (type: Notification['type']) => {
     switch (type) {
@@ -145,6 +167,22 @@ export function NotificationCenter({
                             locale: ptBR,
                           })}
                         </p>
+                        {/* Accept Invite Button for collaboration invitations */}
+                        {isInviteNotification(notification) && !notification.read && onAcceptInvite && (
+                          <Button
+                            size="sm"
+                            className="mt-2 h-7 text-xs"
+                            disabled={acceptingId === notification.id}
+                            onClick={(e) => handleAcceptInvite(e, notification)}
+                          >
+                            {acceptingId === notification.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                            ) : (
+                              <UserPlus className="w-3 h-3 mr-1" />
+                            )}
+                            Aceitar Convite
+                          </Button>
+                        )}
                       </div>
                       <Button
                         variant="ghost"

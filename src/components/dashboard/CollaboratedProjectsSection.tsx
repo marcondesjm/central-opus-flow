@@ -1,7 +1,7 @@
 import { useCollaboratedProjects, CollaboratedProject } from '@/hooks/useCollaboratedProjects';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Users, Calendar, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Users, Calendar, AlertTriangle, ChevronDown, ChevronUp, Eye, Pencil } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -126,9 +126,24 @@ export function CollaboratedProjectsSection({ onEditProject }: CollaboratedProje
                   <Badge variant="secondary" className="text-[10px] sm:text-xs">
                     {project.collaboration_type === 'project' ? 'Projeto' : 'Conta'}
                   </Badge>
-                  <span className="truncate">
-                    {formatDistanceToNow(new Date(project.updated_at), { addSuffix: true, locale: ptBR })}
-                  </span>
+                  <Button
+                    size="sm"
+                    variant={project.role === 'viewer' ? 'outline' : 'default'}
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() => onEditProject?.(project.id)}
+                  >
+                    {project.role === 'viewer' ? (
+                      <>
+                        <Eye className="w-3 h-3" />
+                        Visualizar
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="w-3 h-3" />
+                        Editar
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             );

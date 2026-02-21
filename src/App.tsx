@@ -46,14 +46,52 @@ function useDisableDevTools() {
         e.preventDefault();
         return false;
       }
+      // Cmd+Option+I (macOS)
+      if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i')) {
+        e.preventDefault();
+        return false;
+      }
+      // Cmd+Option+J (macOS)
+      if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j')) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+P (Command palette)
+      if (e.ctrlKey && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
+        e.preventDefault();
+        return false;
+      }
     };
+
+    // Desabilitar arrastar elementos
+    const handleDragStart = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    // Desabilitar seleção de texto em elementos sensíveis
+    const handleSelectStart = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-no-select]')) {
+        e.preventDefault();
+      }
+    };
+
+    // Limpar console periodicamente
+    const consoleClearInterval = setInterval(() => {
+      console.clear();
+    }, 5000);
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('selectstart', handleSelectStart);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('selectstart', handleSelectStart);
+      clearInterval(consoleClearInterval);
     };
   }, []);
 }

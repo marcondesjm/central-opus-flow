@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
@@ -49,15 +50,16 @@ const accountColorMap = {
   violet: 'bg-account-violet',
 };
 
-const statusConfig = {
-  published: { label: 'Publicado', className: 'bg-status-published/10 text-status-published border-status-published/20' },
-  draft: { label: 'Rascunho', className: 'bg-status-draft/10 text-status-draft border-status-draft/20' },
-  archived: { label: 'Arquivado', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
+const statusConfigMap = {
+  published: { key: 'filters.published', className: 'bg-status-published/10 text-status-published border-status-published/20' },
+  draft: { key: 'filters.draft', className: 'bg-status-draft/10 text-status-draft border-status-draft/20' },
+  archived: { key: 'filters.archived', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
 };
 
 export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const status = statusConfig[project.status];
+  const { t } = useTranslation();
+  const statusCfg = statusConfigMap[project.status];
   
   // Check if project is overdue
   const isOverdue = project.deadline && 
@@ -103,11 +105,11 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             <TooltipTrigger asChild>
               <div className="absolute top-3 left-12 flex items-center gap-1 bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full">
                 <AlertTriangle className="w-3 h-3" />
-                <span>Atrasado</span>
+                <span>{t('cards.overdue')}</span>
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Prazo: {formatDistanceToNow(new Date(project.deadline!), { addSuffix: true, locale: ptBR })}</p>
+              <p>{t('cards.deadline')}: {formatDistanceToNow(new Date(project.deadline!), { addSuffix: true, locale: ptBR })}</p>
             </TooltipContent>
           </Tooltip>
         )}
@@ -121,7 +123,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
             >
               <Eye className="w-4 h-4" />
-              Ver Preview
+              {t('cards.viewPreview')}
             </button>
           )}
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
@@ -131,13 +133,13 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                 className="flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Abrir
+                {t('cards.open')}
               </button>
             ) : (
-              <span className="text-xs text-white/60">Sem URL</span>
+              <span className="text-xs text-white/60">{t('cards.noUrl')}</span>
             )}
-            <Badge variant="secondary" className={cn('text-xs', status.className)}>
-              {status.label}
+            <Badge variant="secondary" className={cn('text-xs', statusCfg.className)}>
+              {t(statusCfg.key)}
             </Badge>
           </div>
         </div>
@@ -183,40 +185,40 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                 <>
                   <DropdownMenuItem className="gap-2" onClick={handleOpenProject}>
                     <ExternalLink className="w-4 h-4" />
-                    Abrir Projeto
+                    {t('cards.openProject')}
                   </DropdownMenuItem>
                   <DropdownMenuItem className="gap-2" onClick={handleCopyLink}>
                     <Copy className="w-4 h-4" />
-                    Copiar Link
+                    {t('cards.copyLink')}
                   </DropdownMenuItem>
                 </>
               )}
               <DropdownMenuItem className="gap-2" onClick={() => onEdit?.(project.id)}>
                 <Edit className="w-4 h-4" />
-                Editar
+                {t('cards.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={() => onShowHistory?.(project.id)}>
                 <History className="w-4 h-4" />
-                Ver Histórico
+                {t('cards.viewHistory')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => onArchive?.(project.id)}>
                 <Archive className="w-4 h-4" />
-                {project.status === 'archived' ? 'Restaurar' : 'Arquivar'}
+                {project.status === 'archived' ? t('cards.restore') : t('cards.archive')}
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="gap-2 text-destructive focus:text-destructive"
                 onClick={() => onDelete?.(project.id)}
               >
                 <Trash2 className="w-4 h-4" />
-                Excluir
+                {t('cards.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-          {project.description || 'Sem descrição'}
+          {project.description || t('cards.noDescription')}
         </p>
 
         {/* Tags */}
@@ -261,7 +263,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                     <div className="flex-1">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-muted-foreground">
-                          {hasChecklist ? 'Tarefas' : 'Progresso'}
+                          {hasChecklist ? t('cards.tasks') : t('cards.progress')}
                         </span>
                         <span className={cn(
                           "font-medium",
@@ -286,10 +288,10 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                 <TooltipContent>
                   <p>
                     {isComplete 
-                      ? '✅ Todas as tarefas concluídas!' 
+                      ? t('cards.allTasksDone')
                       : hasChecklist 
-                        ? `${checklistProgress.completed} de ${checklistProgress.total} tarefas concluídas`
-                        : `${progressValue}% concluído`
+                        ? t('cards.tasksProgress', { completed: checklistProgress.completed, total: checklistProgress.total })
+                        : t('cards.progressPercent', { value: progressValue })
                     }
                   </p>
                 </TooltipContent>
@@ -307,7 +309,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               : "bg-muted text-muted-foreground"
           )}>
             <Calendar className="w-3.5 h-3.5" />
-            <span>Prazo: {format(new Date(project.deadline), "dd/MM/yyyy", { locale: ptBR })}</span>
+            <span>{t('cards.deadline')}: {format(new Date(project.deadline), "dd/MM/yyyy", { locale: ptBR })}</span>
           </div>
         )}
 
@@ -324,7 +326,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                 </span>
               </>
             )}
-            {!account && <span>Sem conta</span>}
+            {!account && <span>{t('cards.noAccount')}</span>}
           </div>
           <span>
             {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
@@ -358,25 +360,25 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-bold text-lg text-foreground">{project.name}</h3>
-                <Badge variant="secondary" className={cn('text-xs', status.className)}>
-                  {status.label}
+                <Badge variant="secondary" className={cn('text-xs', statusCfg.className)}>
+                  {t(statusCfg.key)}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">{project.description || 'Sem descrição'}</p>
+              <p className="text-sm text-muted-foreground">{project.description || t('cards.noDescription')}</p>
             </div>
 
             {/* Info Grid */}
             <div className="space-y-3 text-sm">
               {project.type && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tipo:</span>
+                  <span className="text-muted-foreground">{t('cards.type')}:</span>
                   <span className="font-medium text-foreground capitalize">{project.type}</span>
                 </div>
               )}
 
               {account && (
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Conta:</span>
+                  <span className="text-muted-foreground">{t('cards.account')}:</span>
                   <div className="flex items-center gap-2">
                     <span className={cn('w-2.5 h-2.5 rounded-full', accountColorMap[account.color])} />
                     <span className="font-medium text-foreground">{account.name}</span>
@@ -396,7 +398,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
               {account && (
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Créditos:</span>
+                  <span className="text-muted-foreground">{t('cards.credits')}:</span>
                   <span className="flex items-center gap-1 font-medium text-primary">
                     <Coins className="w-3.5 h-3.5" />
                     {account.credits}
@@ -406,7 +408,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
               {project.deadline && (
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Prazo:</span>
+                  <span className="text-muted-foreground">{t('cards.deadline')}:</span>
                   <span className={cn("font-medium flex items-center gap-1", isOverdue ? "text-destructive" : "text-foreground")}>
                     <Calendar className="w-3.5 h-3.5" />
                     {format(new Date(project.deadline), "dd/MM/yyyy", { locale: ptBR })}
@@ -423,7 +425,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               return (
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{hasChecklist ? 'Tarefas:' : 'Progresso:'}</span>
+                    <span className="text-muted-foreground">{hasChecklist ? `${t('cards.tasks')}:` : `${t('cards.progress')}:`}</span>
                     <span className="font-medium text-foreground">
                       {hasChecklist ? `${checklistProgress.completed}/${checklistProgress.total}` : `${progressValue}%`}
                     </span>
@@ -436,7 +438,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             {/* Tags */}
             {project.tags.length > 0 && (
               <div className="space-y-1.5">
-                <span className="text-sm text-muted-foreground">Tags:</span>
+                <span className="text-sm text-muted-foreground">{t('cards.tags')}:</span>
                 <div className="flex flex-wrap gap-1.5">
                   {project.tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs font-normal">{tag}</Badge>
@@ -448,14 +450,14 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             {/* Notes */}
             {project.notes && (
               <div className="space-y-1.5">
-                <span className="text-sm text-muted-foreground">Notas:</span>
+                <span className="text-sm text-muted-foreground">{t('cards.notes')}:</span>
                 <p className="text-sm text-foreground bg-muted/50 p-2 rounded-md">{project.notes}</p>
               </div>
             )}
 
             {/* Updated */}
             <div className="pt-2 border-t border-border text-xs text-muted-foreground">
-              Atualizado {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
+              {t('cards.updated')} {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
             </div>
           </div>
         </div>

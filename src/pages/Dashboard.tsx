@@ -36,6 +36,7 @@ import { useProjectPresence } from '@/hooks/useProjectPresence';
 import { useMultipleChecklistProgress } from '@/hooks/useChecklistProgress';
 import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButton';
 import { ProjectStatus, ProjectType } from '@/types/project';
+import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -83,6 +84,7 @@ export default function Dashboard() {
   const updateProject = useUpdateProject();
   const deleteProject = useDeleteProject();
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const {
     notifications,
@@ -255,13 +257,13 @@ export default function Dashboard() {
     try {
       await deleteProject.mutateAsync(deletingProjectId);
       toast({
-        title: 'Projeto excluído',
-        description: `O projeto "${project?.name}" foi excluído.`,
+        title: t('dashboardPage.projectDeleted'),
+        description: t('dashboardPage.projectDeletedDesc', { name: project?.name }),
       });
     } catch (error: any) {
       toast({
-        title: 'Erro ao excluir',
-        description: error.message || 'Tente novamente.',
+        title: t('dashboardPage.deleteError'),
+        description: error.message || t('dashboardPage.tryAgain'),
         variant: 'destructive',
       });
     } finally {
@@ -278,13 +280,13 @@ export default function Dashboard() {
     try {
       await updateProject.mutateAsync({ id: projectId, status: newStatus });
       toast({
-        title: newStatus === 'archived' ? 'Projeto arquivado' : 'Projeto restaurado',
-        description: `O projeto "${project.name}" foi ${newStatus === 'archived' ? 'arquivado' : 'restaurado'}.`,
+        title: newStatus === 'archived' ? t('dashboardPage.projectArchived') : t('dashboardPage.projectRestored'),
+        description: newStatus === 'archived' ? t('dashboardPage.projectArchivedDesc', { name: project.name }) : t('dashboardPage.projectRestoredDesc', { name: project.name }),
       });
     } catch (error: any) {
       toast({
-        title: 'Erro',
-        description: error.message || 'Tente novamente.',
+        title: t('dashboardPage.error'),
+        description: error.message || t('dashboardPage.tryAgain'),
         variant: 'destructive',
       });
     }
@@ -324,13 +326,13 @@ export default function Dashboard() {
   const getViewTitle = () => {
     if (selectedAccount) {
       const account = getAccount(selectedAccount);
-      return account?.name || 'Conta';
+      return account?.name || t('dashboardPage.account');
     }
     switch (activeView) {
-      case 'favorites': return 'Projetos Favoritos';
-      case 'archived': return 'Projetos Arquivados';
-      case 'tags': return 'Organizar por Tags';
-      default: return 'Todos os Projetos';
+      case 'favorites': return t('dashboardPage.favoriteProjects');
+      case 'archived': return t('dashboardPage.archivedProjects');
+      case 'tags': return t('dashboardPage.organizeByTags');
+      default: return t('dashboardPage.allProjects');
     }
   };
 
@@ -434,7 +436,7 @@ export default function Dashboard() {
                 <ExportBackupButton />
               </div>
               <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-                {filteredProjects.length} projeto{filteredProjects.length !== 1 ? 's' : ''}
+                {filteredProjects.length} {filteredProjects.length !== 1 ? t('dashboardPage.projectCount_plural', { count: filteredProjects.length }).split(' ').slice(1).join(' ') : t('dashboardPage.projectCount', { count: filteredProjects.length }).split(' ').slice(1).join(' ')}
               </span>
             </div>
           </div>
@@ -456,7 +458,7 @@ export default function Dashboard() {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-              <p className="text-sm text-muted-foreground">Carregando projetos...</p>
+              <p className="text-sm text-muted-foreground">{t('dashboardPage.loadingProjects')}</p>
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -464,12 +466,12 @@ export default function Dashboard() {
                 <span className="text-2xl">🔍</span>
               </div>
               <h3 className="text-lg font-medium text-foreground mb-1">
-                {projects.length === 0 ? 'Nenhum projeto ainda' : 'Nenhum projeto encontrado'}
+                {projects.length === 0 ? t('dashboardPage.noProjectsYet') : t('dashboardPage.noProjectsFound')}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {projects.length === 0 
-                  ? 'Adicione uma conta Lovable e comece a gerenciar seus projetos'
-                  : 'Tente ajustar seus filtros ou termo de busca'
+                  ? t('dashboardPage.addAccountStart')
+                  : t('dashboardPage.adjustFilters')
                 }
               </p>
             </div>
@@ -571,19 +573,18 @@ export default function Dashboard() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir projeto?</AlertDialogTitle>
+            <AlertDialogTitle>{t('dashboardPage.deleteProject')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O projeto "{deletingProject?.name}" será 
-              permanentemente excluído.
+              {t('dashboardPage.deleteProjectDesc', { name: deletingProject?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t('dashboardPage.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Excluir
+              {t('dashboardPage.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

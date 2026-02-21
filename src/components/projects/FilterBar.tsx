@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ProjectStatus, ProjectType } from '@/types/project';
 import { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface Tag {
@@ -45,6 +46,7 @@ export function FilterBar({
 }: FilterBarProps) {
   const isMobile = useIsMobile();
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation();
 
   const filterCount = [
     statusFilter !== 'all',
@@ -64,7 +66,7 @@ export function FilterBar({
         >
           <span className="flex items-center gap-2">
             <Filter className="w-4 h-4" />
-            Filtros
+            {t('filters.filters')}
             {filterCount > 0 && (
               <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
                 {filterCount}
@@ -89,7 +91,7 @@ export function FilterBar({
         >
           <span className="flex items-center gap-2">
             <Filter className="w-4 h-4" />
-            Filtros
+            {t('filters.filters')}
           </span>
           <ChevronUp className="w-4 h-4" />
         </Button>
@@ -104,25 +106,25 @@ export function FilterBar({
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos Status</SelectItem>
-              <SelectItem value="published">Publicado</SelectItem>
-              <SelectItem value="draft">Rascunho</SelectItem>
-              <SelectItem value="archived">Arquivado</SelectItem>
+              <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
+              <SelectItem value="published">{t('filters.published')}</SelectItem>
+              <SelectItem value="draft">{t('filters.draft')}</SelectItem>
+              <SelectItem value="archived">{t('filters.archived')}</SelectItem>
             </SelectContent>
           </Select>
 
           {/* Type Filter */}
           <Select value={typeFilter} onValueChange={(value) => onTypeChange(value as ProjectType | 'all')}>
             <SelectTrigger className={cn("bg-card text-xs sm:text-sm", isMobile ? "flex-1" : "w-[130px] sm:w-[140px]")}>
-              <SelectValue placeholder="Tipo" />
+              <SelectValue placeholder={t('cards.type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos Tipos</SelectItem>
-              <SelectItem value="website">Website</SelectItem>
-              <SelectItem value="landing">Landing Page</SelectItem>
-              <SelectItem value="app">Aplicativo</SelectItem>
-              <SelectItem value="funnel">Funil</SelectItem>
-              <SelectItem value="other">Outro</SelectItem>
+              <SelectItem value="all">{t('filters.allTypes')}</SelectItem>
+              <SelectItem value="website">{t('filters.website')}</SelectItem>
+              <SelectItem value="landing">{t('filters.landingPage')}</SelectItem>
+              <SelectItem value="app">{t('filters.app')}</SelectItem>
+              <SelectItem value="funnel">{t('filters.funnel')}</SelectItem>
+              <SelectItem value="other">{t('filters.other')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -157,7 +159,7 @@ export function FilterBar({
             className="gap-1.5 text-muted-foreground hover:text-foreground text-xs sm:text-sm h-8 px-2"
           >
             <X className="w-3.5 h-3.5" />
-            Limpar
+            {t('filters.clear')}
           </Button>
         )}
       </div>

@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useBlogPost } from '@/hooks/useBlog';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { Footer } from '@/components/landing/Footer';
@@ -56,6 +57,41 @@ export default function BlogPost() {
   const [userRating, setUserRating] = useState(0);
   const [avgRating] = useState(5);
   const [ratingCount] = useState(2);
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
+
+  // Generate markdown content from the blog post content for the attachment preview
+  const attachmentMarkdownContent = useMemo(() => {
+    if (!post) return '';
+    // Convert HTML content to a readable markdown-like text for the modal
+    const tempDiv = typeof document !== 'undefined' ? document.createElement('div') : null;
+    if (!tempDiv) return post.content;
+    tempDiv.innerHTML = post.content;
+    
+    let md = `# AI Hub - Guia de Implementação Multi-Provider\n\n`;
+    md += `## Visão Geral\n\n`;
+    md += `O AI Hub é uma solução centralizada para gerenciamento de múltiplos provedores de IA em aplicações vibecoding. Permite alternar entre provedores (Lovable Gateway, Google Gemini, OpenAI) sem alterações de código, com fallback automático e tracking de consumo.\n\n`;
+    md += `## Principais Funcionalidades\n\n`;
+    md += `- **Multi-Provider:** Suporte a múltiplos provedores de IA com configuração dinâmica\n`;
+    md += `- **Fallback Automático:** Alternância automática para Lovable Gateway quando o provedor principal falhar\n`;
+    md += `- **Tracking de Consumo:** Registro detalhado de tokens e custos estimados\n`;
+    md += `- **Configuração Global:** Painel administrativo para gerenciamento centralizado\n\n`;
+    md += `## Provedores Suportados\n\n`;
+    md += `### Lovable Gateway (Incluído)\n`;
+    md += `- Gemini 3 Flash Preview\n- Gemini 2.5 Flash\n- GPT-5\n\n`;
+    md += `### Google Gemini\n`;
+    md += `- Gemini 2.0 Flash\n- Gemini 1.5 Pro\n- Gemini 1.5 Flash\n\n`;
+    md += `### OpenAI\n`;
+    md += `- GPT-4o\n- GPT-4o Mini\n- GPT-4 Turbo\n\n`;
+    md += `## Configuração\n\n`;
+    md += `1. Acesse o painel admin\n`;
+    md += `2. Navegue até "Configuração de IA"\n`;
+    md += `3. Selecione o provedor ativo\n`;
+    md += `4. Configure as chaves de API necessárias\n`;
+    md += `5. Defina o modelo padrão\n\n`;
+    md += `## Relatório de Consumo\n\n`;
+    md += `O sistema registra automaticamente:\n- Data/Hora de cada geração\n- Provedor e modelo utilizados\n- Tokens de entrada e saída\n- Custo estimado\n- Status de fallback\n`;
+    return md;
+  }, [post]);
 
   const handleRate = (r: number) => {
     setUserRating(r);
@@ -194,20 +230,96 @@ export default function BlogPost() {
                   <span className="font-medium text-sm">{(post as any).attachment_name || 'Anexo'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" className="rounded-full px-5" onClick={() => window.open((post as any).attachment_url, '_blank')}>
+                  <Button size="sm" className="rounded-full px-5" onClick={() => setShowAttachmentModal(true)}>
                     <Eye className="w-4 h-4 mr-1.5" />
                     Visualizar
                   </Button>
-                  <Button size="sm" variant="outline" className="rounded-full px-5" asChild>
-                    <a href={(post as any).attachment_url} download={(post as any).attachment_name}>
-                      <Download className="w-4 h-4 mr-1.5" />
-                      Baixar
-                    </a>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full px-5"
+                    onClick={() => {
+                      const blob = new Blob([attachmentMarkdownContent], { type: 'text/markdown' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = (post as any).attachment_name || 'attachment.md';
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
+                    <Download className="w-4 h-4 mr-1.5" />
+                    Baixar
                   </Button>
                 </div>
               </div>
             </div>
           )}
+
+          {/* Attachment Preview Modal */}
+          <Dialog open={showAttachmentModal} onOpenChange={setShowAttachmentModal}>
+            <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  {(post as any).attachment_name || 'Anexo'}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto pr-2">
+                <div className="prose prose-sm dark:prose-invert max-w-none
+                  prose-headings:font-bold
+                  prose-h1:text-2xl prose-h1:mb-4
+                  prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3
+                  prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2
+                  prose-li:marker:text-primary
+                  prose-strong:text-foreground
+                  whitespace-pre-wrap font-mono text-sm leading-relaxed"
+                >
+                  {attachmentMarkdownContent.split('\n').map((line, i) => {
+                    if (line.startsWith('# ')) return <h1 key={i}>{line.slice(2)}</h1>;
+                    if (line.startsWith('## ')) return <h2 key={i}>{line.slice(3)}</h2>;
+                    if (line.startsWith('### ')) return <h3 key={i}>{line.slice(4)}</h3>;
+                    if (line.startsWith('- **')) {
+                      const match = line.match(/^- \*\*(.+?)\*\*:?\s*(.*)/);
+                      if (match) return <li key={i}><strong>{match[1]}:</strong> {match[2]}</li>;
+                    }
+                    if (line.startsWith('- ')) return <li key={i}>{line.slice(2)}</li>;
+                    if (line.trim() === '') return <br key={i} />;
+                    return <p key={i}>{line}</p>;
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(attachmentMarkdownContent);
+                    toast.success('Conteúdo copiado!');
+                  }}
+                >
+                  <Copy className="w-4 h-4 mr-1.5" />
+                  Copiar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const blob = new Blob([attachmentMarkdownContent], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = (post as any).attachment_name || 'attachment.md';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  <Download className="w-4 h-4 mr-1.5" />
+                  Baixar
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Rating Section */}
           <div className="border border-border rounded-2xl p-6 sm:p-8 text-center space-y-4 mb-8">

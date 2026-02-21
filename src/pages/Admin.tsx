@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, getTrialDaysRemaining, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
@@ -115,6 +116,7 @@ const roleIcons: Record<string, React.ReactNode> = {
 export default function Admin() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isAdmin = useIsAdmin();
   const { data: users = [], isLoading, refetch } = useAdminUsers();
   const { data: pendingReceipts = [], isLoading: receiptsLoading } = usePendingReceipts();
@@ -123,6 +125,14 @@ export default function Admin() {
   const upgradeSubscription = useUpgradeSubscription();
   const updateUserStatus = useUpdateUserStatus();
   const deleteUser = useDeleteUser();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefreshAll = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setTimeout(() => setRefreshing(false), 600);
+  }, [queryClient]);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [planFilter, setPlanFilter] = useState<'all' | SubscriptionPlan>('all');
@@ -423,10 +433,11 @@ export default function Admin() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => refetch()}
+              onClick={handleRefreshAll}
+              disabled={refreshing}
               className="gap-2"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className={cn("w-4 h-4", refreshing && "animate-spin")} />
               Atualizar
             </Button>
           </div>

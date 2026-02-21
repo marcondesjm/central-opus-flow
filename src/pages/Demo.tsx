@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   Tooltip as RechartsTooltip, Legend,
@@ -350,6 +351,8 @@ export default function Demo() {
     { id: 3, text: 'Deadline do projeto "App Tarefas" em 3 dias', time: 'há 1d' },
     { id: 4, text: 'Backup automático realizado com sucesso', time: 'há 6h' },
   ]);
+  const [showDemoTour, setShowDemoTour] = useState(() => !localStorage.getItem('demo_tour_completed'));
+  const [demoTourStep, setDemoTourStep] = useState(0);
 
   const toggleFavorite = (id: string) => {
     setProjects(prev => prev.map(p => p.id === id ? { ...p, isFavorite: !p.isFavorite } : p));
@@ -1191,6 +1194,22 @@ export default function Demo() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Demo Tour */}
+      {showDemoTour && (
+        <OnboardingTour
+          currentStep={demoTourStep}
+          onStepChange={setDemoTourStep}
+          onComplete={() => {
+            setShowDemoTour(false);
+            localStorage.setItem('demo_tour_completed', 'true');
+          }}
+          onSkip={() => {
+            setShowDemoTour(false);
+            localStorage.setItem('demo_tour_completed', 'true');
+          }}
+        />
+      )}
     </div>
   );
 }

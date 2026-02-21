@@ -273,6 +273,50 @@ export default function Admin() {
     if (!selectedUser) return;
     
     try {
+      const limits = {
+        free: { accounts: 1, projects: 20, features: { advanced_search: false, tags: true, logs: false, export: false, team: false } },
+        pro: { accounts: 999, projects: 999, features: { advanced_search: true, tags: true, logs: true, export: true, team: false } },
+        business: { accounts: 999, projects: 999, features: { advanced_search: true, tags: true, logs: true, export: true, team: true } },
+      };
+      const planLimits = limits[newPlan];
+
+      // Check if subscription exists
+      const { data: existing } = await supabase
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', selectedUser.user_id)
+        .single();
+
+      if (existing) {
+        const { error } = await supabase
+          .from('subscriptions')
+          .update({
+            plan: newPlan,
+            max_accounts: planLimits.accounts,
+            max_projects: planLimits.projects,
+            features: JSON.parse(JSON.stringify(planLimits.features)),
+            is_trial: false,
+            payment_status: 'verified',
+            user_status: 'active',
+          })
+          .eq('user_id', selectedUser.user_id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('subscriptions')
+          .insert({
+            user_id: selectedUser.user_id,
+            plan: newPlan,
+            max_accounts: planLimits.accounts,
+            max_projects: planLimits.projects,
+            features: JSON.parse(JSON.stringify(planLimits.features)),
+            is_trial: false,
+            payment_status: 'verified',
+            user_status: 'active',
+          });
+        if (error) throw error;
+      }
+
       toast({
         title: 'Plano atualizado',
         description: `O plano de ${selectedUser.email} foi alterado para ${planLabels[newPlan]}.`,

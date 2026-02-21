@@ -2,10 +2,11 @@ import { useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Search, Calendar, Eye, Tag, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBlogPosts, useBlogCategories } from '@/hooks/useBlog';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { Footer } from '@/components/landing/Footer';
@@ -18,6 +19,7 @@ export default function Blog() {
   const { t, i18n } = useTranslation();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'recent' | 'popular'>('recent');
   const [carouselIndex, setCarouselIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -27,9 +29,15 @@ export default function Blog() {
 
   const filteredPosts = useMemo(() => {
     if (!posts) return [];
-    if (!selectedCategory) return posts;
-    return posts.filter(p => p.blog_categories?.slug === selectedCategory);
-  }, [posts, selectedCategory]);
+    let filtered = posts;
+    if (selectedCategory) {
+      filtered = filtered.filter(p => p.blog_categories?.slug === selectedCategory);
+    }
+    if (sortOrder === 'popular') {
+      filtered = [...filtered].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    }
+    return filtered;
+  }, [posts, selectedCategory, sortOrder]);
 
   // Featured posts for carousel (up to 6)
   const featuredPosts = filteredPosts.slice(0, 6);
@@ -147,35 +155,60 @@ export default function Blog() {
             </div>
           )}
 
-          {/* Search + Categories */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
+          {/* Explore os Temas */}
+          <div className="mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
+              <div className="flex-shrink-0">
+                <h2 className="text-xl font-bold">{t('blog.exploreThemes', 'Explore os Temas')}</h2>
+                <p className="text-sm text-muted-foreground">{t('blog.findContent', 'Encontre o conteúdo perfeito para você')}</p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 flex-1 justify-start lg:justify-center">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    selectedCategory === null
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {t('blog.allCategories', 'Todos')}
+                </button>
+                {categories?.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.slug)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      selectedCategory === cat.slug
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'recent' | 'popular')}>
+                <SelectTrigger className="w-[160px] rounded-full flex-shrink-0">
+                  <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">{t('blog.mostRecent', 'Mais Recentes')}</SelectItem>
+                  <SelectItem value="popular">{t('blog.mostPopular', 'Mais Populares')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder={t('blog.searchPlaceholder')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-10"
+                className="pl-10 rounded-full"
               />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedCategory === null ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(null)}
-              >
-                {t('blog.allCategories')}
-              </Button>
-              {categories?.map(cat => (
-                <Button
-                  key={cat.id}
-                  variant={selectedCategory === cat.slug ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat.slug)}
-                >
-                  {cat.name}
-                </Button>
-              ))}
             </div>
           </div>
 

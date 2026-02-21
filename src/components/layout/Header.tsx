@@ -26,6 +26,7 @@ interface HeaderProps {
   onMarkAllAsRead?: () => void;
   onDeleteNotification?: (id: string) => void;
   onClearNotifications?: () => void;
+  onAcceptInvite?: (notification: Notification) => Promise<void>;
 }
 
 export function Header({ 
@@ -41,6 +42,7 @@ export function Header({
   onMarkAllAsRead = () => {},
   onDeleteNotification = () => {},
   onClearNotifications = () => {},
+  onAcceptInvite,
 }: HeaderProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -206,6 +208,7 @@ export function Header({
           onMarkAllAsRead={onMarkAllAsRead}
           onDelete={onDeleteNotification}
           onClearAll={onClearNotifications}
+          onAcceptInvite={onAcceptInvite}
         />
 
         {/* New Project */}

@@ -42,6 +42,7 @@ interface PixData {
 
 export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
+  const [copiedBrCode, setCopiedBrCode] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState('');
   const [notes, setNotes] = useState('');
   const [step, setStep] = useState<'payment' | 'confirm'>('payment');
@@ -298,35 +299,65 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 ) : null}
               </div>
 
-              {/* PIX Key */}
-              <div className="space-y-2">
-                <Label>Chave PIX (Celular)</Label>
-                <div className="flex gap-2">
-                  <Input 
-                    value={pixData?.maskedKey || '•••••••••••'} 
-                    readOnly 
-                    className="bg-muted font-mono"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={handleCopyPix}
-                    className={cn(copied && "bg-status-published/10 border-status-published text-status-published")}
-                  >
-                    {copied ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
+              {/* PIX Key + Copia e Cola */}
+              <div className="space-y-3">
+                {/* Copia e Cola PIX */}
+                <div className="space-y-2">
+                  <Label>PIX Copia e Cola</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      value={pixData?.brCode ? pixData.brCode.substring(0, 30) + '...' : '•••••••••••'} 
+                      readOnly 
+                      className="bg-muted font-mono text-xs"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={async () => {
+                        if (!pixData) return;
+                        try {
+                          await navigator.clipboard.writeText(pixData.brCode);
+                          setCopiedBrCode(true);
+                          toast({ title: 'Código PIX copiado!', description: 'Cole no app do banco para pagar.' });
+                          setTimeout(() => setCopiedBrCode(false), 3000);
+                        } catch {
+                          toast({ title: 'Erro ao copiar', variant: 'destructive' });
+                        }
+                      }}
+                      className={cn(copiedBrCode && "bg-status-published/10 border-status-published text-status-published")}
+                    >
+                      {copiedBrCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Favorecido: <strong>{pixData?.name || '...'}</strong>
-                </p>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Shield className="w-3 h-3" />
-                  Dados protegidos via servidor seguro
+
+                {/* Chave PIX */}
+                <div className="space-y-2">
+                  <Label>Chave PIX (Celular)</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      value={pixData?.maskedKey || '•••••••••••'} 
+                      readOnly 
+                      className="bg-muted font-mono"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={handleCopyPix}
+                      className={cn(copied && "bg-status-published/10 border-status-published text-status-published")}
+                    >
+                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Favorecido: <strong>{pixData?.name || '...'}</strong>
+                  </p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Shield className="w-3 h-3" />
+                    Dados protegidos via servidor seguro
+                  </div>
                 </div>
               </div>
             </div>

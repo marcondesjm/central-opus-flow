@@ -4,7 +4,7 @@ import {
   FolderKanban, Star, Archive, LayoutDashboard, Tag, Plus,
   ExternalLink, Eye, MoreHorizontal, ArrowLeft, Download,
   Bell, Search, Grid3X3, List, Users, Coins, Settings, LogOut,
-  Calendar, Pencil, Trash2, Copy, X,
+  Calendar, Pencil, Trash2, Copy, X, FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -324,6 +324,11 @@ export default function Demo() {
           <div className="px-3 py-2">
             <p className="text-xs text-muted-foreground truncate">demo@projecthub.com</p>
           </div>
+          <button onClick={() => navigate('/blog')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
+            <FileText className="w-4 h-4" />
+            Blog
+          </button>
           <button onClick={() => toast.info('Configurações', { description: 'Crie uma conta para acessar as configurações.' })}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
             <Settings className="w-4 h-4" />

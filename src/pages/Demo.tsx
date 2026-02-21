@@ -8,6 +8,7 @@ import {
   Bell, Search, Grid3X3, List, Users, Coins, Settings, LogOut,
   Calendar, Pencil, Trash2, Copy, X, FileText, Globe, AlertTriangle,
   History, CheckSquare, BarChart3, ChevronDown, ChevronUp, Upload, Share2,
+  Kanban, Building2, User, Flag, DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -481,8 +482,36 @@ export default function Demo() {
     { id: 'favorites', label: t('demo.favorites'), icon: Star },
     { id: 'archived', label: t('demo.archived'), icon: Archive },
     { id: 'tags', label: t('demo.tags'), icon: Tag },
+    { id: 'kanban', label: 'Kanban', icon: Kanban },
     { id: 'wordpress', label: 'WordPress', icon: Globe },
   ];
+
+  const demoKanbanColumns = [
+    { id: 'prospeccao', name: 'Prospecção', color: '#3b82f6' },
+    { id: 'fechamento', name: 'Fechamento', color: '#f59e0b' },
+    { id: 'contrato', name: 'Contrato', color: '#8b5cf6' },
+    { id: 'andamento', name: 'Em Andamento', color: '#06b6d4' },
+    { id: 'entrega', name: 'Entrega', color: '#10b981' },
+    { id: 'concluido', name: 'Concluído', color: '#16a34a' },
+  ];
+
+  const demoKanbanDeals = [
+    { id: '1', company_name: 'TechNova Solutions', client_name: 'Carlos Mendes', phase: 'prospeccao', priority: 'high', revenue: 3500, progress: 20, tags: ['Landing Page', 'SaaS'], assignee_name: 'João Silva' },
+    { id: '2', company_name: 'Petshop Amigão', client_name: 'Ricardo Gomes', phase: 'prospeccao', priority: 'low', revenue: 3800, progress: 10, tags: ['E-commerce'], assignee_name: null },
+    { id: '3', company_name: 'Moda Express', client_name: 'Ana Beatriz', phase: 'fechamento', priority: 'urgent', revenue: 12000, progress: 45, tags: ['E-commerce', 'Urgente'], assignee_name: 'Maria Costa', due_date: '2026-02-24' },
+    { id: '4', company_name: 'FitLife Academy', client_name: 'Roberto Alves', phase: 'contrato', priority: 'medium', revenue: 8500, progress: 60, tags: ['Educação'], assignee_name: null, due_date: '2026-03-03' },
+    { id: '5', company_name: 'Restaurante Sabor & Arte', client_name: 'Lucia Fernandes', phase: 'andamento', priority: 'medium', revenue: 4200, progress: 75, tags: ['Website'], assignee_name: 'Pedro Santos' },
+    { id: '6', company_name: 'ImoTech', client_name: 'Fernando Lima', phase: 'andamento', priority: 'high', revenue: 15000, progress: 90, tags: ['Dashboard'], assignee_name: 'João Silva', due_date: '2026-02-26' },
+    { id: '7', company_name: 'Clínica Bem Estar', client_name: 'Dra. Mariana', phase: 'entrega', priority: 'medium', revenue: 5500, progress: 95, tags: ['Saúde'], assignee_name: 'Maria Costa' },
+    { id: '8', company_name: 'StartUp Boost', client_name: 'Camila Rocha', phase: 'concluido', priority: 'low', revenue: 6800, progress: 100, tags: ['App', 'MVP'], assignee_name: null },
+  ];
+
+  const priorityConfig: Record<string, { label: string; color: string; bg: string }> = {
+    urgent: { label: 'Urgente', color: 'text-red-700', bg: 'bg-red-50' },
+    high: { label: 'Alta', color: 'text-orange-700', bg: 'bg-orange-50' },
+    medium: { label: 'Média', color: 'text-yellow-700', bg: 'bg-yellow-50' },
+    low: { label: 'Baixa', color: 'text-green-700', bg: 'bg-green-50' },
+  };
 
   const [wpDemoOpen, setWpDemoOpen] = useState(false);
 
@@ -854,6 +883,75 @@ export default function Demo() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+          {activeView === 'kanban' ? (
+            /* Kanban Demo Board */
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Pipeline de Tarefas</h2>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    <DollarSign className="w-3 h-3 mr-1" />
+                    R$ {demoKanbanDeals.reduce((s, d) => s + d.revenue, 0).toLocaleString('pt-BR')}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">{demoKanbanDeals.length} tarefas</Badge>
+                </div>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-4">
+                {demoKanbanColumns.map(col => {
+                  const colDeals = demoKanbanDeals.filter(d => d.phase === col.id);
+                  return (
+                    <div key={col.id} className="min-w-[280px] max-w-[280px] flex-shrink-0">
+                      <div className="flex items-center gap-2 mb-3 px-1">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: col.color }} />
+                        <span className="text-sm font-semibold">{col.name}</span>
+                        <Badge variant="secondary" className="text-xs ml-auto">{colDeals.length}</Badge>
+                      </div>
+                      <div className="space-y-2">
+                        {colDeals.map(deal => {
+                          const prio = priorityConfig[deal.priority];
+                          return (
+                            <div key={deal.id} className="bg-card rounded-lg border border-border p-3 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                              onClick={() => toast.info(`${deal.company_name}`, { description: 'Crie sua conta para gerenciar tarefas!' })}>
+                              <div className="flex items-start justify-between mb-2">
+                                <h4 className="text-sm font-semibold leading-tight">{deal.company_name}</h4>
+                                {prio && <Badge variant="outline" className={cn('text-[10px] shrink-0', prio.color, prio.bg)}>{prio.label}</Badge>}
+                              </div>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+                                <User className="w-3 h-3" />{deal.client_name}
+                              </p>
+                              <Progress value={deal.progress} className="h-1.5 mb-2" />
+                              <div className="flex items-center justify-between">
+                                <div className="flex flex-wrap gap-1">
+                                  {deal.tags.slice(0, 2).map(tag => (
+                                    <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">{tag}</Badge>
+                                  ))}
+                                </div>
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  R$ {deal.revenue.toLocaleString('pt-BR')}
+                                </span>
+                              </div>
+                              {(deal.assignee_name || (deal as any).due_date) && (
+                                <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                                  {deal.assignee_name && <span className="flex items-center gap-1"><User className="w-3 h-3" />{deal.assignee_name}</span>}
+                                  {(deal as any).due_date && <span className="flex items-center gap-1 ml-auto"><Calendar className="w-3 h-3" />{new Date((deal as any).due_date).toLocaleDateString('pt-BR')}</span>}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {colDeals.length === 0 && (
+                          <div className="text-center py-8 text-xs text-muted-foreground border border-dashed border-border rounded-lg">
+                            Nenhuma tarefa
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+          <>
           {/* Stats Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
             {[
@@ -1039,6 +1137,8 @@ export default function Demo() {
                 );
               })}
             </div>
+          )}
+          </>
           )}
         </main>
       </div>

@@ -184,31 +184,35 @@ export default function BlogPost() {
           </motion.div>
 
           {/* Attachment / Download Section */}
-          <div className="mt-10 mb-8">
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <FileText className="w-5 h-5 text-primary" />
+          {((post as any).attachment_name || (post as any).attachment_url) && (
+            <div className="mt-10 mb-8">
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <FileText className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{(post as any).attachment_name || 'Anexo'}</p>
+                      <p className="text-xs text-muted-foreground">Arquivo anexo à postagem</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-sm">AI_HUB_IMPLEMENTATION_GUIDE.md</p>
-                    <p className="text-xs text-muted-foreground">Guia completo de implementação</p>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => window.open((post as any).attachment_url, '_blank')}>
+                      <Eye className="w-4 h-4 mr-1" />
+                      Visualizar
+                    </Button>
+                    <Button size="sm" asChild>
+                      <a href={(post as any).attachment_url} download={(post as any).attachment_name}>
+                        <Download className="w-4 h-4 mr-1" />
+                        Baixar
+                      </a>
+                    </Button>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" onClick={() => toast.info('Visualização disponível em breve.')}>
-                    <Eye className="w-4 h-4 mr-1" />
-                    Visualizar
-                  </Button>
-                  <Button size="sm" onClick={() => toast.success('Download iniciado!')}>
-                    <Download className="w-4 h-4 mr-1" />
-                    Baixar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Rating Section */}
           <div className="border border-border rounded-2xl p-6 sm:p-8 text-center space-y-4 mb-8">

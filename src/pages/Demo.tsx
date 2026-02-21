@@ -536,10 +536,7 @@ export default function Demo() {
                           <DropdownMenuItem onClick={() => archiveProject(project.id)}>
                             <Archive className="w-4 h-4 mr-2" /> {project.status === 'archived' ? 'Desarquivar' : 'Arquivar'}
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => deleteProject(project.id)} className="text-destructive">
-                            <Trash2 className="w-4 h-4 mr-2" /> Excluir
-                          </DropdownMenuItem>
+                          
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -620,10 +617,7 @@ export default function Demo() {
                         <DropdownMenuItem onClick={() => archiveProject(project.id)}>
                           <Archive className="w-4 h-4 mr-2" /> {project.status === 'archived' ? 'Desarquivar' : 'Arquivar'}
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => deleteProject(project.id)} className="text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" /> Excluir
-                        </DropdownMenuItem>
+                        
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

@@ -163,18 +163,21 @@ export function BlogManager() {
     title: '',
     slug: '',
     excerpt: '',
+    subtitle: '',
     content: '',
     cover_image: '',
+    secondary_image: '',
     category_id: '',
     locale: 'pt',
     tags: '',
     is_published: false,
+    show_attachment: false,
     attachment_url: '',
     attachment_name: '',
   });
 
   const resetForm = () => {
-    setForm({ title: '', slug: '', excerpt: '', content: '', cover_image: '', category_id: '', locale: 'pt', tags: '', is_published: false, attachment_url: '', attachment_name: '' });
+    setForm({ title: '', slug: '', excerpt: '', subtitle: '', content: '', cover_image: '', secondary_image: '', category_id: '', locale: 'pt', tags: '', is_published: false, show_attachment: false, attachment_url: '', attachment_name: '' });
     setEditingPost(null);
     setIsCreating(false);
     setEditorTab('editor');
@@ -191,12 +194,15 @@ export function BlogManager() {
       title: post.title,
       slug: post.slug,
       excerpt: post.excerpt || '',
+      subtitle: (post as any).subtitle || '',
       content: post.content,
       cover_image: post.cover_image || '',
+      secondary_image: (post as any).secondary_image || '',
       category_id: post.category_id || '',
       locale: post.locale,
       tags: post.tags?.join(', ') || '',
       is_published: post.is_published,
+      show_attachment: (post as any).show_attachment || false,
       attachment_url: (post as any).attachment_url || '',
       attachment_name: (post as any).attachment_name || '',
     });
@@ -281,14 +287,17 @@ export function BlogManager() {
       title: form.title,
       slug: form.slug,
       excerpt: form.excerpt || null,
+      subtitle: form.subtitle || null,
       content: form.content,
       cover_image: form.cover_image || null,
+      secondary_image: form.secondary_image || null,
       category_id: form.category_id || null,
       locale: form.locale,
       tags: tagsArray,
       is_published: form.is_published,
       published_at: form.is_published ? new Date().toISOString() : null,
       author_id: user?.id || '',
+      show_attachment: form.show_attachment,
       attachment_url: form.attachment_url || null,
       attachment_name: form.attachment_name || null,
     };
@@ -404,6 +413,13 @@ export function BlogManager() {
           <Textarea value={form.excerpt} onChange={e => setForm(prev => ({ ...prev, excerpt: e.target.value }))} rows={2} placeholder="Breve descrição que aparece no hero do post" />
         </div>
 
+        {/* Subtitle (segundo título destacado) */}
+        <div className="space-y-2">
+          <Label>Segundo Título (destacado no conteúdo)</Label>
+          <Input value={form.subtitle} onChange={e => setForm(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="Ex: Configuração Global, Relatório de Consumo..." />
+          <p className="text-xs text-muted-foreground">Aparece como um título H2 destacado entre seções do conteúdo</p>
+        </div>
+
         {/* Cover Image */}
         <div className="space-y-2">
           <Label>Imagem de Capa</Label>
@@ -418,6 +434,35 @@ export function BlogManager() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Secondary Image */}
+        <div className="space-y-2">
+          <Label>Segunda Imagem (no corpo do texto)</Label>
+          <div className="flex gap-3 items-center">
+            <Input type="file" accept="image/*" onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              try {
+                const { data, error } = await uploadBlogImage(file);
+                if (error) throw error;
+                const url = getBlogImageUrl(data.path);
+                setForm(prev => ({ ...prev, secondary_image: url }));
+                toast.success('Segunda imagem enviada!');
+              } catch {
+                toast.error('Erro ao enviar imagem.');
+              }
+            }} />
+            {form.secondary_image && (
+              <div className="relative">
+                <img src={form.secondary_image} alt="secondary" className="w-24 h-16 object-cover rounded border border-border" />
+                <button className="absolute -top-1 -right-1 p-0.5 rounded-full bg-destructive text-destructive-foreground" onClick={() => setForm(prev => ({ ...prev, secondary_image: '' }))}>
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">Aparece abaixo do segundo título no post</p>
         </div>
 
         {/* Attachment */}
@@ -439,6 +484,12 @@ export function BlogManager() {
               <Upload className="w-4 h-4 mr-2" />
               Adicionar anexo
             </Button>
+          )}
+          {form.attachment_name && (
+            <div className="flex items-center gap-3 mt-2">
+              <Switch checked={form.show_attachment} onCheckedChange={v => setForm(prev => ({ ...prev, show_attachment: v }))} />
+              <Label className="text-sm">Exibir botões "Visualizar" e "Baixar" no post</Label>
+            </div>
           )}
         </div>
 

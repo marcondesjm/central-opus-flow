@@ -214,10 +214,26 @@ export default function BlogPost() {
                 prose-strong:text-foreground"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
+
+            {/* Subtitle (segundo título destacado) */}
+            {(post as any).subtitle && (
+              <div className="mt-10 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold border-l-4 border-primary pl-4 py-1">
+                  {(post as any).subtitle}
+                </h2>
+              </div>
+            )}
+
+            {/* Secondary Image */}
+            {(post as any).secondary_image && (
+              <div className="rounded-2xl overflow-hidden mb-10 border border-border shadow-lg">
+                <img src={(post as any).secondary_image} alt={(post as any).subtitle || 'Imagem secundária'} className="w-full h-auto object-cover" />
+              </div>
+            )}
           </motion.div>
 
           {/* Attachment / Download Section */}
-          {((post as any).attachment_name || (post as any).attachment_url) && (
+          {(post as any).show_attachment && ((post as any).attachment_name || (post as any).attachment_url) && (
             <div className="mt-10 mb-8">
               <div className="flex items-center justify-between gap-4 flex-wrap border border-border rounded-full px-5 py-3 bg-card shadow-sm">
                 <div className="flex items-center gap-3">

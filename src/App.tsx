@@ -20,6 +20,7 @@ import Collaborations from "./pages/Collaborations";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
 import Kanban from "./pages/Kanban";
+import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -186,6 +187,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Kanban />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute>
+                <Billing />
               </ProtectedRoute>
             }
           />

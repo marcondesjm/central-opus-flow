@@ -895,8 +895,8 @@ export default function Admin() {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Badge className={planColors[user.plan]}>
-                                  {planLabels[user.plan]}
+                                <Badge className={planColors[user.plan || 'free']}>
+                                  {planLabels[user.plan || 'free']}
                                 </Badge>
                               </TableCell>
                               <TableCell>

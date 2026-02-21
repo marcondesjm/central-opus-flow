@@ -214,7 +214,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0">
           <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
-            <DialogTitle>Editar Conta Lovable</DialogTitle>
+            <DialogTitle>Editar Conta</DialogTitle>
             <DialogDescription>
               Atualize as informações da conta e configurações Supabase.
             </DialogDescription>
@@ -275,7 +275,7 @@ export function EditAccountModal({ open, onOpenChange, account }: EditAccountMod
                   <div className="space-y-2">
                     <Label htmlFor="edit-account-email" className="flex items-center gap-2">
                       <Mail className="w-4 h-4" />
-                      Email de cadastro Lovable *
+                      Email de cadastro *
                     </Label>
                     <Input
                       id="edit-account-email"

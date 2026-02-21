@@ -267,7 +267,7 @@ export function useCollaboration() {
         existingUser.user_id,
         'account_invitation',
         'Convite para conta',
-        `Você foi convidado para colaborar em uma conta Lovable`,
+        `Você foi convidado para colaborar em uma conta`,
         'account',
         accountId
       );

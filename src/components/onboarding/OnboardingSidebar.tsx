@@ -44,7 +44,7 @@ export function OnboardingSidebar({
     {
       id: 'connect-account',
       label: 'Conectar conta',
-      description: 'Adicione sua primeira conta Lovable',
+      description: 'Adicione sua primeira conta',
       completed: hasConnectedAccount,
       action: onConnectAccount,
       icon: UserPlus,

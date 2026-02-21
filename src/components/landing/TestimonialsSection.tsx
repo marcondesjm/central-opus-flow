@@ -5,7 +5,7 @@ const testimonials = [
   {
     name: 'Carlos Silva',
     role: 'Freelancer de Web',
-    content: 'Eu tinha 3 contas Lovable e perdia 30 minutos por dia só procurando projetos. Com o Central Opus Flow, encontro tudo em segundos.',
+    content: 'Eu tinha 3 contas e perdia 30 minutos por dia só procurando projetos. Com o Central Opus Flow, encontro tudo em segundos.',
     avatar: 'CS',
     rating: 5,
   },

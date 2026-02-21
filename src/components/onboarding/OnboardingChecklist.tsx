@@ -43,7 +43,7 @@ export function OnboardingChecklist({
   const items: ChecklistItem[] = [
     {
       id: 'connect-account',
-      label: 'Conectar conta Lovable',
+      label: 'Conectar conta',
       completed: hasConnectedAccount,
       action: onConnectAccount,
       icon: UserPlus,

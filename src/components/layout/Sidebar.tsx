@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { 
   LayoutDashboard, 
   FolderKanban, 
@@ -81,6 +82,7 @@ export function Sidebar({
   const navigate = useNavigate();
   const { data: subscription } = useSubscription();
   const { t } = useTranslation();
+  const { data: systemVersion } = useSystemVersion();
 
   // Fetch profile data and subscribe to realtime updates
   useEffect(() => {
@@ -166,7 +168,7 @@ export function Sidebar({
           </div>
           <div>
             <h1 className="font-semibold text-sidebar-foreground text-sm">Central Opus Flow</h1>
-            <p className="text-xs text-muted-foreground">{t('sidebar.managerSubtitle')}</p>
+            <p className="text-xs text-muted-foreground">v{systemVersion?.version || '1.3.1'}</p>
           </div>
         </div>
       </div>

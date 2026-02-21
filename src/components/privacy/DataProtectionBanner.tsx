@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Cookie, MapPin, Monitor, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shield, Cookie, MapPin, Monitor, X, ChevronDown, ChevronUp, Globe, Clock, Wifi, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,8 +7,13 @@ interface ConnectionInfo {
   ip: string;
   region: string;
   country: string;
+  country_code: string;
   city: string;
   timezone: string;
+  isp: string;
+  org: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export function DataProtectionBanner() {
@@ -37,8 +42,13 @@ export function DataProtectionBanner() {
           ip: data.ip || 'Não disponível',
           region: data.region || 'Desconhecida',
           country: data.country_name || 'Desconhecido',
+          country_code: data.country_code || '',
           city: data.city || 'Desconhecida',
           timezone: data.timezone || 'Desconhecido',
+          isp: data.org || 'Desconhecido',
+          org: data.asn || '',
+          latitude: data.latitude || null,
+          longitude: data.longitude || null,
         });
       })
       .catch(() => {
@@ -46,8 +56,13 @@ export function DataProtectionBanner() {
           ip: 'Não disponível',
           region: 'Desconhecida',
           country: 'Desconhecido',
+          country_code: '',
           city: 'Desconhecida',
           timezone: 'Desconhecido',
+          isp: 'Desconhecido',
+          org: '',
+          latitude: null,
+          longitude: null,
         });
       });
   }, [visible]);
@@ -125,23 +140,37 @@ export function DataProtectionBanner() {
                     className="overflow-hidden"
                   >
                     {connectionInfo ? (
-                      <div className="grid grid-cols-2 gap-2 pt-2">
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50 mt-2">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Monitor className="w-3 h-3 text-primary" />
-                          <span>IP: <span className="text-foreground font-mono">{connectionInfo.ip}</span></span>
+                          <Monitor className="w-3 h-3 text-primary shrink-0" />
+                          <span>IP: <span className="text-foreground font-mono text-[10px]">{connectionInfo.ip}</span></span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <MapPin className="w-3 h-3 text-primary" />
+                          <MapPin className="w-3 h-3 text-primary shrink-0" />
                           <span>Cidade: <span className="text-foreground">{connectionInfo.city}</span></span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <MapPin className="w-3 h-3 text-primary" />
+                          <MapPin className="w-3 h-3 text-primary shrink-0" />
                           <span>Região: <span className="text-foreground">{connectionInfo.region}</span></span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <MapPin className="w-3 h-3 text-primary" />
+                          <Globe className="w-3 h-3 text-primary shrink-0" />
                           <span>País: <span className="text-foreground">{connectionInfo.country}</span></span>
                         </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3 text-primary shrink-0" />
+                          <span>Fuso: <span className="text-foreground text-[10px]">{connectionInfo.timezone}</span></span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Wifi className="w-3 h-3 text-primary shrink-0" />
+                          <span>ISP: <span className="text-foreground text-[10px] truncate max-w-[120px] inline-block align-bottom">{connectionInfo.isp}</span></span>
+                        </div>
+                        {connectionInfo.latitude && connectionInfo.longitude && (
+                          <div className="col-span-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Building className="w-3 h-3 text-primary shrink-0" />
+                            <span>Coordenadas: <span className="text-foreground font-mono text-[10px]">{connectionInfo.latitude?.toFixed(2)}, {connectionInfo.longitude?.toFixed(2)}</span></span>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 pt-2 text-xs text-muted-foreground">

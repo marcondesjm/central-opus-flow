@@ -282,6 +282,11 @@ export default function BlogPost() {
                     {section.content}
                   </p>
                 )}
+                {section.image && (
+                  <div className="rounded-2xl overflow-hidden mt-4 border border-border shadow-lg">
+                    <img src={section.image} alt={section.title || 'Imagem da seção'} className="w-full h-auto object-cover" />
+                  </div>
+                )}
               </div>
             ))}
 

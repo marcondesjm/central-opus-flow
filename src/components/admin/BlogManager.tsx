@@ -342,7 +342,7 @@ export function BlogManager() {
     attachment_name: '',
   });
 
-  const [sections, setSections] = useState<{ title: string; content: string }[]>([]);
+  const [sections, setSections] = useState<{ title: string; content: string; image: string }[]>([]);
 
   // Load sections when editing
   const { data: existingSections } = useBlogPostSections(editingPost?.id || '');
@@ -350,7 +350,7 @@ export function BlogManager() {
   // Sync sections when loaded from DB
   useEffect(() => {
     if (existingSections && existingSections.length > 0) {
-      setSections(existingSections.map(s => ({ title: s.title, content: s.content })));
+      setSections(existingSections.map(s => ({ title: s.title, content: s.content, image: s.image || '' })));
     }
   }, [existingSections]);
 
@@ -611,7 +611,7 @@ export function BlogManager() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setSections(prev => [...prev, { title: '', content: '' }])}
+              onClick={() => setSections(prev => [...prev, { title: '', content: '', image: '' }])}
             >
               <Plus className="w-4 h-4 mr-1" />
               Adicionar seção
@@ -656,6 +656,32 @@ export function BlogManager() {
                 placeholder="Texto descritivo desta seção..."
                 rows={3}
               />
+              <div className="space-y-1">
+                <Label className="text-xs">Imagem da seção</Label>
+                <div className="flex gap-3 items-center">
+                  <Input type="file" accept="image/*" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const { data, error } = await uploadBlogImage(file);
+                      if (error) throw error;
+                      const url = getBlogImageUrl(data.path);
+                      setSections(prev => prev.map((s, i) => i === idx ? { ...s, image: url } : s));
+                      toast.success('Imagem da seção enviada!');
+                    } catch {
+                      toast.error('Erro ao enviar imagem.');
+                    }
+                  }} />
+                  {section.image && (
+                    <div className="relative">
+                      <img src={section.image} alt="" className="w-24 h-16 object-cover rounded border border-border" />
+                      <button className="absolute -top-1 -right-1 p-0.5 rounded-full bg-destructive text-destructive-foreground" onClick={() => setSections(prev => prev.map((s, i) => i === idx ? { ...s, image: '' } : s))}>
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>

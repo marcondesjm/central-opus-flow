@@ -218,6 +218,7 @@ export type BlogPostSection = {
   post_id: string;
   title: string;
   content: string;
+  image: string | null;
   position: number;
   created_at: string;
 };
@@ -241,7 +242,7 @@ export function useBlogPostSections(postId: string) {
 
 export async function saveBlogPostSections(
   postId: string,
-  sections: { title: string; content: string; position: number }[]
+  sections: { title: string; content: string; image?: string | null; position: number }[]
 ) {
   // Delete existing sections
   await supabase.from('blog_post_sections').delete().eq('post_id', postId);
@@ -252,6 +253,7 @@ export async function saveBlogPostSections(
     post_id: postId,
     title: s.title,
     content: s.content,
+    image: s.image || null,
     position: i,
   }));
 

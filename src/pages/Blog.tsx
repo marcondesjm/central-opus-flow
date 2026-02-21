@@ -71,7 +71,7 @@ export default function Blog() {
               {t('blog.badge', 'Central de Conhecimento')}
             </p>
             <h1 className="text-3xl md:text-5xl font-bold mb-3">
-              Domine o <span className="text-primary">Lovable</span> e crie apps incríveis
+              Domine a <span className="text-primary">plataforma</span> e crie apps incríveis
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl">
               {t('blog.subtitle')}

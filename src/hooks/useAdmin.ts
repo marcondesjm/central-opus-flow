@@ -21,6 +21,7 @@ export interface AdminUser {
   is_trial: boolean | null;
   trial_ends_at: string | null;
   user_status: UserStatus | null;
+  subscription_type: string | null;
   role: 'admin' | 'viewer' | 'collaborator';
   accounts_count: number;
   projects_count: number;

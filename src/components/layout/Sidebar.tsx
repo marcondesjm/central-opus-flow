@@ -24,6 +24,7 @@ import {
   Sparkles,
   BookOpen,
   Share2,
+  Kanban,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
@@ -389,6 +390,18 @@ export function Sidebar({
             );
           })}
         </ul>
+
+        {/* Kanban button */}
+        <div className="pt-2">
+          <button
+            onClick={() => navigate('/kanban')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label="Abrir Kanban de Clientes"
+          >
+            <Kanban className="w-4 h-4" aria-hidden="true" />
+            Kanban
+          </button>
+        </div>
 
         {/* Collaborations button */}
         <div className="pt-2">

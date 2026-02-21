@@ -526,6 +526,48 @@ export type Database = {
           },
         ]
       }
+      kanban_deals: {
+        Row: {
+          client_name: string
+          company_name: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          phase: string
+          progress: number
+          revenue: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_name: string
+          company_name: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          phase?: string
+          progress?: number
+          revenue?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_name?: string
+          company_name?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          phase?: string
+          progress?: number
+          revenue?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lovable_accounts: {
         Row: {
           admin_email: string | null

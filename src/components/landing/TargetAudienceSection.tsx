@@ -38,9 +38,9 @@ export function TargetAudienceSection() {
           </span>
           <h2 className="text-2xl md:text-4xl font-bold mt-3 mb-4">
             Feito para quem usa{' '}
-            <span className="text-primary">Lovable :)</span>
+            <span className="text-primary">Lovable, Cursor, Base44 :)</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Se você tem mais de uma conta Lovable, o Central Opus Flow vai transformar a forma como você trabalha.</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Se você usa <strong className="text-foreground font-semibold">Lovable</strong>, <strong className="text-foreground font-semibold">Cursor</strong>, <strong className="text-foreground font-semibold">Base44</strong> e outras integrações, o Central Opus Flow vai transformar a forma como você trabalha.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

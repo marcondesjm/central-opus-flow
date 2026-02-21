@@ -552,6 +552,16 @@ export function BlogManager() {
                 </p>
               </div>
               <div className="flex gap-1">
+                {post.is_published && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" onClick={() => window.open(`/blog/${post.slug}`, '_blank')}>
+                        <ExternalLink className="w-4 h-4 text-primary" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Ver no blog</TooltipContent>
+                  </Tooltip>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => openEdit(post)}>
                   <Pencil className="w-4 h-4" />
                 </Button>

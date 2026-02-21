@@ -340,6 +340,7 @@ export default function Demo() {
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [historyProject, setHistoryProject] = useState<typeof initialProjects[0] | null>(null);
+  const [previewProject, setPreviewProject] = useState<typeof initialProjects[0] | null>(null);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
   const [accounts, setAccounts] = usePersistentState('demo_accounts', demoAccounts);
   const [newAccountForm, setNewAccountForm] = useState({ name: '', color: 'blue' });
@@ -515,7 +516,18 @@ export default function Demo() {
             </Tooltip>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {/* Overlay Actions */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {/* Ver Preview button */}
+            {project.screenshot && (
+              <button
+                onClick={() => setPreviewProject(project)}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                Ver Preview
+              </button>
+            )}
             <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
               {project.url ? (
                 <button onClick={() => window.open(project.url, '_blank')} className="flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-colors">
@@ -1152,6 +1164,25 @@ export default function Demo() {
             <Button variant="outline" onClick={() => setAddAccountOpen(false)}>Cancelar</Button>
             <Button onClick={handleAddAccount}>Criar Conta</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Screenshot Preview Dialog */}
+      <Dialog open={!!previewProject} onOpenChange={(open) => !open && setPreviewProject(null)}>
+        <DialogContent className="max-w-4xl p-2">
+          <DialogHeader>
+            <DialogTitle>{previewProject?.name}</DialogTitle>
+          </DialogHeader>
+          {previewProject?.screenshot && (
+            <img
+              src={previewProject.screenshot}
+              alt={previewProject.name}
+              className="w-full h-auto rounded-lg"
+            />
+          )}
+          <div className="px-2 pb-2">
+            <p className="text-sm text-muted-foreground">{previewProject?.description}</p>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

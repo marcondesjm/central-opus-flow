@@ -400,34 +400,19 @@ export default function BlogPost() {
             </div>
           </div>
 
-          {/* Suggestion / Feedback Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Card className="flex-1 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer group"
-              onClick={() => setShowSuggestionModal(true)}>
-              <CardContent className="p-4 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                  <Lightbulb className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm">Tem uma sugestão?</p>
-                  <p className="text-xs text-muted-foreground">Nos ajude a melhorar este conteúdo ou sugira novos temas!</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="flex-1 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer group"
-              onClick={() => setShowSuggestionModal(true)}>
-              <CardContent className="p-4 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                  <MessageSquare className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm">Enviar Sugestão</p>
-                  <p className="text-xs text-muted-foreground">Compartilhe sua opinião sobre este artigo.</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Suggestion Button */}
+          <Card className="border-primary/20 hover:border-primary/40 transition-colors cursor-pointer group"
+            onClick={() => setShowSuggestionModal(true)}>
+            <CardContent className="p-4 flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <Lightbulb className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Tem uma sugestão?</p>
+                <p className="text-xs text-muted-foreground">Nos ajude a melhorar este conteúdo, sugira novos temas ou compartilhe sua opinião!</p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Suggestion Modal */}
           <Dialog open={showSuggestionModal} onOpenChange={setShowSuggestionModal}>

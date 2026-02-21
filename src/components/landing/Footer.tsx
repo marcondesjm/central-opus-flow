@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FolderKanban, Github, Twitter, Linkedin, Mail } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ContactModal } from './ContactModal';
 import { AboutModal } from './AboutModal';
@@ -8,18 +8,31 @@ import { AboutModal } from './AboutModal';
 export function Footer() {
   const [contactOpen, setContactOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleAnchorClick = (anchor: string) => {
+    if (location.pathname === '/') {
+      // Already on landing, just scroll
+      const el = document.querySelector(anchor);
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Navigate to landing then scroll
+      navigate('/' + anchor);
+    }
+  };
 
   const productLinks = [
-    { label: 'Funcionalidades', href: '#features' },
-    { label: 'Preços', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Demonstração', href: '/demo' },
+    { label: 'Funcionalidades', action: () => handleAnchorClick('#features') },
+    { label: 'Preços', to: '/pricing' },
+    { label: 'FAQ', action: () => handleAnchorClick('#faq') },
+    { label: 'Demonstração', to: '/demo' },
   ];
 
   const legalLinks = [
-    { label: 'Termos de Uso', href: '#' },
-    { label: 'Privacidade', href: '#' },
-    { label: 'Cookies', href: '#' },
+    { label: 'Termos de Uso', action: () => handleAnchorClick('#terms') },
+    { label: 'Privacidade', action: () => handleAnchorClick('#privacy') },
+    { label: 'Cookies', action: () => handleAnchorClick('#cookies') },
   ];
 
   return (
@@ -73,12 +86,21 @@ export function Footer() {
               <ul className="space-y-3">
                 {productLinks.map((link) => (
                   <li key={link.label}>
-                    <a 
-                      href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </a>
+                    {'to' in link && link.to ? (
+                      <Link 
+                        to={link.to}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <button 
+                        onClick={link.action}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {link.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -121,12 +143,12 @@ export function Footer() {
               <ul className="space-y-3">
                 {legalLinks.map((link) => (
                   <li key={link.label}>
-                    <a 
-                      href={link.href}
+                    <button 
+                      onClick={link.action}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {link.label}
-                    </a>
+                    </button>
                   </li>
                 ))}
               </ul>

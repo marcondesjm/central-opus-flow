@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Plus, Pencil, Trash2, Eye, EyeOff, Globe,
@@ -27,6 +27,8 @@ import {
   useDeleteBlogCategory,
   uploadBlogImage,
   getBlogImageUrl,
+  useBlogPostSections,
+  saveBlogPostSections,
   type BlogPost,
 } from '@/hooks/useBlog';
 import { useAuth } from '@/hooks/useAuth';
@@ -340,8 +342,21 @@ export function BlogManager() {
     attachment_name: '',
   });
 
+  const [sections, setSections] = useState<{ title: string; content: string }[]>([]);
+
+  // Load sections when editing
+  const { data: existingSections } = useBlogPostSections(editingPost?.id || '');
+
+  // Sync sections when loaded from DB
+  useEffect(() => {
+    if (existingSections && existingSections.length > 0) {
+      setSections(existingSections.map(s => ({ title: s.title, content: s.content })));
+    }
+  }, [existingSections]);
+
   const resetForm = () => {
     setForm({ title: '', slug: '', excerpt: '', subtitle: '', secondary_text: '', content: '', cover_image: '', secondary_image: '', category_id: '', locale: 'pt', tags: '', is_published: false, show_attachment: false, attachment_url: '', attachment_name: '' });
+    setSections([]);
     setEditingPost(null);
     setIsCreating(false);
     setEditorTab('editor');
@@ -469,13 +484,22 @@ export function BlogManager() {
     };
 
     try {
+      let postId = editingPost?.id;
       if (editingPost) {
         await updatePost.mutateAsync({ id: editingPost.id, ...postData });
         toast.success('Post atualizado!');
       } else {
-        await createPost.mutateAsync(postData);
+        const created = await createPost.mutateAsync(postData);
+        postId = created.id;
         toast.success('Post criado!');
       }
+
+      // Save sections
+      if (postId) {
+        const validSections = sections.filter(s => s.title.trim() || s.content.trim());
+        await saveBlogPostSections(postId, validSections.map((s, i) => ({ ...s, position: i })));
+      }
+
       resetForm();
     } catch (err: any) {
       toast.error(err.message || 'Erro ao salvar.');
@@ -579,23 +603,61 @@ export function BlogManager() {
           <Textarea value={form.excerpt} onChange={e => setForm(prev => ({ ...prev, excerpt: e.target.value }))} rows={2} placeholder="Breve descrição que aparece no hero do post" />
         </div>
 
-        {/* Subtitle (segundo título destacado) */}
-        <div className="space-y-2">
-          <Label>Segundo Título (destacado no conteúdo)</Label>
-          <Input value={form.subtitle} onChange={e => setForm(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="Ex: Configuração Global, Relatório de Consumo..." />
-          <p className="text-xs text-muted-foreground">Aparece como um título H2 destacado entre seções do conteúdo</p>
-        </div>
+        {/* Dynamic Sections (Títulos e Textos extras) */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Títulos e Textos Extras</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setSections(prev => [...prev, { title: '', content: '' }])}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Adicionar seção
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">Adicione títulos H2 destacados com textos descritivos que aparecem após o conteúdo principal</p>
 
-        {/* Secondary Text (texto abaixo do segundo título) */}
-        <div className="space-y-2">
-          <Label>Texto do Segundo Título</Label>
-          <Textarea
-            value={form.secondary_text}
-            onChange={e => setForm(prev => ({ ...prev, secondary_text: e.target.value }))}
-            placeholder="Texto descritivo que aparece logo abaixo do segundo título..."
-            rows={4}
-          />
-          <p className="text-xs text-muted-foreground">Aparece como parágrafo abaixo do segundo título destacado</p>
+          {sections.length === 0 && (
+            <p className="text-sm text-muted-foreground italic py-3 text-center border border-dashed border-border rounded-lg">
+              Nenhuma seção extra. Clique em "Adicionar seção" para criar.
+            </p>
+          )}
+
+          {sections.map((section, idx) => (
+            <div key={idx} className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Seção {idx + 1}</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setSections(prev => prev.filter((_, i) => i !== idx))}
+                >
+                  <X className="w-4 h-4 text-destructive" />
+                </Button>
+              </div>
+              <Input
+                value={section.title}
+                onChange={e => {
+                  const val = e.target.value;
+                  setSections(prev => prev.map((s, i) => i === idx ? { ...s, title: val } : s));
+                }}
+                placeholder={`Título ${idx + 1}`}
+              />
+              <Textarea
+                value={section.content}
+                onChange={e => {
+                  const val = e.target.value;
+                  setSections(prev => prev.map((s, i) => i === idx ? { ...s, content: val } : s));
+                }}
+                placeholder="Texto descritivo desta seção..."
+                rows={3}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Cover Image */}

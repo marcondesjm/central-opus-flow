@@ -209,6 +209,56 @@ export function useDeleteBlogCategory() {
   });
 }
 
+// ============================================================================
+// Blog Post Sections
+// ============================================================================
+
+export type BlogPostSection = {
+  id: string;
+  post_id: string;
+  title: string;
+  content: string;
+  position: number;
+  created_at: string;
+};
+
+export function useBlogPostSections(postId: string) {
+  return useQuery({
+    queryKey: ['blog-post-sections', postId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_post_sections')
+        .select('*')
+        .eq('post_id', postId)
+        .order('position');
+
+      if (error) throw error;
+      return data as BlogPostSection[];
+    },
+    enabled: !!postId,
+  });
+}
+
+export async function saveBlogPostSections(
+  postId: string,
+  sections: { title: string; content: string; position: number }[]
+) {
+  // Delete existing sections
+  await supabase.from('blog_post_sections').delete().eq('post_id', postId);
+
+  if (sections.length === 0) return;
+
+  const rows = sections.map((s, i) => ({
+    post_id: postId,
+    title: s.title,
+    content: s.content,
+    position: i,
+  }));
+
+  const { error } = await supabase.from('blog_post_sections').insert(rows);
+  if (error) throw error;
+}
+
 export function uploadBlogImage(file: File) {
   const fileName = `${Date.now()}-${file.name}`;
   return supabase.storage

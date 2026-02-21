@@ -4,7 +4,7 @@ import {
   Plus, Pencil, Trash2, Eye, EyeOff, Globe,
   Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered,
   Code, Quote, Image as ImageIcon, Link2, FileText, Upload, X, ExternalLink,
-  Highlighter, Type
+  Highlighter, Type, Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,9 +63,23 @@ interface ToolbarProps {
   onImageInsert: () => void;
 }
 
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const match = url.match(p);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 function RichToolbar({ textareaRef, content, onChange, onImageInsert }: ToolbarProps) {
   const [showFontMenu, setShowFontMenu] = useState(false);
   const [showHighlightMenu, setShowHighlightMenu] = useState(false);
+  const [showVideoInput, setShowVideoInput] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
 
   const wrapSelection = useCallback((before: string, after: string) => {
     const ta = textareaRef.current;
@@ -125,11 +139,12 @@ function RichToolbar({ textareaRef, content, onChange, onImageInsert }: ToolbarP
     { icon: Code, label: 'Código', action: () => wrapSelection('<pre><code>', '</code></pre>') },
     null, // separator
     { icon: ImageIcon, label: 'Imagem', action: onImageInsert },
+    { icon: Video, label: 'Vídeo (YouTube)', action: () => { setShowVideoInput(!showVideoInput); setShowFontMenu(false); setShowHighlightMenu(false); } },
     { icon: Link2, label: 'Link', action: () => wrapSelection('<a href="URL">', '</a>') },
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 p-2 bg-muted/50 border border-border rounded-t-lg">
+    <div className="relative flex flex-wrap items-center gap-0.5 p-2 bg-muted/50 border border-border rounded-t-lg">
       {tools.map((tool, i) => {
         if (!tool) return <Separator key={i} orientation="vertical" className="h-6 mx-1" />;
         const Icon = tool.icon;
@@ -240,6 +255,41 @@ function RichToolbar({ textareaRef, content, onChange, onImageInsert }: ToolbarP
           </div>
         )}
       </div>
+
+      {/* Video URL input */}
+      {showVideoInput && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-popover border border-border rounded-lg shadow-lg p-3">
+          <p className="text-xs text-muted-foreground mb-2">Cole a URL do YouTube</p>
+          <div className="flex gap-2">
+            <Input
+              value={videoUrl}
+              onChange={e => setVideoUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=..."
+              className="h-8 text-sm"
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 px-3"
+              onClick={() => {
+                const id = extractYouTubeId(videoUrl);
+                if (id) {
+                  insertAtCursor(`\n<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:16px 0"><iframe src="https://www.youtube.com/embed/${id}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>\n`);
+                  setVideoUrl('');
+                  setShowVideoInput(false);
+                } else if (videoUrl.trim()) {
+                  // Generic video/iframe embed
+                  insertAtCursor(`\n<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:16px 0"><iframe src="${videoUrl.trim()}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>\n`);
+                  setVideoUrl('');
+                  setShowVideoInput(false);
+                }
+              }}
+            >
+              Inserir
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

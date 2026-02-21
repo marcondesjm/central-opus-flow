@@ -211,7 +211,8 @@ export default function BlogPost() {
                 prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm
                 prose-blockquote:border-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-1
                 prose-li:marker:text-primary
-                prose-strong:text-foreground"
+                prose-strong:text-foreground
+                [&_iframe]:rounded-xl [&_iframe]:shadow-lg [&_iframe]:border [&_iframe]:border-border"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 

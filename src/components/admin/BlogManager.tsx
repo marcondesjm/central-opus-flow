@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import {
   Plus, Pencil, Trash2, Eye, EyeOff, Globe,
   Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered,
-  Code, Quote, Image as ImageIcon, Link2, FileText, Upload, X, ExternalLink
+  Code, Quote, Image as ImageIcon, Link2, FileText, Upload, X, ExternalLink,
+  Highlighter, Type
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,6 +64,9 @@ interface ToolbarProps {
 }
 
 function RichToolbar({ textareaRef, content, onChange, onImageInsert }: ToolbarProps) {
+  const [showFontMenu, setShowFontMenu] = useState(false);
+  const [showHighlightMenu, setShowHighlightMenu] = useState(false);
+
   const wrapSelection = useCallback((before: string, after: string) => {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -88,6 +92,25 @@ function RichToolbar({ textareaRef, content, onChange, onImageInsert }: ToolbarP
       ta.setSelectionRange(start + text.length, start + text.length);
     }, 0);
   }, [textareaRef, content, onChange]);
+
+  const fonts = [
+    { name: 'Padrão (System)', value: '' },
+    { name: 'Arial', value: 'Arial, sans-serif' },
+    { name: 'Georgia', value: 'Georgia, serif' },
+    { name: 'Courier New', value: '"Courier New", monospace' },
+    { name: 'Verdana', value: 'Verdana, sans-serif' },
+    { name: 'Times New Roman', value: '"Times New Roman", serif' },
+    { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+  ];
+
+  const highlightColors = [
+    { name: 'Amarelo', value: '#fef08a', textColor: '#000' },
+    { name: 'Verde', value: '#bbf7d0', textColor: '#000' },
+    { name: 'Azul', value: '#bfdbfe', textColor: '#000' },
+    { name: 'Rosa', value: '#fbcfe8', textColor: '#000' },
+    { name: 'Laranja', value: '#fed7aa', textColor: '#000' },
+    { name: 'Roxo', value: '#e9d5ff', textColor: '#000' },
+  ];
 
   const tools = [
     { icon: Bold, label: 'Negrito', action: () => wrapSelection('<strong>', '</strong>') },
@@ -127,6 +150,96 @@ function RichToolbar({ textareaRef, content, onChange, onImageInsert }: ToolbarP
           </Tooltip>
         );
       })}
+
+      <Separator orientation="vertical" className="h-6 mx-1" />
+
+      {/* Font selector */}
+      <div className="relative">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-xs gap-1"
+              onClick={() => { setShowFontMenu(!showFontMenu); setShowHighlightMenu(false); }}
+            >
+              <Type className="w-4 h-4" />
+              Fonte
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="text-xs">Escolher fonte</TooltipContent>
+        </Tooltip>
+        {showFontMenu && (
+          <div className="absolute top-full left-0 mt-1 z-50 bg-popover border border-border rounded-lg shadow-lg p-1 min-w-[180px]">
+            {fonts.map(font => (
+              <button
+                key={font.name}
+                type="button"
+                className="w-full text-left px-3 py-1.5 text-sm rounded hover:bg-accent transition-colors"
+                style={{ fontFamily: font.value || 'inherit' }}
+                onClick={() => {
+                  if (font.value) {
+                    wrapSelection(`<span style="font-family: ${font.value}">`, '</span>');
+                  }
+                  setShowFontMenu(false);
+                }}
+              >
+                {font.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Highlight selector */}
+      <div className="relative">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-xs gap-1"
+              onClick={() => { setShowHighlightMenu(!showHighlightMenu); setShowFontMenu(false); }}
+            >
+              <Highlighter className="w-4 h-4" />
+              Destacar
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="text-xs">Destacar texto</TooltipContent>
+        </Tooltip>
+        {showHighlightMenu && (
+          <div className="absolute top-full left-0 mt-1 z-50 bg-popover border border-border rounded-lg shadow-lg p-2 min-w-[160px]">
+            <p className="text-xs text-muted-foreground mb-2 px-1">Cor do destaque</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {highlightColors.map(color => (
+                <button
+                  key={color.name}
+                  type="button"
+                  className="w-10 h-8 rounded border border-border hover:scale-110 transition-transform"
+                  style={{ backgroundColor: color.value }}
+                  title={color.name}
+                  onClick={() => {
+                    wrapSelection(`<mark style="background-color: ${color.value}; color: ${color.textColor}; padding: 2px 4px; border-radius: 3px;">`, '</mark>');
+                    setShowHighlightMenu(false);
+                  }}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className="w-full mt-2 text-left px-2 py-1.5 text-xs rounded hover:bg-accent transition-colors text-muted-foreground"
+              onClick={() => {
+                wrapSelection('<mark>', '</mark>');
+                setShowHighlightMenu(false);
+              }}
+            >
+              Destaque padrão
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

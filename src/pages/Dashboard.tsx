@@ -28,6 +28,7 @@ import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
+import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useAuth } from '@/hooks/useAuth';
 import { useSeedDemoData } from '@/hooks/useSeedDemoData';
@@ -80,6 +81,7 @@ export default function Dashboard() {
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { data: tags = [] } = useTags();
+  const { data: collaboratedProjects = [] } = useCollaboratedProjects();
   const toggleFavorite = useToggleFavorite();
   const updateProject = useUpdateProject();
   const deleteProject = useDeleteProject();
@@ -150,12 +152,13 @@ export default function Dashboard() {
 
   // Handle global search selection
   const handleSelectProject = useCallback((projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
+    const project = projects.find(p => p.id === projectId) ||
+                    collaboratedProjects.find(p => p.id === projectId);
     if (project) {
-      setEditingProject(project);
+      setEditingProject(project as Project);
       setEditProjectOpen(true);
     }
-  }, [projects]);
+  }, [projects, collaboratedProjects]);
 
   const handleSelectAccount = useCallback((accountId: string) => {
     setSelectedAccount(accountId);
@@ -233,9 +236,10 @@ export default function Dashboard() {
   };
 
   const handleEditProject = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
+    const project = projects.find(p => p.id === projectId) || 
+                    collaboratedProjects.find(p => p.id === projectId);
     if (project) {
-      setEditingProject(project);
+      setEditingProject(project as Project);
       setEditProjectOpen(true);
     }
   };

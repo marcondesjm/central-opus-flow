@@ -137,7 +137,11 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md md:max-w-lg p-0 gap-0 overflow-hidden">
+      <DialogContent 
+        className="sm:max-w-md md:max-w-lg p-0 gap-0 overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         {/* Header with gradient */}
         <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 pb-4">
           <div className="flex items-center gap-2 mb-4">

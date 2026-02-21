@@ -358,7 +358,8 @@
     "apiKeys": "API Keys",
     "settings": "Configurações",
     "plan": "Plano",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "collaborations": "Colaborações"
   },
   "filters": {
     "filters": "Filtros",
@@ -400,7 +401,8 @@
     "tags": "Tags",
     "notes": "Notas",
     "updated": "Atualizado",
-    "noAccount": "Sem conta"
+    "noAccount": "Sem conta",
+    "share": "Compartilhar"
   },
   "dashboardPage": {
     "loadingProjects": "Carregando projetos...",

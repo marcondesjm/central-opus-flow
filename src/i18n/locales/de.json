@@ -358,7 +358,8 @@
     "apiKeys": "API-Schlüssel",
     "settings": "Einstellungen",
     "plan": "Plan",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "collaborations": "Zusammenarbeiten"
   },
   "filters": {
     "filters": "Filter",
@@ -400,7 +401,8 @@
     "tags": "Tags",
     "notes": "Notizen",
     "updated": "Aktualisiert",
-    "noAccount": "Kein Konto"
+    "noAccount": "Kein Konto",
+    "share": "Teilen"
   },
   "dashboardPage": {
     "loadingProjects": "Projekte werden geladen...",

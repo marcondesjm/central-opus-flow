@@ -44,6 +44,7 @@ export function useAdminUsers() {
       return (data || []) as AdminUser[];
     },
     enabled: !!user,
+    refetchInterval: 10000,
   });
 }
 

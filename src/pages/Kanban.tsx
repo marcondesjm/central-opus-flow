@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
@@ -586,11 +586,12 @@ export default function KanbanPage() {
   const deleteDeal = useDeleteDeal();
   const deleteColumn = useDeleteColumn();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editDeal, setEditDeal] = useState<KanbanDeal | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showChart, setShowChart] = useState(false);
+  const [showChart, setShowChart] = useState(searchParams.get('view') === 'billing');
   const [paymentsDeal, setPaymentsDeal] = useState<KanbanDeal | null>(null);
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
   const [showAddColumn, setShowAddColumn] = useState(false);

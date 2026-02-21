@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink } from 'lucide-react';
+import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,8 +28,10 @@ export function WordPressManager() {
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [importingBackup, setImportingBackup] = useState(false);
   const [importResults, setImportResults] = useState<{ total: number; imported: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const backupFileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     site_url: '',
@@ -112,8 +114,138 @@ export function WordPressManager() {
     }
   };
 
+  const handleExportWPBackup = () => {
+    if (connections.length === 0) {
+      toast.error('Nenhuma conexão WordPress para exportar.');
+      return;
+    }
+
+    const backupData = {
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+      type: 'wordpress-connections',
+      data: connections.map(c => ({
+        siteUrl: c.site_url,
+        username: c.username,
+        appPassword: c.app_password,
+        siteName: c.site_name,
+        lastSyncAt: c.last_sync_at,
+        createdAt: c.created_at,
+      })),
+      summary: { total: connections.length },
+    };
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `wordpress-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(`${connections.length} conexões WordPress exportadas!`);
+  };
+
+  const handleImportWPBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportingBackup(true);
+    try {
+      const text = await file.text();
+      const backup = JSON.parse(text);
+
+      if (!backup.data || !Array.isArray(backup.data)) {
+        toast.error('Arquivo de backup WordPress inválido.');
+        return;
+      }
+
+      let imported = 0;
+      for (const wp of backup.data) {
+        const exists = connections.find(
+          c => c.site_url === wp.siteUrl && c.username === wp.username
+        );
+        if (exists) {
+          console.log('Conexão já existe:', wp.siteUrl);
+          continue;
+        }
+        try {
+          await createConnection.mutateAsync({
+            site_url: wp.siteUrl,
+            username: wp.username,
+            app_password: wp.appPassword,
+            site_name: wp.siteName || undefined,
+          });
+          imported++;
+        } catch (err) {
+          console.error(`Erro ao importar conexão "${wp.siteUrl}":`, err);
+        }
+      }
+      toast.success(`${imported} de ${backup.data.length} conexões importadas!`);
+    } catch (err) {
+      toast.error('Erro ao processar o arquivo de backup.');
+      console.error(err);
+    } finally {
+      setImportingBackup(false);
+      if (backupFileInputRef.current) backupFileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* WordPress DB Backup Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Database className="w-5 h-5 text-primary" />
+            Backup de Conexões WordPress
+          </CardTitle>
+          <CardDescription>
+            Exporte e importe suas conexões WordPress para manter um backup seguro das credenciais.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportWPBackup}
+              disabled={connections.length === 0}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Exportar Conexões
+            </Button>
+
+            <input
+              ref={backupFileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImportWPBackup}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => backupFileInputRef.current?.click()}
+              disabled={importingBackup}
+              className="gap-2"
+            >
+              {importingBackup ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4" />
+              )}
+              {importingBackup ? 'Importando...' : 'Importar Conexões'}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            As conexões também são incluídas no backup geral do sistema (Exportar Backup).
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Upload Section */}
       <Card>
         <CardHeader>

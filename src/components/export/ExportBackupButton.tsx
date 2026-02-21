@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
 import { useAccounts, useProjects, useTags } from '@/hooks/useProjects';
 import { useActivityLogs } from '@/hooks/useActivityLogs';
+import { useWordPressConnections } from '@/hooks/useWordPress';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { getLocalKeys } from '@/hooks/useLocalKeys';
@@ -24,6 +25,7 @@ export function ExportBackupButton({
   const { data: projects = [] } = useProjects();
   const { data: tags = [] } = useTags();
   const { data: activityLogs = [] } = useActivityLogs(500);
+  const { data: wpConnections = [] } = useWordPressConnections();
   const { toast } = useToast();
 
   const handleExport = async () => {
@@ -51,7 +53,7 @@ export function ExportBackupButton({
 
       const backupData = {
         exportedAt: new Date().toISOString(),
-        version: '1.1', // Bump version for new format
+        version: '1.2', // Bump version for WordPress connections
         data: {
           accounts: accounts.map(a => ({
             id: a.id,
@@ -95,9 +97,7 @@ export function ExportBackupButton({
             metadata: log.metadata,
             createdAt: log.created_at,
           })),
-          // New: Include local keys (sensitive data - encrypted in localStorage)
           localKeys: localKeys,
-          // New: Include checklists
           checklists: checklists.map(c => ({
             id: c.id,
             projectId: c.project_id,
@@ -107,6 +107,15 @@ export function ExportBackupButton({
             position: c.position,
             createdAt: c.created_at,
           })),
+          wordpressConnections: wpConnections.map(wp => ({
+            id: wp.id,
+            siteUrl: wp.site_url,
+            username: wp.username,
+            appPassword: wp.app_password,
+            siteName: wp.site_name,
+            lastSyncAt: wp.last_sync_at,
+            createdAt: wp.created_at,
+          })),
         },
         summary: {
           totalAccounts: accounts.length,
@@ -115,6 +124,7 @@ export function ExportBackupButton({
           totalActivityLogs: activityLogs.length,
           totalLocalKeys: Object.keys(localKeys).length,
           totalChecklists: checklists.length,
+          totalWordPressConnections: wpConnections.length,
         },
       };
 
@@ -133,7 +143,7 @@ export function ExportBackupButton({
 
       toast({
         title: 'Backup exportado!',
-        description: `${projects.length} projetos, ${accounts.length} contas, ${checklists.length} itens de checklist e ${Object.keys(localKeys).length} keys exportados.`,
+        description: `${projects.length} projetos, ${accounts.length} contas, ${checklists.length} checklists, ${Object.keys(localKeys).length} keys e ${wpConnections.length} conexões WordPress exportados.`,
       });
     } catch (error: any) {
       toast({

@@ -76,6 +76,7 @@ import {
   Timer,
   AlertTriangle,
   Calendar,
+  Globe,
 } from 'lucide-react';
 import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -83,6 +84,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { BlogManager } from '@/components/admin/BlogManager';
+import { WordPressManager } from '@/components/admin/WordPressManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -743,6 +745,10 @@ export default function Admin() {
               <BookOpen className="w-4 h-4" />
               Blog
             </TabsTrigger>
+            <TabsTrigger value="wordpress" className="gap-2">
+              <Globe className="w-4 h-4" />
+              WordPress
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-6">
@@ -1155,6 +1161,10 @@ export default function Admin() {
                 <BlogManager />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="wordpress">
+            <WordPressManager />
           </TabsContent>
         </Tabs>
       </main>

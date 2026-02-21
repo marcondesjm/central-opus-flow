@@ -85,12 +85,12 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             src={project.screenshot}
             alt={project.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <Eye className="w-8 h-8" />
-          </div>
-        )}
+        ) : null}
+        <div className={cn("w-full h-full flex items-center justify-center text-muted-foreground", project.screenshot ? "hidden" : "")}>
+          <Eye className="w-8 h-8" />
+        </div>
 
         {/* Overdue Indicator */}
         {isOverdue && (

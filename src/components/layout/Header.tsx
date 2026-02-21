@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 interface HeaderProps {
   searchQuery: string;
@@ -57,6 +59,7 @@ export function Header({
   const { t } = useTranslation();
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
+  const { data: subscription } = useSubscription();
 
   // Fetch profile and subscribe to realtime updates
   useEffect(() => {
@@ -262,6 +265,19 @@ export function Header({
                 {profile?.full_name && (
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 )}
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Crown className="w-3 h-3 text-primary" />
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    {subscription?.plan === 'free' ? 'Grátis' : 
+                     subscription?.plan === 'pro' ? 'Pro' : 
+                     subscription?.plan === 'business' ? 'Business' : 'Grátis'}
+                    {subscription?.plan !== 'free' && (
+                      <span className="ml-1 text-muted-foreground">
+                        • {(subscription as any)?.subscription_type === 'annual' ? 'Anual' : 'Mensal'}
+                      </span>
+                    )}
+                  </Badge>
+                </div>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/dashboard?settings=profile')}>

@@ -481,7 +481,10 @@ export default function Demo() {
     { id: 'favorites', label: t('demo.favorites'), icon: Star },
     { id: 'archived', label: t('demo.archived'), icon: Archive },
     { id: 'tags', label: t('demo.tags'), icon: Tag },
+    { id: 'wordpress', label: 'WordPress', icon: Globe },
   ];
+
+  const [wpDemoOpen, setWpDemoOpen] = useState(false);
 
   const renderProjectCard = (project: typeof initialProjects[0]) => {
     const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'published' && project.status !== 'archived';
@@ -704,7 +707,10 @@ export default function Demo() {
             const Icon = item.icon;
             const isActive = activeView === item.id && !selectedAccount;
             return (
-              <button key={item.id} onClick={() => { setActiveView(item.id); setSelectedAccount(null); setSelectedTag(null); }}
+              <button key={item.id} onClick={() => { 
+                if (item.id === 'wordpress') { setWpDemoOpen(true); return; }
+                setActiveView(item.id); setSelectedAccount(null); setSelectedTag(null); 
+              }}
                 className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
                   isActive ? 'bg-primary text-primary-foreground shadow-sm' : 'text-sidebar-foreground hover:bg-sidebar-accent')}>
                 <Icon className="w-4 h-4" />
@@ -1210,6 +1216,105 @@ export default function Demo() {
           }}
         />
       )}
+
+      {/* WordPress Demo Dialog */}
+      <Dialog open={wpDemoOpen} onOpenChange={setWpDemoOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" />
+              WordPress
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Demo Import Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Upload className="w-5 h-5 text-primary" />
+                  Importar Backup WordPress
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  onClick={() => toast.info('Funcionalidade disponível ao criar sua conta!')}
+                  className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all border-border hover:border-primary/50 hover:bg-muted/50"
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <FileText className="w-10 h-10 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">Clique para selecionar o arquivo XML</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Arquivo de exportação do WordPress (Ferramentas → Exportar)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Demo Connections Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Globe className="w-5 h-5 text-primary" />
+                      Conexões WordPress
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Salve as credenciais dos seus sites WordPress para referência.
+                    </p>
+                  </div>
+                  <Button size="sm" className="gap-2" onClick={() => toast.info('Crie sua conta para adicionar conexões WordPress!')}>
+                    <Plus className="w-4 h-4" />
+                    Adicionar
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {/* Demo connection examples */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Globe className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">meublog.com.br</p>
+                        <p className="text-xs text-muted-foreground">admin • 15/02/2026</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Globe className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">loja.exemplo.com</p>
+                        <p className="text-xs text-muted-foreground">editor • 10/01/2026</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="text-center">
+              <Button onClick={() => { setWpDemoOpen(false); navigate('/auth'); }}>
+                Criar conta para usar WordPress
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

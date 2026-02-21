@@ -44,6 +44,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { WordPressManager } from '@/components/admin/WordPressManager';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,6 +78,7 @@ export default function Dashboard() {
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keysModalOpen, setKeysModalOpen] = useState(false);
+  const [wordpressOpen, setWordpressOpen] = useState(false);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [historyProjectId, setHistoryProjectId] = useState<string | null>(null);
@@ -378,6 +381,8 @@ export default function Dashboard() {
     setActiveView(view);
     if (view === 'tags') {
       setTagsManagerOpen(true);
+    } else if (view === 'wordpress') {
+      setWordpressOpen(true);
     }
   };
 
@@ -678,6 +683,19 @@ export default function Dashboard() {
 
       {/* Keys Management Panel */}
       <KeysManagementPanel open={keysModalOpen} onOpenChange={setKeysModalOpen} />
+
+      {/* WordPress Manager */}
+      <Dialog open={wordpressOpen} onOpenChange={setWordpressOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-lg">🌐</span>
+              WordPress
+            </DialogTitle>
+          </DialogHeader>
+          <WordPressManager />
+        </DialogContent>
+      </Dialog>
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav

@@ -144,70 +144,67 @@ export default function BlogPost() {
           </Link>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            {/* Title */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-primary mb-3 leading-tight">
+              {post.title}
+            </h1>
+
+            {/* Excerpt */}
+            {post.excerpt && (
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-4">
+                {post.excerpt}
+              </p>
+            )}
+
             {/* Meta bar */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mb-5">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" />
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />
                 {post.published_at && format(new Date(post.published_at), "dd 'de' MMMM 'de' yyyy", { locale: dateLocales[currentLocale] || ptBR })}
               </span>
-              <span className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5" />
+              <span className="flex items-center gap-1.5">
+                <Eye className="w-4 h-4" />
                 {post.views_count} visualizações
               </span>
-              <span className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                {avgRating} de 5
+              <span className="flex items-center gap-1.5">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                {avgRating}.0 de 5
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4" />
+                {readTime} min de leitura
               </span>
             </div>
 
-            {/* Hero Section */}
-            <div className="relative rounded-2xl overflow-hidden mb-10 bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-border">
-              <div className="p-6 sm:p-10 flex flex-col sm:flex-row items-center gap-6">
-                {/* Logo / Icon */}
-                {post.cover_image && (
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg border border-border flex-shrink-0">
-                    <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
-
-                <div className="text-center sm:text-left flex-1">
-                  {/* Tags */}
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                    {post.blog_categories && (
-                      <Badge variant="secondary">{(post.blog_categories as any).name}</Badge>
-                    )}
-                    {post.tags?.map(tag => (
-                      <Badge key={tag} variant="outline" className="text-xs">
-                        <Tag className="w-3 h-3 mr-1" />
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary mb-2 leading-tight">
-                    {post.title}
-                  </h1>
-
-                  {post.excerpt && (
-                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mt-3 text-xs text-muted-foreground">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{readTime} min de leitura</span>
-                  </div>
-                </div>
+            {/* Cover image - full width */}
+            {post.cover_image && (
+              <div className="rounded-2xl overflow-hidden mb-10 border border-border shadow-lg">
+                <img src={post.cover_image} alt={post.title} className="w-full h-auto object-cover" />
               </div>
-            </div>
+            )}
 
-            {/* Content with styled sections */}
+            {/* Tags */}
+            {(post.tags?.length || post.blog_categories) && (
+              <div className="flex flex-wrap items-center gap-2 mb-8">
+                {post.blog_categories && (
+                  <Badge variant="secondary">{(post.blog_categories as any).name}</Badge>
+                )}
+                {post.tags?.map(tag => (
+                  <Badge key={tag} variant="outline" className="text-xs">
+                    <Tag className="w-3 h-3 mr-1" />
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Content */}
             <div
               className="prose prose-lg dark:prose-invert max-w-none
                 prose-headings:font-bold prose-headings:tracking-tight
                 prose-h2:border-l-4 prose-h2:border-primary prose-h2:pl-4 prose-h2:py-1 prose-h2:text-xl
                 prose-h3:text-primary/90 prose-h3:text-lg
+                prose-p:leading-relaxed
                 prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                 prose-img:rounded-xl prose-img:shadow-lg
                 prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-pre:shadow-sm

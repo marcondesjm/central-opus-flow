@@ -186,31 +186,26 @@ export default function BlogPost() {
           {/* Attachment / Download Section */}
           {((post as any).attachment_name || (post as any).attachment_url) && (
             <div className="mt-10 mb-8">
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <FileText className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{(post as any).attachment_name || 'Anexo'}</p>
-                      <p className="text-xs text-muted-foreground">Arquivo anexo à postagem</p>
-                    </div>
+              <div className="flex items-center justify-between gap-4 flex-wrap border border-border rounded-full px-5 py-3 bg-card shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-muted">
+                    <FileText className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => window.open((post as any).attachment_url, '_blank')}>
-                      <Eye className="w-4 h-4 mr-1" />
-                      Visualizar
-                    </Button>
-                    <Button size="sm" asChild>
-                      <a href={(post as any).attachment_url} download={(post as any).attachment_name}>
-                        <Download className="w-4 h-4 mr-1" />
-                        Baixar
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  <span className="font-medium text-sm">{(post as any).attachment_name || 'Anexo'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" className="rounded-full px-5" onClick={() => window.open((post as any).attachment_url, '_blank')}>
+                    <Eye className="w-4 h-4 mr-1.5" />
+                    Visualizar
+                  </Button>
+                  <Button size="sm" variant="outline" className="rounded-full px-5" asChild>
+                    <a href={(post as any).attachment_url} download={(post as any).attachment_name}>
+                      <Download className="w-4 h-4 mr-1.5" />
+                      Baixar
+                    </a>
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 

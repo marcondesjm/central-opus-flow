@@ -97,12 +97,12 @@ export function Footer() {
                   </button>
                 </li>
                 <li>
-                  <a 
-                    href="#"
+                  <Link 
+                    to="/blog"
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Blog
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <button 

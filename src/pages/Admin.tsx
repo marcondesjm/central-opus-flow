@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, getTrialDaysRemaining, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
 import { useUserRole, useIsAdmin } from '@/hooks/useRoles';
@@ -77,6 +78,7 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { BlogManager } from '@/components/admin/BlogManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -612,6 +614,10 @@ export default function Admin() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="blog" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              Blog
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -960,6 +966,14 @@ export default function Admin() {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="blog">
+            <Card>
+              <CardContent className="pt-6">
+                <BlogManager />
               </CardContent>
             </Card>
           </TabsContent>

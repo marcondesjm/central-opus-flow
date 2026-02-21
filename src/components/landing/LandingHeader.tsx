@@ -50,6 +50,9 @@ export function LandingHeader() {
           <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             {t('common.pricing')}
           </a>
+          <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            {t('common.blog')}
+          </Link>
           <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             {t('common.faq')}
           </a>
@@ -92,6 +95,9 @@ export function LandingHeader() {
                   <a href="#pricing" className="text-lg font-medium hover:text-primary transition-colors">
                     {t('common.pricing')}
                   </a>
+                  <Link to="/blog" className="text-lg font-medium hover:text-primary transition-colors">
+                    {t('common.blog')}
+                  </Link>
                   <a href="#faq" className="text-lg font-medium hover:text-primary transition-colors">
                     {t('common.faq')}
                   </a>

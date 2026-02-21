@@ -16,6 +16,8 @@ import Admin from "./pages/Admin";
 import Demo from "./pages/Demo";
 import Pricing from "./pages/Pricing";
 import Collaborations from "./pages/Collaborations";
+import Blog from "./pages/Blog";
+import BlogPostPage from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -111,6 +113,8 @@ function AppContent() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route
             path="/dashboard"
             element={

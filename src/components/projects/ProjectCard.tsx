@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare } from 'lucide-react';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
@@ -11,6 +12,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog, DialogContent, DialogTitle,
+} from '@/components/ui/dialog';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -52,6 +56,7 @@ const statusConfig = {
 };
 
 export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const status = statusConfig[project.status];
   
   // Check if project is overdue
@@ -73,6 +78,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
   };
 
   return (
+    <>
     <ProjectHoverCard project={project} account={account}>
     <div className={cn(
       "group bg-card rounded-xl border shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden hover-lift",
@@ -108,7 +114,17 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         )}
         
         {/* Overlay Actions */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {/* Ver Preview button */}
+          {project.screenshot && (
+            <button
+              onClick={() => setPreviewOpen(true)}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              Ver Preview
+            </button>
+          )}
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
             {project.url ? (
               <button
@@ -318,5 +334,24 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       </div>
     </div>
     </ProjectHoverCard>
+
+    {/* Screenshot Preview Dialog */}
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <DialogContent className="max-w-4xl p-2">
+        <DialogTitle className="sr-only">Preview de {project.name}</DialogTitle>
+        {project.screenshot && (
+          <img
+            src={project.screenshot}
+            alt={project.name}
+            className="w-full h-auto rounded-lg"
+          />
+        )}
+        <div className="px-2 pb-2">
+          <h3 className="font-semibold text-foreground">{project.name}</h3>
+          <p className="text-sm text-muted-foreground">{project.description}</p>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

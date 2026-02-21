@@ -92,12 +92,11 @@ export function DataProtectionBanner() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed bottom-0 left-0 right-0 z-[100] p-3 sm:p-4"
+        className="fixed bottom-0 left-0 right-0 z-[9999] p-3 sm:p-4"
+        style={{ pointerEvents: 'auto' }}
       >
         <div 
           className="max-w-3xl mx-auto rounded-xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 pt-4 pb-2 sm:px-5">

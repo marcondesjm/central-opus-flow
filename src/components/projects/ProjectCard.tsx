@@ -121,12 +121,12 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         )}
         
         {/* Overlay Actions */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           {/* Ver Preview button */}
           {project.screenshot && (
             <button
               onClick={() => setPreviewOpen(true)}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"
             >
               <Eye className="w-4 h-4" />
               {t('cards.viewPreview')}
@@ -136,7 +136,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             {project.url ? (
               <button
                 onClick={handleOpenProject}
-                className="flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-colors pointer-events-auto"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 {t('cards.open')}

@@ -210,6 +210,23 @@ export function useCollaboration() {
         projectId
       );
     }
+
+    // Send invite email
+    const acceptUrl = `${window.location.origin}/collaborations`;
+    try {
+      await supabase.functions.invoke('send-collaboration-invite', {
+        body: {
+          email,
+          projectName: projectName || 'Sem nome',
+          inviterName: user.email || 'Um usuário',
+          role,
+          acceptUrl
+        }
+      });
+    } catch (emailError) {
+      console.error('Error sending invite email:', emailError);
+      // Don't fail the invite if email fails
+    }
     
     toast.success('Convite enviado com sucesso!');
     return { success: true };

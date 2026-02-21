@@ -327,6 +327,7 @@ export function BlogManager() {
     slug: '',
     excerpt: '',
     subtitle: '',
+    secondary_text: '',
     content: '',
     cover_image: '',
     secondary_image: '',
@@ -340,7 +341,7 @@ export function BlogManager() {
   });
 
   const resetForm = () => {
-    setForm({ title: '', slug: '', excerpt: '', subtitle: '', content: '', cover_image: '', secondary_image: '', category_id: '', locale: 'pt', tags: '', is_published: false, show_attachment: false, attachment_url: '', attachment_name: '' });
+    setForm({ title: '', slug: '', excerpt: '', subtitle: '', secondary_text: '', content: '', cover_image: '', secondary_image: '', category_id: '', locale: 'pt', tags: '', is_published: false, show_attachment: false, attachment_url: '', attachment_name: '' });
     setEditingPost(null);
     setIsCreating(false);
     setEditorTab('editor');
@@ -358,6 +359,7 @@ export function BlogManager() {
       slug: post.slug,
       excerpt: post.excerpt || '',
       subtitle: (post as any).subtitle || '',
+      secondary_text: (post as any).secondary_text || '',
       content: post.content,
       cover_image: post.cover_image || '',
       secondary_image: (post as any).secondary_image || '',
@@ -451,6 +453,7 @@ export function BlogManager() {
       slug: form.slug,
       excerpt: form.excerpt || null,
       subtitle: form.subtitle || null,
+      secondary_text: form.secondary_text || null,
       content: form.content,
       cover_image: form.cover_image || null,
       secondary_image: form.secondary_image || null,
@@ -581,6 +584,18 @@ export function BlogManager() {
           <Label>Segundo Título (destacado no conteúdo)</Label>
           <Input value={form.subtitle} onChange={e => setForm(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="Ex: Configuração Global, Relatório de Consumo..." />
           <p className="text-xs text-muted-foreground">Aparece como um título H2 destacado entre seções do conteúdo</p>
+        </div>
+
+        {/* Secondary Text (texto abaixo do segundo título) */}
+        <div className="space-y-2">
+          <Label>Texto do Segundo Título</Label>
+          <Textarea
+            value={form.secondary_text}
+            onChange={e => setForm(prev => ({ ...prev, secondary_text: e.target.value }))}
+            placeholder="Texto descritivo que aparece logo abaixo do segundo título..."
+            rows={4}
+          />
+          <p className="text-xs text-muted-foreground">Aparece como parágrafo abaixo do segundo título destacado</p>
         </div>
 
         {/* Cover Image */}

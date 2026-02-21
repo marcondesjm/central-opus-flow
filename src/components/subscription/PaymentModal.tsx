@@ -41,15 +41,46 @@ const WHATSAPP_NUMBER = '5548996029392';
 
 // Generate PIX Copy-Paste payload (BR Code format)
 function generatePixPayload() {
-  // Simplified PIX payload for copy-paste
   return PIX_KEY;
 }
 
-// Generate PIX BR Code for QR Code (simplified EMV-like format)
+// CRC16-CCITT for PIX BR Code
+function crc16ccitt(str: string): string {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc = crc << 1;
+      }
+    }
+    crc &= 0xFFFF;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function tlv(id: string, value: string): string {
+  const len = value.length.toString().padStart(2, '0');
+  return `${id}${len}${value}`;
+}
+
+// Generate PIX BR Code for QR Code (EMV standard with CRC16)
 function generatePixBRCode() {
-  // Format: PIX Key with basic info
-  const pixData = `00020126580014br.gov.bcb.pix0114${PIX_KEY}52040000530398654052990055802BR5913${PIX_NAME.substring(0, 13).replace(/\s/g, '')}6008BRASILIA62070503***6304`;
-  return pixData;
+  const gui = tlv('00', 'br.gov.bcb.pix');
+  const key = tlv('01', PIX_KEY);
+  const mai = tlv('26', gui + key); // Merchant Account Information
+  const mcc = tlv('52', '0000');
+  const currency = tlv('53', '986'); // BRL
+  const amount = tlv('54', PIX_AMOUNT.toFixed(2));
+  const country = tlv('58', 'BR');
+  const name = tlv('59', PIX_NAME.substring(0, 25));
+  const city = tlv('60', 'BRASILIA');
+  const addData = tlv('62', tlv('05', '***'));
+  const payload = tlv('00', '01') + mai + mcc + currency + amount + country + name + city + addData;
+  const crc = crc16ccitt(payload + '6304');
+  return payload + '6304' + crc;
 }
 
 export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {

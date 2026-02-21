@@ -274,6 +274,7 @@ export type Database = {
           locale: string
           published_at: string | null
           secondary_image: string | null
+          secondary_text: string | null
           show_attachment: boolean
           slug: string
           subtitle: string | null
@@ -296,6 +297,7 @@ export type Database = {
           locale?: string
           published_at?: string | null
           secondary_image?: string | null
+          secondary_text?: string | null
           show_attachment?: boolean
           slug: string
           subtitle?: string | null
@@ -318,6 +320,7 @@ export type Database = {
           locale?: string
           published_at?: string | null
           secondary_image?: string | null
+          secondary_text?: string | null
           show_attachment?: boolean
           slug?: string
           subtitle?: string | null

@@ -260,6 +260,11 @@ export default function BlogPost() {
                 <h2 className="text-xl sm:text-2xl font-bold border-l-4 border-primary pl-4 py-1">
                   {(post as any).subtitle}
                 </h2>
+                {(post as any).secondary_text && (
+                  <p className="mt-3 text-base text-muted-foreground leading-relaxed pl-5">
+                    {(post as any).secondary_text}
+                  </p>
+                )}
               </div>
             )}
 

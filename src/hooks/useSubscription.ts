@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import type { Json } from '@/integrations/supabase/types';
@@ -64,7 +65,28 @@ export const PLAN_LIMITS: Record<SubscriptionPlan, { accounts: number; projects:
 
 export function useSubscription() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
+  // Realtime: atualiza quando o admin muda o plano
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    const channel = supabase
+      .channel(`subscription-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'subscriptions', filter: `user_id=eq.${user.id}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['subscription', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
+
   return useQuery({
     queryKey: ['subscription', user?.id],
     queryFn: async () => {
@@ -75,7 +97,6 @@ export function useSubscription() {
         .single();
       
       if (error) {
-        // If no subscription found, return free plan defaults
         if (error.code === 'PGRST116') {
           return {
             plan: 'free' as SubscriptionPlan,
@@ -87,7 +108,6 @@ export function useSubscription() {
         throw error;
       }
       
-      // Parse features from JSON
       const features = typeof data.features === 'object' && data.features !== null
         ? data.features as unknown as SubscriptionFeatures
         : PLAN_LIMITS.free.features;

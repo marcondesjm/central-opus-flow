@@ -341,5 +341,23 @@
     "today": "heute",
     "oneDayAgo": "vor 1 Tag",
     "daysAgo": "vor {{count}} Tagen"
+  },
+  "sidebar": {
+    "allProjects": "Alle Projekte",
+    "favorites": "Favoriten",
+    "archived": "Archiviert",
+    "tags": "Tags",
+    "accounts": "Konten",
+    "addAccount": "Konto hinzufügen",
+    "noAccounts": "Keine Konten hinzugefügt",
+    "loadingAccounts": "Konten werden geladen...",
+    "managerSubtitle": "Lovable Manager",
+    "support": "Support",
+    "supportHours": "Mo-Fr 8-18 Uhr",
+    "adminPanel": "Admin-Panel",
+    "apiKeys": "API-Schlüssel",
+    "settings": "Einstellungen",
+    "plan": "Plan",
+    "signOut": "Abmelden"
   }
 }

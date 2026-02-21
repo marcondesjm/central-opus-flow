@@ -341,5 +341,23 @@
     "today": "hoje",
     "oneDayAgo": "há 1 dia",
     "daysAgo": "há {{count}} dias"
+  },
+  "sidebar": {
+    "allProjects": "Todos os Projetos",
+    "favorites": "Favoritos",
+    "archived": "Arquivados",
+    "tags": "Tags",
+    "accounts": "Contas",
+    "addAccount": "Adicionar Conta",
+    "noAccounts": "Nenhuma conta adicionada",
+    "loadingAccounts": "Carregando contas...",
+    "managerSubtitle": "Gerenciador Lovable",
+    "support": "Suporte",
+    "supportHours": "Seg-Sex 8h às 18h",
+    "adminPanel": "Painel Admin",
+    "apiKeys": "API Keys",
+    "settings": "Configurações",
+    "plan": "Plano",
+    "signOut": "Sair"
   }
 }

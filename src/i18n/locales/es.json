@@ -341,5 +341,23 @@
     "today": "hoy",
     "oneDayAgo": "hace 1 día",
     "daysAgo": "hace {{count}} días"
+  },
+  "sidebar": {
+    "allProjects": "Todos los Proyectos",
+    "favorites": "Favoritos",
+    "archived": "Archivados",
+    "tags": "Etiquetas",
+    "accounts": "Cuentas",
+    "addAccount": "Agregar Cuenta",
+    "noAccounts": "No hay cuentas añadidas",
+    "loadingAccounts": "Cargando cuentas...",
+    "managerSubtitle": "Gestor Lovable",
+    "support": "Soporte",
+    "supportHours": "Lun-Vie 8h a 18h",
+    "adminPanel": "Panel Admin",
+    "apiKeys": "API Keys",
+    "settings": "Configuración",
+    "plan": "Plan",
+    "signOut": "Salir"
   }
 }

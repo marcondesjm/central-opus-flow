@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, 
   FolderKanban, 
@@ -78,6 +79,7 @@ export function Sidebar({
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const { data: subscription } = useSubscription();
+  const { t } = useTranslation();
 
   // Fetch profile data and subscribe to realtime updates
   useEffect(() => {
@@ -136,13 +138,13 @@ export function Sidebar({
   const planInfo = planConfig[currentPlan as keyof typeof planConfig];
 
   const topNavItems = [
-    { id: 'all', label: 'Todos os Projetos', icon: LayoutDashboard },
+    { id: 'all', label: t('sidebar.allProjects'), icon: LayoutDashboard },
   ];
 
   const bottomNavItems = [
-    { id: 'favorites', label: 'Favoritos', icon: Star },
-    { id: 'archived', label: 'Arquivados', icon: Archive },
-    { id: 'tags', label: 'Tags', icon: Tag },
+    { id: 'favorites', label: t('sidebar.favorites'), icon: Star },
+    { id: 'archived', label: t('sidebar.archived'), icon: Archive },
+    { id: 'tags', label: t('sidebar.tags'), icon: Tag },
   ];
 
   const handleSignOut = async () => {
@@ -163,7 +165,7 @@ export function Sidebar({
           </div>
           <div>
             <h1 className="font-semibold text-sidebar-foreground text-sm">Central Opus Flow</h1>
-            <p className="text-xs text-muted-foreground">Gerenciador Lovable</p>
+            <p className="text-xs text-muted-foreground">{t('sidebar.managerSubtitle')}</p>
           </div>
         </div>
       </div>
@@ -210,7 +212,7 @@ export function Sidebar({
             >
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Contas</span>
+                <span>{t('sidebar.accounts')}</span>
               </div>
               <div className="flex items-center gap-2">
                 {!isLoading && accounts.length > 0 && (
@@ -233,14 +235,12 @@ export function Sidebar({
             </CollapsibleTrigger>
             <CollapsibleContent id="accounts-list" className="space-y-1 mt-1">
               {isLoading ? (
-                <div className="flex items-center justify-center py-4" role="status" aria-label="Carregando contas">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" aria-hidden="true" />
+                 <div className="flex items-center justify-center py-4" role="status" aria-label={t('sidebar.loadingAccounts')}>
+                   <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" aria-hidden="true" />
                   <span className="sr-only">Carregando contas...</span>
                 </div>
               ) : accounts.length === 0 ? (
-                <p className="text-xs text-muted-foreground px-3 py-2">
-                  Nenhuma conta adicionada
-                </p>
+                 <p className="text-xs text-muted-foreground px-3 py-2">{t('sidebar.noAccounts')}</p>
               ) : (
                 <ul role="list" className="space-y-1">
                   {accounts.map((account) => {
@@ -313,7 +313,7 @@ export function Sidebar({
                 aria-label="Adicionar nova conta"
               >
                 <Plus className="w-4 h-4" aria-hidden="true" />
-                Adicionar Conta
+                {t('sidebar.addAccount')}
               </Button>
             </CollapsibleContent>
           </Collapsible>
@@ -357,7 +357,7 @@ export function Sidebar({
             aria-label="Abrir Blog"
           >
             <BookOpen className="w-4 h-4" aria-hidden="true" />
-            Blog
+            {t('common.blog')}
           </button>
         </div>
       </nav>
@@ -399,7 +399,7 @@ export function Sidebar({
               className={cn("text-xs gap-1 w-fit", planInfo.color)}
             >
               <planInfo.icon className="w-3 h-3" />
-              Plano {planInfo.label}
+              {t('sidebar.plan')} {planInfo.label}
             </Badge>
           </div>
         )}
@@ -414,10 +414,10 @@ export function Sidebar({
         >
           <MessageCircle className="w-4 h-4" aria-hidden="true" />
           <div className="flex flex-col items-start">
-            <span>Suporte</span>
+            <span>{t('sidebar.support')}</span>
             <span className="text-[10px] text-muted-foreground group-hover:text-emerald-600/70 flex items-center gap-1">
               <Clock className="w-2.5 h-2.5" />
-              Seg-Sex 8h às 18h
+              {t('sidebar.supportHours')}
             </span>
           </div>
         </a>
@@ -429,7 +429,7 @@ export function Sidebar({
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-amber-600 hover:text-amber-700 hover:bg-amber-500/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
           >
             <Shield className="w-4 h-4" aria-hidden="true" />
-            Painel Admin
+            {t('sidebar.adminPanel')}
           </button>
         )}
         <button 
@@ -438,7 +438,7 @@ export function Sidebar({
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
         >
           <Key className="w-4 h-4" aria-hidden="true" />
-          API Keys
+          {t('sidebar.apiKeys')}
         </button>
         <button
           onClick={onOpenSettings}
@@ -446,7 +446,7 @@ export function Sidebar({
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
         >
           <Settings className="w-4 h-4" aria-hidden="true" />
-          Configurações
+          {t('sidebar.settings')}
         </button>
         <div className="px-3 py-1">
           <LanguageSwitcher />
@@ -457,7 +457,7 @@ export function Sidebar({
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
         >
           <LogOut className="w-4 h-4" aria-hidden="true" />
-          Sair
+          {t('sidebar.signOut')}
         </button>
       </footer>
     </aside>

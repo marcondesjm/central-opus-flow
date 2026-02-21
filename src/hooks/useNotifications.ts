@@ -101,7 +101,7 @@ export function useNotifications() {
       const welcomeNotification: Notification = {
         id: generateId(),
         title: 'Bem-vindo ao Central Opus Flow! 🎉',
-        message: 'Gerencie todos os seus projetos Lovable em um só lugar. Comece adicionando sua primeira conta.',
+        message: 'Gerencie todos os seus projetos em um só lugar. Comece adicionando sua primeira conta.',
         type: 'info',
         read: false,
         createdAt: new Date(),

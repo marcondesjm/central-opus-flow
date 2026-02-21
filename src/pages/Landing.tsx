@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { DashboardPreview } from '@/components/landing/DashboardPreview';
@@ -17,6 +20,14 @@ import { SocialProofNotification } from '@/components/landing/SocialProofNotific
 import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButton';
 
 export default function Landing() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, loading, navigate]);
   return (
     <div className="min-h-screen bg-background">
       {/* Social Proof Notifications */}

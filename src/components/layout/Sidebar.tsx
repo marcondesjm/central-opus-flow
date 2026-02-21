@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { 
@@ -37,6 +37,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { LovableAccount } from '@/hooks/useProjects';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useBlogPosts } from '@/hooks/useBlog';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,6 +62,43 @@ const accountColorMap: Record<string, string> = {
   rose: 'bg-account-rose',
   violet: 'bg-account-violet',
 };
+
+function BlogSidebarPreview() {
+  const { data: posts } = useBlogPosts('pt');
+  const latestPosts = posts?.slice(0, 3);
+
+  if (!latestPosts || latestPosts.length === 0) return null;
+
+  return (
+    <div className="mt-1 space-y-1 px-1">
+      {latestPosts.map(post => (
+        <Link
+          key={post.id}
+          to={`/blog/${post.slug}`}
+          className="flex items-start gap-2.5 px-2 py-2 rounded-lg hover:bg-sidebar-accent transition-colors group"
+        >
+          {post.cover_image ? (
+            <img
+              src={post.cover_image}
+              alt=""
+              className="w-9 h-9 rounded-md object-cover flex-shrink-0 mt-0.5"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <BookOpen className="w-4 h-4 text-primary" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-sidebar-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+              {post.title}
+            </p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export function Sidebar({ 
   activeView, 
@@ -374,6 +412,9 @@ export function Sidebar({
             <BookOpen className="w-4 h-4" aria-hidden="true" />
             {t('common.blog')}
           </button>
+
+          {/* Blog Posts Preview */}
+          <BlogSidebarPreview />
         </div>
       </nav>
 

@@ -21,6 +21,8 @@ export interface KanbanDeal {
   created_at: string;
   updated_at: string;
   completed_at: string | null;
+  client_email: string | null;
+  client_whatsapp: string | null;
 }
 
 export const PRIORITY_OPTIONS = [
@@ -67,6 +69,8 @@ export function useCreateDeal() {
       assignee_name?: string | null;
       color?: string | null;
       position?: number;
+      client_email?: string | null;
+      client_whatsapp?: string | null;
     }) => {
       const { data, error } = await supabase
         .from('kanban_deals')

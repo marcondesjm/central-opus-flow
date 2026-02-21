@@ -17,6 +17,11 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 // Demo data
 const demoAccounts = [
@@ -30,6 +35,7 @@ const initialProjects = [
     id: '1', name: 'E-commerce Fashion Store',
     description: 'Loja virtual completa com carrinho, checkout e integração Stripe',
     screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
+    url: 'https://example.com/ecommerce',
     status: 'published', progress: 100, isFavorite: true,
     tags: ['E-commerce', 'SaaS'], accountName: 'Trabalho Principal', accountColor: 'blue',
     updatedAt: '2026-02-19',
@@ -38,6 +44,7 @@ const initialProjects = [
     id: '2', name: 'Dashboard Analytics',
     description: 'Painel administrativo com gráficos e relatórios em tempo real',
     screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
+    url: 'https://example.com/dashboard',
     status: 'draft', progress: 65, isFavorite: false,
     tags: ['Dashboard', 'SaaS'], accountName: 'Trabalho Principal', accountColor: 'blue',
     updatedAt: '2026-02-20',
@@ -46,6 +53,7 @@ const initialProjects = [
     id: '3', name: 'Landing Page Startup',
     description: 'Página de captura com formulário e integração com Mailchimp',
     screenshot: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&h=450&fit=crop',
+    url: 'https://example.com/landing',
     status: 'published', progress: 100, isFavorite: true,
     tags: ['Landing Page'], accountName: 'Freelance', accountColor: 'emerald',
     updatedAt: '2026-02-18',
@@ -54,6 +62,7 @@ const initialProjects = [
     id: '4', name: 'Blog Tech News',
     description: 'Blog com CMS integrado e sistema de comentários',
     screenshot: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=450&fit=crop',
+    url: 'https://example.com/blog',
     status: 'published', progress: 100, isFavorite: false,
     tags: ['Blog'], accountName: 'Projetos Pessoais', accountColor: 'amber',
     updatedAt: '2026-02-15',
@@ -62,6 +71,7 @@ const initialProjects = [
     id: '5', name: 'App Gestão de Tarefas',
     description: 'Aplicativo de produtividade com Kanban e notificações',
     screenshot: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=450&fit=crop',
+    url: 'https://example.com/tasks',
     status: 'draft', progress: 35, isFavorite: false,
     tags: ['Dashboard', 'SaaS'], accountName: 'Freelance', accountColor: 'emerald',
     updatedAt: '2026-02-21',
@@ -70,6 +80,7 @@ const initialProjects = [
     id: '6', name: 'Portfolio Designer',
     description: 'Portfolio pessoal com galeria de projetos e animações',
     screenshot: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&h=450&fit=crop',
+    url: 'https://example.com/portfolio',
     status: 'archived', progress: 100, isFavorite: false,
     tags: ['Portfolio'], accountName: 'Projetos Pessoais', accountColor: 'amber',
     updatedAt: '2026-01-10',
@@ -102,6 +113,8 @@ export default function Demo() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingProject, setEditingProject] = useState<typeof initialProjects[0] | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', description: '', url: '' });
   const [notifications] = useState([
     { id: 1, text: 'Projeto "E-commerce" publicado com sucesso', time: 'há 2h' },
     { id: 2, text: 'Novo colaborador adicionado ao projeto "Dashboard"', time: 'há 5h' },
@@ -133,7 +146,7 @@ export default function Demo() {
   const duplicateProject = (id: string) => {
     const project = projects.find(p => p.id === id);
     if (project) {
-      const newProject = { ...project, id: String(Date.now()), name: `${project.name} (Cópia)`, status: 'draft', progress: 0 };
+      const newProject = { ...project, id: String(Date.now()), name: `${project.name} (Cópia)`, status: 'draft', progress: 0, url: project.url };
       setProjects(prev => [newProject, ...prev]);
       toast.success(`"${project.name}" duplicado`);
     }
@@ -408,6 +421,7 @@ export default function Demo() {
                 name: `Novo Projeto ${projects.length + 1}`,
                 description: 'Projeto criado na demonstração',
                 screenshot: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop',
+                url: '',
                 status: 'draft',
                 progress: 0,
                 isFavorite: false,
@@ -543,10 +557,19 @@ export default function Demo() {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => toast.info(`Abrindo "${project.name}"...`)}>
+                          <DropdownMenuItem onClick={() => {
+                            if (project.url) {
+                              window.open(project.url, '_blank');
+                            } else {
+                              toast.info('Nenhuma URL configurada para este projeto.');
+                            }
+                          }}>
                             <ExternalLink className="w-4 h-4 mr-2" /> Abrir Projeto
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.info(`Editando "${project.name}"...`)}>
+                          <DropdownMenuItem onClick={() => {
+                            setEditingProject(project);
+                            setEditForm({ name: project.name, description: project.description, url: project.url });
+                          }}>
                             <Pencil className="w-4 h-4 mr-2" /> Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => duplicateProject(project.id)}>
@@ -655,6 +678,38 @@ export default function Demo() {
         <ArrowLeft className="w-4 h-4 mr-2" />
         Voltar e Criar Conta
       </Button>
+      {/* Edit Project Modal */}
+      <Dialog open={!!editingProject} onOpenChange={(open) => !open && setEditingProject(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Projeto</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome</Label>
+              <Input id="edit-name" value={editForm.name} onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-desc">Descrição</Label>
+              <Textarea id="edit-desc" value={editForm.description} onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))} rows={3} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-url">URL do Projeto</Label>
+              <Input id="edit-url" value={editForm.url} onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))} placeholder="https://" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingProject(null)}>Cancelar</Button>
+            <Button onClick={() => {
+              if (editingProject) {
+                setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, name: editForm.name, description: editForm.description, url: editForm.url } : p));
+                toast.success(`"${editForm.name}" atualizado com sucesso!`);
+                setEditingProject(null);
+              }
+            }}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

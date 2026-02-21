@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2 } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,13 @@ import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationCenter, Notification } from '@/components/notifications/NotificationCenter';
 import { CollaborationNotifications } from '@/components/collaboration/CollaborationNotifications';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +53,7 @@ export function Header({
   onAcceptInvite,
 }: HeaderProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { t } = useTranslation();
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
@@ -230,8 +237,8 @@ export function Header({
 
         {/* User Avatar */}
         {user && (
-          <Tooltip>
-            <TooltipTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Avatar className="w-8 h-8 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
                 {profile?.avatar_url && (
                   <AvatarImage 
@@ -248,11 +255,26 @@ export function Header({
                   )}
                 </AvatarFallback>
               </Avatar>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{profile?.full_name || user.email}</p>
-            </TooltipContent>
-          </Tooltip>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <div className="px-2 py-1.5">
+                <p className="text-sm font-medium">{profile?.full_name || user.email}</p>
+                {profile?.full_name && (
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                )}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2" onClick={() => navigate('/dashboard?settings=profile')}>
+                <UserPen className="w-4 h-4" />
+                {t('header.editProfile', 'Editar Perfil')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive" onClick={() => signOut()}>
+                <LogOut className="w-4 h-4" />
+                {t('header.logout', 'Sair')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
     </header>

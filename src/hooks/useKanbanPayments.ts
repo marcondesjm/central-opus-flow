@@ -3,6 +3,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
+export const PAYMENT_METHODS = [
+  { value: 'pix', label: 'PIX' },
+  { value: 'boleto', label: 'Boleto' },
+  { value: 'cartao', label: 'Cartão' },
+  { value: 'transferencia', label: 'Transferência' },
+  { value: 'dinheiro', label: 'Dinheiro' },
+  { value: 'outro', label: 'Outro' },
+] as const;
+
+export const PAYMENT_CATEGORIES = [
+  { value: 'projeto', label: 'Projeto' },
+  { value: 'manutencao', label: 'Manutenção' },
+  { value: 'consultoria', label: 'Consultoria' },
+  { value: 'recorrente', label: 'Recorrente' },
+  { value: 'outro', label: 'Outro' },
+] as const;
+
 export interface KanbanPayment {
   id: string;
   deal_id: string;
@@ -11,6 +28,8 @@ export interface KanbanPayment {
   payment_date: string;
   status: string;
   description: string | null;
+  payment_method: string;
+  category: string;
   created_at: string;
   updated_at: string;
 }
@@ -37,7 +56,7 @@ export function useCreatePayment() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (payment: { deal_id: string; amount: number; payment_date: string; status: string; description?: string }) => {
+    mutationFn: async (payment: { deal_id: string; amount: number; payment_date: string; status: string; description?: string; payment_method?: string; category?: string }) => {
       const { data, error } = await supabase
         .from('kanban_payments')
         .insert({ ...payment, user_id: user!.id })

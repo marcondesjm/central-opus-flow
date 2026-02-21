@@ -1,22 +1,28 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, DollarSign, TrendingUp, TrendingDown, Receipt,
-  Calendar, Building2, Filter, Download, Loader2, PieChart,
+  ArrowLeft, DollarSign, TrendingUp, Receipt, Plus,
+  Calendar, Building2, Loader2, PieChart, Minus,
   BarChart3, ArrowUpRight, ArrowDownRight, Wallet, CreditCard,
-  Clock, CheckCircle, XCircle,
+  Clock, CheckCircle, XCircle, Trash2, Percent,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useKanbanDeals, KanbanDeal } from '@/hooks/useKanban';
-import { useKanbanPayments, KanbanPayment } from '@/hooks/useKanbanPayments';
+import { useKanbanPayments, useCreatePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
+import { useKanbanExpenses, useCreateExpense, useDeleteExpense, KanbanExpense, EXPENSE_CATEGORIES } from '@/hooks/useKanbanExpenses';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Legend, PieChart as RechartsPie, Pie, Cell,
-  LineChart, Line, Area, AreaChart,
+  Area, AreaChart,
 } from 'recharts';
 import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -37,13 +43,8 @@ const PERIOD_OPTIONS = [
 ];
 
 function StatCard({ title, value, subtitle, icon: Icon, trend, trendValue, className }: {
-  title: string;
-  value: string;
-  subtitle?: string;
-  icon: React.ElementType;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
-  className?: string;
+  title: string; value: string; subtitle?: string; icon: React.ElementType;
+  trend?: 'up' | 'down' | 'neutral'; trendValue?: string; className?: string;
 }) {
   return (
     <Card className={cn("overflow-hidden", className)}>
@@ -69,120 +70,344 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, trendValue, class
   );
 }
 
+// ─── Add Payment Modal ──────────────────────────
+function AddPaymentModal({ open, onOpenChange, deals }: { open: boolean; onOpenChange: (v: boolean) => void; deals: KanbanDeal[] }) {
+  const createPayment = useCreatePayment();
+  const [form, setForm] = useState({
+    deal_id: '',
+    amount: 0,
+    status: 'pendente',
+    description: '',
+    payment_method: 'pix',
+    category: 'projeto',
+    payment_date: undefined as Date | undefined,
+  });
+
+  const handleSubmit = () => {
+    if (!form.deal_id || form.amount <= 0) return;
+    createPayment.mutate({
+      deal_id: form.deal_id,
+      amount: form.amount,
+      status: form.status,
+      description: form.description || undefined,
+      payment_method: form.payment_method,
+      category: form.category,
+      payment_date: form.payment_date ? format(form.payment_date, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+    }, {
+      onSuccess: () => {
+        onOpenChange(false);
+        setForm({ deal_id: '', amount: 0, status: 'pendente', description: '', payment_method: 'pix', category: 'projeto', payment_date: undefined });
+      },
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Novo Pagamento</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Contrato *</Label>
+            <Select value={form.deal_id} onValueChange={v => setForm(f => ({ ...f, deal_id: v }))}>
+              <SelectTrigger><SelectValue placeholder="Selecionar contrato" /></SelectTrigger>
+              <SelectContent>
+                {deals.map(d => (
+                  <SelectItem key={d.id} value={d.id}>{d.company_name} - {d.client_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Valor (R$) *</Label>
+              <Input type="number" min={0} step={0.01} value={form.amount || ''} onChange={e => setForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} />
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pago">Pago</SelectItem>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Forma de Pagamento</Label>
+              <Select value={form.payment_method} onValueChange={v => setForm(f => ({ ...f, payment_method: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Categoria</Label>
+              <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Data</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !form.payment_date && 'text-muted-foreground')}>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {form.payment_date ? format(form.payment_date, 'dd/MM/yyyy') : 'Hoje'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent mode="single" selected={form.payment_date} onSelect={d => setForm(f => ({ ...f, payment_date: d }))} className="p-3 pointer-events-auto" />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Input placeholder="Opcional" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit} disabled={createPayment.isPending || !form.deal_id || form.amount <= 0}>
+            {createPayment.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Registrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Add Expense Modal ──────────────────────────
+function AddExpenseModal({ open, onOpenChange, deals }: { open: boolean; onOpenChange: (v: boolean) => void; deals: KanbanDeal[] }) {
+  const createExpense = useCreateExpense();
+  const [form, setForm] = useState({
+    deal_id: '' as string,
+    amount: 0,
+    description: '',
+    category: 'geral',
+    expense_date: undefined as Date | undefined,
+  });
+
+  const handleSubmit = () => {
+    if (form.amount <= 0) return;
+    createExpense.mutate({
+      deal_id: form.deal_id || null,
+      amount: form.amount,
+      description: form.description || undefined,
+      category: form.category,
+      expense_date: form.expense_date ? format(form.expense_date, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+    }, {
+      onSuccess: () => {
+        onOpenChange(false);
+        setForm({ deal_id: '', amount: 0, description: '', category: 'geral', expense_date: undefined });
+      },
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Nova Despesa</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Contrato (opcional)</Label>
+            <Select value={form.deal_id} onValueChange={v => setForm(f => ({ ...f, deal_id: v }))}>
+              <SelectTrigger><SelectValue placeholder="Geral (sem contrato)" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Geral (sem contrato)</SelectItem>
+                {deals.map(d => (
+                  <SelectItem key={d.id} value={d.id}>{d.company_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Valor (R$) *</Label>
+              <Input type="number" min={0} step={0.01} value={form.amount || ''} onChange={e => setForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} />
+            </div>
+            <div>
+              <Label>Categoria</Label>
+              <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Data</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !form.expense_date && 'text-muted-foreground')}>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {form.expense_date ? format(form.expense_date, 'dd/MM/yyyy') : 'Hoje'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent mode="single" selected={form.expense_date} onSelect={d => setForm(f => ({ ...f, expense_date: d }))} className="p-3 pointer-events-auto" />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Input placeholder="Opcional" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit} disabled={createExpense.isPending || form.amount <= 0}>
+            {createExpense.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Registrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function BillingPage() {
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: allPayments, isLoading: paymentsLoading } = useKanbanPayments();
+  const { data: allExpenses, isLoading: expensesLoading } = useKanbanExpenses();
+  const deleteExpense = useDeleteExpense();
   const navigate = useNavigate();
   const [period, setPeriod] = useState('3');
   const [activeTab, setActiveTab] = useState('overview');
+  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [showAddExpense, setShowAddExpense] = useState(false);
 
-  const isLoading = dealsLoading || paymentsLoading;
+  const isLoading = dealsLoading || paymentsLoading || expensesLoading;
 
   // Filter payments by period
   const filteredPayments = useMemo(() => {
     if (!allPayments) return [];
     if (period === 'all') return allPayments;
-
     const months = parseInt(period);
     const startDate = startOfMonth(subMonths(new Date(), months));
-    return allPayments.filter(p => {
-      const paymentDate = parseISO(p.payment_date);
-      return paymentDate >= startDate;
-    });
+    return allPayments.filter(p => parseISO(p.payment_date) >= startDate);
   }, [allPayments, period]);
+
+  // Filter expenses by period
+  const filteredExpenses = useMemo(() => {
+    if (!allExpenses) return [];
+    if (period === 'all') return allExpenses;
+    const months = parseInt(period);
+    const startDate = startOfMonth(subMonths(new Date(), months));
+    return allExpenses.filter(e => parseISO(e.expense_date) >= startDate);
+  }, [allExpenses, period]);
 
   // Calculate financial metrics
   const metrics = useMemo(() => {
-    const payments = filteredPayments;
     const totalRevenue = deals?.reduce((sum, d) => sum + Number(d.revenue || 0), 0) || 0;
-    const totalPago = payments.filter(p => p.status === 'pago').reduce((sum, p) => sum + Number(p.amount), 0);
-    const totalPendente = payments.filter(p => p.status === 'pendente').reduce((sum, p) => sum + Number(p.amount), 0);
-    const totalCancelado = payments.filter(p => p.status === 'cancelado').reduce((sum, p) => sum + Number(p.amount), 0);
-    const totalPayments = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+    const totalPago = filteredPayments.filter(p => p.status === 'pago').reduce((sum, p) => sum + Number(p.amount), 0);
+    const totalPendente = filteredPayments.filter(p => p.status === 'pendente').reduce((sum, p) => sum + Number(p.amount), 0);
+    const totalCancelado = filteredPayments.filter(p => p.status === 'cancelado').reduce((sum, p) => sum + Number(p.amount), 0);
+    const totalDespesas = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    const lucroLiquido = totalPago - totalDespesas;
+    const margem = totalPago > 0 ? (lucroLiquido / totalPago) * 100 : 0;
 
-    // Calculate previous period for trend
+    // Trend vs previous period
     const months = period === 'all' ? 12 : parseInt(period);
     const prevStart = startOfMonth(subMonths(new Date(), months * 2));
     const prevEnd = startOfMonth(subMonths(new Date(), months));
-    const prevPayments = (allPayments || []).filter(p => {
+    const prevPago = (allPayments || []).filter(p => {
       const d = parseISO(p.payment_date);
-      return d >= prevStart && d < prevEnd;
-    });
-    const prevPago = prevPayments.filter(p => p.status === 'pago').reduce((sum, p) => sum + Number(p.amount), 0);
+      return d >= prevStart && d < prevEnd && p.status === 'pago';
+    }).reduce((sum, p) => sum + Number(p.amount), 0);
     const trendPercentage = prevPago > 0 ? ((totalPago - prevPago) / prevPago * 100).toFixed(1) : null;
 
-    return {
-      totalRevenue,
-      totalPago,
-      totalPendente,
-      totalCancelado,
-      totalPayments,
-      paymentCount: payments.length,
-      dealCount: deals?.length || 0,
-      avgTicket: payments.length > 0 ? totalPago / payments.filter(p => p.status === 'pago').length : 0,
-      trendPercentage,
-    };
-  }, [filteredPayments, deals, allPayments, period]);
+    // Projection: average monthly revenue * next 3 months
+    const monthlyAvg = months > 0 ? totalPago / months : 0;
+    const projecao3m = monthlyAvg * 3 + totalPendente;
 
-  // Monthly revenue chart data
+    return {
+      totalRevenue, totalPago, totalPendente, totalCancelado, totalDespesas,
+      lucroLiquido, margem, trendPercentage, projecao3m,
+      paymentCount: filteredPayments.length,
+      dealCount: deals?.length || 0,
+      avgTicket: filteredPayments.filter(p => p.status === 'pago').length > 0
+        ? totalPago / filteredPayments.filter(p => p.status === 'pago').length : 0,
+    };
+  }, [filteredPayments, filteredExpenses, deals, allPayments, period]);
+
+  // Monthly chart data
   const monthlyData = useMemo(() => {
     const months = period === 'all' ? 12 : parseInt(period);
-    const data: { month: string; receita: number; pendente: number; cancelado: number }[] = [];
-
+    const data: { month: string; receita: number; despesas: number; lucro: number; pendente: number }[] = [];
     for (let i = months - 1; i >= 0; i--) {
       const date = subMonths(new Date(), i);
-      const monthStart = startOfMonth(date);
-      const monthEnd = endOfMonth(date);
-      const monthLabel = format(date, 'MMM/yy', { locale: ptBR });
-
-      const monthPayments = filteredPayments.filter(p => {
-        const d = parseISO(p.payment_date);
-        return isWithinInterval(d, { start: monthStart, end: monthEnd });
-      });
-
+      const mStart = startOfMonth(date);
+      const mEnd = endOfMonth(date);
+      const label = format(date, 'MMM/yy', { locale: ptBR });
+      const mPayments = filteredPayments.filter(p => isWithinInterval(parseISO(p.payment_date), { start: mStart, end: mEnd }));
+      const mExpenses = filteredExpenses.filter(e => isWithinInterval(parseISO(e.expense_date), { start: mStart, end: mEnd }));
+      const rec = mPayments.filter(p => p.status === 'pago').reduce((s, p) => s + Number(p.amount), 0);
+      const desp = mExpenses.reduce((s, e) => s + Number(e.amount), 0);
       data.push({
-        month: monthLabel,
-        receita: monthPayments.filter(p => p.status === 'pago').reduce((s, p) => s + Number(p.amount), 0),
-        pendente: monthPayments.filter(p => p.status === 'pendente').reduce((s, p) => s + Number(p.amount), 0),
-        cancelado: monthPayments.filter(p => p.status === 'cancelado').reduce((s, p) => s + Number(p.amount), 0),
+        month: label,
+        receita: rec,
+        despesas: desp,
+        lucro: rec - desp,
+        pendente: mPayments.filter(p => p.status === 'pendente').reduce((s, p) => s + Number(p.amount), 0),
       });
     }
     return data;
-  }, [filteredPayments, period]);
+  }, [filteredPayments, filteredExpenses, period]);
 
-  // Revenue by client
+  // Client data
   const clientData = useMemo(() => {
     if (!deals || !filteredPayments) return [];
-    const clientMap: Record<string, { name: string; receita: number; pendente: number }> = {};
-
+    const clientMap: Record<string, { name: string; receita: number; pendente: number; despesas: number }> = {};
     filteredPayments.forEach(payment => {
       const deal = deals.find(d => d.id === payment.deal_id);
       if (!deal) return;
-      const name = deal.company_name;
-      if (!clientMap[name]) clientMap[name] = { name, receita: 0, pendente: 0 };
-      if (payment.status === 'pago') clientMap[name].receita += Number(payment.amount);
-      if (payment.status === 'pendente') clientMap[name].pendente += Number(payment.amount);
+      if (!clientMap[deal.company_name]) clientMap[deal.company_name] = { name: deal.company_name, receita: 0, pendente: 0, despesas: 0 };
+      if (payment.status === 'pago') clientMap[deal.company_name].receita += Number(payment.amount);
+      if (payment.status === 'pendente') clientMap[deal.company_name].pendente += Number(payment.amount);
     });
-
+    filteredExpenses.forEach(expense => {
+      if (!expense.deal_id) return;
+      const deal = deals.find(d => d.id === expense.deal_id);
+      if (!deal || !clientMap[deal.company_name]) return;
+      clientMap[deal.company_name].despesas += Number(expense.amount);
+    });
     return Object.values(clientMap).sort((a, b) => (b.receita + b.pendente) - (a.receita + a.pendente)).slice(0, 10);
-  }, [deals, filteredPayments]);
+  }, [deals, filteredPayments, filteredExpenses]);
 
-  // Pie chart data
+  // Pie data
   const statusPieData = useMemo(() => [
     { name: 'Pago', value: metrics.totalPago, color: '#10b981' },
     { name: 'Pendente', value: metrics.totalPendente, color: '#f59e0b' },
+    { name: 'Despesas', value: metrics.totalDespesas, color: '#8b5cf6' },
     { name: 'Cancelado', value: metrics.totalCancelado, color: '#ef4444' },
   ].filter(d => d.value > 0), [metrics]);
 
-  // Revenue by deal phase
-  const phaseData = useMemo(() => {
-    if (!deals) return [];
-    const phaseMap: Record<string, number> = {};
-    deals.forEach(d => {
-      phaseMap[d.phase] = (phaseMap[d.phase] || 0) + Number(d.revenue || 0);
+  // Payment method breakdown
+  const methodData = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredPayments.filter(p => p.status === 'pago').forEach(p => {
+      const method = (p as any).payment_method || 'pix';
+      map[method] = (map[method] || 0) + Number(p.amount);
     });
-    return Object.entries(phaseMap).map(([phase, value]) => ({ phase, value })).filter(d => d.value > 0);
-  }, [deals]);
+    return Object.entries(map).map(([method, value]) => ({
+      method: PAYMENT_METHODS.find(m => m.value === method)?.label || method,
+      value,
+    }));
+  }, [filteredPayments]);
 
   const formatCurrency = (val: number) => `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
@@ -209,20 +434,26 @@ export default function BillingPage() {
                 Faturamento
               </h1>
               <p className="text-xs text-muted-foreground">
-                {metrics.dealCount} contratos · {metrics.paymentCount} pagamentos registrados
+                {metrics.dealCount} contratos · {metrics.paymentCount} pagamentos
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setShowAddExpense(true)} className="gap-1.5">
+              <Minus className="w-4 h-4" />
+              <span className="hidden sm:inline">Despesa</span>
+            </Button>
+            <Button size="sm" onClick={() => setShowAddPayment(true)} className="gap-1.5">
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Pagamento</span>
+            </Button>
             <Select value={period} onValueChange={setPeriod}>
               <SelectTrigger className="w-44 h-8 text-xs">
                 <Calendar className="w-3.5 h-3.5 mr-1" />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PERIOD_OPTIONS.map(p => (
-                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                ))}
+                {PERIOD_OPTIONS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -230,34 +461,48 @@ export default function BillingPage() {
       </header>
 
       <div className="max-w-[1400px] mx-auto px-4 py-6 space-y-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Stats Cards - 6 cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <StatCard
-            title="Receita Total"
+            title="Receita"
             value={formatCurrency(metrics.totalPago)}
-            subtitle={`${metrics.paymentCount} pagamentos confirmados`}
+            subtitle={`${filteredPayments.filter(p => p.status === 'pago').length} pagos`}
             icon={TrendingUp}
             trend={metrics.trendPercentage ? (parseFloat(metrics.trendPercentage) >= 0 ? 'up' : 'down') : 'neutral'}
-            trendValue={metrics.trendPercentage ? `${metrics.trendPercentage}% vs período anterior` : undefined}
+            trendValue={metrics.trendPercentage ? `${metrics.trendPercentage}%` : undefined}
+          />
+          <StatCard
+            title="Despesas"
+            value={formatCurrency(metrics.totalDespesas)}
+            subtitle={`${filteredExpenses.length} registros`}
+            icon={Minus}
+            trend="down"
+          />
+          <StatCard
+            title="Lucro Líquido"
+            value={formatCurrency(metrics.lucroLiquido)}
+            subtitle="Receita - Despesas"
+            icon={DollarSign}
+            trend={metrics.lucroLiquido >= 0 ? 'up' : 'down'}
+          />
+          <StatCard
+            title="Margem"
+            value={`${metrics.margem.toFixed(1)}%`}
+            subtitle="Lucro / Receita"
+            icon={Percent}
+            trend={metrics.margem >= 30 ? 'up' : metrics.margem >= 0 ? 'neutral' : 'down'}
           />
           <StatCard
             title="Pendente"
             value={formatCurrency(metrics.totalPendente)}
-            subtitle="Aguardando pagamento"
+            subtitle="A receber"
             icon={Clock}
             trend="neutral"
           />
           <StatCard
-            title="Ticket Médio"
-            value={formatCurrency(metrics.avgTicket)}
-            subtitle="Por pagamento"
-            icon={Wallet}
-            trend="neutral"
-          />
-          <StatCard
-            title="Valor dos Contratos"
-            value={formatCurrency(metrics.totalRevenue)}
-            subtitle={`${metrics.dealCount} contratos ativos`}
+            title="Projeção 3m"
+            value={formatCurrency(metrics.projecao3m)}
+            subtitle="Estimativa futura"
             icon={CreditCard}
             trend="up"
           />
@@ -268,18 +513,18 @@ export default function BillingPage() {
           <TabsList>
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="clients">Por Cliente</TabsTrigger>
+            <TabsTrigger value="expenses">Despesas</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4 mt-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Monthly Revenue Chart */}
               <Card className="lg:col-span-2">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
                     <BarChart3 className="w-4 h-4" />
-                    Receita Mensal
+                    Receita vs Despesas Mensal
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -291,6 +536,10 @@ export default function BillingPage() {
                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
                             <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                           </linearGradient>
+                          <linearGradient id="despesas-fill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                          </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                         <XAxis dataKey="month" tick={{ fontSize: 11 }} />
@@ -298,62 +547,85 @@ export default function BillingPage() {
                         <Tooltip formatter={(value: number) => formatCurrency(value)} />
                         <Legend />
                         <Area type="monotone" dataKey="receita" name="Receita" stroke="#10b981" fill="url(#receita-fill)" strokeWidth={2} />
-                        <Bar dataKey="pendente" name="Pendente" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="cancelado" name="Cancelado" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                        <Area type="monotone" dataKey="despesas" name="Despesas" stroke="#8b5cf6" fill="url(#despesas-fill)" strokeWidth={2} />
+                        <Bar dataKey="lucro" name="Lucro" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-12">Nenhum dado para o período selecionado</p>
+                    <p className="text-sm text-muted-foreground text-center py-12">Nenhum dado para o período</p>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Status Distribution */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <PieChart className="w-4 h-4" />
-                    Distribuição por Status
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {statusPieData.length > 0 ? (
-                    <>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <RechartsPie>
-                          <Pie
-                            data={statusPieData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={80}
-                            paddingAngle={3}
-                            dataKey="value"
-                          >
-                            {statusPieData.map((entry, index) => (
-                              <Cell key={index} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                        </RechartsPie>
-                      </ResponsiveContainer>
-                      <div className="space-y-2 mt-2">
-                        {statusPieData.map(item => (
-                          <div key={item.name} className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2">
-                              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                              <span className="text-muted-foreground">{item.name}</span>
+              <div className="space-y-4">
+                {/* Status Pie */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                      <PieChart className="w-4 h-4" />
+                      Distribuição
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {statusPieData.length > 0 ? (
+                      <>
+                        <ResponsiveContainer width="100%" height={160}>
+                          <RechartsPie>
+                            <Pie data={statusPieData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value">
+                              {statusPieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                            </Pie>
+                            <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                          </RechartsPie>
+                        </ResponsiveContainer>
+                        <div className="space-y-1.5 mt-2">
+                          {statusPieData.map(item => (
+                            <div key={item.name} className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                                <span className="text-muted-foreground">{item.name}</span>
+                              </div>
+                              <span className="font-medium">{formatCurrency(item.value)}</span>
                             </div>
-                            <span className="font-medium">{formatCurrency(item.value)}</span>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">Sem dados</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Payment Methods */}
+                {methodData.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Wallet className="w-4 h-4" />
+                        Por Forma de Pagamento
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {methodData.map(m => {
+                          const total = methodData.reduce((s, x) => s + x.value, 0);
+                          const pct = total > 0 ? (m.value / total * 100) : 0;
+                          return (
+                            <div key={m.method} className="space-y-1">
+                              <div className="flex justify-between text-xs">
+                                <span className="text-muted-foreground">{m.method}</span>
+                                <span className="font-medium">{formatCurrency(m.value)} ({pct.toFixed(0)}%)</span>
+                              </div>
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-12">Nenhum pagamento registrado</p>
-                  )}
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
           </TabsContent>
 
@@ -378,30 +650,78 @@ export default function BillingPage() {
                         <Legend />
                         <Bar dataKey="receita" name="Pago" fill="#10b981" radius={[0, 4, 4, 0]} />
                         <Bar dataKey="pendente" name="Pendente" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+                        <Bar dataKey="despesas" name="Despesas" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
-
-                    {/* Client table */}
                     <div className="mt-4 border rounded-lg overflow-hidden">
-                      <div className="grid grid-cols-[2fr,1fr,1fr,1fr] gap-4 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                      <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
                         <span>Cliente</span>
                         <span className="text-right">Pago</span>
                         <span className="text-right">Pendente</span>
-                        <span className="text-right">Total</span>
+                        <span className="text-right">Despesas</span>
+                        <span className="text-right">Lucro</span>
                       </div>
                       {clientData.map(client => (
-                        <div key={client.name} className="grid grid-cols-[2fr,1fr,1fr,1fr] gap-4 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30">
+                        <div key={client.name} className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30">
                           <span className="font-medium truncate">{client.name}</span>
                           <span className="text-right text-emerald-600">{formatCurrency(client.receita)}</span>
                           <span className="text-right text-amber-600">{formatCurrency(client.pendente)}</span>
-                          <span className="text-right font-semibold">{formatCurrency(client.receita + client.pendente)}</span>
+                          <span className="text-right text-violet-600">{formatCurrency(client.despesas)}</span>
+                          <span className={cn('text-right font-semibold', (client.receita - client.despesas) >= 0 ? 'text-emerald-600' : 'text-destructive')}>
+                            {formatCurrency(client.receita - client.despesas)}
+                          </span>
                         </div>
                       ))}
                     </div>
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-12">Nenhum pagamento registrado por cliente</p>
+                  <p className="text-sm text-muted-foreground text-center py-12">Nenhum dado por cliente</p>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Expenses Tab */}
+          <TabsContent value="expenses" className="mt-4">
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Minus className="w-4 h-4" />
+                  Despesas ({filteredExpenses.length})
+                </CardTitle>
+                <Button size="sm" variant="outline" onClick={() => setShowAddExpense(true)} className="gap-1.5">
+                  <Plus className="w-3.5 h-3.5" />
+                  Adicionar
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="grid grid-cols-[1fr,1.5fr,1fr,1fr,60px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                    <span>Data</span>
+                    <span>Descrição</span>
+                    <span>Categoria</span>
+                    <span className="text-right">Valor</span>
+                    <span />
+                  </div>
+                  {filteredExpenses.length > 0 ? (
+                    filteredExpenses.map(expense => {
+                      const cat = EXPENSE_CATEGORIES.find(c => c.value === expense.category);
+                      return (
+                        <div key={expense.id} className="grid grid-cols-[1fr,1.5fr,1fr,1fr,60px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                          <span className="text-muted-foreground">{format(parseISO(expense.expense_date), 'dd/MM/yyyy')}</span>
+                          <span className="truncate">{expense.description || '—'}</span>
+                          <Badge variant="secondary" className="text-[10px] w-fit">{cat?.label || expense.category}</Badge>
+                          <span className="text-right font-semibold text-violet-600">{formatCurrency(Number(expense.amount))}</span>
+                          <button onClick={() => deleteExpense.mutate(expense.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-12">Nenhuma despesa registrada</p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -409,18 +729,23 @@ export default function BillingPage() {
           {/* History Tab */}
           <TabsContent value="history" className="mt-4">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <Receipt className="w-4 h-4" />
                   Histórico de Pagamentos
                 </CardTitle>
+                <Button size="sm" onClick={() => setShowAddPayment(true)} className="gap-1.5">
+                  <Plus className="w-3.5 h-3.5" />
+                  Adicionar
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-[1fr,1.5fr,1fr,1fr,100px] gap-4 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                  <div className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
                     <span>Data</span>
                     <span>Contrato</span>
                     <span>Descrição</span>
+                    <span>Método</span>
                     <span className="text-right">Valor</span>
                     <span className="text-center">Status</span>
                   </div>
@@ -429,13 +754,17 @@ export default function BillingPage() {
                       const deal = deals?.find(d => d.id === payment.deal_id);
                       const statusConf = STATUS_CONFIG[payment.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pendente;
                       const StatusIcon = statusConf.icon;
+                      const method = PAYMENT_METHODS.find(m => m.value === (payment as any).payment_method);
 
                       return (
-                        <div key={payment.id} className="grid grid-cols-[1fr,1.5fr,1fr,1fr,100px] gap-4 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                        <div key={payment.id} className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
                           <span className="text-muted-foreground">{format(parseISO(payment.payment_date), 'dd/MM/yyyy')}</span>
                           <span className="font-medium truncate">{deal?.company_name || '—'}</span>
                           <span className="text-muted-foreground truncate">{payment.description || '—'}</span>
-                          <span className={cn('text-right font-semibold', payment.status === 'pago' ? 'text-emerald-600' : payment.status === 'cancelado' ? 'text-destructive' : '')}>{formatCurrency(Number(payment.amount))}</span>
+                          <span className="text-xs text-muted-foreground">{method?.label || '—'}</span>
+                          <span className={cn('text-right font-semibold', payment.status === 'pago' ? 'text-emerald-600' : payment.status === 'cancelado' ? 'text-destructive' : '')}>
+                            {formatCurrency(Number(payment.amount))}
+                          </span>
                           <div className="flex justify-center">
                             <Badge variant="outline" className={cn('text-[10px]', statusConf.bg, statusConf.color)}>
                               <StatusIcon className="w-3 h-3 mr-1" />
@@ -454,6 +783,10 @@ export default function BillingPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modals */}
+      {showAddPayment && deals && <AddPaymentModal open={showAddPayment} onOpenChange={setShowAddPayment} deals={deals} />}
+      {showAddExpense && deals && <AddExpenseModal open={showAddExpense} onOpenChange={setShowAddExpense} deals={deals} />}
     </div>
   );
 }

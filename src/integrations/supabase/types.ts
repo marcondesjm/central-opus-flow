@@ -261,6 +261,8 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          attachment_name: string | null
+          attachment_url: string | null
           author_id: string
           category_id: string | null
           content: string
@@ -278,6 +280,8 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           author_id: string
           category_id?: string | null
           content: string
@@ -295,6 +299,8 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           author_id?: string
           category_id?: string | null
           content?: string

@@ -986,6 +986,7 @@ export type Database = {
           payment_verified_by: string | null
           plan: Database["public"]["Enums"]["subscription_plan"]
           started_at: string
+          subscription_type: string
           trial_ends_at: string | null
           trial_started_at: string | null
           updated_at: string
@@ -1006,6 +1007,7 @@ export type Database = {
           payment_verified_by?: string | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
           started_at?: string
+          subscription_type?: string
           trial_ends_at?: string | null
           trial_started_at?: string | null
           updated_at?: string
@@ -1026,6 +1028,7 @@ export type Database = {
           payment_verified_by?: string | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
           started_at?: string
+          subscription_type?: string
           trial_ends_at?: string | null
           trial_started_at?: string | null
           updated_at?: string
@@ -1128,6 +1131,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"] | null
           subscription_expires_at: string | null
           subscription_started_at: string | null
+          subscription_type: string | null
           trial_ends_at: string | null
           user_id: string | null
           user_status: string | null

@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Search, Calendar, Eye, Tag, ArrowRight, FolderKanban } from 'lucide-react';
+import { Search, Calendar, Eye, Tag, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ export default function Blog() {
   const { t, i18n } = useTranslation();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentLocale = i18n.language?.substring(0, 2) || 'pt';
   const { data: posts, isLoading } = useBlogPosts(currentLocale, undefined, search || undefined);
@@ -29,26 +31,124 @@ export default function Blog() {
     return posts.filter(p => p.blog_categories?.slug === selectedCategory);
   }, [posts, selectedCategory]);
 
-  const featuredPost = filteredPosts[0];
-  const otherPosts = filteredPosts.slice(1);
+  // Featured posts for carousel (up to 6)
+  const featuredPosts = filteredPosts.slice(0, 6);
+  const otherPosts = filteredPosts.slice(6);
+
+  // Carousel: show 2 at a time on desktop
+  const maxIndex = Math.max(0, featuredPosts.length - 2);
+
+  const scrollTo = (index: number) => {
+    const clamped = Math.max(0, Math.min(index, maxIndex));
+    setCarouselIndex(clamped);
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.scrollWidth / featuredPosts.length;
+      scrollRef.current.scrollTo({ left: cardWidth * clamped, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <LandingHeader />
 
-      <section className="pt-32 pb-12 px-4">
-        <div className="container mx-auto max-w-5xl">
+      <section className="pt-28 pb-6 px-4">
+        <div className="container mx-auto max-w-6xl">
+          {/* Hero Header - left aligned */}
           <motion.div
-            className="text-center mb-10"
+            className="mb-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">{t('blog.title')}</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t('blog.subtitle')}</p>
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
+              {t('blog.badge', 'Central de Conhecimento')}
+            </p>
+            <h1 className="text-3xl md:text-5xl font-bold mb-3">
+              Domine o <span className="text-primary">Lovable</span> e crie apps incríveis
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-2xl">
+              {t('blog.subtitle')}
+            </p>
           </motion.div>
 
+          {/* Featured Carousel */}
+          {!isLoading && featuredPosts.length > 0 && (
+            <div className="relative mb-12">
+              {/* Nav arrows */}
+              {featuredPosts.length > 2 && (
+                <>
+                  <button
+                    onClick={() => scrollTo(carouselIndex - 1)}
+                    disabled={carouselIndex === 0}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-accent transition-colors disabled:opacity-30"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => scrollTo(carouselIndex + 1)}
+                    disabled={carouselIndex >= maxIndex}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-accent transition-colors disabled:opacity-30"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
+              {/* Carousel track */}
+              <div
+                ref={scrollRef}
+                className="flex gap-6 overflow-hidden scroll-smooth"
+              >
+                {featuredPosts.map((post) => (
+                  <Link
+                    key={post.id}
+                    to={`/blog/${post.slug}`}
+                    className="group flex-shrink-0 w-full md:w-[calc(50%-12px)]"
+                  >
+                    {/* Cover image card */}
+                    <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-muted border border-border">
+                      {post.cover_image ? (
+                        <img
+                          src={post.cover_image}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                          <span className="text-4xl font-bold text-primary/30">{post.title.charAt(0)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Excerpt below */}
+                    <p className="mt-3 text-sm text-muted-foreground line-clamp-2 group-hover:text-foreground transition-colors px-1">
+                      {post.excerpt || post.title}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Dots */}
+              {featuredPosts.length > 2 && (
+                <div className="flex items-center justify-center gap-2 mt-6">
+                  {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => scrollTo(i)}
+                      className={`rounded-full transition-all ${
+                        i === carouselIndex
+                          ? 'w-6 h-2.5 bg-primary'
+                          : 'w-2.5 h-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Search + Categories */}
-          <div className="flex flex-col md:flex-row gap-4 mb-10">
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -87,57 +187,6 @@ export default function Blog() {
             <div className="text-center py-20">
               <p className="text-muted-foreground text-lg">{t('blog.noPosts')}</p>
             </div>
-          )}
-
-          {/* Featured Post */}
-          {featuredPost && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Link to={`/blog/${featuredPost.slug}`} className="block group mb-12">
-                <div className="relative rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/50 transition-colors">
-                  {featuredPost.cover_image && (
-                    <div className="aspect-[2/1] overflow-hidden">
-                      <img
-                        src={featuredPost.cover_image}
-                        alt={featuredPost.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-                  <div className="p-6 md:p-8">
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      {featuredPost.blog_categories && (
-                        <Badge variant="secondary">{featuredPost.blog_categories.name}</Badge>
-                      )}
-                      {featuredPost.tags?.map(tag => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          <Tag className="w-3 h-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-bold mb-3 group-hover:text-primary transition-colors">
-                      {featuredPost.title}
-                    </h2>
-                    <p className="text-muted-foreground mb-4 line-clamp-2">{featuredPost.excerpt}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {featuredPost.published_at && format(new Date(featuredPost.published_at), 'dd MMM yyyy', { locale: dateLocales[currentLocale] || ptBR })}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {featuredPost.views_count} {t('blog.views')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
           )}
 
           {/* Other Posts Grid */}

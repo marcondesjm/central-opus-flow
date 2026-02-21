@@ -2,14 +2,18 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy, Send } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useBlogPost } from '@/hooks/useBlog';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { Footer } from '@/components/landing/Footer';
+import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS, es, fr, de, type Locale } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -58,6 +62,9 @@ export default function BlogPost() {
   const [avgRating] = useState(5);
   const [ratingCount] = useState(2);
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [suggestionForm, setSuggestionForm] = useState({ title: '', description: '', email: '' });
+  const [sendingSuggestion, setSendingSuggestion] = useState(false);
 
   // Generate markdown content from the blog post content for the attachment preview
   const attachmentMarkdownContent = useMemo(() => {
@@ -101,6 +108,37 @@ export default function BlogPost() {
   const handleRemoveRating = () => {
     setUserRating(0);
     toast.info('Avaliação removida.');
+  };
+
+  const handleSendSuggestion = async () => {
+    if (!suggestionForm.title.trim()) {
+      toast.error('Preencha o título da sugestão.');
+      return;
+    }
+    if (!suggestionForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(suggestionForm.email)) {
+      toast.error('Informe um email válido.');
+      return;
+    }
+    setSendingSuggestion(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-suggestion', {
+        body: {
+          title: suggestionForm.title.trim(),
+          description: suggestionForm.description.trim(),
+          email: suggestionForm.email.trim(),
+          postTitle: post?.title,
+          postSlug: slug,
+        },
+      });
+      if (error) throw error;
+      toast.success('Sugestão enviada com sucesso!', { description: 'Obrigado pelo seu feedback!' });
+      setSuggestionForm({ title: '', description: '', email: '' });
+      setShowSuggestionModal(false);
+    } catch (err: any) {
+      toast.error('Erro ao enviar sugestão.', { description: err.message });
+    } finally {
+      setSendingSuggestion(false);
+    }
   };
 
   if (isLoading) {
@@ -365,7 +403,7 @@ export default function BlogPost() {
           {/* Suggestion / Feedback Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Card className="flex-1 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer group"
-              onClick={() => toast.info('Obrigado!', { description: 'Sua sugestão será analisada.' })}>
+              onClick={() => setShowSuggestionModal(true)}>
               <CardContent className="p-4 flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                   <Lightbulb className="w-5 h-5 text-primary" />
@@ -378,7 +416,7 @@ export default function BlogPost() {
             </Card>
 
             <Card className="flex-1 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer group"
-              onClick={() => toast.info('Obrigado!', { description: 'Entraremos em contato em breve.' })}>
+              onClick={() => setShowSuggestionModal(true)}>
               <CardContent className="p-4 flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                   <MessageSquare className="w-5 h-5 text-primary" />
@@ -390,6 +428,61 @@ export default function BlogPost() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Suggestion Modal */}
+          <Dialog open={showSuggestionModal} onOpenChange={setShowSuggestionModal}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-primary" />
+                  Envie sua Sugestão
+                </DialogTitle>
+                <p className="text-sm text-muted-foreground">
+                  Tem uma ideia de conteúdo ou melhorias? Adoraríamos ouvir você!
+                </p>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Título da Sugestão <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={suggestionForm.title}
+                    onChange={e => setSuggestionForm(p => ({ ...p, title: e.target.value }))}
+                    placeholder={`Sugestão sobre: ${post?.title || ''}`}
+                    maxLength={200}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Descrição</Label>
+                  <Textarea
+                    value={suggestionForm.description}
+                    onChange={e => setSuggestionForm(p => ({ ...p, description: e.target.value }))}
+                    placeholder="Descreva sua sugestão com mais detalhes (opcional)"
+                    rows={4}
+                    maxLength={2000}
+                  />
+                  <p className="text-xs text-muted-foreground">Máximo de 2000 caracteres</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Seu Email <span className="text-destructive">*</span></Label>
+                  <Input
+                    type="email"
+                    value={suggestionForm.email}
+                    onChange={e => setSuggestionForm(p => ({ ...p, email: e.target.value }))}
+                    placeholder="seu@email.com"
+                  />
+                  <p className="text-xs text-muted-foreground">Usado apenas para notificá-lo sobre atualizações</p>
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={handleSendSuggestion}
+                  disabled={sendingSuggestion}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  {sendingSuggestion ? 'Enviando...' : 'Enviar Sugestão'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Back to blog */}
           <div className="mt-10 pt-8 border-t border-border">

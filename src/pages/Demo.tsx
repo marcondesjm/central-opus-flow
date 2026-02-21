@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FolderKanban, Star, Archive, LayoutDashboard, Tag, Plus,
@@ -278,14 +278,37 @@ function DemoCharts({ projects }: { projects: typeof initialProjects }) {
   );
 }
 
+function loadFromStorage<T>(key: string, fallback: T): T {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function usePersistentState<T>(key: string, fallback: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [state, setState] = useState<T>(() => loadFromStorage(key, fallback));
+  
+  const setPersistent: React.Dispatch<React.SetStateAction<T>> = useCallback((value) => {
+    setState(prev => {
+      const next = typeof value === 'function' ? (value as (prev: T) => T)(prev) : value;
+      localStorage.setItem(key, JSON.stringify(next));
+      return next;
+    });
+  }, [key]);
+
+  return [state, setPersistent];
+}
+
 export default function Demo() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [projects, setProjects] = useState(initialProjects);
+  const [projects, setProjects] = usePersistentState('demo_projects', initialProjects);
   const [activeView, setActiveView] = useState('all');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = usePersistentState<'grid' | 'list'>('demo_viewMode', 'grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -296,7 +319,7 @@ export default function Demo() {
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [historyProject, setHistoryProject] = useState<typeof initialProjects[0] | null>(null);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
-  const [accounts, setAccounts] = useState(demoAccounts);
+  const [accounts, setAccounts] = usePersistentState('demo_accounts', demoAccounts);
   const [newAccountForm, setNewAccountForm] = useState({ name: '', color: 'blue' });
   const [notifications] = useState([
     { id: 1, text: 'Projeto "E-commerce" publicado com sucesso', time: 'há 2h' },

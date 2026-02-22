@@ -132,6 +132,10 @@ const SEED_DEALS = [
 ];
 
 const SEED_PAYMENTS: Record<number, { amount: number; status: string; description: string; payment_date: string }[]> = {
+  0: [
+    { amount: 1750, status: 'pago', description: 'Entrada - 50%', payment_date: new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0] },
+    { amount: 1750, status: 'pendente', description: 'Entrega - 50%', payment_date: new Date(Date.now() + 20 * 86400000).toISOString().split('T')[0] },
+  ],
   1: [
     { amount: 4000, status: 'pago', description: 'Entrada - 1ª parcela', payment_date: new Date(Date.now() - 15 * 86400000).toISOString().split('T')[0] },
     { amount: 4000, status: 'pendente', description: '2ª parcela', payment_date: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0] },
@@ -152,6 +156,14 @@ const SEED_PAYMENTS: Record<number, { amount: number; status: string; descriptio
   5: [
     { amount: 3400, status: 'pago', description: 'Parcela 1', payment_date: new Date(Date.now() - 40 * 86400000).toISOString().split('T')[0] },
     { amount: 3400, status: 'pago', description: 'Parcela 2 - final', payment_date: new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0] },
+  ],
+  6: [
+    { amount: 2750, status: 'pago', description: 'Entrada - 50%', payment_date: new Date(Date.now() - 12 * 86400000).toISOString().split('T')[0] },
+    { amount: 2750, status: 'pendente', description: 'Entrega - 50%', payment_date: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0] },
+  ],
+  7: [
+    { amount: 1900, status: 'pendente', description: 'Sinal do projeto', payment_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] },
+    { amount: 1900, status: 'pendente', description: 'Entrega final', payment_date: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0] },
   ],
 };
 

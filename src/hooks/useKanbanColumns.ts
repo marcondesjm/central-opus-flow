@@ -202,6 +202,7 @@ async function seedExampleDeals(userId: string, columns: KanbanColumn[]) {
 
 export function useKanbanColumns() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: ['kanban-columns', user?.id],
@@ -213,7 +214,9 @@ export function useKanbanColumns() {
 
       if (error) throw error;
 
-      // If no columns exist, create defaults + seed example deals
+      let columns: KanbanColumn[];
+
+      // If no columns exist, create defaults
       if (data.length === 0 && user) {
         const { data: newCols, error: insertError } = await supabase
           .from('kanban_columns')
@@ -221,15 +224,19 @@ export function useKanbanColumns() {
           .select();
 
         if (insertError) throw insertError;
-        const sorted = (newCols as KanbanColumn[]).sort((a, b) => a.position - b.position);
-        
-        // Seed example deals in background
-        seedExampleDeals(user.id, sorted);
-        
-        return sorted;
+        columns = (newCols as KanbanColumn[]).sort((a, b) => a.position - b.position);
+      } else {
+        columns = data as KanbanColumn[];
       }
 
-      return data as KanbanColumn[];
+      // Always check if deals need seeding (covers existing users with empty boards)
+      if (user && columns.length > 0) {
+        seedExampleDeals(user.id, columns).then(() => {
+          queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
+        });
+      }
+
+      return columns;
     },
     enabled: !!user,
   });

@@ -5,7 +5,7 @@ import {
   Calendar, Building2, Loader2, PieChart, Minus,
   BarChart3, ArrowUpRight, ArrowDownRight, Wallet, CreditCard,
   Clock, CheckCircle, XCircle, Trash2, Percent,
-  Bot, Coins,
+  Bot, Coins, Download, Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { useKanbanDeals, KanbanDeal } from '@/hooks/useKanban';
+import { useKanbanDeals, useDeleteDeal, KanbanDeal } from '@/hooks/useKanban';
 import { useKanbanPayments, useCreatePayment, useDeletePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
 import { useKanbanExpenses, useCreateExpense, useDeleteExpense, KanbanExpense, EXPENSE_CATEGORIES } from '@/hooks/useKanbanExpenses';
 import {
@@ -28,6 +28,9 @@ import {
 import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const STATUS_CONFIG = {
   pago: { label: 'Pago', icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', chartColor: '#10b981' },
@@ -281,6 +284,8 @@ function AddExpenseModal({ open, onOpenChange, deals }: { open: boolean; onOpenC
 }
 
 export default function BillingPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: allPayments, isLoading: paymentsLoading } = useKanbanPayments();
   const { data: allExpenses, isLoading: expensesLoading } = useKanbanExpenses();
@@ -292,6 +297,58 @@ export default function BillingPage() {
       deletePayment.mutate(id);
     }
   };
+
+  const deleteDeal = useDeleteDeal();
+  const handleDeleteDeal = (id: string) => {
+    if (confirm('Deseja excluir este cliente/contrato e todos seus pagamentos?')) {
+      deleteDeal.mutate(id);
+    }
+  };
+
+  const handleExportBilling = () => {
+    const exportData = {
+      payments: allPayments || [],
+      expenses: allExpenses || [],
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `faturamento-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportBilling = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      let imported = 0;
+      if (data.payments?.length > 0) {
+        const { error } = await supabase.from('kanban_payments').insert(
+          data.payments.map((p: any) => ({ ...p, id: undefined, user_id: user!.id }))
+        );
+        if (!error) imported += data.payments.length;
+      }
+      if (data.expenses?.length > 0) {
+        const { error } = await supabase.from('kanban_expenses').insert(
+          data.expenses.map((ex: any) => ({ ...ex, id: undefined, user_id: user!.id }))
+        );
+        if (!error) imported += data.expenses.length;
+      }
+      if (imported > 0) {
+        toast({ title: `${imported} registros importados com sucesso!` });
+        window.location.reload();
+      }
+    } catch {
+      toast({ title: 'Erro ao importar arquivo', variant: 'destructive' });
+    }
+    e.target.value = '';
+  };
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [period, setPeriod] = useState('3');
@@ -456,6 +513,19 @@ export default function BillingPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" onClick={handleExportBilling} className="gap-1.5" title="Exportar dados">
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Exportar</span>
+            </Button>
+            <label>
+              <input type="file" accept=".json" className="hidden" onChange={handleImportBilling} />
+              <Button size="sm" variant="ghost" asChild className="gap-1.5 cursor-pointer" title="Importar dados">
+                <span>
+                  <Upload className="w-4 h-4" />
+                  <span className="hidden sm:inline">Importar</span>
+                </span>
+              </Button>
+            </label>
             <Button size="sm" variant="outline" onClick={() => setShowAddExpense(true)} className="gap-1.5">
               <Minus className="w-4 h-4" />
               <span className="hidden sm:inline">Despesa</span>
@@ -790,24 +860,37 @@ export default function BillingPage() {
                       </BarChart>
                     </ResponsiveContainer>
                     <div className="mt-4 border rounded-lg overflow-hidden">
-                      <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                      <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,40px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
                         <span>Cliente</span>
                         <span className="text-right">Pago</span>
                         <span className="text-right">Pendente</span>
                         <span className="text-right">Despesas</span>
                         <span className="text-right">Lucro</span>
+                        <span></span>
                       </div>
-                      {clientData.map(client => (
-                        <div key={client.name} className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30">
-                          <span className="font-medium truncate">{client.name}</span>
-                          <span className="text-right text-emerald-600">{formatCurrency(client.receita)}</span>
-                          <span className="text-right text-amber-600">{formatCurrency(client.pendente)}</span>
-                          <span className="text-right text-violet-600">{formatCurrency(client.despesas)}</span>
-                          <span className={cn('text-right font-semibold', (client.receita - client.despesas) >= 0 ? 'text-emerald-600' : 'text-destructive')}>
-                            {formatCurrency(client.receita - client.despesas)}
-                          </span>
-                        </div>
-                      ))}
+                      {clientData.map(client => {
+                        const deal = deals?.find(d => d.company_name === client.name);
+                        return (
+                          <div key={client.name} className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,40px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                            <span className="font-medium truncate">{client.name}</span>
+                            <span className="text-right text-emerald-600">{formatCurrency(client.receita)}</span>
+                            <span className="text-right text-amber-600">{formatCurrency(client.pendente)}</span>
+                            <span className="text-right text-violet-600">{formatCurrency(client.despesas)}</span>
+                            <span className={cn('text-right font-semibold', (client.receita - client.despesas) >= 0 ? 'text-emerald-600' : 'text-destructive')}>
+                              {formatCurrency(client.receita - client.despesas)}
+                            </span>
+                            {deal && (
+                              <button
+                                onClick={() => handleDeleteDeal(deal.id)}
+                                className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                                title="Excluir cliente"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 ) : (

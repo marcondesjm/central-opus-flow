@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useKanbanDeals, KanbanDeal } from '@/hooks/useKanban';
-import { useKanbanPayments, useCreatePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
+import { useKanbanPayments, useCreatePayment, useDeletePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
 import { useKanbanExpenses, useCreateExpense, useDeleteExpense, KanbanExpense, EXPENSE_CATEGORIES } from '@/hooks/useKanbanExpenses';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -285,6 +285,13 @@ export default function BillingPage() {
   const { data: allPayments, isLoading: paymentsLoading } = useKanbanPayments();
   const { data: allExpenses, isLoading: expensesLoading } = useKanbanExpenses();
   const deleteExpense = useDeleteExpense();
+  const deletePayment = useDeletePayment();
+
+  const handleDeletePayment = (id: string) => {
+    if (confirm('Deseja excluir este pagamento?')) {
+      deletePayment.mutate(id);
+    }
+  };
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [period, setPeriod] = useState('3');
@@ -870,13 +877,14 @@ export default function BillingPage() {
               </CardHeader>
               <CardContent>
                 <div className="border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                  <div className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px,40px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
                     <span>Data</span>
                     <span>Contrato</span>
                     <span>Descrição</span>
                     <span>Método</span>
                     <span className="text-right">Valor</span>
                     <span className="text-center">Status</span>
+                    <span></span>
                   </div>
                   {filteredPayments.length > 0 ? (
                     filteredPayments.map(payment => {
@@ -886,7 +894,7 @@ export default function BillingPage() {
                       const method = PAYMENT_METHODS.find(m => m.value === (payment as any).payment_method);
 
                       return (
-                        <div key={payment.id} className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                        <div key={payment.id} className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px,40px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
                           <span className="text-muted-foreground">{format(parseISO(payment.payment_date), 'dd/MM/yyyy')}</span>
                           <span className="font-medium truncate">{deal?.company_name || '—'}</span>
                           <span className="text-muted-foreground truncate">{payment.description || '—'}</span>
@@ -900,6 +908,13 @@ export default function BillingPage() {
                               {statusConf.label}
                             </Badge>
                           </div>
+                          <button
+                            onClick={() => handleDeletePayment(payment.id)}
+                            className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-destructive/10"
+                            title="Excluir pagamento"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       );
                     })

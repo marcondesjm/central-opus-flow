@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -888,86 +889,219 @@ export default function Demo() {
                 })}
               </div>
 
-              {/* Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Receita x Despesas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[220px]">
-                      <ResponsiveContainer width="100%" height="100%">
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                  <TabsTrigger value="clients">Por Cliente</TabsTrigger>
+                  <TabsTrigger value="expenses">Despesas</TabsTrigger>
+                  <TabsTrigger value="history">Histórico</TabsTrigger>
+                </TabsList>
+
+                {/* Overview Tab */}
+                <TabsContent value="overview">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Receita x Despesas</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-[220px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={[
+                              { month: 'Dez/25', receita: 8200, despesas: 2800 },
+                              { month: 'Jan/26', receita: 12500, despesas: 4200 },
+                              { month: 'Fev/26', receita: 15800, despesas: 5100 },
+                            ]}>
+                              <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={50} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} />
+                              <RechartsTooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '12px' }} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
+                              <Legend formatter={(v) => <span className="text-xs text-muted-foreground capitalize">{v}</span>} />
+                              <Bar dataKey="receita" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                              <Bar dataKey="despesas" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Por Status</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-[220px]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie data={[
+                                { name: 'Pago', value: 47300, fill: '#10b981' },
+                                { name: 'Pendente', value: 12000, fill: '#f59e0b' },
+                              ]} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" stroke="none">
+                                {[0, 1].map((i) => <Cell key={i} fill={['#10b981', '#f59e0b'][i]} />)}
+                              </Pie>
+                              <RechartsTooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '12px' }} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
+                              <Legend formatter={(v) => <span className="text-xs text-muted-foreground">{v}</span>} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                {/* Clients Tab */}
+                <TabsContent value="clients">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        Faturamento por Cliente
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={[
-                          { month: 'Dez/25', receita: 8200, despesas: 2800 },
-                          { month: 'Jan/26', receita: 12500, despesas: 4200 },
-                          { month: 'Fev/26', receita: 15800, despesas: 5100 },
-                        ]}>
-                          <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                          <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={50} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} />
-                          <RechartsTooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '12px' }} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
-                          <Legend formatter={(v) => <span className="text-xs text-muted-foreground capitalize">{v}</span>} />
-                          <Bar dataKey="receita" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                          <Bar dataKey="despesas" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                          { name: 'ImoTech', receita: 10000, pendente: 5000, despesas: 1050 },
+                          { name: 'Moda Express', receita: 4000, pendente: 8000, despesas: 700 },
+                          { name: 'StartUp Boost', receita: 6800, pendente: 0, despesas: 120 },
+                          { name: 'Rest. Sabor & Arte', receita: 2100, pendente: 2100, despesas: 270 },
+                          { name: 'FitLife Academy', receita: 2500, pendente: 0, despesas: 300 },
+                          { name: 'Clínica Bem Estar', receita: 5500, pendente: 0, despesas: 350 },
+                        ]} layout="vertical" margin={{ left: 20 }}>
+                          <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={v => `R$${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`} />
+                          <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={120} />
+                          <RechartsTooltip formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                          <Legend />
+                          <Bar dataKey="receita" name="Pago" fill="#10b981" radius={[0, 4, 4, 0]} />
+                          <Bar dataKey="pendente" name="Pendente" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+                          <Bar dataKey="despesas" name="Despesas" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Por Status</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[220px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie data={[
-                            { name: 'Pago', value: 47300, fill: '#10b981' },
-                            { name: 'Pendente', value: 12000, fill: '#f59e0b' },
-                          ]} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" stroke="none">
-                            {[0, 1].map((i) => <Cell key={i} fill={['#10b981', '#f59e0b'][i]} />)}
-                          </Pie>
-                          <RechartsTooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '12px' }} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
-                          <Legend formatter={(v) => <span className="text-xs text-muted-foreground">{v}</span>} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recent Payments */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Últimos Pagamentos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { company: 'ImoTech', client: 'Fernando Lima', amount: 15000, status: 'pago', method: 'PIX', date: '20/02/2026' },
-                      { company: 'Moda Express', client: 'Ana Beatriz', amount: 12000, status: 'pendente', method: 'Boleto', date: '18/02/2026' },
-                      { company: 'FitLife Academy', client: 'Roberto Alves', amount: 8500, status: 'pago', method: 'Cartão', date: '15/02/2026' },
-                      { company: 'StartUp Boost', client: 'Camila Rocha', amount: 6800, status: 'pago', method: 'PIX', date: '12/02/2026' },
-                      { company: 'Clínica Bem Estar', client: 'Dra. Mariana', amount: 5500, status: 'pago', method: 'Transferência', date: '10/02/2026' },
-                    ].map((payment, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-                        onClick={() => toast.info(payment.company, { description: 'Crie sua conta para ver detalhes completos!' })}>
-                        <div className="flex items-center gap-3">
-                          <div className={cn('w-2 h-2 rounded-full', payment.status === 'pago' ? 'bg-emerald-500' : 'bg-amber-500')} />
-                          <div>
-                            <p className="text-sm font-medium">{payment.company}</p>
-                            <p className="text-xs text-muted-foreground">{payment.client} • {payment.method}</p>
+                      <div className="mt-4 border rounded-lg overflow-hidden">
+                        <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                          <span>Cliente</span>
+                          <span className="text-right">Pago</span>
+                          <span className="text-right">Pendente</span>
+                          <span className="text-right">Despesas</span>
+                          <span className="text-right">Lucro</span>
+                        </div>
+                        {[
+                          { name: 'ImoTech', receita: 10000, pendente: 5000, despesas: 1050 },
+                          { name: 'Moda Express', receita: 4000, pendente: 8000, despesas: 700 },
+                          { name: 'StartUp Boost', receita: 6800, pendente: 0, despesas: 120 },
+                          { name: 'Rest. Sabor & Arte', receita: 2100, pendente: 2100, despesas: 270 },
+                          { name: 'FitLife Academy', receita: 2500, pendente: 0, despesas: 300 },
+                          { name: 'Clínica Bem Estar', receita: 5500, pendente: 0, despesas: 350 },
+                        ].map(client => (
+                          <div key={client.name} className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30">
+                            <span className="font-medium truncate">{client.name}</span>
+                            <span className="text-right text-emerald-600">R$ {client.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-right text-amber-600">R$ {client.pendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-right text-violet-600">R$ {client.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className={cn('text-right font-semibold', (client.receita - client.despesas) >= 0 ? 'text-emerald-600' : 'text-destructive')}>
+                              R$ {(client.receita - client.despesas).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold">R$ {payment.amount.toLocaleString('pt-BR')}</p>
-                          <p className="text-xs text-muted-foreground">{payment.date}</p>
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Expenses Tab */}
+                <TabsContent value="expenses">
+                  <Card>
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Minus className="w-4 h-4" />
+                        Despesas (8)
+                      </CardTitle>
+                      <Button size="sm" variant="outline" onClick={demoReadOnlyMsg} className="gap-1.5">
+                        <Plus className="w-3.5 h-3.5" />
+                        Adicionar
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="grid grid-cols-[1fr,1.5fr,1fr,1fr] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                          <span>Data</span>
+                          <span>Descrição</span>
+                          <span>Categoria</span>
+                          <span className="text-right">Valor</span>
+                        </div>
+                        {[
+                          { date: '18/02/2026', desc: 'API de dados imobiliários', cat: 'Software', amount: 800 },
+                          { date: '15/02/2026', desc: 'Plugin WooCommerce Premium', cat: 'Software', amount: 500 },
+                          { date: '12/02/2026', desc: 'Integração API WhatsApp', cat: 'Software', amount: 350 },
+                          { date: '10/02/2026', desc: 'Licença plataforma de vídeo', cat: 'Software', amount: 300 },
+                          { date: '08/02/2026', desc: 'Template dashboard premium', cat: 'Design', amount: 250 },
+                          { date: '05/02/2026', desc: 'Banco de imagens', cat: 'Design', amount: 200 },
+                          { date: '03/02/2026', desc: 'Sessão de fotos profissional', cat: 'Design', amount: 180 },
+                          { date: '01/02/2026', desc: 'Domínio e hospedagem', cat: 'Infraestrutura', amount: 150 },
+                        ].map((expense, i) => (
+                          <div key={i} className="grid grid-cols-[1fr,1.5fr,1fr,1fr] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                            <span className="text-muted-foreground">{expense.date}</span>
+                            <span className="truncate">{expense.desc}</span>
+                            <Badge variant="secondary" className="text-[10px] w-fit">{expense.cat}</Badge>
+                            <span className="text-right font-semibold text-violet-600">R$ {expense.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* History Tab */}
+                <TabsContent value="history">
+                  <Card>
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Histórico de Pagamentos
+                      </CardTitle>
+                      <Button size="sm" onClick={demoReadOnlyMsg} className="gap-1.5">
+                        <Plus className="w-3.5 h-3.5" />
+                        Adicionar
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                          <span>Data</span>
+                          <span>Contrato</span>
+                          <span>Descrição</span>
+                          <span>Método</span>
+                          <span className="text-right">Valor</span>
+                          <span className="text-center">Status</span>
+                        </div>
+                        {[
+                          { date: '20/02/2026', company: 'ImoTech', desc: '2ª parcela', method: 'PIX', amount: 5000, status: 'pago' },
+                          { date: '18/02/2026', company: 'Moda Express', desc: 'Entrada - 1ª parcela', method: 'PIX', amount: 4000, status: 'pago' },
+                          { date: '15/02/2026', company: 'FitLife Academy', desc: 'Sinal do projeto', method: 'PIX', amount: 2500, status: 'pago' },
+                          { date: '12/02/2026', company: 'StartUp Boost', desc: 'Parcela 2 - final', method: 'PIX', amount: 3400, status: 'pago' },
+                          { date: '10/02/2026', company: 'Clínica Bem Estar', desc: 'Pagamento único', method: 'Transferência', amount: 5500, status: 'pago' },
+                          { date: '05/03/2026', company: 'Moda Express', desc: '2ª parcela', method: 'PIX', amount: 4000, status: 'pendente' },
+                          { date: '15/03/2026', company: 'Rest. Sabor & Arte', desc: '50% na entrega', method: 'PIX', amount: 2100, status: 'pendente' },
+                          { date: '25/02/2026', company: 'ImoTech', desc: '3ª parcela - entrega', method: 'PIX', amount: 5000, status: 'pendente' },
+                        ].map((p, i) => (
+                          <div key={i} className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                            <span className="text-muted-foreground">{p.date}</span>
+                            <span className="font-medium truncate">{p.company}</span>
+                            <span className="text-muted-foreground truncate">{p.desc}</span>
+                            <span className="text-xs text-muted-foreground">{p.method}</span>
+                            <span className={cn('text-right font-semibold', p.status === 'pago' ? 'text-emerald-600' : 'text-amber-600')}>
+                              R$ {p.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                            <div className="flex justify-center">
+                              <Badge variant="outline" className={cn('text-[10px]', p.status === 'pago' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600')}>
+                                {p.status === 'pago' ? '✓ Pago' : '⏳ Pendente'}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
           ) : activeView === 'kanban' ? (
             /* Kanban Demo Board */

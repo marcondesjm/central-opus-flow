@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
-  MoreHorizontal, Search, Clock, Tag, Mail, Phone,
+  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
-import { useKanbanColumns, useCreateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';
+import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';
+
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem, KanbanChecklistItem } from '@/hooks/useKanbanChecklist';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
@@ -490,6 +491,49 @@ function AddColumnModal({ open, onOpenChange, existingCount }: { open: boolean; 
   );
 }
 
+
+// ─── Edit Column Modal ──────────────────────────
+function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpenChange: (v: boolean) => void; column: KanbanColumn }) {
+  const updateColumn = useUpdateColumn();
+  const [name, setName] = useState(column.name);
+  const [color, setColor] = useState(column.color);
+
+  const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader><DialogTitle>Editar Coluna</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Nome</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} />
+          </div>
+          <div>
+            <Label>Cor</Label>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  className={cn('w-7 h-7 rounded-full border-2 transition-transform', color === c ? 'scale-110 border-foreground' : 'border-transparent hover:scale-105')}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={() => { if (name.trim()) { updateColumn.mutate({ id: column.id, name: name.trim(), color }); onOpenChange(false); } }} disabled={!name.trim()}>
+            Salvar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Revenue Chart ──────────────────────────
 function RevenueChart({ deals }: { deals: KanbanDeal[] }) {
   const chartData = useMemo(() => {
@@ -607,6 +651,8 @@ export default function KanbanPage() {
   const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();
   const deleteColumn = useDeleteColumn();
+  const updateColumn = useUpdateColumn();
+  const [editingColumn, setEditingColumn] = useState<KanbanColumn | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -660,8 +706,24 @@ export default function KanbanPage() {
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
   const handleDragEnd = (result: DropResult) => {
-    const { draggableId, destination } = result;
+    const { draggableId, destination, source, type } = result;
     if (!destination) return;
+
+    // Handle column reordering
+    if (type === 'COLUMN') {
+      if (source.index === destination.index) return;
+      const reordered = [...(columns || [])];
+      const [moved] = reordered.splice(source.index, 1);
+      reordered.splice(destination.index, 0, moved);
+      reordered.forEach((col, idx) => {
+        if (col.position !== idx) {
+          updateColumn.mutate({ id: col.id, position: idx });
+        }
+      });
+      return;
+    }
+
+    // Handle deal dragging
     const newPhase = destination.droppableId;
     const deal = deals?.find(d => d.id === draggableId);
     if (!deal || deal.phase === newPhase) return;
@@ -675,7 +737,6 @@ export default function KanbanPage() {
       position: destination.index,
     });
 
-    // Show notification modal if client has contact info
     if (deal.client_email || deal.client_whatsapp) {
       setPhaseChangeNotification({
         dealId: deal.id,
@@ -786,81 +847,101 @@ export default function KanbanPage() {
       {viewMode === 'kanban' ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="max-w-[1800px] mx-auto px-4 py-4 overflow-x-auto">
-            <div className="flex gap-4 min-w-max pb-4">
-              {columns?.map(column => (
-                <div key={column.id} className="w-72 flex-shrink-0">
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-t-lg text-white text-sm font-medium" style={{ backgroundColor: column.color }}>
-                    <span className="flex-1">{column.name}</span>
-                    <Badge variant="secondary" className="bg-white/20 text-white text-xs">
-                      {dealsByColumn[column.id]?.length || 0}
-                    </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-0.5 rounded hover:bg-white/20">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => deleteColumn.mutate(column.id)}
-                          className="text-destructive"
+            <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
+              {(colProvided) => (
+                <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4">
+                  {columns?.map((column, colIndex) => (
+                    <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex}>
+                      {(colDragProvided, colDragSnapshot) => (
+                        <div
+                          ref={colDragProvided.innerRef}
+                          {...colDragProvided.draggableProps}
+                          className={cn('w-72 flex-shrink-0', colDragSnapshot.isDragging && 'opacity-80')}
                         >
-                          <Trash2 className="w-3.5 h-3.5 mr-2" />
-                          Excluir coluna
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <Droppable droppableId={column.id}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={cn(
-                          'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0 transition-colors',
-                          snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
-                        )}
-                      >
-                        {dealsByColumn[column.id]?.map((deal, index) => (
-                          <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                          <div className="flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium" style={{ backgroundColor: column.color }}>
+                            <span {...colDragProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-white/20">
+                              <GripVertical className="w-4 h-4" />
+                            </span>
+                            <span className="flex-1 truncate">{column.name}</span>
+                            <Badge variant="secondary" className="bg-white/20 text-white text-xs">
+                              {dealsByColumn[column.id]?.length || 0}
+                            </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="p-0.5 rounded hover:bg-white/20">
+                                  <MoreHorizontal className="w-4 h-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setEditingColumn(column)}>
+                                  <Pencil className="w-3.5 h-3.5 mr-2" />
+                                  Editar coluna
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => deleteColumn.mutate(column.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5 mr-2" />
+                                  Excluir coluna
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                          <Droppable droppableId={column.id} type="DEAL">
                             {(provided, snapshot) => (
                               <div
                                 ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={snapshot.isDragging ? 'opacity-90 rotate-1' : ''}
+                                {...provided.droppableProps}
+                                className={cn(
+                                  'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0 transition-colors',
+                                  snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                                )}
                               >
-                                <TaskCard
-                                  deal={deal}
-                                  onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
-                                  onDelete={() => setDeletingId(deal.id)}
-                                  onPayments={() => setPaymentsDeal(deal)}
-                                  onDetail={() => setDetailDeal(deal)}
-                                />
+                                {dealsByColumn[column.id]?.map((deal, index) => (
+                                  <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                                    {(provided, snapshot) => (
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className={snapshot.isDragging ? 'opacity-90 rotate-1' : ''}
+                                      >
+                                        <TaskCard
+                                          deal={deal}
+                                          onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
+                                          onDelete={() => setDeletingId(deal.id)}
+                                          onPayments={() => setPaymentsDeal(deal)}
+                                          onDetail={() => setDetailDeal(deal)}
+                                        />
+                                      </div>
+                                    )}
+                                  </Draggable>
+                                ))}
+                                {provided.placeholder}
+                                {(dealsByColumn[column.id]?.length || 0) === 0 && !snapshot.isDraggingOver && (
+                                  <p className="text-xs text-muted-foreground text-center py-8">Sem tarefas</p>
+                                )}
                               </div>
                             )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        {(dealsByColumn[column.id]?.length || 0) === 0 && !snapshot.isDraggingOver && (
-                          <p className="text-xs text-muted-foreground text-center py-8">Sem tarefas</p>
-                        )}
-                      </div>
-                    )}
-                  </Droppable>
+                          </Droppable>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {colProvided.placeholder}
+                  {/* Add column button */}
+                  <div className="w-72 flex-shrink-0">
+                    <button
+                      onClick={() => setShowAddColumn(true)}
+                      className="w-full h-12 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:bg-muted/30 hover:border-muted-foreground/50 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Nova Coluna
+                    </button>
+                  </div>
                 </div>
-              ))}
-              {/* Add column button */}
-              <div className="w-72 flex-shrink-0">
-                <button
-                  onClick={() => setShowAddColumn(true)}
-                  className="w-full h-12 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:bg-muted/30 hover:border-muted-foreground/50 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Nova Coluna
-                </button>
-              </div>
-            </div>
+              )}
+            </Droppable>
           </div>
         </DragDropContext>
       ) : (
@@ -881,6 +962,14 @@ export default function KanbanPage() {
           onOpenChange={v => { setShowAddModal(v); if (!v) setEditDeal(null); }}
           editDeal={editDeal}
           columns={columns}
+        />
+      )}
+
+      {editingColumn && (
+        <EditColumnModal
+          open={!!editingColumn}
+          onOpenChange={v => { if (!v) setEditingColumn(null); }}
+          column={editingColumn}
         />
       )}
 

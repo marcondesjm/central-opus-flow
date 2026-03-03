@@ -200,8 +200,20 @@ export function Header({
         <LanguageSwitcher />
 
         {/* Subscription Days Left */}
-        {subscription?.plan !== 'free' && (subscription as any)?.expires_at && (() => {
-          const daysLeft = Math.ceil((new Date((subscription as any).expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        {(() => {
+          const sub = subscription as any;
+          const plan = sub?.plan || 'free';
+          const expiresAt = sub?.expires_at ? new Date(sub.expires_at) : null;
+          const trialEndsAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
+          const freeExpiration = plan === 'free' && sub?.created_at
+            ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
+            : null;
+          const effectiveDate = expiresAt || trialEndsAt || freeExpiration;
+          if (!effectiveDate) return null;
+          const daysLeft = Math.ceil((effectiveDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+          const isPaidPlan = (plan === 'pro' || plan === 'business') && 
+            (sub?.payment_status === 'paid' || sub?.payment_status === 'verified');
+          if (isPaidPlan && daysLeft > 30) return null;
           const isExpired = daysLeft <= 0;
           const isUrgent = daysLeft <= 7;
           return (
@@ -222,7 +234,7 @@ export function Header({
               <TooltipContent>
                 <p>{isExpired 
                   ? 'Sua assinatura expirou. Renove para continuar.' 
-                  : `${daysLeft} dia${daysLeft !== 1 ? 's' : ''} restante${daysLeft !== 1 ? 's' : ''} na assinatura`
+                  : `${daysLeft} dia${daysLeft !== 1 ? 's' : ''} restante${daysLeft !== 1 ? 's' : ''}`
                 }</p>
               </TooltipContent>
             </Tooltip>

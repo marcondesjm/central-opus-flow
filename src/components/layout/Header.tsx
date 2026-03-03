@@ -334,11 +334,19 @@ export function Header({
                   </div>
                 )}
                 {(() => {
-                  const expDate = (subscription as any)?.expires_at || (subscription as any)?.trial_ends_at;
-                  if (!expDate) return null;
-                  const diff = Math.max(0, Math.ceil((new Date(expDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-                  const isPaid = (subscription as any)?.payment_status === 'paid' || (subscription as any)?.payment_status === 'verified';
-                  if (isPaid && diff > 30) return null;
+                  const sub = subscription as any;
+                  const plan = sub?.plan || 'free';
+                  const expAt = sub?.expires_at ? new Date(sub.expires_at) : null;
+                  const trialAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
+                  const freeExp = plan === 'free' && sub?.created_at
+                    ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
+                    : null;
+                  const effectiveDate = expAt || trialAt || freeExp;
+                  if (!effectiveDate) return null;
+                  const diff = Math.max(0, Math.ceil((effectiveDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                  const isPaidPlan = (plan === 'pro' || plan === 'business') && 
+                    (sub?.payment_status === 'paid' || sub?.payment_status === 'verified');
+                  if (isPaidPlan && diff > 30) return null;
                   return (
                     <div className={`text-[10px] mt-1 font-medium ${diff <= 3 ? 'text-destructive' : diff <= 7 ? 'text-amber-600' : 'text-muted-foreground'}`}>
                       ⏳ {diff > 0 ? `${diff} dia${diff !== 1 ? 's' : ''} restante${diff !== 1 ? 's' : ''}` : 'Expirado'}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { 
   CheckCircle2, 
   ArrowLeft, 
@@ -10,10 +11,14 @@ import {
   Flame,
   Shield,
   CreditCard,
+  Tag,
+  Loader2,
+  Check,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PaymentModal } from '@/components/subscription/PaymentModal';
 import { cn } from '@/lib/utils';
+import { useRedeemCoupon } from '@/hooks/useCoupons';
 
 type PlanType = 'monthly' | 'annual' | 'promo';
 
@@ -105,10 +110,19 @@ const plans: Plan[] = [
 export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const redeemCoupon = useRedeemCoupon();
 
   const handleSelectPlan = (planId: PlanType) => {
     setSelectedPlan(planId);
     setPaymentOpen(true);
+  };
+
+  const handleRedeemCoupon = () => {
+    if (!couponCode.trim()) return;
+    redeemCoupon.mutate(couponCode, {
+      onSuccess: () => setCouponCode(''),
+    });
   };
 
   return (
@@ -267,7 +281,50 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Guarantee */}
+        {/* Coupon Section */}
+        <motion.div
+          className="max-w-md mx-auto mt-12"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Tag className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-sm">Tem um cupom?</h3>
+            </div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Digite o código do cupom"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                className="font-mono"
+                onKeyDown={(e) => e.key === 'Enter' && handleRedeemCoupon()}
+                disabled={redeemCoupon.isPending}
+              />
+              <Button
+                onClick={handleRedeemCoupon}
+                disabled={redeemCoupon.isPending || !couponCode.trim()}
+                className="shrink-0"
+              >
+                {redeemCoupon.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : redeemCoupon.isSuccess ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  'Ativar'
+                )}
+              </Button>
+            </div>
+            {redeemCoupon.isSuccess && (
+              <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Cupom ativado com sucesso! Seu plano foi atualizado.
+              </p>
+            )}
+          </div>
+        </motion.div>
+
         <motion.div 
           className="text-center mt-12"
           initial={{ opacity: 0 }}

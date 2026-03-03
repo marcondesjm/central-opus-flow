@@ -228,9 +228,10 @@ export function useCreateProject() {
         ? addDays(new Date(baselineCreatedAt), 30)
         : null;
       const effectiveExpiration = expirationDate || trialEndDate || freeExpiration;
-      const isPaid = subscription?.payment_status === 'paid' || subscription?.payment_status === 'verified';
+      const isPaidPlan = (subscription?.plan === 'pro' || subscription?.plan === 'business') && 
+        (subscription?.payment_status === 'paid' || subscription?.payment_status === 'verified');
 
-      if (effectiveExpiration && effectiveExpiration <= new Date() && !isPaid) {
+      if (effectiveExpiration && effectiveExpiration <= new Date() && !isPaidPlan) {
         throw new Error('Sua assinatura está expirada. Renove para criar novos projetos.');
       }
       

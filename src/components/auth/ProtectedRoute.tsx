@@ -93,8 +93,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     ? addDays(new Date(subStatus.created_at), 30)
     : null;
   const effectiveExpiration = expirationDate || trialEndDate || freeExpiration;
-  const isPaid = subStatus?.payment_status === 'paid' || subStatus?.payment_status === 'verified';
-  const isExpired = effectiveExpiration && effectiveExpiration <= now && !isPaid;
+  // For free plans, payment_status doesn't bypass expiration — only pro/business paid users skip
+  const isPaidPlan = (subStatus?.plan === 'pro' || subStatus?.plan === 'business') && 
+    (subStatus?.payment_status === 'paid' || subStatus?.payment_status === 'verified');
+  const isExpired = effectiveExpiration && effectiveExpiration <= now && !isPaidPlan;
 
   if (isExpired) {
     const whatsappMessage = encodeURIComponent(

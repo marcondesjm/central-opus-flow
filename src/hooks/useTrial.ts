@@ -45,7 +45,7 @@ export function useTrial() {
       const isExpiredDate = endDate ? isPast(endDate) : false;
       const daysRemaining = endDate ? Math.max(0, differenceInDays(endDate, now)) : 0;
       const hoursRemaining = endDate ? Math.max(0, differenceInHours(endDate, now)) : 0;
-      const isPaid = data.payment_status === 'paid' || data.payment_status === 'verified';
+      const isPaid = (data.plan !== 'free') && (data.payment_status === 'paid' || data.payment_status === 'verified');
 
       // Show trial info for trial users OR any plan with an expiration date
       const isOnTrial = (data.is_trial ?? false) || (!!endDate && !isPaid);

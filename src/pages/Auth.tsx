@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff, User, Mail, Lock, Briefcase, Building2, KeyRound, CheckCircle2, Check, X } from 'lucide-react';
+import { Loader2, Eye, EyeOff, User, Mail, Lock, Briefcase, Building2, KeyRound, CheckCircle2, Check, X, Phone } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
@@ -95,6 +95,7 @@ export default function Auth() {
   
   const [signupEmail, setSignupEmail] = useState('');
   const [signupName, setSignupName] = useState('');
+  const [signupWhatsapp, setSignupWhatsapp] = useState('');
   const [signupCargo, setSignupCargo] = useState('');
   const [signupArea, setSignupArea] = useState('');
   const [signupAreaOutro, setSignupAreaOutro] = useState('');
@@ -299,6 +300,16 @@ export default function Auth() {
       return;
     }
 
+    if (!signupWhatsapp.trim() || signupWhatsapp.replace(/\D/g, '').length < 10) {
+      toast({
+        title: 'WhatsApp obrigatório',
+        description: 'Por favor, informe um número de WhatsApp válido com DDD.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     if (!signupEmail.trim()) {
       toast({
         title: 'Email obrigatório',
@@ -328,6 +339,7 @@ export default function Auth() {
             full_name: signupName,
             cargo: signupCargo,
             area_atuacao: areaFinal,
+            whatsapp: signupWhatsapp.replace(/\D/g, ''),
           },
         },
       });
@@ -362,6 +374,7 @@ export default function Auth() {
         await supabase.from('profiles').update({
           cargo: signupCargo || null,
           area_atuacao: areaFinal || null,
+          whatsapp: signupWhatsapp.replace(/\D/g, '') || null,
         }).eq('user_id', signUpData.user.id);
       }
 
@@ -880,6 +893,7 @@ export default function Auth() {
                         setSignupSent(false);
                         setSignupEmail('');
                         setSignupName('');
+                        setSignupWhatsapp('');
                         setSignupCargo('');
                         setSignupArea('');
                         setSignupAreaOutro('');
@@ -901,6 +915,22 @@ export default function Auth() {
                           placeholder="Seu nome"
                           value={signupName}
                           onChange={(e) => setSignupName(e.target.value)}
+                          required
+                          className="pl-10 h-11"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-whatsapp">WhatsApp <span className="text-destructive">*</span></Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-whatsapp"
+                          type="tel"
+                          placeholder="(48) 99602-9392"
+                          value={signupWhatsapp}
+                          onChange={(e) => setSignupWhatsapp(e.target.value)}
                           required
                           className="pl-10 h-11"
                         />

@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, Shield, Palette, Database, Trash2, RotateCcw, HelpCircle, Bell, Key, Camera, Briefcase, MapPin } from 'lucide-react';
+import { Loader2, User, Shield, Palette, Database, Trash2, RotateCcw, HelpCircle, Bell, Key, Camera, Briefcase, MapPin, Phone } from 'lucide-react';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { useSeedDemoData } from '@/hooks/useSeedDemoData';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { DeadlineNotificationSettings } from './DeadlineNotificationSettings';
 import { KeysManagementPanel } from '@/components/keys/KeysManagementPanel';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 interface SettingsModalProps {
   open: boolean;
@@ -41,6 +41,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [fullName, setFullName] = useState('');
   const [cargo, setCargo] = useState('');
   const [areaAtuacao, setAreaAtuacao] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -72,7 +73,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     
     const { data, error } = await supabase
       .from('profiles')
-      .select('full_name, cargo, area_atuacao, avatar_url')
+      .select('full_name, cargo, area_atuacao, whatsapp, avatar_url')
       .eq('user_id', user.id)
       .single();
     
@@ -80,6 +81,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       setFullName(data.full_name || '');
       setCargo(data.cargo || '');
       setAreaAtuacao(data.area_atuacao || '');
+      setWhatsapp(data.whatsapp || '');
       setAvatarUrl(data.avatar_url || null);
     }
   };
@@ -161,7 +163,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         .update({ 
           full_name: fullName.trim(),
           cargo: cargo.trim() || null,
-          area_atuacao: areaAtuacao || null,
+          area_atuacao: areaAtuacao.trim() || null,
+          whatsapp: whatsapp.trim() || null,
         })
         .eq('user_id', user.id);
 
@@ -398,28 +401,32 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="areaAtuacao" className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  Área de Atuação
-                </Label>
-                <Select value={areaAtuacao} onValueChange={setAreaAtuacao}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione sua área" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="desenvolvimento">Desenvolvimento</SelectItem>
-                    <SelectItem value="design">Design / UX</SelectItem>
-                    <SelectItem value="marketing">Marketing Digital</SelectItem>
-                    <SelectItem value="gestor-trafego">Gestor de Tráfego</SelectItem>
-                    <SelectItem value="copywriter">Copywriter</SelectItem>
-                    <SelectItem value="produto">Produto</SelectItem>
-                    <SelectItem value="vendas">Vendas</SelectItem>
-                    <SelectItem value="empreendedor">Empreendedor</SelectItem>
-                    <SelectItem value="freelancer">Freelancer</SelectItem>
-                    <SelectItem value="outro">Outro</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp" className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-muted-foreground" />
+                    WhatsApp cadastrado
+                  </Label>
+                  <Input
+                    id="whatsapp"
+                    placeholder="(00) 00000-0000"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="localMora" className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    Local onde mora
+                  </Label>
+                  <Input
+                    id="localMora"
+                    placeholder="Ex: Florianópolis - SC"
+                    value={areaAtuacao}
+                    onChange={(e) => setAreaAtuacao(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

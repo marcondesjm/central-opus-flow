@@ -175,6 +175,7 @@ export default function Admin() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [messageTargetUser, setMessageTargetUser] = useState<any>(null);
+  const [activeAdminTab, setActiveAdminTab] = useState('users');
 
   const handlePreviewUser = async (user: AdminUser) => {
     setPreviewUser(user);
@@ -650,10 +651,7 @@ export default function Admin() {
 
           <Card 
             className="cursor-pointer hover:border-primary/50 transition-colors"
-            onClick={() => {
-              const blogTab = document.querySelector('[data-value="blog"]') as HTMLElement;
-              if (blogTab) blogTab.click();
-            }}
+            onClick={() => setActiveAdminTab('blog')}
           >
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -741,7 +739,7 @@ export default function Admin() {
         </div>
 
         {/* Tabs for Users and Payments */}
-        <Tabs defaultValue="users" className="space-y-4">
+        <Tabs value={activeAdminTab} onValueChange={setActiveAdminTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />

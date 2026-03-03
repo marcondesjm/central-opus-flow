@@ -934,28 +934,29 @@ export default function Admin() {
                                   <Badge className={planColors[user.plan || 'free']}>
                                     {planLabels[user.plan || 'free']}
                                   </Badge>
-                                  {user.plan && user.plan !== 'free' && (
-                                    <div className="flex flex-col gap-0.5">
+                                  <div className="flex flex-col gap-0.5">
+                                    {user.plan && user.plan !== 'free' && (
                                       <span className="text-[10px] text-muted-foreground">
                                         {user.subscription_type === 'annual' ? 'Anual' : 'Mensal'}
                                       </span>
-                                      {user.subscription_expires_at && (() => {
-                                        const daysLeft = differenceInDays(new Date(user.subscription_expires_at), new Date());
-                                        const isExpired = daysLeft <= 0;
-                                        const isExpiring = daysLeft <= 7;
-                                        return (
-                                          <span className={cn(
-                                            "text-[10px] font-medium flex items-center gap-0.5",
-                                            isExpired ? "text-destructive" :
-                                            isExpiring ? "text-amber-600" : "text-muted-foreground"
-                                          )}>
-                                            <Clock className="w-3 h-3" />
-                                            {isExpired ? 'Expirado' : `${daysLeft}d restantes`}
-                                          </span>
-                                        );
-                                      })()}
-                                    </div>
-                                  )}
+                                    )}
+                                    {(user.subscription_expires_at || user.trial_ends_at) && (() => {
+                                      const expDate = user.subscription_expires_at || user.trial_ends_at;
+                                      const daysLeft = differenceInDays(new Date(expDate!), new Date());
+                                      const isExpired = daysLeft <= 0;
+                                      const isExpiring = daysLeft <= 7;
+                                      return (
+                                        <span className={cn(
+                                          "text-[10px] font-medium flex items-center gap-0.5",
+                                          isExpired ? "text-destructive" :
+                                          isExpiring ? "text-amber-600" : "text-muted-foreground"
+                                        )}>
+                                          <Clock className="w-3 h-3" />
+                                          {isExpired ? 'Expirado' : `${daysLeft}d restantes`}
+                                        </span>
+                                      );
+                                    })()}
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>

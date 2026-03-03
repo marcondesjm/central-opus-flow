@@ -206,8 +206,8 @@ export function Header({
           const plan = sub?.plan || 'free';
           const expiresAt = sub?.expires_at ? new Date(sub.expires_at) : null;
           const trialEndsAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
-          const freeExpiration = plan === 'free' && sub?.created_at
-            ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
+          const freeExpiration = plan === 'free' && profile?.created_at
+            ? new Date(new Date(profile.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
             : null;
           const effectiveDate = expiresAt || trialEndsAt || freeExpiration;
           if (!effectiveDate) return null;
@@ -345,8 +345,8 @@ export function Header({
                   const plan = sub?.plan || 'free';
                   const expAt = sub?.expires_at ? new Date(sub.expires_at) : null;
                   const trialAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
-                  const freeExp = plan === 'free' && sub?.created_at
-                    ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
+                  const freeExp = plan === 'free' && profile?.created_at
+                    ? new Date(new Date(profile.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
                     : null;
                   const effectiveDate = expAt || trialAt || freeExp;
                   if (!effectiveDate) return null;

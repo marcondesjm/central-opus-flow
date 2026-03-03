@@ -40,7 +40,7 @@ export function PricingSection() {
             </span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Por menos de R$ 1 por dia, você economiza horas de trabalho toda semana.
+            Por menos de R$ 0,50 por dia, você economiza horas de trabalho toda semana.
           </p>
         </motion.div>
 
@@ -64,8 +64,8 @@ export function PricingSection() {
               </div>
               
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$19</span>
-                <span className="text-xl font-bold">,90</span>
+                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$13</span>
+                <span className="text-xl font-bold">,99</span>
                 <span className="text-muted-foreground">/mês</span>
               </div>
               
@@ -139,9 +139,6 @@ export function PricingSection() {
                 <span className="text-sm text-muted-foreground">
                   💰 equivale a <strong className="text-foreground">R$ 16,58/mês</strong>
                 </span>
-                <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 border-0">
-                  Economize R$ 39,80
-                </Badge>
               </div>
               
               <ul className="space-y-3 mb-8">

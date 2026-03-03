@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { differenceInDays, differenceInHours, isPast } from 'date-fns';
+import { addDays, differenceInDays, differenceInHours, isPast } from 'date-fns';
 
 export interface TrialInfo {
   isOnTrial: boolean;
@@ -38,17 +38,23 @@ export function useTrial() {
         };
       }
 
-      // Use trial_ends_at first, fallback to expires_at
-      const endDate = data.trial_ends_at ? new Date(data.trial_ends_at) : 
-                      data.expires_at ? new Date(data.expires_at) : null;
+      const paidEndDate = data.trial_ends_at
+        ? new Date(data.trial_ends_at)
+        : data.expires_at
+          ? new Date(data.expires_at)
+          : null;
+      const freeEndDate = data.plan === 'free' && user?.created_at
+        ? addDays(new Date(user.created_at), 15)
+        : null;
+      const endDate = data.plan === 'free' ? freeEndDate : paidEndDate;
       const now = new Date();
       const isExpiredDate = endDate ? isPast(endDate) : false;
       const daysRemaining = endDate ? Math.max(0, differenceInDays(endDate, now)) : 0;
       const hoursRemaining = endDate ? Math.max(0, differenceInHours(endDate, now)) : 0;
       const isPaid = (data.plan !== 'free') && (data.payment_status === 'paid' || data.payment_status === 'verified');
 
-      // Show trial info for trial users OR any plan with an expiration date
-      const isOnTrial = (data.is_trial ?? false) || (!!endDate && !isPaid);
+      // Free plan follows strict 15-day window from account creation
+      const isOnTrial = !!endDate && !isPaid;
 
       return {
         isOnTrial,

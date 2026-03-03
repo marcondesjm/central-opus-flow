@@ -24,6 +24,7 @@ import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { TrialBanner } from '@/components/subscription/TrialBanner';
 import { SubscriptionExpirationBanner } from '@/components/subscription/SubscriptionExpirationBanner';
+import { WhatsAppRequiredBanner } from '@/components/subscription/WhatsAppRequiredBanner';
 import { TrialExpiredModal } from '@/components/subscription/TrialExpiredModal';
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
@@ -487,6 +488,9 @@ export default function Dashboard() {
       
       {/* Subscription Expiration Banner */}
       <SubscriptionExpirationBanner />
+      
+      {/* WhatsApp Required Banner */}
+      <WhatsAppRequiredBanner onOpenSettings={() => setSettingsOpen(true)} />
       
       {/* Trial Expired Modal */}
       <TrialExpiredModal />

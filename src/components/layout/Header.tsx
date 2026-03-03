@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationCenter, Notification } from '@/components/notifications/NotificationCenter';
+import { NotificationBanner } from '@/components/notifications/NotificationBanner';
 import { CollaborationNotifications } from '@/components/collaboration/CollaborationNotifications';
 import {
   DropdownMenu,
@@ -272,6 +273,12 @@ export function Header({
           onDelete={onDeleteNotification}
           onClearAll={onClearNotifications}
           onAcceptInvite={onAcceptInvite}
+        />
+
+        {/* Persistent notification banners */}
+        <NotificationBanner
+          notifications={notifications}
+          onMarkAsRead={onMarkAsRead}
         />
 
         {/* New Project */}

@@ -166,22 +166,42 @@ export function useRedeemCoupon() {
         // Ignore - redemption record is the source of truth
       }
 
-      // 5. Activate subscription
+      // 5. Activate subscription (upsert)
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + (coupon.duration_days || 30));
 
-      const { error: subError } = await supabase
-        .from('subscriptions')
-        .update({
-          plan: coupon.plan as any,
-          payment_status: 'paid',
-          payment_verified_at: new Date().toISOString(),
-          is_trial: false,
-          expires_at: expiresAt.toISOString(),
-        })
-        .eq('user_id', user.id);
+      const subPayload = {
+        plan: coupon.plan as any,
+        payment_status: 'paid',
+        payment_verified_at: new Date().toISOString(),
+        is_trial: false,
+        expires_at: expiresAt.toISOString(),
+        max_accounts: 999,
+        max_projects: 999,
+        features: JSON.parse(JSON.stringify(
+          coupon.plan === 'business'
+            ? { advanced_search: true, tags: true, logs: true, export: true, team: true }
+            : { advanced_search: true, tags: true, logs: true, export: true, team: false }
+        )),
+      };
 
-      if (subError) throw subError;
+      // Try update first
+      const { data: updated, error: updateErr } = await supabase
+        .from('subscriptions')
+        .update(subPayload)
+        .eq('user_id', user.id)
+        .select()
+        .maybeSingle();
+
+      if (updateErr) throw updateErr;
+
+      // If no row was updated, insert
+      if (!updated) {
+        const { error: insertErr } = await supabase
+          .from('subscriptions')
+          .insert({ ...subPayload, user_id: user.id });
+        if (insertErr) throw insertErr;
+      }
 
       return { plan: coupon.plan, duration_days: coupon.duration_days };
     },

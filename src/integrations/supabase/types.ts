@@ -462,18 +462,21 @@ export type Database = {
         Row: {
           coupon_id: string
           id: string
+          ip_address: string | null
           redeemed_at: string
           user_id: string
         }
         Insert: {
           coupon_id: string
           id?: string
+          ip_address?: string | null
           redeemed_at?: string
           user_id: string
         }
         Update: {
           coupon_id?: string
           id?: string
+          ip_address?: string | null
           redeemed_at?: string
           user_id?: string
         }

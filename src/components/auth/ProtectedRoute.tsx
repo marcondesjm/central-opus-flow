@@ -24,6 +24,7 @@ interface SubscriptionStatus {
 interface ProfileCompletion {
   full_name: string | null;
   whatsapp: string | null;
+  avatar_url: string | null;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
@@ -57,12 +58,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     queryFn: async (): Promise<ProfileCompletion> => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, whatsapp')
+        .select('full_name, whatsapp, avatar_url')
         .eq('user_id', user!.id)
         .single();
 
-      if (error) return { full_name: null, whatsapp: null };
-      return { full_name: data.full_name, whatsapp: (data as any).whatsapp };
+      if (error) return { full_name: null, whatsapp: null, avatar_url: null };
+      return { full_name: data.full_name, whatsapp: (data as any).whatsapp, avatar_url: data.avatar_url };
     },
     enabled: !!user,
   });
@@ -187,8 +188,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Check if profile is incomplete (missing name or whatsapp)
   const missingName = !profileData?.full_name?.trim();
   const missingWhatsapp = !profileData?.whatsapp?.trim();
+  const missingAvatar = !profileData?.avatar_url?.trim();
 
-  if (missingName || missingWhatsapp) {
+  if (missingName || missingWhatsapp || missingAvatar) {
     // Skip for admin
     const isAdmin = user.email === 'marcondesgestaotrafego@gmail.com';
     if (!isAdmin) {
@@ -196,6 +198,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         <CompleteProfileGate
           missingName={missingName}
           missingWhatsapp={missingWhatsapp}
+          missingAvatar={missingAvatar}
           currentName={profileData?.full_name || ''}
           currentWhatsapp={profileData?.whatsapp || ''}
         />

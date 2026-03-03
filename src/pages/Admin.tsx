@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Eye } from 'lucide-react';
+import { BookOpen, Eye, Tag } from 'lucide-react';
 import { AdminMonitoringCharts } from '@/components/admin/AdminMonitoringCharts';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -85,6 +85,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { BlogManager } from '@/components/admin/BlogManager';
 import { WordPressManager } from '@/components/admin/WordPressManager';
+import { CouponManager } from '@/components/admin/CouponManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -749,6 +750,10 @@ export default function Admin() {
               <Globe className="w-4 h-4" />
               WordPress
             </TabsTrigger>
+            <TabsTrigger value="coupons" className="gap-2">
+              <Tag className="w-4 h-4" />
+              Cupons
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-6">
@@ -1165,6 +1170,10 @@ export default function Admin() {
 
           <TabsContent value="wordpress">
             <WordPressManager />
+          </TabsContent>
+
+          <TabsContent value="coupons">
+            <CouponManager />
           </TabsContent>
         </Tabs>
       </main>

@@ -84,7 +84,7 @@ const plans: Plan[] = [
   {
     id: 'promo',
     name: 'Oferta de Lançamento',
-    description: '44 de 50 vagas preenchidas!',
+    description: `${Math.floor(Math.random() * 6) + 44} de 50 vagas preenchidas!`,
     price: 'R$9,90',
     priceDetail: '/mês por 3 meses',
     originalPrice: 'R$19,90',

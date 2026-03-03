@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -5,6 +6,7 @@ import { Flame, Rocket, Target, Clock, ArrowRight, Sparkles } from 'lucide-react
 import { Link } from 'react-router-dom';
 
 export function LaunchPromoSection() {
+  const [filledSlots] = useState(() => Math.floor(Math.random() * 6) + 44);
   return (
     <section className="py-16 md:py-24 px-4 relative overflow-hidden">
       {/* Animated background */}
@@ -118,8 +120,8 @@ export function LaunchPromoSection() {
                     <Clock className="w-5 h-5 text-orange-500" />
                   </div>
                   <div>
-                    <p className="font-medium">🔥 44 de 50 vagas já preenchidas!</p>
-                    <p className="text-xs text-muted-foreground">Restam apenas 6 vagas</p>
+                    <p className="font-medium">🔥 {filledSlots} de 50 vagas já preenchidas!</p>
+                    <p className="text-xs text-muted-foreground">Restam apenas {50 - filledSlots} vagas</p>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield, CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -316,8 +316,9 @@ export function Header({
                   </Badge>
                 </div>
                 {profile?.created_at && (
-                  <div className="text-[10px] mt-1 text-muted-foreground">
-                    📅 Membro desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  <div className="flex items-center gap-1 text-[10px] mt-1 text-muted-foreground">
+                    <CalendarDays className="w-3 h-3" />
+                    Membro desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </div>
                 )}
                 {(() => {

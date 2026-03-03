@@ -28,6 +28,8 @@ export function useChangelog() {
       if (error) throw error;
       return data as ChangelogEntry[];
     },
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -35,20 +37,29 @@ export function useChangelogByVersion() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const refresh = () => {
+      queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
+      queryClient.invalidateQueries({ queryKey: ['changelog'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+    };
+
     const channel = supabase
       .channel('changelog-realtime')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'changelog_entries' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
-          queryClient.invalidateQueries({ queryKey: ['changelog'] });
-          queryClient.invalidateQueries({ queryKey: ['latest-version'] });
-        }
+        refresh
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          refresh();
+        }
+      });
+
+    const pollInterval = window.setInterval(refresh, 15000);
 
     return () => {
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
@@ -88,6 +99,8 @@ export function useChangelogByVersion() {
           date: entries[0]?.created_at,
         }));
     },
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -143,5 +156,8 @@ export function useLatestVersion() {
       if (error && error.code !== 'PGRST116') throw error;
       return data;
     },
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
   });
 }
+

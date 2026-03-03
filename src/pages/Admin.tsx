@@ -77,6 +77,7 @@ import {
   AlertTriangle,
   Calendar,
   Globe,
+  Send,
 } from 'lucide-react';
 import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -86,6 +87,7 @@ import { cn } from '@/lib/utils';
 import { BlogManager } from '@/components/admin/BlogManager';
 import { WordPressManager } from '@/components/admin/WordPressManager';
 import { CouponManager } from '@/components/admin/CouponManager';
+import { SendMessageModal } from '@/components/admin/SendMessageModal';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -171,6 +173,8 @@ export default function Admin() {
   const [previewUser, setPreviewUser] = useState<AdminUser | null>(null);
   const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[] } | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [messageTargetUser, setMessageTargetUser] = useState<any>(null);
 
   const handlePreviewUser = async (user: AdminUser) => {
     setPreviewUser(user);
@@ -524,16 +528,27 @@ export default function Admin() {
                 </p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefreshAll}
-              disabled={refreshing}
-              className="gap-2"
-            >
-              <RefreshCw className={cn("w-4 h-4", refreshing && "animate-spin")} />
-              Atualizar
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => { setMessageTargetUser(null); setMessageModalOpen(true); }}
+                className="gap-2"
+              >
+                <Send className="w-4 h-4" />
+                Enviar para Todos
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefreshAll}
+                disabled={refreshing}
+                className="gap-2"
+              >
+                <RefreshCw className={cn("w-4 h-4", refreshing && "animate-spin")} />
+                Atualizar
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -977,6 +992,12 @@ export default function Admin() {
                                       <Eye className="w-4 h-4 mr-2" />
                                       Visualizar Conteúdo
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                      onClick={() => { setMessageTargetUser(user); setMessageModalOpen(true); }}
+                                    >
+                                      <Send className="w-4 h-4 mr-2" />
+                                      Enviar Mensagem
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => handleChangePlan(user, 'free')}>
                                       <CreditCard className="w-4 h-4 mr-2" />
@@ -1390,6 +1411,14 @@ export default function Admin() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Send Message Modal */}
+      <SendMessageModal
+        open={messageModalOpen}
+        onOpenChange={setMessageModalOpen}
+        targetUser={messageTargetUser}
+        allUsers={users.map(u => ({ user_id: u.user_id, email: u.email, full_name: u.full_name }))}
+      />
     </div>
   );
 }

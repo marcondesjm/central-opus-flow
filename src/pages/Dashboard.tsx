@@ -68,14 +68,14 @@ export default function Dashboard() {
 
   // Open settings modal from URL query param (?settings=profile)
   const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('settings') === 'profile') {
       setSettingsOpen(true);
-      // Clean up URL
-      window.history.replaceState({}, '', location.pathname);
+      navigate(location.pathname, { replace: true });
     }
-  }, [location.search]);
+  }, [location.pathname, location.search, navigate]);
 
   // Modal states
   const [addAccountOpen, setAddAccountOpen] = useState(false);
@@ -126,7 +126,6 @@ export default function Dashboard() {
   } = useOnboarding();
 
   const { seedDemoData } = useSeedDemoData();
-  const navigate = useNavigate();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
   const [demoSeeded, setDemoSeeded] = useState(false);
 

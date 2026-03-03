@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Phone, Loader2, AlertTriangle, Camera } from 'lucide-react';
+import { User, Phone, Loader2, AlertTriangle, Camera, MessageCircle } from 'lucide-react';
 
 interface Props {
   missingName: boolean;
@@ -28,6 +28,8 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [validatingFace, setValidatingFace] = useState(false);
+  const [faceRejected, setFaceRejected] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFacePhoto = async (base64: string): Promise<{ valid: boolean; reason?: string }> => {
@@ -70,16 +72,21 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
       setValidatingFace(false);
 
       if (!result.valid) {
+        const reason = result.reason || 'A foto deve conter um rosto humano real. Selfies e fotos de perfil são aceitas.';
         toast({ 
           title: 'Foto inválida', 
-          description: result.reason || 'A foto deve conter um rosto humano real. Selfies e fotos de perfil são aceitas.', 
+          description: reason, 
           variant: 'destructive' 
         });
+        setFaceRejected(true);
+        setRejectionReason(reason);
         // Reset file input
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
 
+      setFaceRejected(false);
+      setRejectionReason('');
       setAvatarFile(file);
       setAvatarPreview(base64);
     };
@@ -238,7 +245,31 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
               </div>
             )}
 
-            <Button type="submit" className="w-full h-11" disabled={loading}>
+            {faceRejected && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center space-y-3">
+                <p className="text-sm text-destructive font-medium">
+                  {rejectionReason}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Se está tendo dificuldades, entre em contato com o administrador:
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => {
+                    const msg = encodeURIComponent('Olá! Estou tendo dificuldade para enviar minha foto de perfil no sistema. Pode me ajudar?');
+                    window.open(`https://wa.me/5548996029392?text=${msg}`, '_blank');
+                  }}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Falar com Administrador via WhatsApp
+                </Button>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full h-11" disabled={loading || validatingFace}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Salvar e Continuar'}
             </Button>
 

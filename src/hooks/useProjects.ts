@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { addDays } from 'date-fns';
 
 export interface LovableAccount {
   id: string;
@@ -209,6 +210,29 @@ export function useCreateProject() {
       }
 
       const { tagIds, ...projectData } = project;
+
+      const { data: subscription, error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .select('plan, expires_at, trial_ends_at, payment_status, created_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (subscriptionError) {
+        throw new Error('Não foi possível validar sua assinatura. Tente novamente.');
+      }
+
+      const expirationDate = subscription?.expires_at ? new Date(subscription.expires_at) : null;
+      const trialEndDate = subscription?.trial_ends_at ? new Date(subscription.trial_ends_at) : null;
+      const baselineCreatedAt = subscription?.created_at || user.created_at || new Date().toISOString();
+      const freeExpiration = (subscription?.plan ?? 'free') === 'free'
+        ? addDays(new Date(baselineCreatedAt), 30)
+        : null;
+      const effectiveExpiration = expirationDate || trialEndDate || freeExpiration;
+      const isPaid = subscription?.payment_status === 'paid' || subscription?.payment_status === 'verified';
+
+      if (effectiveExpiration && effectiveExpiration <= new Date() && !isPaid) {
+        throw new Error('Sua assinatura está expirada. Renove para criar novos projetos.');
+      }
       
       console.log('Creating project:', { ...projectData, user_id: user.id });
       

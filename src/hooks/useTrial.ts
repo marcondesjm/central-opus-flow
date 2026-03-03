@@ -21,7 +21,7 @@ export function useTrial() {
     queryFn: async (): Promise<TrialInfo> => {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('is_trial, trial_ends_at, payment_status')
+        .select('is_trial, trial_ends_at, payment_status, expires_at, plan')
         .eq('user_id', user!.id)
         .single();
 
@@ -38,19 +38,24 @@ export function useTrial() {
         };
       }
 
-      const trialEndsAt = data.trial_ends_at ? new Date(data.trial_ends_at) : null;
+      // Use trial_ends_at first, fallback to expires_at
+      const endDate = data.trial_ends_at ? new Date(data.trial_ends_at) : 
+                      data.expires_at ? new Date(data.expires_at) : null;
       const now = new Date();
-      const isExpired = trialEndsAt ? isPast(trialEndsAt) : false;
-      const daysRemaining = trialEndsAt ? Math.max(0, differenceInDays(trialEndsAt, now)) : 0;
-      const hoursRemaining = trialEndsAt ? Math.max(0, differenceInHours(trialEndsAt, now)) : 0;
+      const isExpiredDate = endDate ? isPast(endDate) : false;
+      const daysRemaining = endDate ? Math.max(0, differenceInDays(endDate, now)) : 0;
+      const hoursRemaining = endDate ? Math.max(0, differenceInHours(endDate, now)) : 0;
       const isPaid = data.payment_status === 'paid' || data.payment_status === 'verified';
 
+      // Show trial info for trial users OR any plan with an expiration date
+      const isOnTrial = (data.is_trial ?? false) || (!!endDate && !isPaid);
+
       return {
-        isOnTrial: data.is_trial ?? false,
+        isOnTrial,
         daysRemaining,
         hoursRemaining,
-        trialEndsAt,
-        isExpired: isExpired && !isPaid,
+        trialEndsAt: endDate,
+        isExpired: isExpiredDate && !isPaid,
         paymentStatus: data.payment_status ?? 'pending',
         isPaid,
       };

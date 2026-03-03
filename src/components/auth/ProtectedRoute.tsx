@@ -17,6 +17,8 @@ interface SubscriptionStatus {
   expires_at: string | null;
   plan: string;
   payment_status: string | null;
+  is_trial: boolean | null;
+  trial_ends_at: string | null;
 }
 
 interface ProfileCompletion {
@@ -32,16 +34,18 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     queryFn: async (): Promise<SubscriptionStatus> => {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('user_status, expires_at, plan, payment_status')
+        .select('user_status, expires_at, plan, payment_status, is_trial, trial_ends_at')
         .eq('user_id', user!.id)
         .single();
 
-      if (error) return { user_status: 'active', expires_at: null, plan: 'free', payment_status: null };
+      if (error) return { user_status: 'active', expires_at: null, plan: 'free', payment_status: null, is_trial: null, trial_ends_at: null };
       return {
         user_status: data.user_status || 'active',
         expires_at: data.expires_at,
         plan: data.plan,
         payment_status: data.payment_status,
+        is_trial: data.is_trial,
+        trial_ends_at: data.trial_ends_at,
       };
     },
     enabled: !!user,
@@ -77,12 +81,13 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   const userStatus = subStatus?.user_status || 'active';
 
-  // Check if subscription expired (paid plans only)
-  const isExpired = subStatus?.expires_at && 
-    subStatus.plan !== 'free' && 
-    new Date(subStatus.expires_at) <= new Date() &&
-    subStatus.payment_status !== 'paid' && 
-    subStatus.payment_status !== 'verified';
+  // Check if subscription expired (ALL plans including free/trial)
+  const now = new Date();
+  const expirationDate = subStatus?.expires_at ? new Date(subStatus.expires_at) : null;
+  const trialEndDate = subStatus?.trial_ends_at ? new Date(subStatus.trial_ends_at) : null;
+  const effectiveExpiration = expirationDate || trialEndDate;
+  const isPaid = subStatus?.payment_status === 'paid' || subStatus?.payment_status === 'verified';
+  const isExpired = effectiveExpiration && effectiveExpiration <= now && !isPaid;
 
   if (isExpired) {
     const whatsappMessage = encodeURIComponent(

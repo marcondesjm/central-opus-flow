@@ -118,8 +118,8 @@ export function LaunchPromoSection() {
                     <Clock className="w-5 h-5 text-orange-500" />
                   </div>
                   <div>
-                    <p className="font-medium">Vagas limitadas: apenas 50 acessos</p>
-                    <p className="text-xs text-muted-foreground">Oferta por tempo limitado</p>
+                    <p className="font-medium">🔥 44 de 50 vagas já preenchidas!</p>
+                    <p className="text-xs text-muted-foreground">Restam apenas 6 vagas</p>
                   </div>
                 </div>
               </div>

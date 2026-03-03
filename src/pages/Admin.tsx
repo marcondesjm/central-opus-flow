@@ -835,7 +835,7 @@ export default function Admin() {
                     </p>
                   </div>
                 ) : (
-                  <ScrollArea className="max-h-[600px]">
+                  <ScrollArea className="h-[500px] overflow-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>

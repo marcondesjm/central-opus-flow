@@ -41,7 +41,7 @@ import { useMultipleChecklistProgress } from '@/hooks/useChecklistProgress';
 import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButton';
 import { ProjectStatus, ProjectType } from '@/types/project';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
@@ -65,6 +65,17 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+  // Open settings modal from URL query param (?settings=profile)
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('settings') === 'profile') {
+      setSettingsOpen(true);
+      // Clean up URL
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location.search]);
 
   // Modal states
   const [addAccountOpen, setAddAccountOpen] = useState(false);

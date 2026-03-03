@@ -321,6 +321,26 @@ export default function Auth() {
     }
 
     try {
+      // Check IP restriction before signup
+      try {
+        const ipCheckResponse = await supabase.functions.invoke('check-signup-ip', {
+          body: { action: 'check' },
+        });
+
+        if (ipCheckResponse.data && !ipCheckResponse.data.allowed) {
+          toast({
+            title: 'Cadastro bloqueado',
+            description: ipCheckResponse.data.message || 'Já existe uma conta registrada neste dispositivo.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+      } catch (ipErr) {
+        console.error('IP check error:', ipErr);
+        // Continue with signup if IP check fails (don't block on error)
+      }
+
       // Gera senha temporária aleatória
       const tempPassword = crypto.randomUUID() + 'Aa1!';
       
@@ -358,6 +378,17 @@ export default function Auth() {
         }
         setIsLoading(false);
         return;
+      }
+
+      // Register IP after successful signup
+      if (signUpData.user) {
+        try {
+          await supabase.functions.invoke('check-signup-ip', {
+            body: { action: 'register', user_id: signUpData.user.id },
+          });
+        } catch (ipRegErr) {
+          console.error('IP register error:', ipRegErr);
+        }
       }
 
       // Envia email para definir senha

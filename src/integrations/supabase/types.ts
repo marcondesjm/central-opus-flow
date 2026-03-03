@@ -1282,6 +1282,27 @@ export type Database = {
           },
         ]
       }
+      signup_ips: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string

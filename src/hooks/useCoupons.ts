@@ -119,6 +119,16 @@ export function useRedeemCoupon() {
     mutationFn: async (code: string) => {
       if (!user) throw new Error('Usuário não autenticado');
 
+      // 0. Get user IP
+      let userIp = '';
+      try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        userIp = ipData.ip || '';
+      } catch {
+        // If IP fetch fails, continue without IP check
+      }
+
       // 1. Find coupon
       const { data: coupon, error: findError } = await supabase
         .from('coupons')
@@ -149,10 +159,22 @@ export function useRedeemCoupon() {
 
       if (existing) throw new Error('Você já utilizou este cupom.');
 
-      // 3. Insert redemption
+      // 3. Check if IP already used this coupon
+      if (userIp) {
+        const { data: ipExisting } = await supabase
+          .from('coupon_redemptions')
+          .select('id')
+          .eq('coupon_id', coupon.id)
+          .eq('ip_address', userIp)
+          .maybeSingle();
+
+        if (ipExisting) throw new Error('Este cupom já foi utilizado neste dispositivo/rede.');
+      }
+
+      // 4. Insert redemption with IP
       const { error: redeemError } = await supabase
         .from('coupon_redemptions')
-        .insert({ coupon_id: coupon.id, user_id: user.id });
+        .insert({ coupon_id: coupon.id, user_id: user.id, ip_address: userIp || null });
 
       if (redeemError) throw redeemError;
 

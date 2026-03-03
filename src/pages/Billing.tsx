@@ -4,7 +4,7 @@ import {
   ArrowLeft, DollarSign, TrendingUp, Receipt, Plus,
   Calendar, Building2, Loader2, PieChart, Minus,
   BarChart3, ArrowUpRight, ArrowDownRight, Wallet, CreditCard,
-  Clock, CheckCircle, XCircle, Trash2, Percent,
+  Clock, CheckCircle, XCircle, Trash2, Percent, Pencil,
   Bot, Coins, Download, Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useKanbanDeals, useDeleteDeal, KanbanDeal } from '@/hooks/useKanban';
-import { useKanbanPayments, useCreatePayment, useDeletePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
+import { useKanbanPayments, useCreatePayment, useUpdatePayment, useDeletePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
 import { useKanbanExpenses, useCreateExpense, useDeleteExpense, KanbanExpense, EXPENSE_CATEGORIES } from '@/hooks/useKanbanExpenses';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -283,6 +283,121 @@ function AddExpenseModal({ open, onOpenChange, deals }: { open: boolean; onOpenC
   );
 }
 
+// ─── Edit Payment Modal ──────────────────────────
+function EditPaymentModal({ open, onOpenChange, payment, deals }: { open: boolean; onOpenChange: (v: boolean) => void; payment: KanbanPayment; deals: KanbanDeal[] }) {
+  const updatePayment = useUpdatePayment();
+  const [form, setForm] = useState({
+    deal_id: payment.deal_id,
+    amount: payment.amount,
+    status: payment.status,
+    description: payment.description || '',
+    payment_method: payment.payment_method || 'pix',
+    category: payment.category || 'projeto',
+    payment_date: payment.payment_date ? new Date(payment.payment_date + 'T12:00:00') : new Date(),
+  });
+
+  const handleSubmit = () => {
+    if (!form.deal_id || form.amount <= 0) return;
+    updatePayment.mutate({
+      id: payment.id,
+      deal_id: form.deal_id,
+      amount: form.amount,
+      status: form.status,
+      description: form.description || null,
+      payment_method: form.payment_method,
+      category: form.category,
+      payment_date: format(form.payment_date, 'yyyy-MM-dd'),
+    }, {
+      onSuccess: () => onOpenChange(false),
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Editar Pagamento</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Contrato *</Label>
+            <Select value={form.deal_id} onValueChange={v => setForm(f => ({ ...f, deal_id: v }))}>
+              <SelectTrigger><SelectValue placeholder="Selecionar contrato" /></SelectTrigger>
+              <SelectContent>
+                {deals.map(d => (
+                  <SelectItem key={d.id} value={d.id}>{d.company_name} - {d.client_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Valor (R$) *</Label>
+              <Input type="number" min={0} step={0.01} value={form.amount || ''} onChange={e => setForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} />
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pago">Pago</SelectItem>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Forma de Pagamento</Label>
+              <Select value={form.payment_method} onValueChange={v => setForm(f => ({ ...f, payment_method: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Categoria</Label>
+              <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Data</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn('w-full justify-start text-left font-normal')}>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {format(form.payment_date, 'dd/MM/yyyy')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent mode="single" selected={form.payment_date} onSelect={d => d && setForm(f => ({ ...f, payment_date: d }))} className="p-3 pointer-events-auto" />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Input placeholder="Opcional" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit} disabled={updatePayment.isPending || !form.deal_id || form.amount <= 0}>
+            {updatePayment.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Salvar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function BillingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -355,6 +470,8 @@ export default function BillingPage() {
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<KanbanPayment | null>(null);
+  const updatePayment = useUpdatePayment();
 
   // Sync tab from URL
   useEffect(() => {
@@ -960,7 +1077,7 @@ export default function BillingPage() {
               </CardHeader>
               <CardContent>
                 <div className="border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px,40px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+                  <div className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px,70px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
                     <span>Data</span>
                     <span>Contrato</span>
                     <span>Descrição</span>
@@ -977,7 +1094,7 @@ export default function BillingPage() {
                       const method = PAYMENT_METHODS.find(m => m.value === (payment as any).payment_method);
 
                       return (
-                        <div key={payment.id} className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px,40px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
+                        <div key={payment.id} className="grid grid-cols-[1fr,1.2fr,1fr,0.8fr,0.8fr,80px,70px] gap-3 px-4 py-2.5 border-b last:border-0 text-sm hover:bg-muted/30 items-center">
                           <span className="text-muted-foreground">{format(parseISO(payment.payment_date), 'dd/MM/yyyy')}</span>
                           <span className="font-medium truncate">{deal?.company_name || '—'}</span>
                           <span className="text-muted-foreground truncate">{payment.description || '—'}</span>
@@ -991,13 +1108,22 @@ export default function BillingPage() {
                               {statusConf.label}
                             </Badge>
                           </div>
-                          <button
-                            onClick={() => handleDeletePayment(payment.id)}
-                            className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-destructive/10"
-                            title="Excluir pagamento"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex gap-0.5">
+                            <button
+                              onClick={() => setEditingPayment(payment)}
+                              className="text-muted-foreground hover:text-primary transition-colors p-1 rounded-md hover:bg-primary/10"
+                              title="Editar pagamento"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePayment(payment.id)}
+                              className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-destructive/10"
+                              title="Excluir pagamento"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       );
                     })
@@ -1014,6 +1140,16 @@ export default function BillingPage() {
       {/* Modals */}
       {showAddPayment && deals && <AddPaymentModal open={showAddPayment} onOpenChange={setShowAddPayment} deals={deals} />}
       {showAddExpense && deals && <AddExpenseModal open={showAddExpense} onOpenChange={setShowAddExpense} deals={deals} />}
+
+      {/* Edit Payment Modal */}
+      {editingPayment && deals && (
+        <EditPaymentModal
+          open={!!editingPayment}
+          onOpenChange={(v) => { if (!v) setEditingPayment(null); }}
+          payment={editingPayment}
+          deals={deals}
+        />
+      )}
     </div>
   );
 }

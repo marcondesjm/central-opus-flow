@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Clock, Mail, AlertTriangle, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CompleteProfileGate } from './CompleteProfileGate';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -16,6 +17,11 @@ interface SubscriptionStatus {
   expires_at: string | null;
   plan: string;
   payment_status: string | null;
+}
+
+interface ProfileCompletion {
+  full_name: string | null;
+  whatsapp: string | null;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
@@ -42,7 +48,22 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     refetchInterval: 60000,
   });
 
-  if (loading || statusLoading) {
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ['profile-completion', user?.id],
+    queryFn: async (): Promise<ProfileCompletion> => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, whatsapp')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (error) return { full_name: null, whatsapp: null };
+      return { full_name: data.full_name, whatsapp: (data as any).whatsapp };
+    },
+    enabled: !!user,
+  });
+
+  if (loading || statusLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -156,6 +177,25 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         </Card>
       </div>
     );
+  }
+
+  // Check if profile is incomplete (missing name or whatsapp)
+  const missingName = !profileData?.full_name?.trim();
+  const missingWhatsapp = !profileData?.whatsapp?.trim();
+
+  if (missingName || missingWhatsapp) {
+    // Skip for admin
+    const isAdmin = user.email === 'marcondesgestaotrafego@gmail.com';
+    if (!isAdmin) {
+      return (
+        <CompleteProfileGate
+          missingName={missingName}
+          missingWhatsapp={missingWhatsapp}
+          currentName={profileData?.full_name || ''}
+          currentWhatsapp={profileData?.whatsapp || ''}
+        />
+      );
+    }
   }
 
   return <>{children}</>;

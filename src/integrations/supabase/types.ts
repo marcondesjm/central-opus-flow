@@ -953,6 +953,7 @@ export type Database = {
           onboarding_step: number
           updated_at: string
           user_id: string
+          whatsapp: string | null
         }
         Insert: {
           area_atuacao?: string | null
@@ -968,6 +969,7 @@ export type Database = {
           onboarding_step?: number
           updated_at?: string
           user_id: string
+          whatsapp?: string | null
         }
         Update: {
           area_atuacao?: string | null
@@ -983,6 +985,7 @@ export type Database = {
           onboarding_step?: number
           updated_at?: string
           user_id?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }

@@ -445,11 +445,10 @@ export default function Admin() {
   };
 
   const TrialBadge = ({ user }: { user: AdminUser }) => {
-    if (!user.is_trial || !user.trial_ends_at) return null;
+    const endDate = user.trial_ends_at || user.subscription_expires_at;
+    if (!endDate) return null;
     
-    const daysRemaining = getTrialDaysRemaining(user.trial_ends_at);
-    if (daysRemaining === null) return null;
-    
+    const daysRemaining = Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
     const isExpiringSoon = daysRemaining <= 3;
     const isExpired = daysRemaining === 0;
     
@@ -472,8 +471,8 @@ export default function Admin() {
           </TooltipTrigger>
           <TooltipContent>
             {isExpired 
-              ? 'Trial expirado' 
-              : `Trial expira em ${daysRemaining} dia${daysRemaining !== 1 ? 's' : ''}`
+              ? 'Assinatura expirada' 
+              : `${daysRemaining} dia${daysRemaining !== 1 ? 's' : ''} restante${daysRemaining !== 1 ? 's' : ''}`
             }
           </TooltipContent>
         </Tooltip>

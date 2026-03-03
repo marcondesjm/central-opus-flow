@@ -22,9 +22,9 @@ export function AccountAvatarUpload({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validar tamanho (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        alert('A imagem deve ter no máximo 2MB');
+      // Validar tamanho (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 5MB');
         return;
       }
 

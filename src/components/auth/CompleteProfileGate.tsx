@@ -33,8 +33,8 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast({ title: 'Arquivo muito grande', description: 'A foto deve ter no máximo 2MB.', variant: 'destructive' });
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Arquivo muito grande', description: 'A foto deve ter no máximo 5MB.', variant: 'destructive' });
       return;
     }
 
@@ -150,7 +150,7 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
                     className="hidden"
                     onChange={handleAvatarChange}
                   />
-                  <p className="text-xs text-muted-foreground">Clique para adicionar sua foto (máx. 2MB)</p>
+                  <p className="text-xs text-muted-foreground">Clique para adicionar sua foto (máx. 5MB)</p>
                 </div>
               </div>
             )}

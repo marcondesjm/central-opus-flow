@@ -90,7 +90,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const expirationDate = subStatus?.expires_at ? new Date(subStatus.expires_at) : null;
   const trialEndDate = subStatus?.trial_ends_at ? new Date(subStatus.trial_ends_at) : null;
   const freeExpiration = subStatus?.plan === 'free' && subStatus?.created_at
-    ? addDays(new Date(subStatus.created_at), 30)
+    ? addDays(new Date(subStatus.created_at), 15)
     : null;
   const effectiveExpiration = expirationDate || trialEndDate || freeExpiration;
   // For free plans, payment_status doesn't bypass expiration — only pro/business paid users skip

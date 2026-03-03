@@ -41,7 +41,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         .eq('user_id', user!.id)
         .single();
 
-      if (error) return { user_status: 'active', expires_at: null, plan: 'free', payment_status: null, is_trial: null, trial_ends_at: null, created_at: new Date().toISOString() };
+      if (error) return { user_status: 'active', expires_at: null, plan: 'free', payment_status: null, is_trial: null, trial_ends_at: null, created_at: user?.created_at || new Date().toISOString() };
       return {
         user_status: data.user_status || 'active',
         expires_at: data.expires_at,

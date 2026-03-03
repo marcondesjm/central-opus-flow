@@ -156,6 +156,16 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     e.preventDefault();
     if (!user) return;
 
+    // Validar WhatsApp obrigatório
+    if (!whatsapp.trim() || whatsapp.replace(/\D/g, '').length < 10) {
+      toast({
+        title: 'WhatsApp obrigatório',
+        description: 'Informe um número de WhatsApp válido com DDD para continuar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase
@@ -405,14 +415,20 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp" className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-muted-foreground" />
-                    WhatsApp cadastrado
+                    WhatsApp cadastrado <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="whatsapp"
                     placeholder="(00) 00000-0000"
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
+                    required
                   />
+                  {(!whatsapp.trim() || whatsapp.replace(/\D/g, '').length < 10) && (
+                    <p className="text-xs text-destructive">
+                      Campo obrigatório. Informe um número válido com DDD.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">

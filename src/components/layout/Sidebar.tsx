@@ -561,10 +561,10 @@ export function Sidebar({
               const sub = subscription as any;
               const expiresAt = sub?.expires_at ? new Date(sub.expires_at) : null;
               const trialEndsAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
-              const freeExpiration = currentPlan === 'free' && sub?.created_at
-                ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
+              const freeExpiration = currentPlan === 'free'
+                ? (expiresAt || (sub?.created_at ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000) : null))
                 : null;
-              const effectiveDate = expiresAt || trialEndsAt || freeExpiration;
+              const effectiveDate = currentPlan === 'free' ? freeExpiration : (expiresAt || trialEndsAt);
               if (!effectiveDate) return null;
               const daysLeft = Math.ceil((effectiveDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
               const isPaidPlan = (currentPlan === 'pro' || currentPlan === 'business') && 

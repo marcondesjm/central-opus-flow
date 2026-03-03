@@ -27,9 +27,25 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [validatingFace, setValidatingFace] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateFacePhoto = async (base64: string): Promise<{ valid: boolean; reason?: string }> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-face-photo', {
+        body: { imageBase64: base64 },
+      });
+      if (error) {
+        console.error('Face validation error:', error);
+        return { valid: true }; // fail open
+      }
+      return data;
+    } catch {
+      return { valid: true }; // fail open
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -43,9 +59,30 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
       return;
     }
 
-    setAvatarFile(file);
+    // Read as base64
     const reader = new FileReader();
-    reader.onloadend = () => setAvatarPreview(reader.result as string);
+    reader.onloadend = async () => {
+      const base64 = reader.result as string;
+      
+      // Validate face
+      setValidatingFace(true);
+      const result = await validateFacePhoto(base64);
+      setValidatingFace(false);
+
+      if (!result.valid) {
+        toast({ 
+          title: 'Foto inválida', 
+          description: result.reason || 'A foto deve conter um rosto humano real. Selfies e fotos de perfil são aceitas.', 
+          variant: 'destructive' 
+        });
+        // Reset file input
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      setAvatarFile(file);
+      setAvatarPreview(base64);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -128,20 +165,28 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
                 <Label>Foto de Perfil <span className="text-destructive">*</span></Label>
                 <div className="flex flex-col items-center gap-3">
                   <div 
-                    className="relative cursor-pointer group"
-                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative cursor-pointer group ${validatingFace ? 'pointer-events-none opacity-60' : ''}`}
+                    onClick={() => !validatingFace && fileInputRef.current?.click()}
                   >
                     <Avatar className="w-20 h-20 ring-2 ring-border group-hover:ring-primary transition-all">
-                      {avatarPreview ? (
+                      {validatingFace ? (
+                        <AvatarFallback className="bg-muted text-muted-foreground">
+                          <Loader2 className="w-8 h-8 animate-spin" />
+                        </AvatarFallback>
+                      ) : avatarPreview ? (
                         <AvatarImage src={avatarPreview} alt="Preview" />
                       ) : null}
-                      <AvatarFallback className="bg-muted text-muted-foreground">
-                        <Camera className="w-8 h-8" />
-                      </AvatarFallback>
+                      {!validatingFace && !avatarPreview && (
+                        <AvatarFallback className="bg-muted text-muted-foreground">
+                          <Camera className="w-8 h-8" />
+                        </AvatarFallback>
+                      )}
                     </Avatar>
-                    <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Camera className="w-6 h-6 text-white" />
-                    </div>
+                    {!validatingFace && (
+                      <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Camera className="w-6 h-6 text-white" />
+                      </div>
+                    )}
                   </div>
                   <input
                     ref={fileInputRef}
@@ -150,7 +195,9 @@ export function CompleteProfileGate({ missingName, missingWhatsapp, missingAvata
                     className="hidden"
                     onChange={handleAvatarChange}
                   />
-                  <p className="text-xs text-muted-foreground">Clique para adicionar sua foto (máx. 5MB)</p>
+                  <p className="text-xs text-muted-foreground">
+                    {validatingFace ? 'Verificando foto...' : 'Use uma foto real do seu rosto (máx. 5MB)'}
+                  </p>
                 </div>
               </div>
             )}

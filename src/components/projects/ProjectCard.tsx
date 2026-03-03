@@ -63,6 +63,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
   const [previewOpen, setPreviewOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const statusCfg = statusConfigMap[project.status];
@@ -93,17 +94,18 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
     )}>
       {/* Screenshot */}
       <div className="relative aspect-video bg-muted overflow-hidden">
-        {project.screenshot ? (
+        {project.screenshot && !imgError ? (
           <img
             src={project.screenshot}
             alt={project.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
+            onError={() => setImgError(true)}
           />
-        ) : null}
-        <div className={cn("w-full h-full flex items-center justify-center text-muted-foreground", project.screenshot ? "hidden" : "")}>
-          <Eye className="w-8 h-8" />
-        </div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <Eye className="w-8 h-8" />
+          </div>
+        )}
 
         {/* Overdue Indicator */}
         {isOverdue && (
@@ -123,7 +125,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         {/* Overlay Actions */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           {/* Ver Preview button */}
-          {project.screenshot && (
+          {project.screenshot && !imgError && (
             <button
               onClick={() => setPreviewOpen(true)}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"

@@ -314,6 +314,18 @@ export function Header({
                     )}
                   </Badge>
                 </div>
+                {(() => {
+                  const expDate = (subscription as any)?.expires_at || (subscription as any)?.trial_ends_at;
+                  if (!expDate) return null;
+                  const diff = Math.max(0, Math.ceil((new Date(expDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                  const isPaid = (subscription as any)?.payment_status === 'paid' || (subscription as any)?.payment_status === 'verified';
+                  if (isPaid && diff > 30) return null;
+                  return (
+                    <div className={`text-[10px] mt-1 font-medium ${diff <= 3 ? 'text-destructive' : diff <= 7 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                      ⏳ {diff > 0 ? `${diff} dia${diff !== 1 ? 's' : ''} restante${diff !== 1 ? 's' : ''}` : 'Expirado'}
+                    </div>
+                  );
+                })()}
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/dashboard?settings=profile')}>

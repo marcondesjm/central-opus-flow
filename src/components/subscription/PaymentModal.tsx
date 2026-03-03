@@ -40,6 +40,40 @@ interface PixData {
   amount: number;
 }
 
+const PIX_MAX_RETRIES = 3;
+const PIX_RETRY_DELAY_MS = 1200;
+
+async function loadPixDataWithRetry(): Promise<PixData> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= PIX_MAX_RETRIES; attempt++) {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-pix');
+      if (error) throw error;
+
+      const parsed = data as Partial<PixData> | null;
+      if (!parsed?.brCode || !parsed?.pixKey || !parsed?.name) {
+        throw new Error('Resposta PIX inválida.');
+      }
+
+      return {
+        brCode: parsed.brCode,
+        maskedKey: parsed.maskedKey || '•••••••••••',
+        pixKey: parsed.pixKey,
+        name: parsed.name,
+        amount: typeof parsed.amount === 'number' ? parsed.amount : 19.9,
+      };
+    } catch (err) {
+      lastError = err;
+      if (attempt < PIX_MAX_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, PIX_RETRY_DELAY_MS * attempt));
+      }
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Falha ao carregar PIX.');
+}
+
 export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
   const [copiedBrCode, setCopiedBrCode] = useState(false);
@@ -58,19 +92,33 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
 
   // Fetch PIX data from backend when modal opens
   useEffect(() => {
-    if (open && !pixData) {
+    let isCancelled = false;
+
+    if (open) {
       setPixLoading(true);
-      supabase.functions.invoke('generate-pix')
-        .then(({ data, error }) => {
-          if (error) throw error;
-          setPixData(data as PixData);
+      loadPixDataWithRetry()
+        .then((data) => {
+          if (!isCancelled) setPixData(data);
         })
-        .catch(() => {
-          toast({ title: 'Erro ao carregar dados PIX', variant: 'destructive' });
+        .catch((error: unknown) => {
+          if (!isCancelled) {
+            setPixData(null);
+            toast({
+              title: 'Erro ao carregar dados PIX',
+              description: error instanceof Error ? error.message : 'Tente novamente em instantes.',
+              variant: 'destructive',
+            });
+          }
         })
-        .finally(() => setPixLoading(false));
+        .finally(() => {
+          if (!isCancelled) setPixLoading(false);
+        });
     }
-  }, [open]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [open, toast]);
 
   const handleCopyPix = async () => {
     if (!pixData) return;

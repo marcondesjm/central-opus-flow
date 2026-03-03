@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Clock, Mail, AlertTriangle, MessageCircle } from 'lucide-react';
+import { addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CompleteProfileGate } from './CompleteProfileGate';
@@ -19,6 +20,7 @@ interface SubscriptionStatus {
   payment_status: string | null;
   is_trial: boolean | null;
   trial_ends_at: string | null;
+  created_at: string;
 }
 
 interface ProfileCompletion {
@@ -35,11 +37,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     queryFn: async (): Promise<SubscriptionStatus> => {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('user_status, expires_at, plan, payment_status, is_trial, trial_ends_at')
+        .select('user_status, expires_at, plan, payment_status, is_trial, trial_ends_at, created_at')
         .eq('user_id', user!.id)
         .single();
 
-      if (error) return { user_status: 'active', expires_at: null, plan: 'free', payment_status: null, is_trial: null, trial_ends_at: null };
+      if (error) return { user_status: 'active', expires_at: null, plan: 'free', payment_status: null, is_trial: null, trial_ends_at: null, created_at: new Date().toISOString() };
       return {
         user_status: data.user_status || 'active',
         expires_at: data.expires_at,
@@ -47,6 +49,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         payment_status: data.payment_status,
         is_trial: data.is_trial,
         trial_ends_at: data.trial_ends_at,
+        created_at: data.created_at,
       };
     },
     enabled: !!user,
@@ -86,7 +89,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const now = new Date();
   const expirationDate = subStatus?.expires_at ? new Date(subStatus.expires_at) : null;
   const trialEndDate = subStatus?.trial_ends_at ? new Date(subStatus.trial_ends_at) : null;
-  const effectiveExpiration = expirationDate || trialEndDate;
+  const freeExpiration = subStatus?.plan === 'free' && subStatus?.created_at
+    ? addDays(new Date(subStatus.created_at), 30)
+    : null;
+  const effectiveExpiration = expirationDate || trialEndDate || freeExpiration;
   const isPaid = subStatus?.payment_status === 'paid' || subStatus?.payment_status === 'verified';
   const isExpired = effectiveExpiration && effectiveExpiration <= now && !isPaid;
 

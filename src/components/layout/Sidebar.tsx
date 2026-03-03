@@ -28,6 +28,8 @@ import {
   Bot,
   Minus,
   Clock,
+  RefreshCw,
+  CheckCircle2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -206,7 +208,33 @@ export function Sidebar({
           </div>
           <div>
             <h1 className="font-semibold text-sidebar-foreground text-sm">Central Opus Flow</h1>
-            <p className="text-xs text-muted-foreground">v{systemVersion?.version || '1.3.1'}</p>
+            {(() => {
+              const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
+              const storedVersion = localStorage.getItem(LOCAL_VERSION_KEY);
+              const serverVersion = systemVersion?.version || '1.3.1';
+              const isOutdated = storedVersion && storedVersion !== serverVersion;
+              
+              if (isOutdated) {
+                return (
+                  <button
+                    onClick={() => {
+                      localStorage.setItem(LOCAL_VERSION_KEY, serverVersion);
+                      window.location.reload();
+                    }}
+                    className="flex items-center gap-1 text-[10px] text-amber-600 hover:text-amber-500 transition-colors"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Atualizar para v{serverVersion}
+                  </button>
+                );
+              }
+              return (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  v{serverVersion}
+                  <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                </p>
+              );
+            })()}
           </div>
         </div>
       </div>

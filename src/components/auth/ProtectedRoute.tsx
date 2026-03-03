@@ -162,16 +162,30 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Check if user is frozen
   if (userStatus === 'frozen') {
+    const whatsappMessage = encodeURIComponent(
+      `Olá! Minha conta foi congelada e gostaria de mais informações.`
+    );
+    const whatsappUrl = `https://wa.me/5548996029392?text=${whatsappMessage}`;
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
+            <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-8 h-8 text-destructive" />
+            </div>
             <CardTitle className="text-xl text-destructive">Conta Congelada</CardTitle>
             <CardDescription className="text-base mt-2">
               Sua conta foi congelada pelo administrador. Entre em contato para mais informações.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <Button className="w-full gap-2">
+                <MessageCircle className="w-4 h-4" />
+                Falar com o Administrador
+              </Button>
+            </a>
             <Button
               variant="outline"
               className="w-full"

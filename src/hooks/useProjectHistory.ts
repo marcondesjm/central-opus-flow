@@ -15,14 +15,29 @@ export interface ProjectHistoryEntry {
   created_at: string;
 }
 
+function mergeHistoryEntries(
+  current: ProjectHistoryEntry[],
+  incoming: ProjectHistoryEntry[]
+): ProjectHistoryEntry[] {
+  const map = new Map<string, ProjectHistoryEntry>();
+
+  [...incoming, ...current].forEach((entry) => {
+    map.set(entry.id, entry);
+  });
+
+  return Array.from(map.values())
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 50);
+}
+
 export function useProjectHistory(projectId?: string) {
   const { user } = useAuth();
   const [history, setHistory] = useState<ProjectHistoryEntry[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchHistory = useCallback(async () => {
-    if (!projectId) return;
-    
+    if (!projectId || !user) return;
+
     setLoading(true);
     const { data, error } = await supabase
       .from('project_history')
@@ -37,11 +52,49 @@ export function useProjectHistory(projectId?: string) {
       setHistory(data as ProjectHistoryEntry[]);
     }
     setLoading(false);
-  }, [projectId]);
+  }, [projectId, user]);
 
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
+
+  useEffect(() => {
+    if (!projectId || !user) return;
+
+    const channel = supabase
+      .channel(`project-history-${projectId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'project_history',
+          filter: `project_id=eq.${projectId}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT' && payload.new) {
+            setHistory((prev) => mergeHistoryEntries(prev, [payload.new as ProjectHistoryEntry]));
+            return;
+          }
+
+          fetchHistory();
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          fetchHistory();
+        }
+      });
+
+    const pollInterval = window.setInterval(() => {
+      fetchHistory();
+    }, 15000);
+
+    return () => {
+      clearInterval(pollInterval);
+      supabase.removeChannel(channel);
+    };
+  }, [projectId, user, fetchHistory]);
 
   const logChange = useCallback(async (
     projectId: string,
@@ -84,3 +137,4 @@ export function useProjectHistory(projectId?: string) {
     logChange
   };
 }
+

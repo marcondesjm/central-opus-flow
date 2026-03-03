@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useEffect } from 'react';
 
 export interface ActivityLog {
   id: string;
@@ -28,6 +29,40 @@ export type ActionType =
 
 export function useActivityLogs(limit = 50) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const refreshLogs = () => {
+      queryClient.invalidateQueries({ queryKey: ['activity-logs', user.id, limit] });
+    };
+
+    const channel = supabase
+      .channel(`activity-logs-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'activity_logs',
+          filter: `user_id=eq.${user.id}`,
+        },
+        refreshLogs
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          refreshLogs();
+        }
+      });
+
+    const pollInterval = window.setInterval(refreshLogs, 15000);
+
+    return () => {
+      clearInterval(pollInterval);
+      supabase.removeChannel(channel);
+    };
+  }, [user, limit, queryClient]);
   
   return useQuery({
     queryKey: ['activity-logs', user?.id, limit],
@@ -42,6 +77,8 @@ export function useActivityLogs(limit = 50) {
       return data as ActivityLog[];
     },
     enabled: !!user,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -116,3 +153,4 @@ export function formatActivityAction(action: string, entityType: string, entityN
   }
   return `${actionText} ${entityText}`;
 }
+

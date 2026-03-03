@@ -45,7 +45,7 @@ export function NotificationBanner({ notifications, onMarkAsRead }: Notification
   if (visibleNotifications.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div className="fixed top-20 right-4 z-[60] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
       <AnimatePresence>
         {visibleNotifications.map((notification) => (
           <motion.div

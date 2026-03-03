@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { useKanbanPayments, useCreatePayment, useUpdatePayment, useDeletePayment, KanbanPayment } from '@/hooks/useKanbanPayments';
+import { useKanbanPayments, useCreatePayment, useUpdatePayment, useDeletePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
 import { KanbanDeal } from '@/hooks/useKanban';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -32,6 +32,8 @@ function PaymentForm({ open, onOpenChange, dealId, editPayment }: {
     payment_date: editPayment?.payment_date?.slice(0, 10) || new Date().toISOString().slice(0, 10),
     status: editPayment?.status || 'pendente',
     description: editPayment?.description || '',
+    payment_method: editPayment?.payment_method || 'pix',
+    category: editPayment?.category || 'projeto',
   });
 
   const handleSubmit = () => {
@@ -65,6 +67,28 @@ function PaymentForm({ open, onOpenChange, dealId, editPayment }: {
               <SelectContent>
                 {STATUS_OPTIONS.map(s => (
                   <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Método de Pagamento</Label>
+            <Select value={form.payment_method} onValueChange={v => setForm(f => ({ ...f, payment_method: v }))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PAYMENT_METHODS.map(m => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Categoria</Label>
+            <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PAYMENT_CATEGORIES.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -161,6 +185,12 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>{format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                          {payment.payment_method && (
+                            <span>· {PAYMENT_METHODS.find(m => m.value === payment.payment_method)?.label || payment.payment_method}</span>
+                          )}
+                          {payment.category && (
+                            <span>· {PAYMENT_CATEGORIES.find(c => c.value === payment.category)?.label || payment.category}</span>
+                          )}
                           {payment.description && <span>· {payment.description}</span>}
                         </div>
                       </div>

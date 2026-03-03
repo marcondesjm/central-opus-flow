@@ -529,6 +529,25 @@ export function Sidebar({
               <planInfo.icon className="w-3 h-3" />
               {t('sidebar.plan')} {planInfo.label}
             </Badge>
+            {(() => {
+              const sub = subscription as any;
+              const expiresAt = sub?.expires_at ? new Date(sub.expires_at) : null;
+              const trialEndsAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
+              const freeExpiration = currentPlan === 'free' && sub?.created_at
+                ? new Date(new Date(sub.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
+                : null;
+              const effectiveDate = expiresAt || trialEndsAt || freeExpiration;
+              if (!effectiveDate) return null;
+              const daysLeft = Math.ceil((effectiveDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              const isPaidPlan = (currentPlan === 'pro' || currentPlan === 'business') && 
+                (sub?.payment_status === 'paid' || sub?.payment_status === 'verified');
+              if (isPaidPlan && daysLeft > 30) return null;
+              return (
+                <p className={cn("text-[10px]", daysLeft <= 3 ? 'text-destructive font-semibold' : daysLeft <= 7 ? 'text-amber-600' : 'text-muted-foreground')}>
+                  {daysLeft <= 0 ? 'Expirado' : `Expira em ${daysLeft} dia${daysLeft !== 1 ? 's' : ''}`}
+                </p>
+              );
+            })()}
           </div>
         )}
 

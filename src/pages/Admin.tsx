@@ -79,7 +79,7 @@ import {
   Globe,
   Send,
 } from 'lucide-react';
-import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
+import { format, formatDistanceToNow, differenceInDays, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -940,11 +940,20 @@ export default function Admin() {
                                         {user.subscription_type === 'annual' ? 'Anual' : 'Mensal'}
                                       </span>
                                     )}
-                                    {(user.subscription_expires_at || user.trial_ends_at) && (() => {
-                                      const expDate = user.subscription_expires_at || user.trial_ends_at;
-                                      const daysLeft = differenceInDays(new Date(expDate!), new Date());
+                                    {(() => {
+                                      const effectiveExpiration =
+                                        user.subscription_expires_at ||
+                                        user.trial_ends_at ||
+                                        (user.plan === 'free' && user.created_at
+                                          ? addDays(new Date(user.created_at), 30).toISOString()
+                                          : null);
+
+                                      if (!effectiveExpiration) return null;
+
+                                      const daysLeft = differenceInDays(new Date(effectiveExpiration), new Date());
                                       const isExpired = daysLeft <= 0;
                                       const isExpiring = daysLeft <= 7;
+
                                       return (
                                         <span className={cn(
                                           "text-[10px] font-medium flex items-center gap-0.5",

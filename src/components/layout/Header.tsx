@@ -62,7 +62,7 @@ export function Header({
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { t } = useTranslation();
-  const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null; created_at: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { data: subscription } = useSubscription();
   const isAdmin = useIsAdmin();
@@ -74,7 +74,7 @@ export function Header({
     const fetchProfile = async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('avatar_url, full_name')
+        .select('avatar_url, full_name, created_at')
         .eq('user_id', user.id)
         .single();
       
@@ -99,10 +99,11 @@ export function Header({
         },
         (payload) => {
           if (payload.new && typeof payload.new === 'object') {
-            const newData = payload.new as { avatar_url?: string | null; full_name?: string | null };
+            const newData = payload.new as { avatar_url?: string | null; full_name?: string | null; created_at?: string | null };
             setProfile({
               avatar_url: newData.avatar_url ?? null,
               full_name: newData.full_name ?? null,
+              created_at: newData.created_at ?? null,
             });
           }
         }
@@ -314,6 +315,11 @@ export function Header({
                     )}
                   </Badge>
                 </div>
+                {profile?.created_at && (
+                  <div className="text-[10px] mt-1 text-muted-foreground">
+                    📅 Membro desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </div>
+                )}
                 {(() => {
                   const expDate = (subscription as any)?.expires_at || (subscription as any)?.trial_ends_at;
                   if (!expDate) return null;

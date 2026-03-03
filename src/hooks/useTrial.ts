@@ -38,14 +38,19 @@ export function useTrial() {
         };
       }
 
+      // For free plan: use expires_at if admin set it, otherwise 15 days from account creation
+      const freeEndDate = data.plan === 'free'
+        ? (data.expires_at 
+            ? new Date(data.expires_at)
+            : user?.created_at 
+              ? addDays(new Date(user.created_at), 15) 
+              : null)
+        : null;
       const paidEndDate = data.trial_ends_at
         ? new Date(data.trial_ends_at)
         : data.expires_at
           ? new Date(data.expires_at)
           : null;
-      const freeEndDate = data.plan === 'free' && user?.created_at
-        ? addDays(new Date(user.created_at), 15)
-        : null;
       const endDate = data.plan === 'free' ? freeEndDate : paidEndDate;
       const now = new Date();
       const isExpiredDate = endDate ? isPast(endDate) : false;

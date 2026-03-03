@@ -209,7 +209,7 @@ export function Header({
           const freeExpiration = plan === 'free' && profile?.created_at
             ? new Date(new Date(profile.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
             : null;
-          const effectiveDate = expiresAt || trialEndsAt || freeExpiration;
+          const effectiveDate = freeExpiration || expiresAt || trialEndsAt;
           if (!effectiveDate) return null;
           const daysLeft = Math.ceil((effectiveDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
           const isPaidPlan = (plan === 'pro' || plan === 'business') && 
@@ -348,7 +348,7 @@ export function Header({
                   const freeExp = plan === 'free' && profile?.created_at
                     ? new Date(new Date(profile.created_at).getTime() + 15 * 24 * 60 * 60 * 1000)
                     : null;
-                  const effectiveDate = expAt || trialAt || freeExp;
+                  const effectiveDate = freeExp || expAt || trialAt;
                   if (!effectiveDate) return null;
                   const diff = Math.max(0, Math.ceil((effectiveDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
                   const isPaidPlan = (plan === 'pro' || plan === 'business') && 

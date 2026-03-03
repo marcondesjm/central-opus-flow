@@ -131,14 +131,18 @@ export function PricingSection() {
               </div>
               
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$199</span>
+                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$139</span>
+                <span className="text-xl font-bold">,90</span>
                 <span className="text-muted-foreground">/ano</span>
               </div>
               
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-sm text-muted-foreground">
-                  💰 equivale a <strong className="text-foreground">R$ 16,58/mês</strong>
+                  💰 equivale a <strong className="text-foreground">R$ 11,66/mês</strong>
                 </span>
+                <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 border-0">
+                  Economize R$ 27,98
+                </Badge>
               </div>
               
               <ul className="space-y-3 mb-8">

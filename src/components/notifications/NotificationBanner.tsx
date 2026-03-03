@@ -63,7 +63,7 @@ export function NotificationBanner({ notifications, onMarkAsRead }: Notification
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">{notification.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {notification.message}
                   </p>
                 </div>

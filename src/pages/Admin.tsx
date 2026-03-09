@@ -171,7 +171,7 @@ export default function Admin() {
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [previewUser, setPreviewUser] = useState<AdminUser | null>(null);
-  const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[] } | null>(null);
+  const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[]; kanbanDeals: any[] } | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [messageTargetUser, setMessageTargetUser] = useState<any>(null);

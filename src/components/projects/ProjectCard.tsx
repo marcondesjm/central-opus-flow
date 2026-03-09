@@ -102,8 +102,11 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <Eye className="w-8 h-8" />
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-accent/10">
+            <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center mb-2 shadow-sm">
+              <span className="text-2xl font-bold text-primary/70">{project.name?.charAt(0)?.toUpperCase() || 'P'}</span>
+            </div>
+            <span className="text-xs text-muted-foreground/70 font-medium">Sem imagem</span>
           </div>
         )}
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Eye, Tag } from 'lucide-react';
+import { BookOpen, Eye, Tag, LayoutGrid } from 'lucide-react';
 import { AdminMonitoringCharts } from '@/components/admin/AdminMonitoringCharts';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -171,7 +171,7 @@ export default function Admin() {
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [previewUser, setPreviewUser] = useState<AdminUser | null>(null);
-  const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[] } | null>(null);
+  const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[]; kanbanDeals: any[] } | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [messageTargetUser, setMessageTargetUser] = useState<any>(null);
@@ -181,16 +181,18 @@ export default function Admin() {
     setPreviewUser(user);
     setLoadingPreview(true);
     try {
-      const [accountsRes, projectsRes] = await Promise.all([
+      const [accountsRes, projectsRes, kanbanRes] = await Promise.all([
         supabase.from('lovable_accounts').select('id, name, email, color, created_at').eq('user_id', user.user_id),
         supabase.from('projects').select('id, name, description, status, url, progress, created_at, updated_at').eq('user_id', user.user_id),
+        supabase.from('kanban_deals').select('*').eq('user_id', user.user_id).order('position', { ascending: true }),
       ]);
       setPreviewData({
         accounts: accountsRes.data || [],
         projects: projectsRes.data || [],
+        kanbanDeals: kanbanRes.data || [],
       });
     } catch {
-      setPreviewData({ accounts: [], projects: [] });
+      setPreviewData({ accounts: [], projects: [], kanbanDeals: [] });
     } finally {
       setLoadingPreview(false);
     }
@@ -198,44 +200,60 @@ export default function Admin() {
 
   // Real-time subscription for users - syncs when new accounts are created
   useEffect(() => {
+    const handleRefetch = () => {
+      refetch();
+      // Also refresh preview if open
+      if (previewUser) {
+        handlePreviewUser(previewUser);
+      }
+    };
+
     const channel = supabase
       .channel('admin-realtime')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'profiles' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'subscriptions' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'lovable_accounts' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'projects' },
-        () => refetch()
+        () => {
+          handleRefetch();
+          queryClient.invalidateQueries({ queryKey: ['admin-all-projects'] });
+        }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'user_roles' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'payment_receipts' },
-        () => refetch()
+        () => handleRefetch()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'kanban_deals' },
+        () => handleRefetch()
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, [refetch, previewUser, queryClient]);
 
   // Filter and sort users
   const filteredUsers = users
@@ -1411,6 +1429,86 @@ export default function Admin() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Kanban Deals */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <LayoutGrid className="w-4 h-4" />
+                    Kanban — Tarefas ({previewData.kanbanDeals.length})
+                  </h3>
+                  {previewData.kanbanDeals.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhuma tarefa no kanban.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {/* Group deals by phase */}
+                      {(() => {
+                        const phases = new Map<string, any[]>();
+                        previewData.kanbanDeals.forEach((deal: any) => {
+                          const p = deal.phase || 'sem_fase';
+                          if (!phases.has(p)) phases.set(p, []);
+                          phases.get(p)!.push(deal);
+                        });
+
+                        const phaseLabels: Record<string, string> = {
+                          prospeccao: 'Prospecção',
+                          qualificacao: 'Qualificação',
+                          proposta: 'Proposta',
+                          negociacao: 'Negociação',
+                          fechamento: 'Fechamento',
+                          concluido: 'Concluído',
+                        };
+
+                        const priorityColors: Record<string, string> = {
+                          urgent: 'text-red-600',
+                          high: 'text-orange-600',
+                          medium: 'text-yellow-600',
+                          low: 'text-green-600',
+                        };
+
+                        return Array.from(phases.entries()).map(([phase, deals]) => (
+                          <div key={phase} className="border rounded-lg overflow-hidden">
+                            <div className="bg-muted/50 px-3 py-2 flex items-center justify-between">
+                              <span className="text-xs font-semibold uppercase tracking-wide">
+                                {phaseLabels[phase] || phase}
+                              </span>
+                              <Badge variant="secondary" className="text-xs">{deals.length}</Badge>
+                            </div>
+                            <div className="divide-y divide-border">
+                              {deals.map((deal: any) => (
+                                <div key={deal.id} className="px-3 py-2 space-y-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="font-medium text-sm truncate">{deal.company_name}</p>
+                                    <span className={cn("text-xs font-medium", priorityColors[deal.priority] || 'text-muted-foreground')}>
+                                      {deal.priority === 'urgent' ? '🔴 Urgente' :
+                                       deal.priority === 'high' ? '🟠 Alta' :
+                                       deal.priority === 'medium' ? '🟡 Média' : '🟢 Baixa'}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    Cliente: {deal.client_name}
+                                  </p>
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <span>Progresso: {deal.progress}%</span>
+                                    {deal.revenue > 0 && (
+                                      <span className="font-medium text-foreground">
+                                        R$ {Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {deal.due_date && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Prazo: {format(new Date(deal.due_date), 'dd/MM/yyyy', { locale: ptBR })}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ));
+                      })()}
                     </div>
                   )}
                 </div>

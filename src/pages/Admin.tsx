@@ -200,44 +200,60 @@ export default function Admin() {
 
   // Real-time subscription for users - syncs when new accounts are created
   useEffect(() => {
+    const handleRefetch = () => {
+      refetch();
+      // Also refresh preview if open
+      if (previewUser) {
+        handlePreviewUser(previewUser);
+      }
+    };
+
     const channel = supabase
       .channel('admin-realtime')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'profiles' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'subscriptions' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'lovable_accounts' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'projects' },
-        () => refetch()
+        () => {
+          handleRefetch();
+          queryClient.invalidateQueries({ queryKey: ['admin-all-projects'] });
+        }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'user_roles' },
-        () => refetch()
+        () => handleRefetch()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'payment_receipts' },
-        () => refetch()
+        () => handleRefetch()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'kanban_deals' },
+        () => handleRefetch()
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, [refetch, previewUser, queryClient]);
 
   // Filter and sort users
   const filteredUsers = users

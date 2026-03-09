@@ -181,16 +181,18 @@ export default function Admin() {
     setPreviewUser(user);
     setLoadingPreview(true);
     try {
-      const [accountsRes, projectsRes] = await Promise.all([
+      const [accountsRes, projectsRes, kanbanRes] = await Promise.all([
         supabase.from('lovable_accounts').select('id, name, email, color, created_at').eq('user_id', user.user_id),
         supabase.from('projects').select('id, name, description, status, url, progress, created_at, updated_at').eq('user_id', user.user_id),
+        supabase.from('kanban_deals').select('*').eq('user_id', user.user_id).order('position', { ascending: true }),
       ]);
       setPreviewData({
         accounts: accountsRes.data || [],
         projects: projectsRes.data || [],
+        kanbanDeals: kanbanRes.data || [],
       });
     } catch {
-      setPreviewData({ accounts: [], projects: [] });
+      setPreviewData({ accounts: [], projects: [], kanbanDeals: [] });
     } finally {
       setLoadingPreview(false);
     }

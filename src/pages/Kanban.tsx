@@ -791,6 +791,10 @@ export default function KanbanPage() {
               <BarChart3 className="w-4 h-4 mr-2" />
               {showChart ? 'Ocultar' : 'Gráfico'}
             </Button>
+            <div className="hidden sm:flex items-center gap-2">
+              <ImportBackupButton />
+              <ExportBackupButton />
+            </div>
             <Button size="sm" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
               <Plus className="w-4 h-4 mr-2" />
               Nova Tarefa

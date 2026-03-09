@@ -1432,6 +1432,86 @@ export default function Admin() {
                     </div>
                   )}
                 </div>
+
+                {/* Kanban Deals */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <LayoutGrid className="w-4 h-4" />
+                    Kanban — Tarefas ({previewData.kanbanDeals.length})
+                  </h3>
+                  {previewData.kanbanDeals.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhuma tarefa no kanban.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {/* Group deals by phase */}
+                      {(() => {
+                        const phases = new Map<string, any[]>();
+                        previewData.kanbanDeals.forEach((deal: any) => {
+                          const p = deal.phase || 'sem_fase';
+                          if (!phases.has(p)) phases.set(p, []);
+                          phases.get(p)!.push(deal);
+                        });
+
+                        const phaseLabels: Record<string, string> = {
+                          prospeccao: 'Prospecção',
+                          qualificacao: 'Qualificação',
+                          proposta: 'Proposta',
+                          negociacao: 'Negociação',
+                          fechamento: 'Fechamento',
+                          concluido: 'Concluído',
+                        };
+
+                        const priorityColors: Record<string, string> = {
+                          urgent: 'text-red-600',
+                          high: 'text-orange-600',
+                          medium: 'text-yellow-600',
+                          low: 'text-green-600',
+                        };
+
+                        return Array.from(phases.entries()).map(([phase, deals]) => (
+                          <div key={phase} className="border rounded-lg overflow-hidden">
+                            <div className="bg-muted/50 px-3 py-2 flex items-center justify-between">
+                              <span className="text-xs font-semibold uppercase tracking-wide">
+                                {phaseLabels[phase] || phase}
+                              </span>
+                              <Badge variant="secondary" className="text-xs">{deals.length}</Badge>
+                            </div>
+                            <div className="divide-y divide-border">
+                              {deals.map((deal: any) => (
+                                <div key={deal.id} className="px-3 py-2 space-y-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="font-medium text-sm truncate">{deal.company_name}</p>
+                                    <span className={cn("text-xs font-medium", priorityColors[deal.priority] || 'text-muted-foreground')}>
+                                      {deal.priority === 'urgent' ? '🔴 Urgente' :
+                                       deal.priority === 'high' ? '🟠 Alta' :
+                                       deal.priority === 'medium' ? '🟡 Média' : '🟢 Baixa'}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    Cliente: {deal.client_name}
+                                  </p>
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <span>Progresso: {deal.progress}%</span>
+                                    {deal.revenue > 0 && (
+                                      <span className="font-medium text-foreground">
+                                        R$ {Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {deal.due_date && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Prazo: {format(new Date(deal.due_date), 'dd/MM/yyyy', { locale: ptBR })}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  )}
+                </div>
               </>
             ) : null}
           </div>

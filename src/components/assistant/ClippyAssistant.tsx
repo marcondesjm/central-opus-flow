@@ -40,7 +40,7 @@ const greetings = [
 ];
 
 type ClippyMood = 'normal' | 'happy' | 'thinking' | 'surprised' | 'sleeping' | 'wink';
-type ClippyAnimation = 'idle' | 'wave' | 'jump' | 'lean' | 'spin' | 'bounce' | 'peek';
+type ClippyAnimation = 'idle' | 'wave' | 'jump' | 'lean' | 'spin' | 'bounce' | 'peek' | 'knock';
 
 export function ClippyAssistant() {
   const [isOpen, setIsOpen] = useState(false);

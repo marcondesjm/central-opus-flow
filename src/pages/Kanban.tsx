@@ -1313,7 +1313,7 @@ export default function KanbanPage() {
                       mode="single"
                       selected={scheduledDate}
                       onSelect={setScheduledDate}
-                      disabled={(date) => isBefore(date, new Date())}
+                      disabled={(date) => isBefore(date, startOfDay(new Date()))}
                       initialFocus
                     />
                   </PopoverContent>

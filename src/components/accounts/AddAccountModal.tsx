@@ -223,11 +223,11 @@ export function AddAccountModal({ open, onOpenChange }: AddAccountModalProps) {
                   </Label>
                   <Input
                     id="account-credits"
-                    type="number"
-                    min="0"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="0"
                     value={credits}
-                    onChange={(e) => setCredits(e.target.value)}
+                    onChange={(e) => setCredits(e.target.value.replace(/[^0-9.,]/g, ''))}
                   />
                 </div>
                 

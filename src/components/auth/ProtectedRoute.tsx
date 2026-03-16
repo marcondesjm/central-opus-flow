@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CompleteProfileGate } from './CompleteProfileGate';
 import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
+import { useGlobalSync } from '@/hooks/useGlobalSync';
 
 interface ProtectedRouteProps {
   children: ReactNode;

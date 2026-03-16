@@ -709,7 +709,7 @@ function RevenueChart({ deals, chartType }: { deals: KanbanDeal[]; chartType: 'b
   }, [deals]);
 
   if (chartType === 'pie') {
-    return <RevenuePieChart deals={deals} />;
+    return <RevenuePieChart deals={deals} mode="cliente" />;
   }
 
   if (chartData.data.length === 0) {

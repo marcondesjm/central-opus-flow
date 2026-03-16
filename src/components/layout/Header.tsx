@@ -324,12 +324,12 @@ export function Header({
                 <div className="flex items-center gap-1.5 mt-1">
                   <Crown className="w-3 h-3 text-primary" />
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                    {subscription?.plan === 'free' ? 'Grátis' : 
+                    {subscription?.plan === 'free' ? t('sidebar.free') : 
                      subscription?.plan === 'pro' ? 'Pro' : 
-                     subscription?.plan === 'business' ? 'Business' : 'Grátis'}
+                     subscription?.plan === 'business' ? 'Business' : t('sidebar.free')}
                     {subscription?.plan !== 'free' && (
                       <span className="ml-1 text-muted-foreground">
-                        • {(subscription as any)?.subscription_type === 'annual' ? 'Anual' : 'Mensal'}
+                        • {(subscription as any)?.subscription_type === 'annual' ? t('sidebar.annual') : t('sidebar.monthly')}
                       </span>
                     )}
                   </Badge>

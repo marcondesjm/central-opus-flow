@@ -24,6 +24,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';
 import { useAuth } from '@/hooks/useAuth';
@@ -713,6 +714,15 @@ export default function KanbanPage() {
   const [showScheduledList, setShowScheduledList] = useState(false);
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
+  const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('kanban-auto-dispatch-enabled') !== 'false';
+    } catch {
+      return true;
+    }
+  });
+  const [nowTs, setNowTs] = useState(Date.now());
+  const autoDispatchingIdsRef = useRef<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
@@ -726,6 +736,21 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
+  const getScheduledTimestamp = (scheduledDate: string) => new Date(`${scheduledDate}T09:00:00`).getTime();
+
+  const formatCountdown = (diffMs: number) => {
+    if (diffMs <= 0) return 'Disparando...';
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+    return `${minutes}m ${seconds}s`;
+  };
+
   // Check for scheduled WhatsApp messages due today or overdue
   useEffect(() => {
     if (!user) return;
@@ -737,36 +762,66 @@ export default function KanbanPage() {
         .eq('user_id', user.id)
         .lte('scheduled_date', today)
         .eq('sent', false);
+
       if (data && data.length > 0) {
         data.forEach((msg: any, idx: number) => {
           const deal = msg.kanban_deals;
           const isOverdue = msg.scheduled_date < today;
+
           toast({
             title: isOverdue ? `⚠️ Mensagem atrasada!` : `📅 Mensagem agendada para hoje!`,
-            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Enviar agora'}`,
+            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Pronta para envio'}`,
             duration: 20000,
             variant: isOverdue ? 'destructive' : undefined,
           });
-          if (deal?.client_whatsapp) {
-            const phone = deal.client_whatsapp.replace(/\D/g, '');
-            // Auto-open WhatsApp for overdue messages, prompt for today's
-            setTimeout(() => {
-              if (isOverdue) {
-                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
-              } else {
-                if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
-                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                  supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
-                }
-              }
-            }, 1500 + idx * 2000);
-          }
+
+          if (!autoDispatchEnabled || !deal?.client_whatsapp) return;
+
+          const phone = deal.client_whatsapp.replace(/\D/g, '');
+          setTimeout(() => {
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+            supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+          }, 1500 + idx * 2000);
         });
       }
     };
+
     checkScheduled();
-  }, [user]);
+  }, [user, autoDispatchEnabled, toast]);
+
+  useEffect(() => {
+    if (!showScheduledList) return;
+    const interval = setInterval(() => setNowTs(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [showScheduledList]);
+
+  useEffect(() => {
+    if (!autoDispatchEnabled || !user || scheduledMessages.length === 0) return;
+
+    const dueMessages = scheduledMessages.filter(
+      (msg: any) => !msg.sent && getScheduledTimestamp(msg.scheduled_date) <= nowTs
+    );
+
+    dueMessages.forEach(async (msg: any) => {
+      if (autoDispatchingIdsRef.current.has(msg.id)) return;
+
+      const phoneRaw = msg?.kanban_deals?.client_whatsapp;
+      const phone = phoneRaw?.replace(/\D/g, '');
+      if (!phone) return;
+
+      autoDispatchingIdsRef.current.add(msg.id);
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+
+      await supabase
+        .from('kanban_scheduled_messages')
+        .update({ sent: true })
+        .eq('id', msg.id);
+
+      setScheduledMessages(prev => prev.map(m => (m.id === msg.id ? { ...m, sent: true } : m)));
+      toast({ title: '🚀 Mensagem disparada automaticamente' });
+      autoDispatchingIdsRef.current.delete(msg.id);
+    });
+  }, [scheduledMessages, nowTs, autoDispatchEnabled, user, toast]);
 
   const filteredDeals = useMemo(() => {
     let result = deals || [];
@@ -1312,10 +1367,22 @@ export default function KanbanPage() {
       <Dialog open={showScheduledList} onOpenChange={setShowScheduledList}>
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-muted-foreground" />
-              Mensagens Agendadas
-            </DialogTitle>
+            <div className="flex items-start justify-between gap-3">
+              <DialogTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-muted-foreground" />
+                Mensagens Agendadas
+              </DialogTitle>
+              <div className="flex items-center gap-2 rounded-md border px-2 py-1">
+                <span className="text-xs text-muted-foreground">Disparo automático</span>
+                <Switch
+                  checked={autoDispatchEnabled}
+                  onCheckedChange={(checked) => {
+                    setAutoDispatchEnabled(checked);
+                    localStorage.setItem('kanban-auto-dispatch-enabled', String(checked));
+                  }}
+                />
+              </div>
+            </div>
           </DialogHeader>
           {loadingScheduled ? (
             <div className="flex justify-center py-8">
@@ -1332,6 +1399,7 @@ export default function KanbanPage() {
                 const deal = msg.kanban_deals;
                 const isOverdue = msg.scheduled_date < format(new Date(), 'yyyy-MM-dd');
                 const isToday = msg.scheduled_date === format(new Date(), 'yyyy-MM-dd');
+                const countdown = formatCountdown(getScheduledTimestamp(msg.scheduled_date) - nowTs);
                 return (
                   <Card key={msg.id} className={cn(
                     'transition-colors',
@@ -1368,6 +1436,16 @@ export default function KanbanPage() {
                           </>
                         )}
                       </div>
+                      {!msg.sent && (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[11px]">
+                            ⏳ {countdown}
+                          </Badge>
+                          {!autoDispatchEnabled && (
+                            <span className="text-[11px] text-muted-foreground">Auto-disparo desativado</span>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs bg-muted/50 rounded p-2 whitespace-pre-wrap line-clamp-3">{msg.message}</p>
                       {!msg.sent && (
                         <div className="flex gap-2 pt-1">

@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       .from("profiles")
       .update({
         full_name: "Usuário Central",
-        avatar_url: adminProfile.avatar_url,
+        avatar_url: adminProfile.avatar_url || "https://ui-avatars.com/api/?name=Usuario+Central&background=7c3aed&color=fff&size=200",
         cargo: adminProfile.cargo,
         area_atuacao: adminProfile.area_atuacao,
         whatsapp: "48999999999",
@@ -103,30 +103,71 @@ Deno.serve(async (req) => {
       })
       .eq("user_id", demoUserId);
 
-    // 4. Set subscription as active pro (not admin)
-    await adminClient
+    // 4. Set subscription as active pro (upsert to handle missing records)
+    const { data: existingSub } = await adminClient
       .from("subscriptions")
-      .update({
-        plan: "pro",
-        max_accounts: 999,
-        max_projects: 999,
-        user_status: "active",
-        is_trial: false,
-        features: JSON.stringify({
-          advanced_search: true,
-          tags: true,
-          logs: true,
-          export: true,
-          team: true,
-        }),
-      })
-      .eq("user_id", demoUserId);
+      .select("id")
+      .eq("user_id", demoUserId)
+      .maybeSingle();
 
-    // Ensure role is viewer (not admin)
-    await adminClient
+    if (existingSub) {
+      await adminClient
+        .from("subscriptions")
+        .update({
+          plan: "pro",
+          max_accounts: 999,
+          max_projects: 999,
+          user_status: "active",
+          is_trial: false,
+          payment_status: "paid",
+          features: JSON.stringify({
+            advanced_search: true,
+            tags: true,
+            logs: true,
+            export: true,
+            team: true,
+          }),
+        })
+        .eq("user_id", demoUserId);
+    } else {
+      await adminClient
+        .from("subscriptions")
+        .insert({
+          user_id: demoUserId,
+          plan: "pro",
+          max_accounts: 999,
+          max_projects: 999,
+          user_status: "active",
+          is_trial: false,
+          payment_status: "paid",
+          subscription_type: "monthly",
+          features: JSON.stringify({
+            advanced_search: true,
+            tags: true,
+            logs: true,
+            export: true,
+            team: true,
+          }),
+        });
+    }
+
+    // Ensure role is viewer (upsert)
+    const { data: existingRole } = await adminClient
       .from("user_roles")
-      .update({ role: "viewer" })
-      .eq("user_id", demoUserId);
+      .select("id")
+      .eq("user_id", demoUserId)
+      .maybeSingle();
+
+    if (existingRole) {
+      await adminClient
+        .from("user_roles")
+        .update({ role: "viewer" })
+        .eq("user_id", demoUserId);
+    } else {
+      await adminClient
+        .from("user_roles")
+        .insert({ user_id: demoUserId, role: "viewer" });
+    }
 
     // 5. Clone accounts
     const { data: adminAccounts } = await adminClient

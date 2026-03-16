@@ -48,6 +48,10 @@ Deno.serve(async (req) => {
 
     if (existingDemo) {
       demoUserId = existingDemo.id;
+      // Reset password
+      await adminClient.auth.admin.updateUserById(demoUserId, {
+        password: DEMO_PASSWORD,
+      });
       // Clean existing data
       await Promise.all([
         adminClient.from("projects").delete().eq("user_id", demoUserId),

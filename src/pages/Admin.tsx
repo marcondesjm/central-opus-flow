@@ -551,6 +551,24 @@ export default function Admin() {
               <Button 
                 variant="outline" 
                 size="sm" 
+                onClick={async () => {
+                  toast({ title: 'Criando conta demo...', description: 'Clonando dados do administrador.' });
+                  try {
+                    const { data, error } = await supabase.functions.invoke('seed-demo-account');
+                    if (error) throw error;
+                    toast({ title: 'Conta demo criada!', description: `Email: usercentral@gmail.com | Senha: Ab123456` });
+                  } catch (err: any) {
+                    toast({ title: 'Erro', description: err.message, variant: 'destructive' });
+                  }
+                }}
+                className="gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Criar Conta Demo
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
                 onClick={() => { setMessageTargetUser(null); setMessageModalOpen(true); }}
                 className="gap-2"
               >

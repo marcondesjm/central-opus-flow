@@ -1,12 +1,47 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Play, Sparkles, CheckCircle2, Zap, Shield, HardDrive } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowRight, Play, Sparkles, CheckCircle2, Zap, Shield, HardDrive, LogIn, Eye, EyeOff, Copy, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation, Trans } from 'react-i18next';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+const DEMO_EMAIL = 'usercentral@gmail.com';
+const DEMO_PASSWORD = 'Ab123456';
 
 export function HeroSection() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [logging, setLogging] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPass, setCopiedPass] = useState(false);
+
+  const handleDemoLogin = async () => {
+    setLogging(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+      });
+      if (error) throw error;
+      toast({ title: 'Login realizado!', description: 'Bem-vindo à demonstração.' });
+      navigate('/dashboard');
+    } catch (err: any) {
+      toast({ title: 'Erro no login', description: err.message, variant: 'destructive' });
+    } finally {
+      setLogging(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string, type: 'email' | 'pass') => {
+    await navigator.clipboard.writeText(text);
+    if (type === 'email') { setCopiedEmail(true); setTimeout(() => setCopiedEmail(false), 2000); }
+    else { setCopiedPass(true); setTimeout(() => setCopiedPass(false), 2000); }
+  };
 
   return (
     <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 px-4 overflow-hidden">
@@ -61,7 +96,7 @@ export function HeroSection() {
         />
         
         <motion.div 
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -87,6 +122,70 @@ export function HeroSection() {
               {t('common.viewDemo')}
             </Button>
           </Link>
+        </motion.div>
+
+        {/* Demo Login Card */}
+        <motion.div
+          className="max-w-md mx-auto mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+        >
+          <div className="relative rounded-2xl border-2 border-primary/30 bg-background/90 backdrop-blur-md p-5 shadow-lg">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-primary text-primary-foreground px-4 py-1 text-xs font-semibold shadow-md">
+                🔑 Acesso Demonstração
+              </Badge>
+            </div>
+            
+            <div className="space-y-3 mt-2">
+              {/* Email row */}
+              <div className="flex items-center gap-2 bg-muted/60 rounded-lg px-3 py-2.5">
+                <span className="text-xs text-muted-foreground font-medium min-w-[42px]">Email:</span>
+                <code className="flex-1 text-sm font-mono font-semibold text-foreground">{DEMO_EMAIL}</code>
+                <button
+                  onClick={() => copyToClipboard(DEMO_EMAIL, 'email')}
+                  className="p-1 rounded hover:bg-muted transition-colors"
+                >
+                  {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                </button>
+              </div>
+              
+              {/* Password row */}
+              <div className="flex items-center gap-2 bg-muted/60 rounded-lg px-3 py-2.5">
+                <span className="text-xs text-muted-foreground font-medium min-w-[42px]">Senha:</span>
+                <code className="flex-1 text-sm font-mono font-semibold text-foreground">
+                  {showPassword ? DEMO_PASSWORD : '••••••••'}
+                </code>
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="p-1 rounded hover:bg-muted transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> : <Eye className="w-3.5 h-3.5 text-muted-foreground" />}
+                </button>
+                <button
+                  onClick={() => copyToClipboard(DEMO_PASSWORD, 'pass')}
+                  className="p-1 rounded hover:bg-muted transition-colors"
+                >
+                  {copiedPass ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                </button>
+              </div>
+
+              {/* Login button */}
+              <Button
+                onClick={handleDemoLogin}
+                disabled={logging}
+                className="w-full h-11 rounded-xl font-semibold text-sm gap-2 bg-primary hover:bg-primary/90 transition-all"
+              >
+                {logging ? (
+                  <span className="animate-spin w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full" />
+                ) : (
+                  <LogIn className="w-4 h-4" />
+                )}
+                {logging ? 'Entrando...' : 'Entrar na Demonstração'}
+              </Button>
+            </div>
+          </div>
         </motion.div>
 
         {/* Trust signals */}

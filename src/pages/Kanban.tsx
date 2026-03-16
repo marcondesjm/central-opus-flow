@@ -1065,6 +1065,35 @@ export default function KanbanPage() {
           newPhaseName={phaseChangeNotification.newPhaseName}
         />
       )}
+
+      <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) setWhatsAppCustomDeal(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>✏️ Mensagem personalizada</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Edite a mensagem antes de enviar para <strong>{whatsAppCustomDeal?.client_name}</strong>:
+            </p>
+            <Textarea
+              rows={6}
+              value={customWhatsAppMsg}
+              onChange={e => setCustomWhatsAppMsg(e.target.value)}
+              placeholder="Digite sua mensagem..."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setWhatsAppCustomDeal(null)}>Cancelar</Button>
+            <Button onClick={() => {
+              if (whatsAppCustomDeal?.client_whatsapp && customWhatsAppMsg.trim()) {
+                const phone = whatsAppCustomDeal.client_whatsapp.replace(/\D/g, '');
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customWhatsAppMsg)}`, '_blank');
+                setWhatsAppCustomDeal(null);
+              }
+            }}>
+              <MessageCircle className="w-4 h-4 mr-2" /> Enviar via WhatsApp
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

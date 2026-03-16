@@ -282,19 +282,19 @@ export default function Proposals() {
       <div className="min-h-screen bg-background">
       
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => { setMode('list'); resetForm(); }}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <h1 className="text-xl sm:text-2xl font-bold">{mode === 'edit' ? 'Editar Proposta' : 'Nova Proposta'}</h1>
+              <h1 className="text-lg font-bold sm:text-2xl">{mode === 'edit' ? 'Editar Proposta' : 'Nova Proposta'}</h1>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setPreviewOpen(true)}>
-                <Eye className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Visualizar</span>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+              <Button variant="outline" onClick={() => setPreviewOpen(true)} className="w-full sm:w-auto">
+                <Eye className="w-4 h-4 sm:mr-2" />
+                <span className="sr-only sm:not-sr-only">Visualizar</span>
               </Button>
-              <Button onClick={handleSave} disabled={createProposal.isPending || updateProposal.isPending}>
+              <Button onClick={handleSave} disabled={createProposal.isPending || updateProposal.isPending} className="w-full sm:w-auto">
                 {(createProposal.isPending || updateProposal.isPending) && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 )}

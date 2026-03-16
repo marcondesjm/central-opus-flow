@@ -21,6 +21,8 @@ import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
 import Kanban from "./pages/Kanban";
 import Billing from "./pages/Billing";
+import Proposals from "./pages/Proposals";
+import ProposalPublic from "./pages/ProposalPublic";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -158,6 +160,7 @@ function AppContent() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/proposal/:token" element={<ProposalPublic />} />
           <Route
             path="/dashboard"
             element={
@@ -195,6 +198,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Billing />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/proposals"
+            element={
+              <ProtectedRoute>
+                <Proposals />
               </ProtectedRoute>
             }
           />

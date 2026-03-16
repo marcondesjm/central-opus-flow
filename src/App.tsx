@@ -160,6 +160,7 @@ function AppContent() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/proposal/:token" element={<ProposalPublic />} />
           <Route
             path="/dashboard"
             element={

@@ -1034,7 +1034,8 @@ export default function KanbanPage() {
                         </div>
                       )}
                     </Draggable>
-                  ))}
+                    );
+                  })}
                   {colProvided.placeholder}
                   {/* Add column button */}
                   <div className="w-72 flex-shrink-0">

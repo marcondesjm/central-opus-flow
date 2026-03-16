@@ -92,6 +92,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
       setNotes(project.notes || '');
       setSelectedTags(project.tags?.map(t => t.id) || []);
       setDeadline(project.deadline ? new Date(project.deadline) : null);
+      setRepositoryUrl((project as any).repository_url || null);
     }
   }, [project]);
 

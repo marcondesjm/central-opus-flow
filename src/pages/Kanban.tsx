@@ -1367,10 +1367,22 @@ export default function KanbanPage() {
       <Dialog open={showScheduledList} onOpenChange={setShowScheduledList}>
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-muted-foreground" />
-              Mensagens Agendadas
-            </DialogTitle>
+            <div className="flex items-start justify-between gap-3">
+              <DialogTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-muted-foreground" />
+                Mensagens Agendadas
+              </DialogTitle>
+              <div className="flex items-center gap-2 rounded-md border px-2 py-1">
+                <span className="text-xs text-muted-foreground">Disparo automático</span>
+                <Switch
+                  checked={autoDispatchEnabled}
+                  onCheckedChange={(checked) => {
+                    setAutoDispatchEnabled(checked);
+                    localStorage.setItem('kanban-auto-dispatch-enabled', String(checked));
+                  }}
+                />
+              </div>
+            </div>
           </DialogHeader>
           {loadingScheduled ? (
             <div className="flex justify-center py-8">

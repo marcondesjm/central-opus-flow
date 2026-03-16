@@ -847,13 +847,16 @@ export default function KanbanPage() {
     const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
     
     const sortDeals = (items: KanbanDeal[]) => {
+      if (sortMode === 'default') {
+        // In default mode, just sort by position (drag-drop order)
+        return [...items].sort((a, b) => a.position - b.position);
+      }
       return [...items].sort((a, b) => {
-        // Always put overdue items first
+        // Always put overdue items first when using a sort mode
         const aOverdue = a.due_date && isBefore(new Date(a.due_date), now) ? 1 : 0;
         const bOverdue = b.due_date && isBefore(new Date(b.due_date), now) ? 1 : 0;
         if (bOverdue !== aOverdue) return bOverdue - aOverdue;
 
-        // Then apply user sort
         if (sortMode === 'priority') {
           return (priorityOrder[a.priority] ?? 2) - (priorityOrder[b.priority] ?? 2);
         }
@@ -876,7 +879,6 @@ export default function KanbanPage() {
       if (map[d.phase]) map[d.phase].push(d);
       else if (columns?.[0]) map[columns[0].id].push(d);
     });
-    // Sort each column
     Object.keys(map).forEach(key => { map[key] = sortDeals(map[key]); });
     return map;
   }, [filteredDeals, columns, sortMode]);

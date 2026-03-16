@@ -33,6 +33,9 @@ interface ProfileCompletion {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading, signOut } = useAuth();
+  
+  // Sincronização global em tempo real
+  useGlobalSync();
 
   const { data: subStatus, isLoading: statusLoading } = useQuery({
     queryKey: ['user-status', user?.id],

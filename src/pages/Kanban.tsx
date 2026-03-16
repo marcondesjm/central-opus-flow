@@ -1046,6 +1046,17 @@ export default function KanbanPage() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={sortMode} onValueChange={v => setSortMode(v as any)}>
+            <SelectTrigger className="w-36 h-8 text-xs">
+              <SelectValue placeholder="Ordenar" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Padrão</SelectItem>
+              <SelectItem value="priority">Prioridade</SelectItem>
+              <SelectItem value="deadline">Prazo</SelectItem>
+              <SelectItem value="name">Nome</SelectItem>
+            </SelectContent>
+          </Select>
           {viewMode === 'kanban' && (
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowAddColumn(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" />

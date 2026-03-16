@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
-  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle,
+  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle, ZoomIn, ZoomOut, Maximize2,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -706,6 +706,7 @@ export default function KanbanPage() {
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
   const [showScheduleDatePicker, setShowScheduleDatePicker] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
@@ -840,6 +841,25 @@ export default function KanbanPage() {
     }
   };
 
+  const kanbanRef = useRef<HTMLDivElement>(null);
+
+  // Native wheel handler to prevent browser zoom on Ctrl+Scroll
+  useEffect(() => {
+    const el = kanbanRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setZoomLevel(prev => {
+          const delta = e.deltaY > 0 ? -0.05 : 0.05;
+          return Math.min(1.5, Math.max(0.4, prev + delta));
+        });
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
+  }, []);
+
   const isLoading = dealsLoading || columnsLoading;
 
   if (isLoading) {
@@ -937,13 +957,37 @@ export default function KanbanPage() {
         </div>
       )}
 
+      {/* Zoom Controls */}
+      {viewMode === 'kanban' && (
+        <div className="flex items-center justify-end gap-1 px-4 pt-2 max-w-[1800px] mx-auto">
+          <Button variant="ghost" size="sm" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
+            <ZoomOut className="w-4 h-4" />
+          </Button>
+          <button
+            onClick={() => setZoomLevel(1)}
+            className="text-xs text-muted-foreground hover:text-foreground min-w-[3rem] text-center"
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
+          <Button variant="ghost" size="sm" onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.1))} disabled={zoomLevel >= 1.5}>
+            <ZoomIn className="w-4 h-4" />
+          </Button>
+          {zoomLevel !== 1 && (
+            <Button variant="ghost" size="sm" onClick={() => setZoomLevel(1)}>
+              <Maximize2 className="w-4 h-4" />
+            </Button>
+          )}
+          <span className="text-[10px] text-muted-foreground ml-1">Ctrl + Scroll</span>
+        </div>
+      )}
+
       {/* Views */}
       {viewMode === 'kanban' ? (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="max-w-[1800px] mx-auto px-4 py-4 overflow-x-auto">
+          <div ref={kanbanRef} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto" style={{ maxWidth: `${1800 / zoomLevel}px` }}>
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
-                <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4">
+                <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4 origin-top-left transition-transform duration-150" style={{ transform: `scale(${zoomLevel})` }}>
                   {columns?.map((column, colIndex) => {
                     const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
                     return (

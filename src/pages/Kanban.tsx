@@ -1053,9 +1053,9 @@ export default function KanbanPage() {
               <SelectValue placeholder="Ordenar" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">Padrão</SelectItem>
+              <SelectItem value="default">Manual (arrastar)</SelectItem>
               <SelectItem value="priority">Prioridade</SelectItem>
-              <SelectItem value="deadline">Prazo</SelectItem>
+              <SelectItem value="deadline">Atrasados primeiro</SelectItem>
               <SelectItem value="name">Nome</SelectItem>
             </SelectContent>
           </Select>

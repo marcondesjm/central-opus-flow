@@ -815,10 +815,10 @@ export default function KanbanPage() {
 
       await supabase
         .from('kanban_scheduled_messages')
-        .update({ sent: true })
+        .delete()
         .eq('id', msg.id);
 
-      setScheduledMessages(prev => prev.map(m => (m.id === msg.id ? { ...m, sent: true } : m)));
+      setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
       toast({ title: '🚀 Mensagem disparada automaticamente' });
       autoDispatchingIdsRef.current.delete(msg.id);
     });

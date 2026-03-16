@@ -406,8 +406,8 @@ export default function Proposals() {
             {proposals.map((proposal) => {
               const status = statusMap[proposal.status] || statusMap.draft;
               const total = (proposal.services || []).reduce(
-                (sum, s) => sum + s.quantity * s.unit_price, 0
-              ) - (proposal.discount || 0);
+                (sum, s) => sum + (Number(s.quantity) || 0) * (Number(s.unit_price) || 0), 0
+              ) - (Number(proposal.discount) || 0);
 
               return (
                 <Card key={proposal.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">

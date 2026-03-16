@@ -950,10 +950,34 @@ export default function KanbanPage() {
         </div>
       )}
 
+      {/* Zoom Controls */}
+      {viewMode === 'kanban' && (
+        <div className="flex items-center justify-end gap-1 px-4 pt-2 max-w-[1800px] mx-auto">
+          <Button variant="ghost" size="sm" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
+            <ZoomOut className="w-4 h-4" />
+          </Button>
+          <button
+            onClick={() => setZoomLevel(1)}
+            className="text-xs text-muted-foreground hover:text-foreground min-w-[3rem] text-center"
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
+          <Button variant="ghost" size="sm" onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.1))} disabled={zoomLevel >= 1.5}>
+            <ZoomIn className="w-4 h-4" />
+          </Button>
+          {zoomLevel !== 1 && (
+            <Button variant="ghost" size="sm" onClick={() => setZoomLevel(1)}>
+              <Maximize2 className="w-4 h-4" />
+            </Button>
+          )}
+          <span className="text-[10px] text-muted-foreground ml-1">Ctrl + Scroll</span>
+        </div>
+      )}
+
       {/* Views */}
       {viewMode === 'kanban' ? (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="max-w-[1800px] mx-auto px-4 py-4 overflow-x-auto">
+          <div ref={kanbanRef} onWheel={handleWheel} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto" style={{ maxWidth: `${1800 / zoomLevel}px` }}>
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
                 <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4">

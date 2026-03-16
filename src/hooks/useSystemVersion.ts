@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SystemVersion {
@@ -9,6 +10,43 @@ export interface SystemVersion {
 }
 
 export function useSystemVersion() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const refresh = () => {
+      queryClient.invalidateQueries({ queryKey: ['system-version'] });
+      queryClient.invalidateQueries({ queryKey: ['changelog'] });
+      queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+    };
+
+    const channel = supabase
+      .channel('system-version-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'system_config' },
+        (payload) => {
+          const key = payload.new && 'key' in payload.new ? String(payload.new.key) : payload.old && 'key' in payload.old ? String(payload.old.key) : '';
+          if (['app_version', 'release_name', 'changelog'].includes(key)) refresh();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'changelog_entries' },
+        refresh
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') refresh();
+      });
+
+    const pollInterval = window.setInterval(refresh, 15000);
+
+    return () => {
+      clearInterval(pollInterval);
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ['system-version'],
     queryFn: async (): Promise<SystemVersion> => {
@@ -19,7 +57,6 @@ export function useSystemVersion() {
 
       if (error) {
         console.error('Error fetching system version:', error);
-        // Fallback to default values
         return {
           version: '1.0.0',
           releaseName: 'Initial Release',
@@ -40,9 +77,10 @@ export function useSystemVersion() {
         updatedAt: new Date(configMap['app_version']?.updated_at || Date.now()),
       };
     },
-    staleTime: 15 * 1000,
+    staleTime: 5 * 1000,
     gcTime: 5 * 60 * 1000,
-    refetchInterval: 30 * 1000,
+    refetchInterval: 15 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 

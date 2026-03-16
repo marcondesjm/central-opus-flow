@@ -41,6 +41,7 @@ export function useChangelogByVersion() {
       queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
       queryClient.invalidateQueries({ queryKey: ['changelog'] });
       queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+      queryClient.invalidateQueries({ queryKey: ['system-version'] });
     };
 
     const channel = supabase
@@ -143,6 +144,30 @@ export function useAddChangelogEntry() {
 }
 
 export function useLatestVersion() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const refresh = () => {
+      queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+      queryClient.invalidateQueries({ queryKey: ['system-version'] });
+    };
+
+    const channel = supabase
+      .channel('latest-version-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'changelog_entries' },
+        refresh
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') refresh();
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ['latest-version'],
     queryFn: async () => {
@@ -156,8 +181,10 @@ export function useLatestVersion() {
       if (error && error.code !== 'PGRST116') throw error;
       return data;
     },
+    staleTime: 5 * 1000,
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 }
 

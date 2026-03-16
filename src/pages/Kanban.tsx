@@ -345,12 +345,13 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 }
 
 // ─── Task Card ──────────────────────────
-function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail }: {
+function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsApp }: {
   deal: KanbanDeal;
   onEdit: () => void;
   onDelete: () => void;
   onPayments: () => void;
   onDetail: () => void;
+  onCustomWhatsApp: () => void;
 }) {
   const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
   const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
@@ -400,6 +401,9 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail }: {
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => sendMsg(`Olá! Tudo bem?\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização?`)}>
                         ⚡ Mais direta
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onCustomWhatsApp}>
+                        ✏️ Personalizada
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
@@ -687,6 +691,8 @@ export default function KanbanPage() {
   const [showChart, setShowChart] = useState(searchParams.get('view') === 'billing');
   const [paymentsDeal, setPaymentsDeal] = useState<KanbanDeal | null>(null);
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
+  const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);
+  const [customWhatsAppMsg, setCustomWhatsAppMsg] = useState('');
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -941,6 +947,11 @@ export default function KanbanPage() {
                                           onDelete={() => setDeletingId(deal.id)}
                                           onPayments={() => setPaymentsDeal(deal)}
                                           onDetail={() => setDetailDeal(deal)}
+                                          onCustomWhatsApp={() => {
+                                            const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
+                                            setCustomWhatsAppMsg(`Olá! Tudo bem?\n\n${valor ? `Valor: ${valor}.\n\n` : ''}`);
+                                            setWhatsAppCustomDeal(deal);
+                                          }}
                                         />
                                       </div>
                                     )}
@@ -1054,6 +1065,35 @@ export default function KanbanPage() {
           newPhaseName={phaseChangeNotification.newPhaseName}
         />
       )}
+
+      <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) setWhatsAppCustomDeal(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>✏️ Mensagem personalizada</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Edite a mensagem antes de enviar para <strong>{whatsAppCustomDeal?.client_name}</strong>:
+            </p>
+            <Textarea
+              rows={6}
+              value={customWhatsAppMsg}
+              onChange={e => setCustomWhatsAppMsg(e.target.value)}
+              placeholder="Digite sua mensagem..."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setWhatsAppCustomDeal(null)}>Cancelar</Button>
+            <Button onClick={() => {
+              if (whatsAppCustomDeal?.client_whatsapp && customWhatsAppMsg.trim()) {
+                const phone = whatsAppCustomDeal.client_whatsapp.replace(/\D/g, '');
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customWhatsAppMsg)}`, '_blank');
+                setWhatsAppCustomDeal(null);
+              }
+            }}>
+              <MessageCircle className="w-4 h-4 mr-2" /> Enviar via WhatsApp
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

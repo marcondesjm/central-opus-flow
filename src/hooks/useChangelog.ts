@@ -187,10 +187,12 @@ export function useLatestVersion() {
       if (error && error.code !== 'PGRST116') throw error;
       return data;
     },
-    staleTime: 5 * 1000,
+    staleTime: 0,
+    gcTime: 30 * 1000,
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
 }
 

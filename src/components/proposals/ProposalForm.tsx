@@ -233,7 +233,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
             onChange={(e) => update('description', e.target.value)}
             rows={3}
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Prazo de entrega (dias)</Label>
               <Input

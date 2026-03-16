@@ -107,6 +107,7 @@ export default function Dashboard() {
   const [tagsManagerOpen, setTagsManagerOpen] = useState(false);
   const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editProjectInitialTab, setEditProjectInitialTab] = useState('details');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);

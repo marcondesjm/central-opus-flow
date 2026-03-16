@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield, CalendarDays } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield, CalendarDays, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

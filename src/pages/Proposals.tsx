@@ -311,10 +311,18 @@ export default function Proposals() {
             <DialogHeader>
               <DialogTitle className="flex items-center justify-between">
                 Preview da Proposta
-                <Button size="sm" onClick={exportPDF} disabled={exporting}>
-                  {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-                  Exportar PDF
-                </Button>
+                <div className="flex items-center gap-2">
+                  {currentProposal.client_phone && (
+                    <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => sendWhatsApp(currentProposal)}>
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      WhatsApp
+                    </Button>
+                  )}
+                  <Button size="sm" onClick={exportPDF} disabled={exporting}>
+                    {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+                    Exportar PDF
+                  </Button>
+                </div>
               </DialogTitle>
             </DialogHeader>
             <ProposalPreview ref={previewRef} proposal={currentProposal} />

@@ -153,36 +153,54 @@ export default function Proposals() {
   };
 
   const createExampleProposal = async () => {
-    const example: Partial<Proposal> = {
-      proposal_title: 'Desenvolvimento de Landing Page',
-      client_name: 'Maria Silva',
-      client_email: 'maria@empresaexemplo.com.br',
-      client_phone: '5548999887766',
-      client_company: 'Empresa Exemplo LTDA',
-      company_name: 'Central Opus Flow',
-      company_email: 'contato@centralopus.com',
-      company_phone: '(48) 99602-9392',
-      company_address: 'Florianópolis, SC',
-      brand_color: '#6366f1',
-      brand_secondary_color: '#1e1b4b',
-      description: 'Desenvolvimento de uma landing page moderna e responsiva para captação de leads, com design personalizado, integração com formulários e otimização para SEO.',
-      services: [
-        { name: 'Design UI/UX', description: 'Criação de layout responsivo e wireframes', quantity: 1, unit_price: 2500 },
-        { name: 'Desenvolvimento Front-end', description: 'Codificação em React + Tailwind CSS', quantity: 1, unit_price: 3500 },
-        { name: 'Integração de Formulários', description: 'Setup de captura de leads e automação', quantity: 1, unit_price: 800 },
-        { name: 'Otimização SEO', description: 'Meta tags, performance e acessibilidade', quantity: 1, unit_price: 700 },
-      ],
-      total_value: 7500,
-      discount: 500,
-      deadline_days: 21,
-      validity_days: 10,
-      payment_conditions: '50% na aprovação do projeto\n50% na entrega final\n\nFormas aceitas: PIX, transferência bancária ou cartão de crédito.',
-      notes: '• O prazo começa a contar após a aprovação do briefing.\n• Inclui até 2 rodadas de revisão no design.\n• Hospedagem e domínio não estão inclusos.\n• Suporte técnico gratuito por 30 dias após a entrega.',
-      status: 'draft',
-    };
     try {
+      // Upload example logos to storage
+      const uploadLogo = async (src: string, name: string) => {
+        const response = await fetch(src);
+        const blob = await response.blob();
+        const path = `example-logos/${name}-${Date.now()}.png`;
+        await supabase.storage.from('proposal-assets').upload(path, blob, { contentType: 'image/png' });
+        const { data: { publicUrl } } = supabase.storage.from('proposal-assets').getPublicUrl(path);
+        return publicUrl;
+      };
+
+      const [companyLogoUrl, clientLogoUrl] = await Promise.all([
+        uploadLogo(exampleCompanyLogo, 'company'),
+        uploadLogo(exampleClientLogo, 'client'),
+      ]);
+
+      const example: Partial<Proposal> = {
+        proposal_title: 'Desenvolvimento de Landing Page',
+        client_name: 'Maria Silva',
+        client_email: 'maria@empresaexemplo.com.br',
+        client_phone: '5548999887766',
+        client_company: 'Empresa Exemplo LTDA',
+        client_logo_url: clientLogoUrl,
+        company_name: 'Central Opus Flow',
+        company_email: 'contato@centralopus.com',
+        company_phone: '(48) 99602-9392',
+        company_address: 'Florianópolis, SC - Brasil',
+        company_logo_url: companyLogoUrl,
+        brand_color: '#6366f1',
+        brand_secondary_color: '#1e1b4b',
+        description: 'Desenvolvimento de uma landing page moderna e responsiva para captação de leads, com design personalizado, integração com formulários e otimização para SEO.\n\nO projeto inclui:\n• Pesquisa de referências e benchmarks\n• Prototipação e validação com o cliente\n• Desenvolvimento responsivo (mobile-first)\n• Testes de performance e acessibilidade',
+        services: [
+          { name: 'Design UI/UX', description: 'Criação de layout responsivo, wireframes e protótipo interativo', quantity: 1, unit_price: 2500 },
+          { name: 'Desenvolvimento Front-end', description: 'Codificação em React + Tailwind CSS com animações', quantity: 1, unit_price: 3500 },
+          { name: 'Integração de Formulários', description: 'Setup de captura de leads, automação de email e CRM', quantity: 1, unit_price: 800 },
+          { name: 'Otimização SEO', description: 'Meta tags, Schema.org, performance Lighthouse 90+', quantity: 1, unit_price: 700 },
+        ],
+        total_value: 7500,
+        discount: 500,
+        deadline_days: 21,
+        validity_days: 10,
+        payment_conditions: '50% na aprovação do projeto\n50% na entrega final\n\nFormas aceitas: PIX, transferência bancária ou cartão de crédito.\n\nNota fiscal emitida após cada pagamento.',
+        notes: '• O prazo começa a contar após a aprovação do briefing.\n• Inclui até 2 rodadas de revisão no design.\n• Hospedagem e domínio não estão inclusos.\n• Suporte técnico gratuito por 30 dias após a entrega.\n• Código-fonte entregue ao final do projeto.',
+        status: 'draft',
+      };
+
       await createProposal.mutateAsync(example);
-      toast({ title: 'Proposta de exemplo criada!', description: 'Você pode editá-la como quiser.' });
+      toast({ title: 'Proposta de exemplo criada!', description: 'Completa com logos, serviços e condições.' });
     } catch (err: any) {
       toast({ title: 'Erro ao criar exemplo', description: err.message, variant: 'destructive' });
     }

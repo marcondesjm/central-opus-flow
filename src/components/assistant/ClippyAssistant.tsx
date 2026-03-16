@@ -439,7 +439,34 @@ export function ClippyAssistant() {
             />
 
 
-            {/* Sleeping Zzz */}
+            {/* Animated eyebrows */}
+            {mood !== 'sleeping' && (
+              <div className="absolute top-[13px] left-1/2 -translate-x-1/2 flex gap-[6px] pointer-events-none">
+                <motion.div
+                  className="w-[8px] h-[2px] bg-[#555] rounded-full origin-center"
+                  animate={
+                    mood === 'surprised' ? { y: -3, rotate: 0, scaleY: 1.5 } :
+                    mood === 'thinking' ? { y: -1, rotate: -12 } :
+                    mood === 'happy' ? { y: -2, rotate: -8, scaleY: 1.2 } :
+                    mood === 'wink' ? { y: -1, rotate: -5 } :
+                    { y: [0, -1.5, 0], rotate: [0, -3, 0] }
+                  }
+                  transition={mood === 'normal' ? { duration: 3, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
+                />
+                <motion.div
+                  className="w-[8px] h-[2px] bg-[#555] rounded-full origin-center"
+                  animate={
+                    mood === 'surprised' ? { y: -3, rotate: 0, scaleY: 1.5 } :
+                    mood === 'thinking' ? { y: -2, rotate: 12 } :
+                    mood === 'happy' ? { y: -2, rotate: 8, scaleY: 1.2 } :
+                    mood === 'wink' ? { y: 1, rotate: 5 } :
+                    { y: [0, -1.5, 0], rotate: [0, 3, 0] }
+                  }
+                  transition={mood === 'normal' ? { duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.2 } : { duration: 0.3 }}
+                />
+              </div>
+            )}
+
             {mood === 'sleeping' && (
               <div className="absolute -top-1 -right-2">
                 <motion.span

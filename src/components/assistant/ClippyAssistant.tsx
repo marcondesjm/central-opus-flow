@@ -353,11 +353,36 @@ export function ClippyAssistant() {
           <motion.img
             src={clippyImage}
             alt="Clippy - Assistente"
-            className="w-20 h-24 object-contain drop-shadow-lg"
+            className="w-16 h-20 object-contain drop-shadow-lg"
             whileHover={{ scale: 1.12 }}
             whileTap={{ scale: 0.88 }}
-            style={{ filter: mood === 'sleeping' ? 'brightness(0.85)' : 'none' }}
+            style={{ filter: mood === 'sleeping' ? 'brightness(0.85) saturate(0.7)' : 'none' }}
           />
+
+          {/* Animated eyes overlay */}
+          <div className="absolute top-[6px] left-1/2 -translate-x-[52%]">
+            <ClippyEyes mood={mood} size={0.55} />
+          </div>
+
+          {/* Sleeping Zzz outside eyes */}
+          {mood === 'sleeping' && (
+            <div className="absolute -top-2 -right-1">
+              <motion.span
+                className="text-[10px] font-bold text-muted-foreground"
+                animate={{ opacity: [0, 1, 0], y: [0, -8] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                z
+              </motion.span>
+              <motion.span
+                className="text-xs font-bold text-muted-foreground absolute -top-2 left-2"
+                animate={{ opacity: [0, 1, 0], y: [0, -10] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+              >
+                Z
+              </motion.span>
+            </div>
+          )}
         </div>
       </motion.div>
 

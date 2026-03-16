@@ -727,6 +727,7 @@ export default function KanbanPage() {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;
     clientName: string;
@@ -842,14 +843,43 @@ export default function KanbanPage() {
   }, [deals, searchQuery, filterPriority]);
 
   const dealsByColumn = useMemo(() => {
+    const now = new Date();
+    const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
+    
+    const sortDeals = (items: KanbanDeal[]) => {
+      return [...items].sort((a, b) => {
+        // Always put overdue items first
+        const aOverdue = a.due_date && isBefore(new Date(a.due_date), now) ? 1 : 0;
+        const bOverdue = b.due_date && isBefore(new Date(b.due_date), now) ? 1 : 0;
+        if (bOverdue !== aOverdue) return bOverdue - aOverdue;
+
+        // Then apply user sort
+        if (sortMode === 'priority') {
+          return (priorityOrder[a.priority] ?? 2) - (priorityOrder[b.priority] ?? 2);
+        }
+        if (sortMode === 'deadline') {
+          if (!a.due_date && !b.due_date) return 0;
+          if (!a.due_date) return 1;
+          if (!b.due_date) return -1;
+          return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+        }
+        if (sortMode === 'name') {
+          return a.company_name.localeCompare(b.company_name);
+        }
+        return a.position - b.position;
+      });
+    };
+
     const map: Record<string, KanbanDeal[]> = {};
     columns?.forEach(c => { map[c.id] = []; });
     filteredDeals.forEach(d => {
       if (map[d.phase]) map[d.phase].push(d);
       else if (columns?.[0]) map[columns[0].id].push(d);
     });
+    // Sort each column
+    Object.keys(map).forEach(key => { map[key] = sortDeals(map[key]); });
     return map;
-  }, [filteredDeals, columns]);
+  }, [filteredDeals, columns, sortMode]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
@@ -1014,6 +1044,17 @@ export default function KanbanPage() {
               {PRIORITY_OPTIONS.map(p => (
                 <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select value={sortMode} onValueChange={v => setSortMode(v as any)}>
+            <SelectTrigger className="w-36 h-8 text-xs">
+              <SelectValue placeholder="Ordenar" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Padrão</SelectItem>
+              <SelectItem value="priority">Prioridade</SelectItem>
+              <SelectItem value="deadline">Prazo</SelectItem>
+              <SelectItem value="name">Nome</SelectItem>
             </SelectContent>
           </Select>
           {viewMode === 'kanban' && (

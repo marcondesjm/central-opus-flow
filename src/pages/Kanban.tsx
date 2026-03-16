@@ -1295,9 +1295,9 @@ export default function KanbanPage() {
               <Checkbox
                 id="schedule-msg"
                 checked={showScheduleDatePicker}
-                onCheckedChange={(v) => { setShowScheduleDatePicker(!!v); if (!v) setScheduledDate(undefined); }}
+              onCheckedChange={(v) => { setShowScheduleDatePicker(!!v); if (!v) { setScheduledDate(undefined); setScheduledTime('09:00'); } }}
               />
-              <Label htmlFor="schedule-msg" className="text-sm cursor-pointer">📅 Agendar para uma data</Label>
+              <Label htmlFor="schedule-msg" className="text-sm cursor-pointer">📅 Agendar para uma data e hora</Label>
             </div>
 
             {showScheduleDatePicker && (
@@ -1316,12 +1316,23 @@ export default function KanbanPage() {
                       onSelect={setScheduledDate}
                       disabled={(date) => isBefore(date, startOfDay(new Date()))}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-32"
+                  />
+                  <span className="text-xs text-muted-foreground">Horário do disparo</span>
+                </div>
                 {scheduledDate && (
                   <p className="text-xs text-muted-foreground">
-                    🔔 Você receberá um lembrete em <strong>{format(scheduledDate, 'dd/MM/yyyy')}</strong> para enviar esta mensagem.
+                    🔔 Disparo em <strong>{format(scheduledDate, 'dd/MM/yyyy')} às {scheduledTime}</strong>
                   </p>
                 )}
               </div>

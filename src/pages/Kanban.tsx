@@ -578,11 +578,65 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
 // ─── Revenue Chart ──────────────────────────
 const PIE_COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
 
-function RevenuePieChart({ deals }: { deals: KanbanDeal[] }) {
-  const pieData = useMemo(() => {
+type PieMode = 'cliente' | 'atrasados' | 'prioridade' | 'fase';
+
+const PIE_RADIAN = Math.PI / 180;
+const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  if (percent < 0.05) return null;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * PIE_RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * PIE_RADIAN);
+  return <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{(percent * 100).toFixed(0)}%</text>;
+};
+
+function RevenuePieChart({ deals, mode }: { deals: KanbanDeal[]; mode: PieMode }) {
+  const { pieData, colors } = useMemo(() => {
     const now = new Date();
+
+    if (mode === 'atrasados') {
+      let atrasado = 0, emDia = 0, semPrazo = 0;
+      deals.forEach(d => {
+        const rev = Number(d.revenue) || 0;
+        if (!d.due_date) { semPrazo += rev; }
+        else if (isBefore(new Date(d.due_date), now)) { atrasado += rev; }
+        else { emDia += rev; }
+      });
+      const data = [
+        { name: 'Atrasado', value: atrasado },
+        { name: 'Em dia', value: emDia },
+        { name: 'Sem prazo', value: semPrazo },
+      ].filter(d => d.value > 0);
+      return { pieData: data, colors: ['#ef4444', '#10b981', '#94a3b8'] };
+    }
+
+    if (mode === 'prioridade') {
+      const map: Record<string, number> = {};
+      deals.forEach(d => {
+        const rev = Number(d.revenue) || 0;
+        if (rev <= 0) return;
+        const label = PRIORITY_OPTIONS.find(p => p.id === d.priority)?.label || d.priority || 'Sem prioridade';
+        map[label] = (map[label] || 0) + rev;
+      });
+      const prioColors: Record<string, string> = { 'Urgente': '#ef4444', 'Alta': '#f97316', 'Média': '#f59e0b', 'Baixa': '#10b981' };
+      const data = Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+      return { pieData: data, colors: data.map(d => prioColors[d.name] || '#94a3b8') };
+    }
+
+    if (mode === 'fase') {
+      const map: Record<string, number> = {};
+      deals.forEach(d => {
+        const rev = Number(d.revenue) || 0;
+        if (rev <= 0) return;
+        const phase = d.phase || 'Sem fase';
+        map[phase] = (map[phase] || 0) + rev;
+      });
+      const data = Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+      return { pieData: data, colors: PIE_COLORS };
+    }
+
+    // default: cliente
     const map: Record<string, { total: number; overdue: number }> = {};
-    deals.filter(d => d.revenue > 0).forEach(deal => {
+    deals.filter(d => (Number(d.revenue) || 0) > 0).forEach(deal => {
       const key = deal.company_name.slice(0, 15);
       if (!map[key]) map[key] = { total: 0, overdue: 0 };
       map[key].total += Number(deal.revenue);
@@ -590,37 +644,27 @@ function RevenuePieChart({ deals }: { deals: KanbanDeal[] }) {
         map[key].overdue += Number(deal.revenue);
       }
     });
-    return Object.entries(map)
+    const data = Object.entries(map)
       .map(([name, { total, overdue }]) => ({ name, value: total, overdue }))
       .sort((a, b) => b.value - a.value);
-  }, [deals]);
+    const cols = data.map((entry, i) => entry.overdue && entry.overdue > 0 ? '#ef4444' : PIE_COLORS[i % PIE_COLORS.length]);
+    return { pieData: data, colors: cols };
+  }, [deals, mode]);
 
   if (pieData.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">Nenhum dado disponível.</p>;
   }
-
-  const RADIAN = Math.PI / 180;
-  const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    if (percent < 0.05) return null;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    return <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{(percent * 100).toFixed(0)}%</text>;
-  };
 
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
-        <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={renderLabel} outerRadius={120} dataKey="value" nameKey="name">
+        <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={renderPieLabel} outerRadius={120} dataKey="value" nameKey="name">
           {pieData.map((entry, i) => (
-            <Cell key={entry.name} fill={entry.overdue > 0 ? '#ef4444' : PIE_COLORS[i % PIE_COLORS.length]} stroke={entry.overdue > 0 ? '#b91c1c' : undefined} strokeWidth={entry.overdue > 0 ? 2 : 0} />
+            <Cell key={entry.name} fill={colors[i] || PIE_COLORS[i % PIE_COLORS.length]} />
           ))}
         </Pie>
         <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
-        <Legend formatter={(value: string) => {
-          const item = pieData.find(d => d.name === value);
-          return item && item.overdue > 0 ? `${value} ⚠️` : value;
-        }} />
+        <Legend />
       </PieChart>
     </ResponsiveContainer>
   );

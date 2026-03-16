@@ -912,6 +912,20 @@ export default function KanbanPage() {
               <BarChart3 className="w-4 h-4 mr-2" />
               {showChart ? 'Ocultar' : 'Gráfico'}
             </Button>
+            <Button variant="outline" size="sm" onClick={async () => {
+              setShowScheduledList(true);
+              setLoadingScheduled(true);
+              const { data } = await supabase
+                .from('kanban_scheduled_messages')
+                .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+                .eq('user_id', user!.id)
+                .order('scheduled_date', { ascending: true });
+              setScheduledMessages(data || []);
+              setLoadingScheduled(false);
+            }}>
+              <Clock className="w-4 h-4 mr-2" />
+              Agendadas
+            </Button>
             <div className="hidden sm:flex items-center gap-2">
               <ImportBackupButton />
               <ExportBackupButton />

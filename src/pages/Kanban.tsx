@@ -382,6 +382,17 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail }: {
             <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
               <DropdownMenuItem onClick={onEdit}><Pencil className="w-3.5 h-3.5 mr-2" /> Editar</DropdownMenuItem>
               <DropdownMenuItem onClick={onPayments}><Receipt className="w-3.5 h-3.5 mr-2" /> Faturamento</DropdownMenuItem>
+              {deal.client_whatsapp && (
+                <DropdownMenuItem onClick={() => {
+                  const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
+                  const msg = `Olá ${deal.client_name}! 👋\n\nEsperamos que esteja tudo bem!\n\nGostaríamos de informar sobre a cobrança referente ao serviço *${deal.company_name}*${deal.description ? ` - ${deal.description}` : ''}.\n\n${valor ? `💰 *Valor:* ${valor}\n\n` : ''}Caso já tenha realizado o pagamento, por favor desconsidere esta mensagem.\n\nQualquer dúvida, estamos à disposição!\n\nAtenciosamente.`;
+                  const encoded = encodeURIComponent(msg);
+                  const phone = deal.client_whatsapp.replace(/\D/g, '');
+                  window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
+                }}>
+                  <MessageCircle className="w-3.5 h-3.5 mr-2 text-emerald-500" /> Cobrar via WhatsApp
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={onDelete} className="text-destructive"><Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

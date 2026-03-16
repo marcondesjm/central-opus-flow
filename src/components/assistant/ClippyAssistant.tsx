@@ -459,13 +459,13 @@ export function ClippyAssistant() {
               </div>
             )}
 
-            {/* Close/Hide button */}
+            {/* Close/Hide button - always visible */}
             <button
               onClick={(e) => { e.stopPropagation(); handleHide(e); }}
-              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-card border border-border shadow-sm flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors opacity-0 group-hover/clippy:opacity-100"
+              className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-destructive/90 text-destructive-foreground shadow-md flex items-center justify-center hover:bg-destructive transition-colors z-10"
               title="Ocultar Clippy"
             >
-              <X className="w-3 h-3" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </motion.div>

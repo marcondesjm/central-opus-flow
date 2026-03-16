@@ -281,7 +281,7 @@ export function useSeedDemoData() {
   const [seeding, setSeeding] = useState(false);
   const [clearing, setClearing] = useState(false);
 
-  const seedDemoData = useCallback(async (force = false) => {
+  const seedDemoData = useCallback(async (force = false, silent = false) => {
     if (!user?.id) return false;
     
     setSeeding(true);
@@ -531,14 +531,18 @@ export function useSeedDemoData() {
       }
 
       console.log('Demo data seeded successfully');
-      toast.success('Projetos de demonstração criados!', {
-        description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
-      });
+      if (!silent) {
+        toast.success('Projetos de demonstração criados!', {
+          description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
+        });
+      }
       setSeeding(false);
       return true;
     } catch (error) {
       console.error('Error seeding demo data:', error);
-      toast.error('Erro ao criar projetos de demonstração');
+      if (!silent) {
+        toast.error('Erro ao criar projetos de demonstração');
+      }
       setSeeding(false);
       return false;
     }
@@ -682,7 +686,7 @@ export function useSeedDemoData() {
       
       // Now re-seed fresh data
       setSeeding(false);
-      return await seedDemoData(true);
+      return await seedDemoData(true, true);
     } catch (error) {
       console.error('Error resetting demo data:', error);
       setSeeding(false);

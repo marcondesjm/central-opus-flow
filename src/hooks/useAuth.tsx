@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    sessionStorage.removeItem('demo_data_reset');
     await supabase.auth.signOut();
   };
 

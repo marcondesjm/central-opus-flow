@@ -152,7 +152,10 @@ export default function Dashboard() {
   const { seedDemoData, resetDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
   const [demoSeeded, setDemoSeeded] = useState(false);
-  const [demoResetDone, setDemoResetDone] = useState(false);
+  const [demoResetDone, setDemoResetDone] = useState(() => {
+    // Only reset once per browser session (sessionStorage clears on tab close)
+    return sessionStorage.getItem('demo_data_reset') === 'true';
+  });
 
   // Project presence for online users
   const projectIds = useMemo(() => projects.map(p => p.id), [projects]);
@@ -172,24 +175,17 @@ export default function Dashboard() {
     }
   }, [user]);
 
-  // Auto-reset demo data for the demo account on each login
+  // Auto-reset demo data for the demo account on each new session (login)
   const isDemoAccount = user?.email === 'usercentral@gmail.com';
   useEffect(() => {
-    if (isDemoAccount && !demoResetDone && !accountsLoading) {
-      const sessionKey = `demo_reset_${user?.id}_${Date.now().toString().slice(0, -4)}`;
-      const alreadyReset = sessionStorage.getItem('demo_reset_session');
-      if (!alreadyReset) {
-        sessionStorage.setItem('demo_reset_session', 'true');
-        resetDemoData().then((result) => {
-          setDemoResetDone(true);
-          if (result) {
-            // Refresh the page data
-            window.location.reload();
-          }
-        });
-      } else {
-        setDemoResetDone(true);
-      }
+    if (isDemoAccount && !demoResetDone && !accountsLoading && user?.id) {
+      setDemoResetDone(true);
+      sessionStorage.setItem('demo_data_reset', 'true');
+      resetDemoData().then((result) => {
+        if (result) {
+          window.location.reload();
+        }
+      });
     }
   }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, resetDemoData]);
 

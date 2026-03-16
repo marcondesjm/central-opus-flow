@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ExportBackupButton } from '@/components/export/ExportBackupButton';
+import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {

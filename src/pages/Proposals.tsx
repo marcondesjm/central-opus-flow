@@ -33,6 +33,8 @@ import {
   Check,
   Send,
   Pencil,
+  MessageCircle,
+  Sparkles,
 } from 'lucide-react';
 
 import { ProposalForm } from '@/components/proposals/ProposalForm';

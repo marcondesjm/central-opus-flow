@@ -68,7 +68,7 @@ export function Header({
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { data: subscription } = useSubscription();
   const isAdmin = useIsAdmin();
-
+  const { canInstall, install: installPwa } = usePwaInstall();
   // Fetch profile and subscribe to realtime updates
   useEffect(() => {
     if (!user?.id) return;

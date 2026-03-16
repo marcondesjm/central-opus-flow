@@ -1734,6 +1734,16 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      register_changelog: {
+        Args: {
+          _bump?: string
+          _contributor_name?: string
+          _description?: string
+          _title: string
+          _type?: string
+        }
+        Returns: string
+      }
       update_system_version: {
         Args: {
           new_changelog?: string

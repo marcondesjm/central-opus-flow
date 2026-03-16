@@ -173,7 +173,7 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 'de
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="details" className="w-full">
+        <Tabs defaultValue={initialTab} key={initialTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details" className="gap-1.5">
               <FileEdit className="h-4 w-4" />

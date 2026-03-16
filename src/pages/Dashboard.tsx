@@ -656,6 +656,7 @@ export default function Dashboard() {
                       checklistProgress={checklistProgress}
                       onToggleFavorite={handleToggleFavorite}
                       onEdit={handleEditProject}
+                      onEditFiles={handleEditFiles}
                       onDelete={handleDeleteProject}
                       onArchive={handleArchiveProject}
                       onShowHistory={handleShowHistory}

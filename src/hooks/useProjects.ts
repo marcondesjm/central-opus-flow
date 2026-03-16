@@ -46,6 +46,7 @@ export interface Project {
   created_at: string;
   updated_at: string;
   deadline: string | null;
+  repository_url: string | null;
   tags?: Tag[];
 }
 

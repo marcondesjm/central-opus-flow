@@ -693,6 +693,8 @@ export default function KanbanPage() {
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
   const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);
   const [customWhatsAppMsg, setCustomWhatsAppMsg] = useState('');
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [showScheduleDatePicker, setShowScheduleDatePicker] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');

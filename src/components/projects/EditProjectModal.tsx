@@ -173,20 +173,24 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
         </DialogHeader>
         
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="details" className="gap-2">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="details" className="gap-1.5">
               <FileEdit className="h-4 w-4" />
               <span className="hidden sm:inline">Detalhes</span>
             </TabsTrigger>
-            <TabsTrigger value="keys" className="gap-2">
+            <TabsTrigger value="code" className="gap-1.5">
+              <Code2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Código</span>
+            </TabsTrigger>
+            <TabsTrigger value="keys" className="gap-1.5">
               <Key className="h-4 w-4" />
               <span className="hidden sm:inline">Keys</span>
             </TabsTrigger>
-            <TabsTrigger value="checklist" className="gap-2">
+            <TabsTrigger value="checklist" className="gap-1.5">
               <CheckSquare className="h-4 w-4" />
               <span className="hidden sm:inline">Checklist</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2">
+            <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">Histórico</span>
             </TabsTrigger>

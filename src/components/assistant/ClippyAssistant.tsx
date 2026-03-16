@@ -44,6 +44,7 @@ type ClippyAnimation = 'idle' | 'wave' | 'jump' | 'lean' | 'spin' | 'bounce' | '
 
 export function ClippyAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(() => sessionStorage.getItem('clippy-hidden') === 'true');
   const [selectedFaq, setSelectedFaq] = useState<AssistantFaq | null>(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -55,6 +56,37 @@ export function ClippyAssistant() {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const { data: faqs, isLoading } = useAssistantFaqs();
   const sounds = useClippySounds();
+
+  const handleHide = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsHidden(true);
+    setIsOpen(false);
+    setShowGreeting(false);
+    sessionStorage.setItem('clippy-hidden', 'true');
+    sounds.playClose();
+  }, [sounds]);
+
+  // If hidden, render a tiny button to bring him back
+  if (isHidden) {
+    return (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-accent transition-colors"
+        onClick={() => {
+          setIsHidden(false);
+          sessionStorage.removeItem('clippy-hidden');
+          setMood('happy');
+          setAnimation('wave');
+          sounds.playGreeting();
+          setTimeout(() => setAnimation('idle'), 1200);
+        }}
+        title="Mostrar Clippy"
+      >
+        <MessageCircleQuestion className="w-4 h-4 text-primary" />
+      </motion.button>
+    );
+  }
 
   // Cycle through random idle animations
   useEffect(() => {

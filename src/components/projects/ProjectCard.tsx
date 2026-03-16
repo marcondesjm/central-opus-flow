@@ -39,6 +39,7 @@ interface ProjectCardProps {
   checklistProgress?: ChecklistProgress;
   onToggleFavorite: (projectId: string) => void;
   onEdit?: (projectId: string) => void;
+  onEditFiles?: (projectId: string) => void;
   onDelete?: (projectId: string) => void;
   onArchive?: (projectId: string) => void;
   onDeadlineChange?: (projectId: string, deadline: Date | null) => void;

@@ -641,9 +641,59 @@ export function useSeedDemoData() {
     return projects && projects.length > 0;
   }, [user?.id]);
 
+  const resetDemoData = useCallback(async () => {
+    if (!user?.id) return false;
+    
+    setSeeding(true);
+    try {
+      // Clear ALL user data (not just demo-named items)
+      // Delete all projects and their related data
+      const { data: allAccounts } = await supabase
+        .from('lovable_accounts')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (allAccounts && allAccounts.length > 0) {
+        for (const acc of allAccounts) {
+          await supabase.from('projects').delete().eq('account_id', acc.id);
+        }
+        await supabase.from('lovable_accounts').delete().eq('user_id', user.id);
+      }
+
+      // Delete all kanban data
+      const { data: allDeals } = await supabase
+        .from('kanban_deals')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (allDeals && allDeals.length > 0) {
+        const dealIds = allDeals.map(d => d.id);
+        await supabase.from('kanban_payments').delete().in('deal_id', dealIds);
+        await supabase.from('kanban_task_checklist').delete().in('deal_id', dealIds);
+        await supabase.from('kanban_scheduled_messages').delete().in('deal_id', dealIds);
+        await supabase.from('kanban_deals').delete().eq('user_id', user.id);
+      }
+
+      await supabase.from('kanban_columns').delete().eq('user_id', user.id);
+      await supabase.from('tags').delete().eq('user_id', user.id);
+      await supabase.from('kanban_expenses').delete().eq('user_id', user.id);
+
+      console.log('All demo user data cleared, re-seeding...');
+      
+      // Now re-seed fresh data
+      setSeeding(false);
+      return await seedDemoData(true);
+    } catch (error) {
+      console.error('Error resetting demo data:', error);
+      setSeeding(false);
+      return false;
+    }
+  }, [user?.id, seedDemoData]);
+
   return {
     seedDemoData,
     clearDemoData,
+    resetDemoData,
     hasDemoAccount,
     hasDemoProjects,
     seeding,

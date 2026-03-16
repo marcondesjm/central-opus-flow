@@ -34,7 +34,7 @@ import {
   Send,
   Pencil,
 } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
+
 import { ProposalForm } from '@/components/proposals/ProposalForm';
 import { ProposalPreview } from '@/components/proposals/ProposalPreview';
 import {

@@ -204,20 +204,22 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
         </TabsList>
 
         <TabsContent value="draw" className="mt-3">
-          <div className="relative">
+          <div className="relative select-none">
             <canvas
               ref={canvasRef}
-              className="w-full h-32 rounded-lg border border-gray-200 bg-white cursor-crosshair touch-none"
+              className="w-full h-40 sm:h-32 rounded-lg border-2 border-gray-200 bg-white cursor-crosshair"
+              style={{ touchAction: 'none', msTouchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
+              onTouchStart={(e) => { e.preventDefault(); startDrawing(e); }}
+              onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+              onTouchEnd={(e) => { e.preventDefault(); stopDrawing(); }}
+              onTouchCancel={stopDrawing}
             />
             {!hasDrawn && (
-              <p className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none">
+              <p className="absolute inset-0 flex items-center justify-center text-gray-300 text-xs sm:text-sm pointer-events-none px-4 text-center">
                 Desenhe sua assinatura aqui
               </p>
             )}
@@ -225,10 +227,10 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearCanvas}
-                className="absolute top-1 right-1 h-7 text-xs gap-1 text-gray-400 hover:text-red-500"
+                onClick={() => { clearCanvas(); initCanvas(); }}
+                className="absolute top-1 right-1 h-8 text-xs gap-1 text-gray-400 hover:text-red-500"
               >
-                <Trash2 className="w-3 h-3" /> Limpar
+                <Trash2 className="w-3.5 h-3.5" /> Limpar
               </Button>
             )}
           </div>

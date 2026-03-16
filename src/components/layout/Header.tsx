@@ -376,7 +376,7 @@ export function Header({
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/proposals')}>
                 <FileText className="w-4 h-4" />
-                Propostas Comerciais
+                {t('sidebar.commercialProposals')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>

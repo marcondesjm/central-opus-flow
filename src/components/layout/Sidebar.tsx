@@ -449,11 +449,11 @@ export function Sidebar({
           <Collapsible open={billingOpen} onOpenChange={setBillingOpen}>
             <CollapsibleTrigger 
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-              aria-label="Abrir submenu Faturamento"
+              aria-label={t('sidebar.billing')}
             >
               <div className="flex items-center gap-3">
                 <Receipt className="w-4 h-4" aria-hidden="true" />
-                Faturamento
+                {t('sidebar.billing')}
               </div>
               <ChevronDown 
                 className={cn(
@@ -466,12 +466,12 @@ export function Sidebar({
             <CollapsibleContent className="mt-0.5">
               <div className="ml-4 space-y-0.5 border-l-2 border-sidebar-border pl-3">
                 {[
-                  { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
-                  { id: 'clients', label: 'Por Cliente', icon: Building2 },
-                  { id: 'ai-costs', label: 'IA & Créditos', icon: Bot },
-                  { id: 'expenses', label: 'Despesas', icon: Minus },
-                  { id: 'history', label: 'Histórico', icon: Clock },
-                  { id: 'pix', label: 'PIX Cobrança', icon: CreditCard },
+                  { id: 'overview', label: t('sidebar.billingOverview'), icon: BarChart3 },
+                  { id: 'clients', label: t('sidebar.billingClients'), icon: Building2 },
+                  { id: 'ai-costs', label: t('sidebar.billingAiCredits'), icon: Bot },
+                  { id: 'expenses', label: t('sidebar.billingExpenses'), icon: Minus },
+                  { id: 'history', label: t('sidebar.billingHistory'), icon: Clock },
+                  { id: 'pix', label: t('sidebar.billingPix'), icon: CreditCard },
                 ].map(item => (
                   <button
                     key={item.id}

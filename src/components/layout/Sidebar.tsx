@@ -226,7 +226,7 @@ export function Sidebar({
                     className="flex items-center gap-1 text-[10px] text-amber-600 hover:text-amber-500 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    Atualizar para v{serverVersion}
+                    {t('sidebar.updateTo', { version: serverVersion })}
                   </button>
                 );
               }
@@ -425,10 +425,10 @@ export function Sidebar({
           <button
             onClick={() => navigate('/kanban')}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-            aria-label="Abrir Kanban de Clientes"
+            aria-label={t('sidebar.kanban')}
           >
             <Kanban className="w-4 h-4" aria-hidden="true" />
-            Kanban
+            {t('sidebar.kanban')}
           </button>
         </div>
 
@@ -437,10 +437,10 @@ export function Sidebar({
           <button
             onClick={() => navigate('/proposals')}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-            aria-label="Abrir Propostas Comerciais"
+            aria-label={t('sidebar.proposals')}
           >
             <FileText className="w-4 h-4" aria-hidden="true" />
-            Propostas
+            {t('sidebar.proposals')}
           </button>
         </div>
 
@@ -449,11 +449,11 @@ export function Sidebar({
           <Collapsible open={billingOpen} onOpenChange={setBillingOpen}>
             <CollapsibleTrigger 
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-              aria-label="Abrir submenu Faturamento"
+              aria-label={t('sidebar.billing')}
             >
               <div className="flex items-center gap-3">
                 <Receipt className="w-4 h-4" aria-hidden="true" />
-                Faturamento
+                {t('sidebar.billing')}
               </div>
               <ChevronDown 
                 className={cn(
@@ -466,12 +466,12 @@ export function Sidebar({
             <CollapsibleContent className="mt-0.5">
               <div className="ml-4 space-y-0.5 border-l-2 border-sidebar-border pl-3">
                 {[
-                  { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
-                  { id: 'clients', label: 'Por Cliente', icon: Building2 },
-                  { id: 'ai-costs', label: 'IA & Créditos', icon: Bot },
-                  { id: 'expenses', label: 'Despesas', icon: Minus },
-                  { id: 'history', label: 'Histórico', icon: Clock },
-                  { id: 'pix', label: 'PIX Cobrança', icon: CreditCard },
+                  { id: 'overview', label: t('sidebar.billingOverview'), icon: BarChart3 },
+                  { id: 'clients', label: t('sidebar.billingClients'), icon: Building2 },
+                  { id: 'ai-costs', label: t('sidebar.billingAiCredits'), icon: Bot },
+                  { id: 'expenses', label: t('sidebar.billingExpenses'), icon: Minus },
+                  { id: 'history', label: t('sidebar.billingHistory'), icon: Clock },
+                  { id: 'pix', label: t('sidebar.billingPix'), icon: CreditCard },
                 ].map(item => (
                   <button
                     key={item.id}
@@ -510,10 +510,10 @@ export function Sidebar({
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-sidebar-foreground hover:bg-sidebar-accent'
             )}
-            aria-label="Abrir WordPress"
+            aria-label={t('sidebar.wordpress')}
           >
             <Globe className="w-4 h-4" aria-hidden="true" />
-            WordPress
+            {t('sidebar.wordpress')}
           </button>
         </div>
 
@@ -585,9 +585,9 @@ export function Sidebar({
               const isPaidPlan = (currentPlan === 'pro' || currentPlan === 'business') && 
                 (sub?.payment_status === 'paid' || sub?.payment_status === 'verified');
               if (isPaidPlan && daysLeft > 30) return null;
-              return (
+                return (
                 <p className={cn("text-[10px]", daysLeft <= 3 ? 'text-destructive font-semibold' : daysLeft <= 7 ? 'text-amber-600' : 'text-muted-foreground')}>
-                  {daysLeft <= 0 ? 'Expirado' : `Expira em ${daysLeft} dia${daysLeft !== 1 ? 's' : ''}`}
+                  {daysLeft <= 0 ? t('sidebar.expired') : t('sidebar.expiresIn', { days: daysLeft })}
                 </p>
               );
             })()}

@@ -229,13 +229,13 @@ export function Header({
                       : "bg-muted text-muted-foreground border-border"
                 )}>
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{isExpired ? 'Expirado' : `${daysLeft}d`}</span>
+                  <span>{isExpired ? t('sidebar.expired') : `${daysLeft}d`}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>{isExpired 
-                  ? 'Sua assinatura expirou. Renove para continuar.' 
-                  : `${daysLeft} dia${daysLeft !== 1 ? 's' : ''} restante${daysLeft !== 1 ? 's' : ''}`
+                  ? t('sidebar.expired')
+                  : t('sidebar.daysRemaining', { days: daysLeft })
                 }</p>
               </TooltipContent>
             </Tooltip>
@@ -324,12 +324,12 @@ export function Header({
                 <div className="flex items-center gap-1.5 mt-1">
                   <Crown className="w-3 h-3 text-primary" />
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                    {subscription?.plan === 'free' ? 'Grátis' : 
+                    {subscription?.plan === 'free' ? t('sidebar.free') : 
                      subscription?.plan === 'pro' ? 'Pro' : 
-                     subscription?.plan === 'business' ? 'Business' : 'Grátis'}
+                     subscription?.plan === 'business' ? 'Business' : t('sidebar.free')}
                     {subscription?.plan !== 'free' && (
                       <span className="ml-1 text-muted-foreground">
-                        • {(subscription as any)?.subscription_type === 'annual' ? 'Anual' : 'Mensal'}
+                        • {(subscription as any)?.subscription_type === 'annual' ? t('sidebar.annual') : t('sidebar.monthly')}
                       </span>
                     )}
                   </Badge>
@@ -337,7 +337,7 @@ export function Header({
                 {profile?.created_at && (
                   <div className="flex items-center gap-1 text-[10px] mt-1 text-muted-foreground">
                     <CalendarDays className="w-3 h-3" />
-                    Membro desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {t('sidebar.memberSince', { date: new Date(profile.created_at).toLocaleDateString() })}
                   </div>
                 )}
                 {(() => {
@@ -356,7 +356,7 @@ export function Header({
                   if (isPaidPlan && diff > 30) return null;
                   return (
                     <div className={`text-[10px] mt-1 font-medium ${diff <= 3 ? 'text-destructive' : diff <= 7 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                      ⏳ {diff > 0 ? `${diff} dia${diff !== 1 ? 's' : ''} restante${diff !== 1 ? 's' : ''}` : 'Expirado'}
+                      ⏳ {diff > 0 ? t('sidebar.daysRemaining', { days: diff }) : t('sidebar.expired')}
                     </div>
                   );
                 })()}
@@ -364,7 +364,7 @@ export function Header({
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/dashboard?settings=profile')}>
                 <UserPen className="w-4 h-4" />
-                {t('header.editProfile', 'Editar Perfil')}
+                {t('sidebar.editProfile')}
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={onOpenSettings}>
                 <Settings className="w-4 h-4" />
@@ -376,7 +376,7 @@ export function Header({
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/proposals')}>
                 <FileText className="w-4 h-4" />
-                Propostas Comerciais
+                {t('sidebar.commercialProposals')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>

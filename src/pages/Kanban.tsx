@@ -785,6 +785,7 @@ export default function KanbanPage() {
   const [editDeal, setEditDeal] = useState<KanbanDeal | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showChart, setShowChart] = useState(searchParams.get('view') === 'billing');
+  const [revenueChartType, setRevenueChartType] = useState<'bar' | 'pie'>('bar');
   const [paymentsDeal, setPaymentsDeal] = useState<KanbanDeal | null>(null);
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
   const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);

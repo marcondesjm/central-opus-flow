@@ -1188,11 +1188,19 @@ export default function KanbanPage() {
         <div className="max-w-[1800px] mx-auto px-4 pt-4">
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Faturamento por Cliente / Mês
-              </h3>
-              <RevenueChart deals={deals || []} />
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Faturamento por Cliente {revenueChartType === 'bar' ? '/ Mês' : '(Total)'}
+                </h3>
+                <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
+                  <TabsList className="h-7">
+                    <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>
+                    <TabsTrigger value="pie" className="text-xs px-2 h-6">Pizza</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <RevenueChart deals={deals || []} chartType={revenueChartType} />
             </CardContent>
           </Card>
         </div>

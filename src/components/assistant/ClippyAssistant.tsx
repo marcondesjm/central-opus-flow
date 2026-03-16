@@ -144,7 +144,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -10, scale: 0.85 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-[110px] left-6 z-[60] max-w-[220px]"
+            className="fixed bottom-[160px] right-4 lg:bottom-[100px] z-[60] max-w-[220px]"
           >
             {/* Bubble */}
             <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">

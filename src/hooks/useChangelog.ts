@@ -41,6 +41,7 @@ export function useChangelogByVersion() {
       queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
       queryClient.invalidateQueries({ queryKey: ['changelog'] });
       queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+      queryClient.invalidateQueries({ queryKey: ['system-version'] });
     };
 
     const channel = supabase

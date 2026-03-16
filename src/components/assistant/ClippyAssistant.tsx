@@ -277,7 +277,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.8 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-[160px] right-3 sm:right-4 lg:bottom-[100px] z-[60] max-w-[230px]"
+            className="fixed bottom-[220px] right-3 sm:right-4 lg:bottom-[150px] z-[60] max-w-[230px]"
           >
             <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
               <button

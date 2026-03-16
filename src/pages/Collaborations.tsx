@@ -155,24 +155,24 @@ export default function Collaborations() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+        <div className="container mx-auto px-3 sm:px-4 flex h-14 sm:h-16 items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <h1 className="text-xl font-semibold">Colaborações</h1>
-              <p className="text-sm text-muted-foreground">Gerencie compartilhamentos e convites</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-semibold truncate">Colaborações</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Gerencie compartilhamentos e convites</p>
             </div>
           </div>
-          <Button onClick={() => setProjectPickerOpen(true)} className="gap-2">
+          <Button onClick={() => setProjectPickerOpen(true)} className="gap-2 shrink-0" size="sm">
             <UserPlus className="h-4 w-4" />
-            Novo Convite
+            <span className="hidden sm:inline">Novo Convite</span>
           </Button>
         </div>
       </header>
 
-      <main className="container py-8 space-y-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
         <Tabs defaultValue="received" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 max-w-md">
             <TabsTrigger value="received" className="gap-2">

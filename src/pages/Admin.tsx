@@ -890,7 +890,8 @@ export default function Admin() {
                     </p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[500px] overflow-auto">
+                  <ScrollArea className="h-[500px]">
+                    <div className="overflow-x-auto min-w-[800px]">
                     <Table>
                       <TableHeader>
                         <TableRow>

@@ -211,11 +211,11 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto w-[95vw] sm:w-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
-              Faturamento - {deal.company_name}
+            <DialogTitle className="flex items-center gap-2 flex-wrap text-base sm:text-lg">
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="truncate">Faturamento - {deal.company_name}</span>
               {urgentPayments > 0 && (
                 <Badge variant="destructive" className="animate-pulse text-[10px] ml-1">
                   <AlertTriangle className="w-3 h-3 mr-1" />
@@ -264,65 +264,66 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
                   const urgency = getPaymentUrgency(payment);
                   const daysUntil = differenceInDays(new Date(payment.payment_date), new Date());
 
-                  return (
-                    <div
-                      key={payment.id}
-                      className={cn(
-                        "flex items-center gap-3 p-2.5 rounded-lg border bg-card group transition-all",
-                        urgency === 'overdue' && "border-destructive/50 bg-destructive/5 animate-[pulse_2s_ease-in-out_infinite]",
-                        urgency === 'urgent' && "border-amber-400/50 bg-amber-50/50 animate-[pulse_3s_ease-in-out_infinite]",
-                        urgency === 'approaching' && "border-yellow-300/50 bg-yellow-50/30"
-                      )}
-                    >
-                      <StatusIcon className={`w-4 h-4 flex-shrink-0 ${statusInfo.className.split(' ')[0]}`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">
-                            R$ {Number(payment.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </span>
-                          <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>
-                            {statusInfo.label}
-                          </Badge>
-                          {urgency === 'overdue' && (
-                            <Badge variant="destructive" className="text-[10px] animate-pulse">
-                              Vencido há {Math.abs(daysUntil)}d
-                            </Badge>
-                          )}
-                          {urgency === 'urgent' && (
-                            <Badge className="text-[10px] bg-amber-500 text-white animate-bounce">
-                              {daysUntil === 0 ? 'Vence hoje!' : `Vence em ${daysUntil}d`}
-                            </Badge>
-                          )}
-                          {urgency === 'approaching' && (
-                            <Badge variant="outline" className="text-[10px] text-yellow-600 border-yellow-400">
-                              Em {daysUntil}d
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>{format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
-                          {payment.payment_method && (
-                            <span>· {PAYMENT_METHODS.find(m => m.value === payment.payment_method)?.label || payment.payment_method}</span>
-                          )}
-                          {payment.category && (
-                            <span>· {PAYMENT_CATEGORIES.find(c => c.value === payment.category)?.label || payment.category}</span>
-                          )}
-                          {payment.description && <span>· {payment.description}</span>}
+                    return (
+                      <div
+                        key={payment.id}
+                        className={cn(
+                          "p-2.5 rounded-lg border bg-card group transition-all",
+                          urgency === 'overdue' && "border-destructive/50 bg-destructive/5 animate-[pulse_2s_ease-in-out_infinite]",
+                          urgency === 'urgent' && "border-amber-400/50 bg-amber-50/50 animate-[pulse_3s_ease-in-out_infinite]",
+                          urgency === 'approaching' && "border-yellow-300/50 bg-yellow-50/30"
+                        )}
+                      >
+                        <div className="flex items-start gap-2">
+                          <StatusIcon className={`w-4 h-4 flex-shrink-0 mt-0.5 ${statusInfo.className.split(' ')[0]}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-medium text-sm">
+                                R$ {Number(payment.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </span>
+                              <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>
+                                {statusInfo.label}
+                              </Badge>
+                              {urgency === 'overdue' && (
+                                <Badge variant="destructive" className="text-[10px] animate-pulse">
+                                  Vencido há {Math.abs(daysUntil)}d
+                                </Badge>
+                              )}
+                              {urgency === 'urgent' && (
+                                <Badge className="text-[10px] bg-amber-500 text-white animate-bounce">
+                                  {daysUntil === 0 ? 'Vence hoje!' : `Vence em ${daysUntil}d`}
+                                </Badge>
+                              )}
+                              {urgency === 'approaching' && (
+                                <Badge variant="outline" className="text-[10px] text-yellow-600 border-yellow-400">
+                                  Em {daysUntil}d
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground mt-1">
+                              <span>{format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                              {payment.payment_method && (
+                                <span>· {PAYMENT_METHODS.find(m => m.value === payment.payment_method)?.label || payment.payment_method}</span>
+                              )}
+                              {payment.category && (
+                                <span>· {PAYMENT_CATEGORIES.find(c => c.value === payment.category)?.label || payment.category}</span>
+                              )}
+                              {payment.description && <span className="truncate max-w-[120px] sm:max-w-none">· {payment.description}</span>}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <WhatsAppBillingButton deal={deal} payment={payment} />
+                            <button onClick={() => { setEditPayment(payment); setShowForm(true); }} className="p-1 rounded hover:bg-muted sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => setDeletingId(payment.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-
-                      {/* WhatsApp billing button - always visible when urgent */}
-                      <WhatsAppBillingButton deal={deal} payment={payment} />
-
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => { setEditPayment(payment); setShowForm(true); }} className="p-1 rounded hover:bg-muted">
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setDeletingId(payment.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
                   );
                 })}
               </div>

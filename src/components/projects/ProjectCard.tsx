@@ -188,11 +188,23 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-semibold text-card-foreground line-clamp-1">{project.name}</h3>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20">
-              <MoreHorizontal className="w-4 h-4 text-primary" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEditFiles?.(project.id); }}
+                  className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20"
+                >
+                  <FileArchive className="w-4 h-4 text-primary" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Arquivos</p></TooltipContent>
+            </Tooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20">
+                <MoreHorizontal className="w-4 h-4 text-primary" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
               {project.url && (
                 <>
                   <DropdownMenuItem className="gap-2" onClick={handleOpenProject}>

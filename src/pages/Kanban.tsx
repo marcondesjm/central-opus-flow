@@ -1311,25 +1311,27 @@ export default function KanbanPage() {
 
       {/* Zoom Controls */}
       {viewMode === 'kanban' && (
-        <div className="flex items-center justify-end gap-1 px-4 pt-2 max-w-[1800px] mx-auto">
-          <Button variant="ghost" size="sm" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
-            <ZoomOut className="w-4 h-4" />
-          </Button>
-          <button
-            onClick={() => setZoomLevel(1)}
-            className="text-xs text-muted-foreground hover:text-foreground min-w-[3rem] text-center"
-          >
-            {Math.round(zoomLevel * 100)}%
-          </button>
-          <Button variant="ghost" size="sm" onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.1))} disabled={zoomLevel >= 1.5}>
-            <ZoomIn className="w-4 h-4" />
-          </Button>
-          {zoomLevel !== 1 && (
-            <Button variant="ghost" size="sm" onClick={() => setZoomLevel(1)}>
-              <Maximize2 className="w-4 h-4" />
+        <div className="flex items-center justify-center gap-2 px-4 pt-3 pb-1 max-w-[1800px] mx-auto">
+          <div className="flex items-center gap-1 bg-muted/60 border border-border rounded-full px-3 py-1.5 shadow-sm">
+            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
+              <ZoomOut className="w-4 h-4" />
             </Button>
-          )}
-          <span className="text-[10px] text-muted-foreground ml-1">Ctrl + Scroll</span>
+            <button
+              onClick={() => setZoomLevel(1)}
+              className="text-xs font-medium text-foreground hover:text-primary min-w-[3rem] text-center transition-colors"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.1))} disabled={zoomLevel >= 1.5}>
+              <ZoomIn className="w-4 h-4" />
+            </Button>
+            {zoomLevel !== 1 && (
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => setZoomLevel(1)}>
+                <Maximize2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+            <span className="text-[10px] text-muted-foreground ml-1 hidden sm:inline">Ctrl + Scroll</span>
+          </div>
         </div>
       )}
 

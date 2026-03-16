@@ -1233,11 +1233,11 @@ export default function KanbanPage() {
 
       {/* Chart */}
       {showChart && (
-        <div className="max-w-[1800px] mx-auto px-4 pt-4">
+        <div className="max-w-[1800px] mx-auto px-3 sm:px-4 pt-4">
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
+            <CardContent className="pt-4 sm:pt-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <h3 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
                   {revenueChartType === 'bar' ? 'Faturamento por Cliente / Mês' : 
                     pieMode === 'cliente' ? 'Faturamento por Cliente' :
@@ -1245,19 +1245,19 @@ export default function KanbanPage() {
                     pieMode === 'prioridade' ? 'Faturamento por Prioridade' :
                     'Faturamento por Fase'}
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-x-auto">
                   <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
                     <TabsList className="h-7">
-                      <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
-                      <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
-                      <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
-                      <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
+                      <TabsTrigger value="cliente" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Cliente</TabsTrigger>
+                      <TabsTrigger value="atrasados" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Atrasados</TabsTrigger>
+                      <TabsTrigger value="prioridade" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Prioridade</TabsTrigger>
+                      <TabsTrigger value="fase" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Fase</TabsTrigger>
                     </TabsList>
                   </Tabs>
                   <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
                     <TabsList className="h-7">
-                      <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>
-                      <TabsTrigger value="pie" className="text-xs px-2 h-6">Pizza</TabsTrigger>
+                      <TabsTrigger value="bar" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Barras</TabsTrigger>
+                      <TabsTrigger value="pie" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Pizza</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>

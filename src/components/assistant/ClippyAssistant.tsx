@@ -53,7 +53,17 @@ export function ClippyAssistant() {
   const [mood, setMood] = useState<ClippyMood>('normal');
   const [animation, setAnimation] = useState<ClippyAnimation>('idle');
   const [isTypingBubble, setIsTypingBubble] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number }>(() => {
+    try {
+      const saved = localStorage.getItem('clippy-position');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { x: 0, y: 0 };
+  });
   const idleTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const constraintsRef = useRef<HTMLDivElement>(null);
   const { data: faqs, isLoading } = useAssistantFaqs();
   const sounds = useClippySounds();
 

@@ -12,8 +12,8 @@ export const ProposalPreview = forwardRef<HTMLDivElement, ProposalPreviewProps>(
     const brandColor = proposal.brand_color || '#3b82f6';
     const secondaryColor = proposal.brand_secondary_color || '#1e293b';
     const services = proposal.services || [];
-    const subtotal = services.reduce((sum, s) => sum + (s.quantity * s.unit_price), 0);
-    const discount = proposal.discount || 0;
+    const subtotal = services.reduce((sum, s) => sum + ((Number(s.quantity) || 0) * (Number(s.unit_price) || 0)), 0);
+    const discount = Number(proposal.discount) || 0;
     const total = subtotal - discount;
     const createdAt = proposal.created_at ? new Date(proposal.created_at) : new Date();
     const validUntil = new Date(createdAt);

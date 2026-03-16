@@ -845,9 +845,9 @@ export default function KanbanPage() {
   const [loadingScheduled, setLoadingScheduled] = useState(false);
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
     try {
-      return localStorage.getItem('kanban-auto-dispatch-enabled') !== 'false';
+      return localStorage.getItem('kanban-auto-dispatch-enabled') === 'true';
     } catch {
-      return true;
+      return false;
     }
   });
   const [nowTs, setNowTs] = useState(Date.now());

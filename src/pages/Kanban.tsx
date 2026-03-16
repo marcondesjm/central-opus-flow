@@ -885,7 +885,7 @@ export default function KanbanPage() {
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     const { draggableId, destination, source, type } = result;
     if (!destination) return;
 
@@ -897,9 +897,8 @@ export default function KanbanPage() {
       // Find the "finalizados/concluido" column - prevent it from moving
       const movedCol = sortedCols[source.index];
       const isFinalizadoCol = movedCol?.name?.toLowerCase().includes('finalizado') || movedCol?.name?.toLowerCase().includes('conclu');
-      if (isFinalizadoCol) return; // Block moving finalizados column
+      if (isFinalizadoCol) return;
       
-      // Prevent moving any column to after the last position if finalizados is last
       const lastCol = sortedCols[sortedCols.length - 1];
       const isLastFinalizados = lastCol?.name?.toLowerCase().includes('finalizado') || lastCol?.name?.toLowerCase().includes('conclu');
       if (isLastFinalizados && destination.index >= sortedCols.length - 1) return;
@@ -915,27 +914,67 @@ export default function KanbanPage() {
       return;
     }
 
-    // Handle deal dragging
-    const newPhase = destination.droppableId;
-    const deal = deals?.find(d => d.id === draggableId);
-    if (!deal || deal.phase === newPhase) return;
+    // Deal dragging only works reliably in manual mode
+    if (sortMode !== 'default') {
+      setSortMode('default');
+      toast({ title: 'Ordenação alterada para Manual (arrastar)' });
+    }
 
-    const oldColumn = columns?.find(c => c.id === deal.phase);
-    const newColumn = columns?.find(c => c.id === newPhase);
+    const sourcePhase = source.droppableId;
+    const destinationPhase = destination.droppableId;
+    const sourceDeals = [...(dealsByColumn[sourcePhase] || [])];
+    const sourceDealIndex = sourceDeals.findIndex(d => d.id === draggableId);
+    if (sourceDealIndex === -1) return;
 
-    updateDeal.mutate({
-      id: deal.id,
-      phase: newPhase,
-      position: destination.index,
-    });
+    const [movedDeal] = sourceDeals.splice(sourceDealIndex, 1);
 
-    if (deal.client_email || deal.client_whatsapp) {
+    // Reorder inside the same column
+    if (sourcePhase === destinationPhase) {
+      sourceDeals.splice(destination.index, 0, movedDeal);
+
+      await Promise.all(
+        sourceDeals.map((deal, index) =>
+          supabase
+            .from('kanban_deals')
+            .update({ position: index })
+            .eq('id', deal.id)
+        )
+      );
+      return;
+    }
+
+    // Move between columns
+    const destinationDeals = [...(dealsByColumn[destinationPhase] || [])];
+    destinationDeals.splice(destination.index, 0, { ...movedDeal, phase: destinationPhase });
+
+    await Promise.all([
+      ...sourceDeals.map((deal, index) =>
+        supabase
+          .from('kanban_deals')
+          .update({ position: index })
+          .eq('id', deal.id)
+      ),
+      ...destinationDeals.map((deal, index) =>
+        supabase
+          .from('kanban_deals')
+          .update({
+            position: index,
+            ...(deal.id === movedDeal.id ? { phase: destinationPhase } : {}),
+          })
+          .eq('id', deal.id)
+      ),
+    ]);
+
+    const oldColumn = columns?.find(c => c.id === movedDeal.phase);
+    const newColumn = columns?.find(c => c.id === destinationPhase);
+
+    if (movedDeal.client_email || movedDeal.client_whatsapp) {
       setPhaseChangeNotification({
-        dealId: deal.id,
-        clientName: deal.client_name,
-        clientEmail: deal.client_email,
-        clientWhatsapp: deal.client_whatsapp,
-        companyName: deal.company_name,
+        dealId: movedDeal.id,
+        clientName: movedDeal.client_name,
+        clientEmail: movedDeal.client_email,
+        clientWhatsapp: movedDeal.client_whatsapp,
+        companyName: movedDeal.company_name,
         oldPhaseName: oldColumn?.name || 'Anterior',
         newPhaseName: newColumn?.name || 'Nova',
       });

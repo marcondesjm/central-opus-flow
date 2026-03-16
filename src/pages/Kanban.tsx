@@ -1138,32 +1138,32 @@ export default function KanbanPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="flex items-center justify-between px-4 py-3 max-w-[1800px] mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1800px] mx-auto gap-2">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-lg font-bold">Tarefas & Projetos</h1>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold truncate">Tarefas & Projetos</h1>
               <p className="text-xs text-muted-foreground">
                 {deals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {/* View mode tabs */}
             <Tabs value={viewMode} onValueChange={v => setViewMode(v as 'kanban' | 'list')}>
               <TabsList className="h-8">
-                <TabsTrigger value="kanban" className="text-xs px-3 h-7">Kanban</TabsTrigger>
-                <TabsTrigger value="list" className="text-xs px-3 h-7">Lista</TabsTrigger>
+                <TabsTrigger value="kanban" className="text-xs px-2 sm:px-3 h-7">Kanban</TabsTrigger>
+                <TabsTrigger value="list" className="text-xs px-2 sm:px-3 h-7">Lista</TabsTrigger>
               </TabsList>
             </Tabs>
 
-            <Button variant="outline" size="sm" onClick={() => setShowChart(v => !v)}>
-              <BarChart3 className="w-4 h-4 mr-2" />
-              {showChart ? 'Ocultar' : 'Gráfico'}
+            <Button variant="outline" size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={() => setShowChart(v => !v)}>
+              <BarChart3 className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">{showChart ? 'Ocultar' : 'Gráfico'}</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={async () => {
+            <Button variant="outline" size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={async () => {
               setShowScheduledList(true);
               setLoadingScheduled(true);
               const { data } = await supabase
@@ -1174,23 +1174,23 @@ export default function KanbanPage() {
               setScheduledMessages(data || []);
               setLoadingScheduled(false);
             }}>
-              <Clock className="w-4 h-4 mr-2" />
-              Agendadas
+              <Clock className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Agendadas</span>
             </Button>
             <div className="hidden sm:flex items-center gap-2">
               <ImportBackupButton />
               <ExportBackupButton />
             </div>
-            <Button size="sm" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Tarefa
+            <Button size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
+              <Plus className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden xs:inline">Nova Tarefa</span>
             </Button>
           </div>
         </div>
 
         {/* Filters bar */}
-        <div className="flex items-center gap-3 px-4 py-2 border-t bg-muted/30 max-w-[1800px] mx-auto">
-          <div className="relative flex-1 max-w-xs">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-t bg-muted/30 max-w-[1800px] mx-auto">
+          <div className="relative flex-1 min-w-[150px] max-w-xs">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Buscar tarefas..."
@@ -1200,7 +1200,7 @@ export default function KanbanPage() {
             />
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
               <Filter className="w-3.5 h-3.5 mr-1" />
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
@@ -1212,7 +1212,7 @@ export default function KanbanPage() {
             </SelectContent>
           </Select>
           <Select value={sortMode} onValueChange={v => setSortMode(v as any)}>
-            <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
               <SelectValue placeholder="Ordenar" />
             </SelectTrigger>
             <SelectContent>
@@ -1225,7 +1225,7 @@ export default function KanbanPage() {
           {viewMode === 'kanban' && (
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowAddColumn(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" />
-              Coluna
+              <span className="hidden sm:inline">Coluna</span>
             </Button>
           )}
         </div>
@@ -1233,11 +1233,11 @@ export default function KanbanPage() {
 
       {/* Chart */}
       {showChart && (
-        <div className="max-w-[1800px] mx-auto px-4 pt-4">
+        <div className="max-w-[1800px] mx-auto px-3 sm:px-4 pt-4">
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
+            <CardContent className="pt-4 sm:pt-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <h3 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
                   {revenueChartType === 'bar' ? 'Faturamento por Cliente / Mês' : 
                     pieMode === 'cliente' ? 'Faturamento por Cliente' :
@@ -1245,19 +1245,19 @@ export default function KanbanPage() {
                     pieMode === 'prioridade' ? 'Faturamento por Prioridade' :
                     'Faturamento por Fase'}
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-x-auto">
                   <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
                     <TabsList className="h-7">
-                      <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
-                      <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
-                      <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
-                      <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
+                      <TabsTrigger value="cliente" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Cliente</TabsTrigger>
+                      <TabsTrigger value="atrasados" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Atrasados</TabsTrigger>
+                      <TabsTrigger value="prioridade" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Prioridade</TabsTrigger>
+                      <TabsTrigger value="fase" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Fase</TabsTrigger>
                     </TabsList>
                   </Tabs>
                   <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
                     <TabsList className="h-7">
-                      <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>
-                      <TabsTrigger value="pie" className="text-xs px-2 h-6">Pizza</TabsTrigger>
+                      <TabsTrigger value="bar" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Barras</TabsTrigger>
+                      <TabsTrigger value="pie" className="text-[10px] sm:text-xs px-1.5 sm:px-2 h-6">Pizza</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>

@@ -531,23 +531,23 @@ export default function Admin() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div>
-                <h1 className="text-xl font-bold flex items-center gap-2">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
-                  Painel Administrativo
+                  Painel Admin
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   Gerencie usuários, planos e mensalidades
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -561,29 +561,29 @@ export default function Admin() {
                     toast({ title: 'Erro', description: err.message, variant: 'destructive' });
                   }
                 }}
-                className="gap-2"
+                className="gap-1.5 h-8 text-xs px-2"
               >
                 <Users className="w-4 h-4" />
-                Criar Conta Demo
+                <span className="hidden sm:inline">Criar Conta Demo</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => { setMessageTargetUser(null); setMessageModalOpen(true); }}
-                className="gap-2"
+                className="gap-1.5 h-8 text-xs px-2"
               >
                 <Send className="w-4 h-4" />
-                Enviar para Todos
+                <span className="hidden sm:inline">Enviar para Todos</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleRefreshAll}
                 disabled={refreshing}
-                className="gap-2"
+                className="gap-1.5 h-8 text-xs px-2"
               >
                 <RefreshCw className={cn("w-4 h-4", refreshing && "animate-spin")} />
-                Atualizar
+                <span className="hidden sm:inline">Atualizar</span>
               </Button>
             </div>
           </div>
@@ -776,33 +776,35 @@ export default function Admin() {
 
         {/* Tabs for Users and Payments */}
         <Tabs value={activeAdminTab} onValueChange={setActiveAdminTab} className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="w-4 h-4" />
-              Usuários
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="gap-2">
-              <Receipt className="w-4 h-4" />
-              Comprovantes
-              {pendingReceipts.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                  {pendingReceipts.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="blog" className="gap-2" data-value="blog">
-              <BookOpen className="w-4 h-4" />
-              Blog
-            </TabsTrigger>
-            <TabsTrigger value="wordpress" className="gap-2">
-              <Globe className="w-4 h-4" />
-              WordPress
-            </TabsTrigger>
-            <TabsTrigger value="coupons" className="gap-2">
-              <Tag className="w-4 h-4" />
-              Cupons
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-3 px-3 sm:-mx-4 sm:px-4">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0">
+              <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Usuários
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="gap-1.5 text-xs sm:text-sm">
+                <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Comprovantes
+                {pendingReceipts.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                    {pendingReceipts.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="blog" className="gap-1.5 text-xs sm:text-sm" data-value="blog">
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Blog
+              </TabsTrigger>
+              <TabsTrigger value="wordpress" className="gap-1.5 text-xs sm:text-sm">
+                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                WordPress
+              </TabsTrigger>
+              <TabsTrigger value="coupons" className="gap-1.5 text-xs sm:text-sm">
+                <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Cupons
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="users" className="space-y-6">
             {/* Monitoring Charts */}

@@ -506,6 +506,12 @@ export default function Proposals() {
                     Copiar Link
                   </Button>
                 )}
+                {currentProposal.client_phone && (
+                  <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => sendWhatsApp(currentProposal)}>
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    WhatsApp
+                  </Button>
+                )}
                 <Button size="sm" onClick={exportPDF} disabled={exporting}>
                   {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
                   PDF

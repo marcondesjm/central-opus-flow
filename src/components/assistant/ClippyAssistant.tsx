@@ -74,7 +74,7 @@ export function ClippyAssistant() {
     const moods: ClippyMood[] = ['happy', 'thinking', 'wink', 'normal'];
 
     const doRandomAction = () => {
-      if (isOpen) return;
+      if (isOpen || isHidden) return;
 
       const anim = animations[Math.floor(Math.random() * animations.length)];
       const randomMood = moods[Math.floor(Math.random() * moods.length)];

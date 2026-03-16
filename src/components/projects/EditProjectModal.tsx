@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUpdateProject, useAccounts, useTags, Project } from '@/hooks/useProjects';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, X, FileEdit, History, CheckSquare, Key } from 'lucide-react';
+import { Loader2, X, FileEdit, History, CheckSquare, Key, Code2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { CoverUpload } from './CoverUpload';
@@ -29,6 +29,7 @@ import { DeadlinePicker } from './DeadlinePicker';
 import { ProjectHistoryPanel } from './ProjectHistoryPanel';
 import { ProjectChecklist } from './ProjectChecklist';
 import { ProjectKeysPanel } from './ProjectKeysPanel';
+import { ProjectCodePanel } from './ProjectCodePanel';
 
 interface EditProjectModalProps {
   open: boolean;
@@ -72,6 +73,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
   const [notes, setNotes] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [deadline, setDeadline] = useState<Date | null>(null);
+  const [repositoryUrl, setRepositoryUrl] = useState<string | null>(null);
   
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();
@@ -90,6 +92,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
       setNotes(project.notes || '');
       setSelectedTags(project.tags?.map(t => t.id) || []);
       setDeadline(project.deadline ? new Date(project.deadline) : null);
+      setRepositoryUrl((project as any).repository_url || null);
     }
   }, [project]);
 
@@ -170,20 +173,24 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
         </DialogHeader>
         
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="details" className="gap-2">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="details" className="gap-1.5">
               <FileEdit className="h-4 w-4" />
               <span className="hidden sm:inline">Detalhes</span>
             </TabsTrigger>
-            <TabsTrigger value="keys" className="gap-2">
+            <TabsTrigger value="code" className="gap-1.5">
+              <Code2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Código</span>
+            </TabsTrigger>
+            <TabsTrigger value="keys" className="gap-1.5">
               <Key className="h-4 w-4" />
               <span className="hidden sm:inline">Keys</span>
             </TabsTrigger>
-            <TabsTrigger value="checklist" className="gap-2">
+            <TabsTrigger value="checklist" className="gap-1.5">
               <CheckSquare className="h-4 w-4" />
               <span className="hidden sm:inline">Checklist</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2">
+            <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">Histórico</span>
             </TabsTrigger>
@@ -369,6 +376,20 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
             </Button>
           </DialogFooter>
         </form>
+          </TabsContent>
+          
+          <TabsContent value="code" className="mt-4">
+            <ProjectCodePanel
+              projectId={project.id}
+              repositoryUrl={repositoryUrl}
+              onRepositoryUrlChange={(url) => {
+                setRepositoryUrl(url);
+                updateProject.mutateAsync({
+                  id: project.id,
+                  repository_url: url,
+                } as any);
+              }}
+            />
           </TabsContent>
           
           <TabsContent value="keys" className="mt-4">

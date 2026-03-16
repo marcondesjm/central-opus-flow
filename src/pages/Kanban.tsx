@@ -355,6 +355,7 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsA
 }) {
   const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
   const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
+  const isApproachingDeadline = deal.due_date && !isOverdue && isBefore(new Date(deal.due_date), addDays(new Date(), 2));
 
   return (
     <Card

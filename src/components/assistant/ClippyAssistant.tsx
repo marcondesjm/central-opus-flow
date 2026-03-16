@@ -252,6 +252,12 @@ export function ClippyAssistant() {
           rotate: [0, 360],
           transition: { duration: 0.8, ease: 'easeInOut' as const },
         };
+      case 'knock':
+        return {
+          x: [0, -6, 2, -6, 2, -4, 0],
+          rotate: [0, -8, 3, -8, 3, -4, 0],
+          transition: { duration: 0.8, ease: 'easeInOut' as const },
+        };
       default: // idle
         return {
           y: [0, -4, 0, -2, 0],

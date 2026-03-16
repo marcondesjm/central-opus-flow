@@ -670,7 +670,7 @@ function RevenuePieChart({ deals, mode }: { deals: KanbanDeal[]; mode: PieMode }
   );
 }
 
-function RevenueChart({ deals, chartType }: { deals: KanbanDeal[]; chartType: 'bar' | 'pie' }) {
+function RevenueChart({ deals, chartType, pieMode }: { deals: KanbanDeal[]; chartType: 'bar' | 'pie'; pieMode: PieMode }) {
   const chartData = useMemo(() => {
     const now = new Date();
     const monthMap: Record<string, Record<string, number>> = {};

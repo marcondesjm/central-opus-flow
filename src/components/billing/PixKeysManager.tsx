@@ -144,12 +144,33 @@ function GenerateQRModal({ open, onOpenChange, pixKey }: {
   onOpenChange: (v: boolean) => void;
   pixKey: PixKey;
 }) {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [amount, setAmount] = useState('');
   const [brCode, setBrCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [selectedContact, setSelectedContact] = useState('');
+  const [customPhone, setCustomPhone] = useState('');
+  const [customMessage, setCustomMessage] = useState('');
+
+  // Fetch kanban deals with WhatsApp numbers
+  const { data: contacts } = useQuery({
+    queryKey: ['pix-whatsapp-contacts', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from('kanban_deals')
+        .select('id, client_name, company_name, client_whatsapp')
+        .eq('user_id', user.id)
+        .not('client_whatsapp', 'is', null)
+        .order('client_name');
+      return data || [];
+    },
+    enabled: !!user && open,
+  });
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -164,6 +185,11 @@ function GenerateQRModal({ open, onOpenChange, pixKey }: {
       });
       if (error) throw error;
       setBrCode(data.brCode);
+      // Pre-fill default message
+      const val = amount ? `R$ ${parseFloat(amount).toFixed(2)}` : '';
+      setCustomMessage(
+        `Olá! 👋\n\nSegue a cobrança PIX${val ? ` no valor de *${val}*` : ''}:\n\n📋 *PIX Copia e Cola:*\n${data.brCode}\n\n💡 Basta copiar o código acima e colar no app do seu banco.\n\nObrigado! 🙏`
+      );
     } catch {
       toast({ title: 'Erro ao gerar QR Code', variant: 'destructive' });
     } finally {
@@ -187,9 +213,29 @@ function GenerateQRModal({ open, onOpenChange, pixKey }: {
     }
   };
 
+  const handleSendWhatsApp = () => {
+    let phone = '';
+    if (selectedContact === 'custom') {
+      phone = customPhone.replace(/\D/g, '');
+    } else if (selectedContact) {
+      const contact = contacts?.find(c => c.id === selectedContact);
+      phone = contact?.client_whatsapp?.replace(/\D/g, '') || '';
+    }
+
+    if (!phone) {
+      toast({ title: 'Informe um número de WhatsApp', variant: 'destructive' });
+      return;
+    }
+
+    if (!phone.startsWith('55')) phone = '55' + phone;
+
+    const message = encodeURIComponent(customMessage);
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <QrCode className="w-5 h-5" />
@@ -261,6 +307,87 @@ function GenerateQRModal({ open, onOpenChange, pixKey }: {
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
+              </div>
+
+              {/* WhatsApp Send Section */}
+              <div className="border-t pt-3 space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+                  onClick={() => setShowWhatsApp(!showWhatsApp)}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Enviar via WhatsApp
+                </Button>
+
+                {showWhatsApp && (
+                  <div className="space-y-3 bg-muted/30 rounded-lg p-3 border">
+                    {/* Contact Selection */}
+                    <div className="space-y-2">
+                      <Label className="text-xs">Enviar para</Label>
+                      <Select value={selectedContact} onValueChange={setSelectedContact}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Selecione o destinatário..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts && contacts.length > 0 && (
+                            <>
+                              {contacts.map(c => (
+                                <SelectItem key={c.id} value={c.id}>
+                                  <span className="flex items-center gap-2">
+                                    <Phone className="w-3 h-3 text-emerald-600" />
+                                    {c.client_name} — {c.client_whatsapp}
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </>
+                          )}
+                          <SelectItem value="custom">
+                            <span className="flex items-center gap-2">
+                              <Pencil className="w-3 h-3" />
+                              Digitar número manualmente
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Custom phone input */}
+                    {selectedContact === 'custom' && (
+                      <div className="space-y-2">
+                        <Label className="text-xs">Número do WhatsApp</Label>
+                        <Input
+                          placeholder="5548999999999"
+                          value={customPhone}
+                          onChange={e => setCustomPhone(e.target.value)}
+                          className="text-sm"
+                        />
+                        <p className="text-[10px] text-muted-foreground">Com DDD. Ex: 48999999999</p>
+                      </div>
+                    )}
+
+                    {/* Editable message */}
+                    <div className="space-y-2">
+                      <Label className="text-xs">Mensagem</Label>
+                      <Textarea
+                        value={customMessage}
+                        onChange={e => setCustomMessage(e.target.value)}
+                        rows={5}
+                        className="text-xs"
+                      />
+                    </div>
+
+                    {/* Send button */}
+                    <Button
+                      onClick={handleSendWhatsApp}
+                      disabled={!selectedContact}
+                      className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      <Send className="w-4 h-4" />
+                      Enviar no WhatsApp
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           )}

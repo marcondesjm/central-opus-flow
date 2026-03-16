@@ -259,7 +259,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.8 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-[160px] right-4 lg:bottom-[100px] z-[60] max-w-[230px]"
+            className="fixed bottom-[160px] right-3 sm:right-4 lg:bottom-[100px] z-[60] max-w-[230px]"
           >
             <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
               <button
@@ -301,7 +301,7 @@ export function ClippyAssistant() {
 
       {/* Clippy character */}
       <motion.div
-        className="fixed bottom-[88px] right-4 lg:bottom-[60px] z-[60] cursor-pointer select-none"
+        className="fixed bottom-[88px] right-3 sm:right-4 lg:bottom-[60px] z-[60] cursor-pointer select-none"
         animate={getAnimationStyle()}
         onClick={handleOpen}
         onMouseEnter={() => {
@@ -356,7 +356,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-[170px] right-4 lg:bottom-[140px] z-[60] w-[340px] max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-[170px] right-3 sm:right-4 lg:bottom-[140px] z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-gradient-to-r from-primary/5 to-primary/10">

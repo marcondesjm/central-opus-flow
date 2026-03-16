@@ -155,44 +155,46 @@ export default function Collaborations() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+        <div className="container mx-auto px-3 sm:px-4 flex h-14 sm:h-16 items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <h1 className="text-xl font-semibold">Colaborações</h1>
-              <p className="text-sm text-muted-foreground">Gerencie compartilhamentos e convites</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-semibold truncate">Colaborações</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Gerencie compartilhamentos e convites</p>
             </div>
           </div>
-          <Button onClick={() => setProjectPickerOpen(true)} className="gap-2">
+          <Button onClick={() => setProjectPickerOpen(true)} className="gap-2 shrink-0" size="sm">
             <UserPlus className="h-4 w-4" />
-            Novo Convite
+            <span className="hidden sm:inline">Novo Convite</span>
           </Button>
         </div>
       </header>
 
-      <main className="container py-8 space-y-8">
-        <Tabs defaultValue="received" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="received" className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              Recebidos
-              {pendingInvitations.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 px-1.5">
-                  {pendingInvitations.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="sent" className="gap-2">
-              <Clock className="h-4 w-4" />
-              Enviados
-            </TabsTrigger>
-            <TabsTrigger value="active" className="gap-2">
-              <Users className="h-4 w-4" />
-              Ativos
-            </TabsTrigger>
-          </TabsList>
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
+        <Tabs defaultValue="received" className="space-y-4 sm:space-y-6">
+          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 sm:grid sm:w-full sm:grid-cols-3 sm:max-w-md">
+              <TabsTrigger value="received" className="gap-1.5 text-xs sm:text-sm">
+                <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Recebidos
+                {pendingInvitations.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-5 px-1.5">
+                    {pendingInvitations.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="sent" className="gap-1.5 text-xs sm:text-sm">
+                <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Enviados
+              </TabsTrigger>
+              <TabsTrigger value="active" className="gap-1.5 text-xs sm:text-sm">
+                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Ativos
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Received Invitations */}
           <TabsContent value="received" className="space-y-4">
@@ -223,27 +225,27 @@ export default function Collaborations() {
                     {pendingInvitations.map((invitation) => (
                       <div
                         key={invitation.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors gap-3"
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                           <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center",
+                            "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0",
                             isProjectInvitation(invitation) ? "bg-primary/10" : "bg-amber-500/10"
                           )}>
                             {isProjectInvitation(invitation) ? (
-                              <FolderOpen className="h-5 w-5 text-primary" />
+                              <FolderOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                             ) : (
-                              <Users className="h-5 w-5 text-amber-500" />
+                              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
                             )}
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground text-sm truncate">
                               {isProjectInvitation(invitation)
                                 ? `Projeto: ${getProjectName((invitation as ProjectCollaborator).project_id)}`
                                 : `Conta: ${getAccountName((invitation as AccountCollaborator).account_id)}`
                               }
                             </p>
-                            <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                               <Badge className={cn('text-xs', roleColors[invitation.role])}>
                                 {roleLabels[invitation.role]}
                               </Badge>
@@ -253,14 +255,15 @@ export default function Collaborations() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0 pl-12 sm:pl-0">
                           <Button
                             variant="outline"
                             size="sm"
+                            className="text-xs sm:text-sm"
                             onClick={() => handleAcceptInvitation(invitation)}
                           >
-                            <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                            Aceitar e {invitation.role === 'viewer' ? 'Visualizar' : 'Editar'}
+                            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                            Aceitar
                           </Button>
                         </div>
                       </div>

@@ -750,9 +750,10 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
   const getColumn = (id: string) => columns.find(c => c.id === id);
 
   return (
-    <div className="max-w-[1800px] mx-auto px-4 py-4">
+    <div className="max-w-[1800px] mx-auto px-3 sm:px-4 py-4">
       <div className="bg-card rounded-lg border overflow-hidden">
-        <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,80px] gap-4 px-4 py-3 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+        {/* Desktop header - hidden on mobile */}
+        <div className="hidden md:grid grid-cols-[2fr,1fr,1fr,1fr,1fr,80px] gap-4 px-4 py-3 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
           <span>Tarefa</span>
           <span>Coluna</span>
           <span>Prioridade</span>
@@ -766,40 +767,80 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
           const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
 
           return (
-            <div key={deal.id} className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,80px] gap-4 px-4 py-3 border-b last:border-0 hover:bg-muted/30 cursor-pointer items-center" onClick={() => onDetail(deal)}>
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{deal.company_name}</p>
-                <p className="text-xs text-muted-foreground truncate">{deal.client_name}</p>
-              </div>
-              <div>
-                {col && (
-                  <Badge variant="outline" className="text-xs">
-                    <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: col.color }} />
-                    {col.name}
-                  </Badge>
+            <div key={deal.id} className="border-b last:border-0 hover:bg-muted/30 cursor-pointer" onClick={() => onDetail(deal)}>
+              {/* Mobile layout */}
+              <div className="md:hidden p-3 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">{deal.company_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{deal.client_name}</p>
+                  </div>
+                  <div className="flex gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+                    <button onClick={() => onEdit(deal)} className="p-1.5 rounded hover:bg-muted"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => onDelete(deal.id)} className="p-1.5 rounded hover:bg-destructive/10 text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {col && (
+                    <Badge variant="outline" className="text-[10px]">
+                      <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: col.color }} />
+                      {col.name}
+                    </Badge>
+                  )}
+                  {priority && (
+                    <Badge className={cn('text-[10px]', priority.bgLight, priority.textColor)} variant="outline">
+                      {priority.label}
+                    </Badge>
+                  )}
+                  {deal.due_date && (
+                    <span className={cn('text-[10px]', isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground')}>
+                      {format(new Date(deal.due_date), 'dd/MM')}
+                    </span>
+                  )}
+                </div>
+                {deal.progress > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Progress value={deal.progress} className="h-1 flex-1" />
+                    <span className="text-[10px] text-muted-foreground">{deal.progress}%</span>
+                  </div>
                 )}
               </div>
-              <div>
-                {priority && (
-                  <Badge className={cn('text-xs', priority.bgLight, priority.textColor)} variant="outline">
-                    {priority.label}
-                  </Badge>
-                )}
-              </div>
-              <div className="text-xs">
-                {deal.due_date ? (
-                  <span className={isOverdue ? 'text-destructive font-medium' : ''}>{format(new Date(deal.due_date), 'dd/MM/yyyy')}</span>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Progress value={deal.progress} className="h-1.5 flex-1" />
-                <span className="text-xs text-muted-foreground w-8">{deal.progress}%</span>
-              </div>
-              <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                <button onClick={() => onEdit(deal)} className="p-1 rounded hover:bg-muted"><Pencil className="w-3.5 h-3.5" /></button>
-                <button onClick={() => onDelete(deal.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
+              {/* Desktop layout */}
+              <div className="hidden md:grid grid-cols-[2fr,1fr,1fr,1fr,1fr,80px] gap-4 px-4 py-3 items-center">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{deal.company_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{deal.client_name}</p>
+                </div>
+                <div>
+                  {col && (
+                    <Badge variant="outline" className="text-xs">
+                      <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: col.color }} />
+                      {col.name}
+                    </Badge>
+                  )}
+                </div>
+                <div>
+                  {priority && (
+                    <Badge className={cn('text-xs', priority.bgLight, priority.textColor)} variant="outline">
+                      {priority.label}
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs">
+                  {deal.due_date ? (
+                    <span className={isOverdue ? 'text-destructive font-medium' : ''}>{format(new Date(deal.due_date), 'dd/MM/yyyy')}</span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={deal.progress} className="h-1.5 flex-1" />
+                  <span className="text-xs text-muted-foreground w-8">{deal.progress}%</span>
+                </div>
+                <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => onEdit(deal)} className="p-1 rounded hover:bg-muted"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => onDelete(deal.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
               </div>
             </div>
           );

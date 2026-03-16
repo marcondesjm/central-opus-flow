@@ -96,8 +96,8 @@ export function ClippyAssistant() {
 
   // Go to sleep after inactivity, then knock on screen
   useEffect(() => {
-    if (isOpen) {
-      setMood('happy');
+    if (isOpen || isHidden) {
+      if (isOpen) setMood('happy');
       return;
     }
 

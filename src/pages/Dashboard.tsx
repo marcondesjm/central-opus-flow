@@ -48,6 +48,7 @@ import { Loader2, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
+import { DailyScheduledMessagesReport } from '@/components/kanban/DailyScheduledMessagesReport';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,

@@ -129,7 +129,7 @@ export function FeaturesSection() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
-      <div className="container mx-auto max-w-6xl relative">
+      <div className="container mx-auto max-w-7xl relative">
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}

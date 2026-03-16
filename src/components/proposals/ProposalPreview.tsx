@@ -192,13 +192,74 @@ export const ProposalPreview = forwardRef<HTMLDivElement, ProposalPreviewProps>(
           </div>
         )}
 
+        {/* Signatures section */}
+        <div className="px-8 py-6 border-b border-gray-100">
+          <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-4">Assinaturas</p>
+          <div className="grid grid-cols-2 gap-8">
+            {/* Company signature */}
+            <div className="text-center">
+              {proposal.company_signature_url ? (
+                <div>
+                  <img src={proposal.company_signature_url} alt="Assinatura empresa" className="max-h-16 mx-auto mb-2" />
+                  <div className="border-t border-gray-300 pt-2 mt-2">
+                    <p className="text-xs font-medium text-gray-700">{proposal.company_signer_name}</p>
+                    <p className="text-[10px] text-gray-400">{proposal.company_signer_document}</p>
+                    {proposal.company_signed_at && (
+                      <p className="text-[10px] text-gray-400">
+                        {new Date(proposal.company_signed_at).toLocaleString('pt-BR')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="h-20 border-b-2 border-dashed border-gray-200 flex items-end justify-center pb-2">
+                  <p className="text-xs text-gray-300">Assinatura da empresa</p>
+                </div>
+              )}
+              <p className="text-xs text-gray-500 mt-2 font-medium">{proposal.company_name || 'Empresa'}</p>
+            </div>
+
+            {/* Client signature */}
+            <div className="text-center">
+              {proposal.client_signature_url ? (
+                <div>
+                  <img src={proposal.client_signature_url} alt="Assinatura cliente" className="max-h-16 mx-auto mb-2" />
+                  <div className="border-t border-gray-300 pt-2 mt-2">
+                    <p className="text-xs font-medium text-gray-700">{proposal.client_signer_name}</p>
+                    <p className="text-[10px] text-gray-400">{proposal.client_signer_document}</p>
+                    {proposal.client_signed_at && (
+                      <p className="text-[10px] text-gray-400">
+                        {new Date(proposal.client_signed_at).toLocaleString('pt-BR')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="h-20 border-b-2 border-dashed border-gray-200 flex items-end justify-center pb-2">
+                  <p className="text-xs text-gray-300">Assinatura do cliente</p>
+                </div>
+              )}
+              <p className="text-xs text-gray-500 mt-2 font-medium">{proposal.client_name || 'Cliente'}</p>
+            </div>
+          </div>
+
+          {/* Certificate info */}
+          {proposal.certificate_file_name && (
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-gray-400 flex items-center justify-center gap-1">
+                🔒 Certificado digital anexado: {proposal.certificate_file_name}
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Footer */}
         <div className="px-8 py-6 text-center" style={{ backgroundColor: secondaryColor + '08' }}>
           <p className="text-gray-400 text-xs">
             {proposal.company_name || 'Sua Empresa'} {proposal.company_address ? `• ${proposal.company_address}` : ''}
           </p>
           <p className="text-gray-300 text-[10px] mt-2">
-            Documento gerado digitalmente • Válido sem assinatura
+            Documento gerado digitalmente • Assinatura com validade jurídica (MP 2.200-2/2001)
           </p>
         </div>
       </div>

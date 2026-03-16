@@ -8,6 +8,7 @@ import { Plus, Trash2, Upload, Palette } from 'lucide-react';
 import type { Proposal, ProposalService } from '@/hooks/useProposals';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SignaturePad } from '@/components/proposals/SignaturePad';
 
 interface ProposalFormProps {
   proposal: Partial<Proposal>;
@@ -353,6 +354,45 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
               rows={2}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Company Signature */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Assinatura da Empresa</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SignaturePad
+            brandColor={proposal.brand_color || '#3b82f6'}
+            existingSignature={proposal.company_signature_url}
+            onSign={async (data) => {
+              // Upload signature
+              let signatureUrl = data.signatureUrl;
+              if (data.type !== 'certificate') {
+                try {
+                  const blob = await (await fetch(data.signatureUrl)).blob();
+                  const path = `signatures/company-${Date.now()}.png`;
+                  const { error: uploadError } = await supabase.storage
+                    .from('proposal-assets')
+                    .upload(path, blob, { contentType: 'image/png' });
+                  if (!uploadError) {
+                    const { data: urlData } = supabase.storage.from('proposal-assets').getPublicUrl(path);
+                    signatureUrl = urlData.publicUrl;
+                  }
+                } catch { /* use data url fallback */ }
+              }
+              onChange({
+                ...proposal,
+                company_signature_url: signatureUrl,
+                company_signature_type: data.type,
+                company_signed_at: new Date().toISOString(),
+                company_signer_name: data.signerName,
+                company_signer_document: data.signerDocument,
+              });
+              toast({ title: 'Assinatura adicionada', description: 'Sua assinatura foi registrada na proposta.' });
+            }}
+          />
         </CardContent>
       </Card>
     </div>

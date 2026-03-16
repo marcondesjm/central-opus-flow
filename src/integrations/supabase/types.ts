@@ -1461,16 +1461,30 @@ export type Database = {
           accepted_at: string | null
           brand_color: string
           brand_secondary_color: string
+          certificate_file_name: string | null
+          certificate_file_url: string | null
           client_company: string | null
           client_email: string | null
           client_logo_url: string | null
           client_name: string
           client_phone: string | null
+          client_signature_type: string | null
+          client_signature_url: string | null
+          client_signed_at: string | null
+          client_signed_ip: string | null
+          client_signer_document: string | null
+          client_signer_name: string | null
           company_address: string | null
           company_email: string | null
           company_logo_url: string | null
           company_name: string | null
           company_phone: string | null
+          company_signature_type: string | null
+          company_signature_url: string | null
+          company_signed_at: string | null
+          company_signed_ip: string | null
+          company_signer_document: string | null
+          company_signer_name: string | null
           created_at: string
           deadline_days: number | null
           description: string | null
@@ -1493,16 +1507,30 @@ export type Database = {
           accepted_at?: string | null
           brand_color?: string
           brand_secondary_color?: string
+          certificate_file_name?: string | null
+          certificate_file_url?: string | null
           client_company?: string | null
           client_email?: string | null
           client_logo_url?: string | null
           client_name: string
           client_phone?: string | null
+          client_signature_type?: string | null
+          client_signature_url?: string | null
+          client_signed_at?: string | null
+          client_signed_ip?: string | null
+          client_signer_document?: string | null
+          client_signer_name?: string | null
           company_address?: string | null
           company_email?: string | null
           company_logo_url?: string | null
           company_name?: string | null
           company_phone?: string | null
+          company_signature_type?: string | null
+          company_signature_url?: string | null
+          company_signed_at?: string | null
+          company_signed_ip?: string | null
+          company_signer_document?: string | null
+          company_signer_name?: string | null
           created_at?: string
           deadline_days?: number | null
           description?: string | null
@@ -1525,16 +1553,30 @@ export type Database = {
           accepted_at?: string | null
           brand_color?: string
           brand_secondary_color?: string
+          certificate_file_name?: string | null
+          certificate_file_url?: string | null
           client_company?: string | null
           client_email?: string | null
           client_logo_url?: string | null
           client_name?: string
           client_phone?: string | null
+          client_signature_type?: string | null
+          client_signature_url?: string | null
+          client_signed_at?: string | null
+          client_signed_ip?: string | null
+          client_signer_document?: string | null
+          client_signer_name?: string | null
           company_address?: string | null
           company_email?: string | null
           company_logo_url?: string | null
           company_name?: string | null
           company_phone?: string | null
+          company_signature_type?: string | null
+          company_signature_url?: string | null
+          company_signed_at?: string | null
+          company_signed_ip?: string | null
+          company_signer_document?: string | null
+          company_signer_name?: string | null
           created_at?: string
           deadline_days?: number | null
           description?: string | null

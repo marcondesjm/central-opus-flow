@@ -37,6 +37,7 @@ const greetings = [
   '🔍 Quer aprender a usar o sistema? Me chama!',
   '✨ Ei! Posso te mostrar como usar tudo por aqui!',
   '🤔 Parece que você está explorando... precisa de ajuda?',
+  '🖐️ Sabia que você pode me arrastar pra qualquer canto da tela?',
 ];
 
 type ClippyMood = 'normal' | 'happy' | 'thinking' | 'surprised' | 'sleeping' | 'wink';
@@ -325,8 +326,8 @@ export function ClippyAssistant() {
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
             className="fixed z-[60] max-w-[230px] pointer-events-auto"
             style={{
-              bottom: `calc(100vh - ${window.innerHeight + dragPosition.y - 90}px)`,
-              right: `calc(100vw - ${window.innerWidth + dragPosition.x + 80}px)`,
+              bottom: Math.max(10, window.innerHeight - (window.innerHeight - 80 + dragPosition.y) + 50),
+              right: Math.max(10, window.innerWidth - (window.innerWidth - 16 + dragPosition.x) - 60),
             }}
           >
             <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
@@ -479,8 +480,8 @@ export function ClippyAssistant() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
             style={{
-              bottom: `calc(100vh - ${window.innerHeight + dragPosition.y - 100}px)`,
-              right: `calc(100vw - ${window.innerWidth + dragPosition.x + 80}px)`,
+              bottom: Math.max(10, window.innerHeight - (window.innerHeight - 80 + dragPosition.y) + 60),
+              right: Math.max(10, window.innerWidth - (window.innerWidth - 16 + dragPosition.x) - 60),
             }}
           >
             {/* Header */}

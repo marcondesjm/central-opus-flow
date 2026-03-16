@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3 } from 'lucide-react';
+import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3, FileArchive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
@@ -39,6 +39,7 @@ interface ProjectCardProps {
   checklistProgress?: ChecklistProgress;
   onToggleFavorite: (projectId: string) => void;
   onEdit?: (projectId: string) => void;
+  onEditFiles?: (projectId: string) => void;
   onDelete?: (projectId: string) => void;
   onArchive?: (projectId: string) => void;
   onDeadlineChange?: (projectId: string, deadline: Date | null) => void;
@@ -59,7 +60,7 @@ const statusConfigMap = {
   archived: { key: 'filters.archived', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
 };
 
-export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
+export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onEditFiles, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -187,11 +188,23 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-semibold text-card-foreground line-clamp-1">{project.name}</h3>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20">
-              <MoreHorizontal className="w-4 h-4 text-primary" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEditFiles?.(project.id); }}
+                  className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20"
+                >
+                  <FileArchive className="w-4 h-4 text-primary" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Arquivos</p></TooltipContent>
+            </Tooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20">
+                <MoreHorizontal className="w-4 h-4 text-primary" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
               {project.url && (
                 <>
                   <DropdownMenuItem className="gap-2" onClick={handleOpenProject}>
@@ -216,6 +229,10 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                 <ListChecks className="w-4 h-4" />
                 {t('cards.checklist')}
               </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => onEditFiles?.(project.id)}>
+                <FileArchive className="w-4 h-4" />
+                Arquivos
+              </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/kanban')}>
                 <Columns3 className="w-4 h-4" />
                 Kanban
@@ -238,6 +255,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
 
         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">

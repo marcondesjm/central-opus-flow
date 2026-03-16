@@ -107,6 +107,7 @@ export default function Dashboard() {
   const [tagsManagerOpen, setTagsManagerOpen] = useState(false);
   const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editProjectInitialTab, setEditProjectInitialTab] = useState('details');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -353,6 +354,17 @@ export default function Dashboard() {
                     collaboratedProjects.find(p => p.id === projectId);
     if (project) {
       setEditingProject(project as Project);
+      setEditProjectInitialTab('details');
+      setEditProjectOpen(true);
+    }
+  };
+
+  const handleEditFiles = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId) || 
+                    collaboratedProjects.find(p => p.id === projectId);
+    if (project) {
+      setEditingProject(project as Project);
+      setEditProjectInitialTab('code');
       setEditProjectOpen(true);
     }
   };
@@ -644,6 +656,7 @@ export default function Dashboard() {
                       checklistProgress={checklistProgress}
                       onToggleFavorite={handleToggleFavorite}
                       onEdit={handleEditProject}
+                      onEditFiles={handleEditFiles}
                       onDelete={handleDeleteProject}
                       onArchive={handleArchiveProject}
                       onShowHistory={handleShowHistory}
@@ -692,6 +705,7 @@ export default function Dashboard() {
         open={editProjectOpen}
         onOpenChange={setEditProjectOpen}
         project={editingProject}
+        initialTab={editProjectInitialTab}
       />
       
       <TagsManager 

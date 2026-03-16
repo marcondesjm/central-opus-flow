@@ -35,6 +35,7 @@ interface EditProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   project: Project | null;
+  initialTab?: string;
 }
 
 const projectTypes = [
@@ -62,7 +63,7 @@ const tagColors: Record<string, string> = {
   cyan: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400',
 };
 
-export function EditProjectModal({ open, onOpenChange, project }: EditProjectModalProps) {
+export function EditProjectModal({ open, onOpenChange, project, initialTab = 'details' }: EditProjectModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -172,7 +173,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="details" className="w-full">
+        <Tabs defaultValue={initialTab} key={initialTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details" className="gap-1.5">
               <FileEdit className="h-4 w-4" />

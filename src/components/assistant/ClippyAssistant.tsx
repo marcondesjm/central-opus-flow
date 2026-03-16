@@ -439,33 +439,36 @@ export function ClippyAssistant() {
             />
 
 
-            {/* Animated hat */}
+            {/* Animated pencil */}
             <motion.div
-              className="absolute -top-[10px] left-1/2 -translate-x-1/2 pointer-events-none"
+              className="absolute -top-[14px] left-1/2 -translate-x-[30%] pointer-events-none"
               animate={
-                mood === 'surprised' ? { y: -6, rotate: 8 } :
-                mood === 'happy' ? { y: [0, -3, 0], rotate: [0, -5, 5, 0] } :
-                mood === 'thinking' ? { rotate: -10, y: -2 } :
-                mood === 'wink' ? { rotate: 12, y: -1 } :
-                mood === 'sleeping' ? { y: 4, rotate: 15 } :
-                { y: [0, -2, 0], rotate: [0, -2, 2, 0] }
+                mood === 'surprised' ? { y: -5, rotate: -20 } :
+                mood === 'happy' ? { rotate: [15, 25, 15], y: [0, -2, 0] } :
+                mood === 'thinking' ? { rotate: [10, 20, 10], y: [0, -1, 0] } :
+                mood === 'wink' ? { rotate: 30 } :
+                mood === 'sleeping' ? { rotate: 40, y: 4 } :
+                { rotate: [15, 18, 15], y: [0, -1, 0] }
               }
               transition={
-                mood === 'happy' ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' } :
-                mood === 'normal' ? { duration: 4, repeat: Infinity, ease: 'easeInOut' } :
-                { duration: 0.4, ease: 'easeOut' }
+                mood === 'happy' || mood === 'thinking' || mood === 'normal'
+                  ? { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+                  : { duration: 0.4, ease: 'easeOut' }
               }
+              style={{ transformOrigin: 'bottom center' }}
             >
-              <svg width="32" height="20" viewBox="0 0 32 20" fill="none" className="drop-shadow-sm">
-                {/* Hat brim */}
-                <ellipse cx="16" cy="17" rx="16" ry="3" fill="#1a1a2e" />
-                {/* Hat crown */}
-                <rect x="6" y="4" width="20" height="13" rx="2" fill="#1a1a2e" />
-                <rect x="5" y="13" width="22" height="4" rx="1" fill="#2a2a4e" />
-                {/* Hat band */}
-                <rect x="6" y="12" width="20" height="3" fill="#c9a84c" />
-                {/* Shine */}
-                <rect x="9" y="6" width="6" height="2" rx="1" fill="#3a3a5e" opacity="0.5" />
+              <svg width="8" height="28" viewBox="0 0 8 28" fill="none" className="drop-shadow-sm">
+                {/* Pencil body */}
+                <rect x="1" y="4" width="6" height="18" rx="0.5" fill="#f6c744" />
+                {/* Pencil stripe */}
+                <rect x="1" y="4" width="6" height="3" rx="0.5" fill="#2a9d4e" />
+                {/* Metal ferrule */}
+                <rect x="0.5" y="22" width="7" height="3" rx="0.5" fill="#c0c0c0" />
+                {/* Eraser */}
+                <rect x="1" y="0" width="6" height="4" rx="1" fill="#e8758a" />
+                {/* Pencil tip */}
+                <polygon points="1,25 7,25 4,28" fill="#f5deb3" />
+                <polygon points="3,26.5 5,26.5 4,28" fill="#333" />
               </svg>
             </motion.div>
 

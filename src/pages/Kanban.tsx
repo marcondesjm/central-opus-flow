@@ -944,8 +944,10 @@ export default function KanbanPage() {
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
                 <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4">
-                  {columns?.map((column, colIndex) => (
-                    <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex}>
+                  {columns?.map((column, colIndex) => {
+                    const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
+                    return (
+                    <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex} isDragDisabled={isFinalizadoColumn}>
                       {(colDragProvided, colDragSnapshot) => (
                         <div
                           ref={colDragProvided.innerRef}
@@ -953,9 +955,15 @@ export default function KanbanPage() {
                           className={cn('w-72 flex-shrink-0', colDragSnapshot.isDragging && 'opacity-80')}
                         >
                           <div className="flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium" style={{ backgroundColor: column.color }}>
-                            <span {...colDragProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-white/20">
-                              <GripVertical className="w-4 h-4" />
-                            </span>
+                            {!isFinalizadoColumn ? (
+                              <span {...colDragProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-white/20">
+                                <GripVertical className="w-4 h-4" />
+                              </span>
+                            ) : (
+                              <span className="p-0.5">
+                                <GripVertical className="w-4 h-4 opacity-30" />
+                              </span>
+                            )}
                             <span className="flex-1 truncate">{column.name}</span>
                             <Badge variant="secondary" className="bg-white/20 text-white text-xs">
                               {dealsByColumn[column.id]?.length || 0}

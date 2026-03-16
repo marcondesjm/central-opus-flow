@@ -1413,7 +1413,7 @@ export default function KanbanPage() {
                 const deal = msg.kanban_deals;
                 const isOverdue = msg.scheduled_date < format(new Date(), 'yyyy-MM-dd');
                 const isToday = msg.scheduled_date === format(new Date(), 'yyyy-MM-dd');
-                const countdown = formatCountdown(getScheduledTimestamp(msg.scheduled_date) - nowTs);
+                const countdown = formatCountdown(getScheduledTimestamp(msg.scheduled_date, msg.scheduled_time) - nowTs);
                 return (
                   <Card key={msg.id} className={cn(
                     'transition-colors',

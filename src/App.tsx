@@ -149,7 +149,7 @@ function AppContent() {
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <PWAInstallPrompt />
+      
       <ServiceWorkerUpdatePrompt />
       <DataProtectionBanner />
       <BrowserRouter>

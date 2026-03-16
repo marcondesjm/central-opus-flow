@@ -477,7 +477,7 @@ export default function BillingPage() {
   // Sync tab from URL
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['overview', 'clients', 'ai-costs', 'expenses', 'history'].includes(tab)) {
+    if (tab && ['overview', 'clients', 'ai-costs', 'expenses', 'history', 'pix'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);

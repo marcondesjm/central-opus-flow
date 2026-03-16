@@ -737,7 +737,7 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
-  const getScheduledTimestamp = (scheduledDate: string) => new Date(`${scheduledDate}T09:00:00`).getTime();
+  const getScheduledTimestamp = (scheduledDate: string, scheduledTime?: string) => new Date(`${scheduledDate}T${scheduledTime || '09:00:00'}`).getTime();
 
   const formatCountdown = (diffMs: number) => {
     if (diffMs <= 0) return 'Disparando...';

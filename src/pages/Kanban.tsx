@@ -392,25 +392,28 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg 
               <DropdownMenuItem onClick={onEdit}><Pencil className="w-3.5 h-3.5 mr-2" /> Editar</DropdownMenuItem>
               <DropdownMenuItem onClick={onPayments}><Receipt className="w-3.5 h-3.5 mr-2" /> Faturamento</DropdownMenuItem>
               {deal.client_whatsapp && (() => {
-                const phone = deal.client_whatsapp!.replace(/\D/g, '');
                 const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
-                const sendMsg = (msg: string) => window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                const msgs = {
+                  profissional: `Olá, ${deal.client_name}! Tudo bem? 👋\n\nEstou entrando em contato para lembrar sobre o pagamento que ficou pendente.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Poderia verificar para mim, por gentileza? 🙏\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. ✅ Obrigado!`,
+                  amigavel: `Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando apenas para lembrar do pagamento que está em aberto.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Quando puder, dá uma olhadinha para mim, por favor 🙏\n\nQualquer dúvida estou à disposição! 🤝`,
+                  direta: `Olá, ${deal.client_name}! 👋\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` 💳 *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização? ⏰\n\nAgradeço a atenção! 🙏`,
+                };
                 return (
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <MessageCircle className="w-3.5 h-3.5 mr-2 text-emerald-500" /> Cobrar via WhatsApp
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                      <DropdownMenuItem onClick={() => sendMsg(`Olá, ${deal.client_name}! Tudo bem? 👋\n\nEstou entrando em contato para lembrar sobre o pagamento que ficou pendente.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Poderia verificar para mim, por gentileza? 🙏\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. ✅ Obrigado!`)}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(msgs.profissional)}>
                         🏢 Profissional e educada
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => sendMsg(`Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando apenas para lembrar do pagamento que está em aberto.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Quando puder, dá uma olhadinha para mim, por favor 🙏\n\nQualquer dúvida estou à disposição! 🤝`)}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(msgs.amigavel)}>
                         😊 Amigável
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => sendMsg(`Olá, ${deal.client_name}! 👋\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` 💳 *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização? ⏰\n\nAgradeço a atenção! 🙏`)}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(msgs.direta)}>
                         ⚡ Mais direta
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={onCustomWhatsApp}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(`Olá, ${deal.client_name}! Tudo bem?\n\n${valor ? `Valor: ${valor}.\n\n` : ''}`)}>
                         ✏️ Personalizada
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>

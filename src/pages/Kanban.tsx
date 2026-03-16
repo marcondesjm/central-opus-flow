@@ -790,7 +790,19 @@ export default function KanbanPage() {
     // Handle column reordering
     if (type === 'COLUMN') {
       if (source.index === destination.index) return;
-      const reordered = [...(columns || [])];
+      const sortedCols = [...(columns || [])];
+      
+      // Find the "finalizados/concluido" column - prevent it from moving
+      const movedCol = sortedCols[source.index];
+      const isFinalizadoCol = movedCol?.name?.toLowerCase().includes('finalizado') || movedCol?.name?.toLowerCase().includes('conclu');
+      if (isFinalizadoCol) return; // Block moving finalizados column
+      
+      // Prevent moving any column to after the last position if finalizados is last
+      const lastCol = sortedCols[sortedCols.length - 1];
+      const isLastFinalizados = lastCol?.name?.toLowerCase().includes('finalizado') || lastCol?.name?.toLowerCase().includes('conclu');
+      if (isLastFinalizados && destination.index >= sortedCols.length - 1) return;
+      
+      const reordered = [...sortedCols];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
       reordered.forEach((col, idx) => {

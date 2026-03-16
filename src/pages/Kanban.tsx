@@ -359,7 +359,11 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsA
 
   return (
     <Card
-      className="group hover:shadow-md transition-all cursor-pointer border-l-4"
+      className={cn(
+        "group hover:shadow-md transition-all cursor-pointer border-l-4",
+        isOverdue && "animate-pulse ring-2 ring-destructive/50",
+        isApproachingDeadline && "animate-[pulse_2s_ease-in-out_infinite] ring-2 ring-yellow-400/50"
+      )}
       style={{ borderLeftColor: deal.color || priority?.color?.replace('bg-', '') || 'hsl(var(--border))' }}
       onClick={onDetail}
     >

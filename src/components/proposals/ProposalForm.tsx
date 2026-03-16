@@ -171,8 +171,8 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
           <CardTitle className="text-base">Dados do Cliente</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="relative group">
+          <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+            <div className="relative group mx-auto sm:mx-0">
               {proposal.client_logo_url ? (
                 <img src={proposal.client_logo_url} alt="" className="w-16 h-16 rounded-xl object-contain border border-border p-1" />
               ) : (
@@ -188,7 +188,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                 disabled={uploading === 'client'}
               />
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="w-full flex-1 space-y-2">
               <Input
                 placeholder="Nome do cliente *"
                 value={proposal.client_name || ''}
@@ -201,7 +201,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Input
               placeholder="Email do cliente"
               value={proposal.client_email || ''}

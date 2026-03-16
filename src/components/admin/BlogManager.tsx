@@ -868,7 +868,30 @@ export function BlogManager() {
                   {(post as any).attachment_name && ` • 📎 ${(post as any).attachment_name}`}
                 </p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1 items-center">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={async () => {
+                        try {
+                          await updatePost.mutateAsync({
+                            id: post.id,
+                            is_published: !post.is_published,
+                            published_at: !post.is_published ? new Date().toISOString() : null,
+                          });
+                          toast.success(post.is_published ? 'Post ocultado do app!' : 'Post visível no app!');
+                        } catch {
+                          toast.error('Erro ao alterar visibilidade.');
+                        }
+                      }}
+                    >
+                      {post.is_published ? <Eye className="w-4 h-4 text-green-500" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{post.is_published ? 'Ocultar do app' : 'Exibir no app'}</TooltipContent>
+                </Tooltip>
                 {post.is_published && (
                   <Tooltip>
                     <TooltipTrigger asChild>

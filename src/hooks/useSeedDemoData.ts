@@ -579,6 +579,23 @@ export function useSeedDemoData() {
                 );
             }
           }
+
+          // Create scheduled messages for each deal
+          for (let i = 0; i < createdDeals.length; i++) {
+            const messages = demoScheduledMessages[i] || [];
+            if (messages.length > 0) {
+              await supabase
+                .from('kanban_scheduled_messages')
+                .insert(
+                  messages.map(m => ({
+                    ...m,
+                    deal_id: createdDeals[i].id,
+                    user_id: user.id,
+                    sent: false,
+                  }))
+                );
+            }
+          }
         }
       }
 

@@ -1,0 +1,128 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
+export interface ProposalService {
+  name: string;
+  description?: string;
+  quantity: number;
+  unit_price: number;
+}
+
+export interface Proposal {
+  id: string;
+  user_id: string;
+  client_name: string;
+  client_email: string | null;
+  client_phone: string | null;
+  client_company: string | null;
+  client_logo_url: string | null;
+  proposal_title: string;
+  description: string | null;
+  services: ProposalService[];
+  total_value: number;
+  discount: number;
+  payment_conditions: string | null;
+  deadline_days: number | null;
+  validity_days: number | null;
+  notes: string | null;
+  status: string;
+  brand_color: string;
+  brand_secondary_color: string;
+  company_name: string | null;
+  company_logo_url: string | null;
+  company_email: string | null;
+  company_phone: string | null;
+  company_address: string | null;
+  share_token: string | null;
+  viewed_at: string | null;
+  accepted_at: string | null;
+  rejected_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export function useProposals() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['proposals', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map((d: any) => ({
+        ...d,
+        services: (typeof d.services === 'string' ? JSON.parse(d.services) : d.services) as ProposalService[],
+      })) as Proposal[];
+    },
+    enabled: !!user?.id,
+  });
+}
+
+export function useProposalByToken(token: string | null) {
+  return useQuery({
+    queryKey: ['proposal-public', token],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('*')
+        .eq('share_token', token!)
+        .neq('status', 'draft')
+        .single();
+      if (error) throw error;
+      return {
+        ...data,
+        services: (typeof data.services === 'string' ? JSON.parse(data.services) : data.services) as ProposalService[],
+      } as Proposal;
+    },
+    enabled: !!token,
+  });
+}
+
+export function useCreateProposal() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: async (proposal: Partial<Proposal>) => {
+      const { data, error } = await supabase
+        .from('proposals')
+        .insert({ ...proposal, user_id: user!.id } as any)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposals'] }),
+  });
+}
+
+export function useUpdateProposal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Proposal> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('proposals')
+        .update({ ...updates, updated_at: new Date().toISOString() } as any)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposals'] }),
+  });
+}
+
+export function useDeleteProposal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('proposals').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['proposals'] }),
+  });
+}

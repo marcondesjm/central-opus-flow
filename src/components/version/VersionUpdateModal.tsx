@@ -41,9 +41,13 @@ export function VersionUpdateModal() {
     window.location.reload();
   };
 
+  const handleDismiss = () => {
+    setShowModal(false);
+  };
+
   return (
-    <AlertDialog open={showModal}>
-      <AlertDialogContent className="sm:max-w-md" onEscapeKeyDown={(e) => e.preventDefault()}>
+    <AlertDialog open={showModal} onOpenChange={setShowModal}>
+      <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
           <div className="mx-auto w-14 h-14 rounded-full bg-amber-500/10 flex items-center justify-center mb-2">
             <AlertTriangle className="w-7 h-7 text-amber-600" />
@@ -52,10 +56,13 @@ export function VersionUpdateModal() {
           <AlertDialogDescription className="text-center text-base">
             Uma nova versão do sistema está disponível{' '}
             <span className="font-semibold text-foreground">v{systemVersion?.version}</span>.
-            É necessário atualizar para continuar utilizando a plataforma.
+            Recomendamos atualizar para ter acesso às últimas melhorias.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="sm:justify-center">
+        <AlertDialogFooter className="sm:justify-center flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleDismiss} className="w-full sm:w-auto">
+            Agora não
+          </Button>
           <Button onClick={handleUpdate} className="gap-2 w-full sm:w-auto">
             <RefreshCw className="w-4 h-4" />
             Atualizar Agora

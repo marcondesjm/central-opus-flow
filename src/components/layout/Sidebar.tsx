@@ -432,6 +432,18 @@ export function Sidebar({
           </button>
         </div>
 
+        {/* Propostas button */}
+        <div className="pt-1">
+          <button
+            onClick={() => navigate('/proposals')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label="Abrir Propostas Comerciais"
+          >
+            <FileText className="w-4 h-4" aria-hidden="true" />
+            Propostas
+          </button>
+        </div>
+
         {/* Faturamento with submenu */}
         <div className="pt-1">
           <Collapsible open={billingOpen} onOpenChange={setBillingOpen}>

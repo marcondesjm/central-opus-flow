@@ -149,9 +149,10 @@ export default function Dashboard() {
     showTour,
   } = useOnboarding();
 
-  const { seedDemoData } = useSeedDemoData();
+  const { seedDemoData, resetDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
   const [demoSeeded, setDemoSeeded] = useState(false);
+  const [demoResetDone, setDemoResetDone] = useState(false);
 
   // Project presence for online users
   const projectIds = useMemo(() => projects.map(p => p.id), [projects]);
@@ -171,14 +172,35 @@ export default function Dashboard() {
     }
   }, [user]);
 
-  // Seed demo data for new users
+  // Auto-reset demo data for the demo account on each login
+  const isDemoAccount = user?.email === 'usercentral@gmail.com';
   useEffect(() => {
-    if (showTour && !demoSeeded && !accountsLoading && accounts.length === 0) {
+    if (isDemoAccount && !demoResetDone && !accountsLoading) {
+      const sessionKey = `demo_reset_${user?.id}_${Date.now().toString().slice(0, -4)}`;
+      const alreadyReset = sessionStorage.getItem('demo_reset_session');
+      if (!alreadyReset) {
+        sessionStorage.setItem('demo_reset_session', 'true');
+        resetDemoData().then((result) => {
+          setDemoResetDone(true);
+          if (result) {
+            // Refresh the page data
+            window.location.reload();
+          }
+        });
+      } else {
+        setDemoResetDone(true);
+      }
+    }
+  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, resetDemoData]);
+
+  // Seed demo data for new users (non-demo accounts)
+  useEffect(() => {
+    if (!isDemoAccount && showTour && !demoSeeded && !accountsLoading && accounts.length === 0) {
       seedDemoData().then((seeded) => {
         if (seeded) setDemoSeeded(true);
       });
     }
-  }, [showTour, demoSeeded, accountsLoading, accounts.length, seedDemoData]);
+  }, [isDemoAccount, showTour, demoSeeded, accountsLoading, accounts.length, seedDemoData]);
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

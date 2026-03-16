@@ -1348,14 +1348,16 @@ export default function KanbanPage() {
                     user_id: user!.id,
                     message: customWhatsAppMsg,
                     scheduled_date: format(scheduledDate, 'yyyy-MM-dd'),
+                    scheduled_time: scheduledTime + ':00',
                   });
                   if (!error) {
-                    toast({ title: '📅 Mensagem agendada!', description: `Lembrete programado para ${format(scheduledDate, 'dd/MM/yyyy')}` });
+                    toast({ title: '📅 Mensagem agendada!', description: `Disparo programado para ${format(scheduledDate, 'dd/MM/yyyy')} às ${scheduledTime}` });
                   } else {
                     toast({ title: 'Erro ao agendar', variant: 'destructive' });
                   }
                   setWhatsAppCustomDeal(null);
                   setScheduledDate(undefined);
+                  setScheduledTime('09:00');
                   setShowScheduleDatePicker(false);
                 }
               }}>

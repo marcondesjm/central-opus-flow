@@ -721,6 +721,7 @@ export default function BillingPage() {
             <TabsTrigger value="ai-costs">🤖 IA & Créditos</TabsTrigger>
             <TabsTrigger value="expenses">Despesas</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
+            <TabsTrigger value="pix">💳 PIX</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}

@@ -128,7 +128,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Cor Principal</Label>
               <div className="flex items-center gap-2">
@@ -136,12 +136,12 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                   type="color"
                   value={proposal.brand_color || '#3b82f6'}
                   onChange={(e) => update('brand_color', e.target.value)}
-                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                  className="h-10 w-10 shrink-0 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={proposal.brand_color || '#3b82f6'}
                   onChange={(e) => update('brand_color', e.target.value)}
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
               </div>
             </div>
@@ -152,12 +152,12 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                   type="color"
                   value={proposal.brand_secondary_color || '#1e293b'}
                   onChange={(e) => update('brand_secondary_color', e.target.value)}
-                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                  className="h-10 w-10 shrink-0 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={proposal.brand_secondary_color || '#1e293b'}
                   onChange={(e) => update('brand_secondary_color', e.target.value)}
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
               </div>
             </div>

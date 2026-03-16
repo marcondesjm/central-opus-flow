@@ -316,57 +316,7 @@ export function ClippyAssistant() {
       {/* Drag constraints - full viewport */}
       <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-[59]" />
 
-      {/* Speech bubble with typing indicator */}
-      <AnimatePresence>
-        {(showGreeting || isTypingBubble) && !isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.8 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed z-[60] max-w-[230px] pointer-events-auto"
-            style={{
-              bottom: Math.max(10, window.innerHeight - (window.innerHeight - 80 + dragPosition.y) + 50),
-              right: Math.max(10, window.innerWidth - (window.innerWidth - 16 + dragPosition.x) - 60),
-            }}
-          >
-            <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
-              <button
-                onClick={() => {
-                  setShowGreeting(false);
-                  setIsTypingBubble(false);
-                  sounds.playTap();
-                }}
-                className="absolute -top-2 -right-2 bg-muted hover:bg-muted-foreground/20 rounded-full p-0.5 transition-colors"
-              >
-                <X className="w-3 h-3 text-muted-foreground" />
-              </button>
-
-              {isTypingBubble ? (
-                <div className="flex items-center gap-1 py-1 px-1">
-                  {[0, 1, 2].map((i) => (
-                    <motion.div
-                      key={i}
-                      className="w-2 h-2 rounded-full bg-primary/60"
-                      animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
-                      transition={{
-                        duration: 0.6,
-                        repeat: Infinity,
-                        delay: i * 0.15,
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-foreground leading-relaxed">{greetingText}</p>
-              )}
-
-              {/* Tail pointing down-right toward clippy */}
-              <div className="absolute -bottom-[6px] right-6 w-3 h-3 bg-card border-b border-r border-border rotate-45 transform" />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Speech bubble - rendered inside clippy container below */}
 
       {/* Clippy character - draggable */}
       <motion.div
@@ -415,6 +365,48 @@ export function ClippyAssistant() {
         }}
         title="Assistente de Ajuda — arraste para mover"
       >
+        {/* Speech bubble - anchored above clippy */}
+        <AnimatePresence>
+          {(showGreeting || isTypingBubble) && !isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.8 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              className="absolute bottom-full right-0 mb-2 w-[220px] pointer-events-auto z-10"
+            >
+              <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowGreeting(false);
+                    setIsTypingBubble(false);
+                    sounds.playTap();
+                  }}
+                  className="absolute -top-2 -right-2 bg-muted hover:bg-muted-foreground/20 rounded-full p-0.5 transition-colors z-10"
+                >
+                  <X className="w-3 h-3 text-muted-foreground" />
+                </button>
+                {isTypingBubble ? (
+                  <div className="flex items-center gap-1 py-1 px-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 rounded-full bg-primary/60"
+                        animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-foreground leading-relaxed">{greetingText}</p>
+                )}
+                <div className="absolute -bottom-[6px] right-6 w-3 h-3 bg-card border-b border-r border-border rotate-45 transform" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Idle animation wrapper */}
         <motion.div animate={getAnimationStyle()}>
           {/* Shadow */}
@@ -496,8 +488,10 @@ export function ClippyAssistant() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
             style={{
-              bottom: Math.max(10, window.innerHeight - (window.innerHeight - 80 + dragPosition.y) + 60),
-              right: Math.max(10, window.innerWidth - (window.innerWidth - 16 + dragPosition.x) - 60),
+              bottom: 'auto',
+              right: 'auto',
+              top: Math.min(window.innerHeight - 500, Math.max(10, (window.innerHeight - 80 + dragPosition.y) - 490)),
+              left: Math.min(window.innerWidth - 350, Math.max(10, (window.innerWidth - 16 + dragPosition.x) - 350)),
             }}
           >
             {/* Header */}

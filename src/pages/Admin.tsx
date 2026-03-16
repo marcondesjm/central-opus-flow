@@ -88,6 +88,7 @@ import { BlogManager } from '@/components/admin/BlogManager';
 import { WordPressManager } from '@/components/admin/WordPressManager';
 import { CouponManager } from '@/components/admin/CouponManager';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
+import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',

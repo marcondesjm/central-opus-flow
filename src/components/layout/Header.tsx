@@ -229,7 +229,7 @@ export function Header({
                       : "bg-muted text-muted-foreground border-border"
                 )}>
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{isExpired ? 'Expirado' : `${daysLeft}d`}</span>
+                  <span>{isExpired ? t('sidebar.expired') : `${daysLeft}d`}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>

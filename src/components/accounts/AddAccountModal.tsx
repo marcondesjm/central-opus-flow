@@ -169,7 +169,7 @@ export function AddAccountModal({ open, onOpenChange }: AddAccountModalProps) {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <ScrollArea className="flex-1 px-6 max-h-[calc(85vh-180px)]">
+          <div className="flex-1 px-6 overflow-y-auto max-h-[calc(85vh-180px)]">
             <div className="space-y-4 py-4">
               {/* Informações Básicas */}
               <div className="space-y-4">

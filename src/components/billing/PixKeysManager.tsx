@@ -71,7 +71,7 @@ function PixKeyModal({ open, onOpenChange, editKey }: {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Tipo de chave</Label>
-            <Select value={form.key_type} onValueChange={v => setForm(f => ({ ...f, key_type: v }))}>
+            <Select value={form.key_type} onValueChange={v => setForm(f => ({ ...f, key_type: v as PixKey['key_type'] }))}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {Object.entries(KEY_TYPE_LABELS).map(([k, v]) => (

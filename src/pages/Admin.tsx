@@ -531,23 +531,23 @@ export default function Admin() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div>
-                <h1 className="text-xl font-bold flex items-center gap-2">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
-                  Painel Administrativo
+                  Painel Admin
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   Gerencie usuários, planos e mensalidades
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -561,29 +561,29 @@ export default function Admin() {
                     toast({ title: 'Erro', description: err.message, variant: 'destructive' });
                   }
                 }}
-                className="gap-2"
+                className="gap-1.5 h-8 text-xs px-2"
               >
                 <Users className="w-4 h-4" />
-                Criar Conta Demo
+                <span className="hidden sm:inline">Criar Conta Demo</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => { setMessageTargetUser(null); setMessageModalOpen(true); }}
-                className="gap-2"
+                className="gap-1.5 h-8 text-xs px-2"
               >
                 <Send className="w-4 h-4" />
-                Enviar para Todos
+                <span className="hidden sm:inline">Enviar para Todos</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleRefreshAll}
                 disabled={refreshing}
-                className="gap-2"
+                className="gap-1.5 h-8 text-xs px-2"
               >
                 <RefreshCw className={cn("w-4 h-4", refreshing && "animate-spin")} />
-                Atualizar
+                <span className="hidden sm:inline">Atualizar</span>
               </Button>
             </div>
           </div>

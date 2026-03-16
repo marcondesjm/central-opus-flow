@@ -1350,7 +1350,8 @@ export default function KanbanPage() {
                         <div
                           ref={colDragProvided.innerRef}
                           {...colDragProvided.draggableProps}
-                          className={cn('w-72 flex-shrink-0', colDragSnapshot.isDragging && 'opacity-80')}
+                          className={cn('flex-shrink-0', colDragSnapshot.isDragging && 'opacity-80')}
+                          style={{ width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px' }}
                         >
                           <div className="flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium" style={{ backgroundColor: column.color }}>
                             {!isFinalizadoColumn ? (

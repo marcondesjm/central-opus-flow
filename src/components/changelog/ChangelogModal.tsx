@@ -49,6 +49,16 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Force refresh all version/changelog data whenever modal opens
+  useEffect(() => {
+    if (open) {
+      queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
+      queryClient.invalidateQueries({ queryKey: ['changelog'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+      queryClient.invalidateQueries({ queryKey: ['system-version'] });
+    }
+  }, [open, queryClient]);
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });

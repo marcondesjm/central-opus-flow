@@ -77,10 +77,11 @@ export function useSystemVersion() {
         updatedAt: new Date(configMap['app_version']?.updated_at || Date.now()),
       };
     },
-    staleTime: 5 * 1000,
-    gcTime: 5 * 60 * 1000,
+    staleTime: 0,
+    gcTime: 30 * 1000,
     refetchInterval: 15 * 1000,
     refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
 }
 

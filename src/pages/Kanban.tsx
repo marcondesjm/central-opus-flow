@@ -1244,16 +1244,14 @@ export default function KanbanPage() {
                     'Faturamento por Fase'}
                 </h3>
                 <div className="flex items-center gap-2">
-                  {revenueChartType === 'pie' && (
-                    <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
-                      <TabsList className="h-7">
-                        <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
-                        <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
-                        <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
-                        <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  )}
+                  <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
+                    <TabsList className="h-7">
+                      <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
+                      <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
+                      <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
+                      <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                   <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
                     <TabsList className="h-7">
                       <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>

@@ -439,33 +439,35 @@ export function ClippyAssistant() {
             />
 
 
-            {/* Animated eyebrows */}
-            {mood !== 'sleeping' && (
-              <div className="absolute top-[13px] left-1/2 -translate-x-1/2 flex gap-[6px] pointer-events-none">
-                <motion.div
-                  className="w-[8px] h-[2px] bg-[#555] rounded-full origin-center"
-                  animate={
-                    mood === 'surprised' ? { y: -3, rotate: 0, scaleY: 1.5 } :
-                    mood === 'thinking' ? { y: -1, rotate: -12 } :
-                    mood === 'happy' ? { y: -2, rotate: -8, scaleY: 1.2 } :
-                    mood === 'wink' ? { y: -1, rotate: -5 } :
-                    { y: [0, -1.5, 0], rotate: [0, -3, 0] }
-                  }
-                  transition={mood === 'normal' ? { duration: 3, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
-                />
-                <motion.div
-                  className="w-[8px] h-[2px] bg-[#555] rounded-full origin-center"
-                  animate={
-                    mood === 'surprised' ? { y: -3, rotate: 0, scaleY: 1.5 } :
-                    mood === 'thinking' ? { y: -2, rotate: 12 } :
-                    mood === 'happy' ? { y: -2, rotate: 8, scaleY: 1.2 } :
-                    mood === 'wink' ? { y: 1, rotate: 5 } :
-                    { y: [0, -1.5, 0], rotate: [0, 3, 0] }
-                  }
-                  transition={mood === 'normal' ? { duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.2 } : { duration: 0.3 }}
-                />
-              </div>
-            )}
+            {/* Animated hat */}
+            <motion.div
+              className="absolute -top-[10px] left-1/2 -translate-x-1/2 pointer-events-none"
+              animate={
+                mood === 'surprised' ? { y: -6, rotate: 8 } :
+                mood === 'happy' ? { y: [0, -3, 0], rotate: [0, -5, 5, 0] } :
+                mood === 'thinking' ? { rotate: -10, y: -2 } :
+                mood === 'wink' ? { rotate: 12, y: -1 } :
+                mood === 'sleeping' ? { y: 4, rotate: 15 } :
+                { y: [0, -2, 0], rotate: [0, -2, 2, 0] }
+              }
+              transition={
+                mood === 'happy' ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' } :
+                mood === 'normal' ? { duration: 4, repeat: Infinity, ease: 'easeInOut' } :
+                { duration: 0.4, ease: 'easeOut' }
+              }
+            >
+              <svg width="32" height="20" viewBox="0 0 32 20" fill="none" className="drop-shadow-sm">
+                {/* Hat brim */}
+                <ellipse cx="16" cy="17" rx="16" ry="3" fill="#1a1a2e" />
+                {/* Hat crown */}
+                <rect x="6" y="4" width="20" height="13" rx="2" fill="#1a1a2e" />
+                <rect x="5" y="13" width="22" height="4" rx="1" fill="#2a2a4e" />
+                {/* Hat band */}
+                <rect x="6" y="12" width="20" height="3" fill="#c9a84c" />
+                {/* Shine */}
+                <rect x="9" y="6" width="6" height="2" rx="1" fill="#3a3a5e" opacity="0.5" />
+              </svg>
+            </motion.div>
 
             {mood === 'sleeping' && (
               <div className="absolute -top-1 -right-2">

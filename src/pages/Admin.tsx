@@ -804,6 +804,10 @@ export default function Admin() {
                 <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Cupons
               </TabsTrigger>
+              <TabsTrigger value="assistant" className="gap-1.5 text-xs sm:text-sm">
+                <MessageCircleQuestion className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Assistente
+              </TabsTrigger>
             </TabsList>
           </div>
 

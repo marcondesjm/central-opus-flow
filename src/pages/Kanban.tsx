@@ -1442,6 +1442,9 @@ export default function KanbanPage() {
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {format(new Date(msg.scheduled_date + 'T12:00:00'), 'dd/MM/yyyy', { locale: ptBR })}
+                        <span className="mx-0.5">às</span>
+                        <Clock className="w-3 h-3" />
+                        {msg.scheduled_time ? msg.scheduled_time.slice(0, 5) : '09:00'}
                         {deal?.client_name && (
                           <>
                             <span className="mx-1">·</span>

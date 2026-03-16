@@ -488,8 +488,10 @@ export function ClippyAssistant() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
             style={{
-              bottom: Math.max(10, window.innerHeight - (window.innerHeight - 80 + dragPosition.y) + 60),
-              right: Math.max(10, window.innerWidth - (window.innerWidth - 16 + dragPosition.x) - 60),
+              bottom: 'auto',
+              right: 'auto',
+              top: Math.min(window.innerHeight - 500, Math.max(10, (window.innerHeight - 80 + dragPosition.y) - 490)),
+              left: Math.min(window.innerWidth - 350, Math.max(10, (window.innerWidth - 16 + dragPosition.x) - 350)),
             }}
           >
             {/* Header */}

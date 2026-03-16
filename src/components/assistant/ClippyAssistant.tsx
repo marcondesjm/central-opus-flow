@@ -162,9 +162,9 @@ export function ClippyAssistant() {
         )}
       </AnimatePresence>
 
-      {/* Clippy character - LEFT side */}
+      {/* Clippy character - RIGHT side, above WhatsApp button */}
       <motion.div
-        className="fixed bottom-4 left-4 z-[60] cursor-pointer select-none"
+        className="fixed bottom-[88px] right-4 lg:bottom-[60px] z-[60] cursor-pointer select-none"
         variants={idleVariants}
         animate="idle"
         onClick={handleOpen}

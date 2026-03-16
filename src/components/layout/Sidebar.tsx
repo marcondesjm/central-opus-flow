@@ -510,10 +510,10 @@ export function Sidebar({
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-sidebar-foreground hover:bg-sidebar-accent'
             )}
-            aria-label="Abrir WordPress"
+            aria-label={t('sidebar.wordpress')}
           >
             <Globe className="w-4 h-4" aria-hidden="true" />
-            WordPress
+            {t('sidebar.wordpress')}
           </button>
         </div>
 

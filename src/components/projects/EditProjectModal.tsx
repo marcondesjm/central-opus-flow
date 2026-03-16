@@ -35,6 +35,7 @@ interface EditProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   project: Project | null;
+  initialTab?: string;
 }
 
 const projectTypes = [

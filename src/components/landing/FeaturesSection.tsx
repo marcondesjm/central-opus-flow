@@ -10,23 +10,57 @@ import {
   ArrowUpRight,
   KeyRound,
   Columns3,
-  DollarSign
+  DollarSign,
+  FileArchive,
+  MessageSquare,
+  ZoomIn,
+  Users,
+  ListChecks,
+  History
 } from 'lucide-react';
 
 const features = [
   {
-    icon: FolderKanban,
-    title: 'Multi-Contas',
-    benefit: 'Conecte todas as suas contas e acesse todos os projetos em um único lugar.',
-    highlight: 'Sem trocar de conta',
+    icon: Columns3,
+    title: 'Kanban Completo',
+    benefit: 'Pipeline visual com drag & drop, checklists, prioridades, zoom e coluna de finalizados bloqueada.',
+    highlight: 'Gestão visual total',
+    color: 'from-indigo-500 to-indigo-600',
+  },
+  {
+    icon: DollarSign,
+    title: 'Faturamento & Despesas',
+    benefit: 'Controle receitas, despesas, lucro líquido, margens e projeções financeiras com gráficos detalhados.',
+    highlight: 'Visão financeira completa',
+    color: 'from-emerald-500 to-emerald-600',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Agendamento WhatsApp',
+    benefit: 'Agende mensagens de cobrança para envio automático via WhatsApp na data programada.',
+    highlight: 'Cobranças automáticas',
+    color: 'from-green-500 to-green-600',
+  },
+  {
+    icon: FileArchive,
+    title: 'Arquivos Versionados',
+    benefit: 'Faça upload de arquivos com versionamento automático, snippets de código e link de repositório.',
+    highlight: 'Controle de versões',
     color: 'from-blue-500 to-blue-600',
   },
   {
-    icon: Tags,
-    title: 'Organização',
-    benefit: 'Tags coloridas, favoritos e filtros para classificar projetos do seu jeito.',
-    highlight: 'Encontre em 2 cliques',
-    color: 'from-emerald-500 to-emerald-600',
+    icon: FolderKanban,
+    title: 'Multi-Contas',
+    benefit: 'Conecte todas as suas contas e acesse todos os projetos em um único lugar centralizado.',
+    highlight: 'Sem trocar de conta',
+    color: 'from-violet-500 to-violet-600',
+  },
+  {
+    icon: Users,
+    title: 'Colaboração em Tempo Real',
+    benefit: 'Convide colaboradores, veja quem está online e trabalhe em equipe nos projetos.',
+    highlight: 'Trabalho em equipe',
+    color: 'from-pink-500 to-pink-600',
   },
   {
     icon: Search,
@@ -36,46 +70,39 @@ const features = [
     color: 'from-amber-500 to-amber-600',
   },
   {
-    icon: Columns3,
-    title: 'Kanban',
-    benefit: 'Gerencie deals, pipeline de vendas e tarefas com quadro visual, checklists e prioridades.',
-    highlight: 'Pipeline completo',
-    color: 'from-indigo-500 to-indigo-600',
-  },
-  {
-    icon: DollarSign,
-    title: 'Faturamento',
-    benefit: 'Controle receitas, despesas, lucro líquido e margens com gráficos e projeções financeiras.',
-    highlight: 'Visão financeira total',
-    color: 'from-emerald-500 to-emerald-600',
+    icon: ListChecks,
+    title: 'Checklists & Progresso',
+    benefit: 'Adicione checklists a projetos e deals. O progresso é calculado automaticamente.',
+    highlight: 'Acompanhe tudo',
+    color: 'from-teal-500 to-teal-600',
   },
   {
     icon: BarChart3,
-    title: 'Estatísticas',
-    benefit: 'Gráficos de status, tipo e progresso para entender seu portfólio completo.',
+    title: 'Dashboard & Gráficos',
+    benefit: 'Estatísticas de status, tipo, progresso e gráficos interativos de todo o portfólio.',
     highlight: 'Dados em tempo real',
     color: 'from-rose-500 to-rose-600',
   },
   {
-    icon: Coins,
-    title: 'Créditos',
-    benefit: 'Acompanhe os créditos de cada conta diretamente no painel principal.',
-    highlight: 'Nunca fique zerado',
-    color: 'from-violet-500 to-violet-600',
+    icon: Tags,
+    title: 'Tags & Filtros',
+    benefit: 'Tags coloridas, favoritos e filtros avançados para organizar projetos do seu jeito.',
+    highlight: 'Encontre em 2 cliques',
+    color: 'from-orange-500 to-orange-600',
   },
   {
     icon: KeyRound,
     title: 'Keys Locais',
-    benefit: 'Armazene suas API Keys localmente no seu dispositivo com segurança, sem enviar para nuvem.',
+    benefit: 'Armazene API Keys localmente no seu dispositivo com segurança total, sem enviar para nuvem.',
     highlight: '100% privado',
-    color: 'from-orange-500 to-orange-600',
+    color: 'from-cyan-500 to-cyan-600',
   },
   {
     icon: Download,
-    title: 'Backup',
-    benefit: 'Exporte todos os seus dados em JSON e importe quando precisar.',
+    title: 'Backup Completo',
+    benefit: 'Exporte e importe todos os seus dados em JSON, incluindo conexões WordPress.',
     highlight: 'Seus dados, seu controle',
-    color: 'from-cyan-500 to-cyan-600',
+    color: 'from-slate-500 to-slate-600',
   },
 ];
 
@@ -102,7 +129,7 @@ export function FeaturesSection() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
-      <div className="container mx-auto max-w-6xl relative">
+      <div className="container mx-auto max-w-7xl relative">
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
@@ -114,19 +141,19 @@ export function FeaturesSection() {
             Funcionalidades
           </Badge>
           <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
-            Tudo para ser{' '}
+            Tudo para{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              mais produtivo
+              gerenciar com eficiência
             </span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Cada funcionalidade foi pensada para economizar seu tempo e 
-            eliminar a frustração de gerenciar múltiplas contas.
+            Mais de 12 funcionalidades pensadas para economizar seu tempo e 
+            dar controle total sobre projetos, finanças e equipe.
           </p>
         </motion.div>
 
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"

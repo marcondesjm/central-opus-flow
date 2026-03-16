@@ -1077,6 +1077,47 @@ export type Database = {
           },
         ]
       }
+      project_code_snippets: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          language: string
+          project_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          id?: string
+          language?: string
+          project_id: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          language?: string
+          project_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_code_snippets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_collaborators: {
         Row: {
           accepted_at: string | null
@@ -1114,6 +1155,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_collaborators_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          notes: string | null
+          project_id: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          notes?: string | null
+          project_id: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          notes?: string | null
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -1260,6 +1351,7 @@ export type Database = {
           name: string
           notes: string | null
           progress: number
+          repository_url: string | null
           screenshot: string | null
           status: string
           type: string
@@ -1279,6 +1371,7 @@ export type Database = {
           name: string
           notes?: string | null
           progress?: number
+          repository_url?: string | null
           screenshot?: string | null
           status?: string
           type?: string
@@ -1298,6 +1391,7 @@ export type Database = {
           name?: string
           notes?: string | null
           progress?: number
+          repository_url?: string | null
           screenshot?: string | null
           status?: string
           type?: string

@@ -46,13 +46,30 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
   }, []);
 
   useEffect(() => {
-    initCanvas();
+    // Use requestAnimationFrame to ensure canvas is rendered and has dimensions
+    const rafId = requestAnimationFrame(() => {
+      initCanvas();
+    });
     const handleResize = () => {
       if (!hasDrawn) initCanvas();
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [initCanvas, hasDrawn]);
+
+  // Re-init canvas when draw tab becomes active
+  useEffect(() => {
+    if (activeTab === 'draw' && !hasDrawn) {
+      // Delay to ensure tab content is visible and has dimensions
+      const timer = setTimeout(() => {
+        initCanvas();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, hasDrawn, initCanvas]);
 
   const getPos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;

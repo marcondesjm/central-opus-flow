@@ -225,27 +225,27 @@ export default function Collaborations() {
                     {pendingInvitations.map((invitation) => (
                       <div
                         key={invitation.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors gap-3"
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                           <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center",
+                            "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0",
                             isProjectInvitation(invitation) ? "bg-primary/10" : "bg-amber-500/10"
                           )}>
                             {isProjectInvitation(invitation) ? (
-                              <FolderOpen className="h-5 w-5 text-primary" />
+                              <FolderOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                             ) : (
-                              <Users className="h-5 w-5 text-amber-500" />
+                              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
                             )}
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground text-sm truncate">
                               {isProjectInvitation(invitation)
                                 ? `Projeto: ${getProjectName((invitation as ProjectCollaborator).project_id)}`
                                 : `Conta: ${getAccountName((invitation as AccountCollaborator).account_id)}`
                               }
                             </p>
-                            <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                               <Badge className={cn('text-xs', roleColors[invitation.role])}>
                                 {roleLabels[invitation.role]}
                               </Badge>
@@ -255,14 +255,15 @@ export default function Collaborations() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0 pl-12 sm:pl-0">
                           <Button
                             variant="outline"
                             size="sm"
+                            className="text-xs sm:text-sm"
                             onClick={() => handleAcceptInvitation(invitation)}
                           >
-                            <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                            Aceitar e {invitation.role === 'viewer' ? 'Visualizar' : 'Editar'}
+                            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                            Aceitar
                           </Button>
                         </div>
                       </div>

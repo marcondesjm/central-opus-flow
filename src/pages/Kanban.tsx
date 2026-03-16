@@ -21,7 +21,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
@@ -382,17 +382,29 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail }: {
             <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
               <DropdownMenuItem onClick={onEdit}><Pencil className="w-3.5 h-3.5 mr-2" /> Editar</DropdownMenuItem>
               <DropdownMenuItem onClick={onPayments}><Receipt className="w-3.5 h-3.5 mr-2" /> Faturamento</DropdownMenuItem>
-              {deal.client_whatsapp && (
-                <DropdownMenuItem onClick={() => {
-                  const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
-                  const msg = `Olá! Tudo bem?\n\nEstou entrando em contato para lembrar sobre o pagamento que ficou pendente.${valor ? ` *Valor:* ${valor}.` : ''} Poderia verificar para mim, por gentileza?\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. Obrigado!`;
-                  const encoded = encodeURIComponent(msg);
-                  const phone = deal.client_whatsapp.replace(/\D/g, '');
-                  window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
-                }}>
-                  <MessageCircle className="w-3.5 h-3.5 mr-2 text-emerald-500" /> Cobrar via WhatsApp
-                </DropdownMenuItem>
-              )}
+              {deal.client_whatsapp && (() => {
+                const phone = deal.client_whatsapp!.replace(/\D/g, '');
+                const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
+                const sendMsg = (msg: string) => window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                return (
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <MessageCircle className="w-3.5 h-3.5 mr-2 text-emerald-500" /> Cobrar via WhatsApp
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => sendMsg(`Olá! Tudo bem?\n\nEstou entrando em contato para lembrar sobre o pagamento que ficou pendente.${valor ? ` *Valor:* ${valor}.` : ''} Poderia verificar para mim, por gentileza?\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. Obrigado!`)}>
+                        🏢 Profissional e educada
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => sendMsg(`Oi! Tudo bem?\n\nPassando apenas para lembrar do pagamento que está em aberto.${valor ? ` *Valor:* ${valor}.` : ''} Quando puder, dá uma olhadinha para mim, por favor.\n\nQualquer dúvida estou à disposição 🙂`)}>
+                        😊 Amigável
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => sendMsg(`Olá! Tudo bem?\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização?`)}>
+                        ⚡ Mais direta
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                );
+              })()}
               <DropdownMenuItem onClick={onDelete} className="text-destructive"><Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

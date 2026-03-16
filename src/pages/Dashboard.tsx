@@ -705,6 +705,7 @@ export default function Dashboard() {
         open={editProjectOpen}
         onOpenChange={setEditProjectOpen}
         project={editingProject}
+        initialTab={editProjectInitialTab}
       />
       
       <TagsManager 

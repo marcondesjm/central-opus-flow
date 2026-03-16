@@ -352,7 +352,7 @@ export function ClippyAssistant() {
 
       {/* Clippy character */}
       <motion.div
-        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] cursor-pointer select-none group"
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] cursor-pointer select-none group/clippy"
         animate={getAnimationStyle()}
         onClick={handleOpen}
         onMouseEnter={() => {

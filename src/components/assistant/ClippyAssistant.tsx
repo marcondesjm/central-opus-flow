@@ -438,11 +438,6 @@ export function ClippyAssistant() {
               style={{ filter: mood === 'sleeping' ? 'brightness(0.85) saturate(0.7)' : 'none' }}
             />
 
-            {/* Cover original image eyes then render animated ones */}
-            <div className="absolute top-[16px] left-1/2 -translate-x-1/2 w-[22px] h-[12px] bg-[#c0c0c0] rounded-full pointer-events-none" />
-            <div className="absolute top-[12px] left-1/2 -translate-x-1/2 pointer-events-none">
-              <ClippyEyes mood={mood} size={0.45} />
-            </div>
 
             {/* Sleeping Zzz */}
             {mood === 'sleeping' && (

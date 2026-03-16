@@ -337,7 +337,7 @@ export function Header({
                 {profile?.created_at && (
                   <div className="flex items-center gap-1 text-[10px] mt-1 text-muted-foreground">
                     <CalendarDays className="w-3 h-3" />
-                    Membro desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {t('sidebar.memberSince', { date: new Date(profile.created_at).toLocaleDateString() })}
                   </div>
                 )}
                 {(() => {

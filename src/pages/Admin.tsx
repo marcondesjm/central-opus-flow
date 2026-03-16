@@ -1107,6 +1107,7 @@ export default function Admin() {
                         })}
                       </TableBody>
                     </Table>
+                    </div>
                   </ScrollArea>
                 )}
               </CardContent>

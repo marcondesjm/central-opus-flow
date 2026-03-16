@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { PixKeysManager } from '@/components/billing/PixKeysManager';
 
 const STATUS_CONFIG = {
   pago: { label: 'Pago', icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', chartColor: '#10b981' },
@@ -476,7 +477,7 @@ export default function BillingPage() {
   // Sync tab from URL
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['overview', 'clients', 'ai-costs', 'expenses', 'history'].includes(tab)) {
+    if (tab && ['overview', 'clients', 'ai-costs', 'expenses', 'history', 'pix'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -720,6 +721,7 @@ export default function BillingPage() {
             <TabsTrigger value="ai-costs">🤖 IA & Créditos</TabsTrigger>
             <TabsTrigger value="expenses">Despesas</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
+            <TabsTrigger value="pix">💳 PIX</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -1133,6 +1135,11 @@ export default function BillingPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* PIX Tab */}
+          <TabsContent value="pix" className="mt-4">
+            <PixKeysManager />
           </TabsContent>
         </Tabs>
       </div>

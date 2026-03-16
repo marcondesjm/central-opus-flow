@@ -982,6 +982,42 @@ export type Database = {
           },
         ]
       }
+      pix_keys: {
+        Row: {
+          created_at: string
+          holder_city: string
+          holder_name: string
+          id: string
+          is_default: boolean
+          key_type: string
+          key_value: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          holder_city?: string
+          holder_name: string
+          id?: string
+          is_default?: boolean
+          key_type?: string
+          key_value: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          holder_city?: string
+          holder_name?: string
+          id?: string
+          is_default?: boolean
+          key_type?: string
+          key_value?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           area_atuacao: string | null

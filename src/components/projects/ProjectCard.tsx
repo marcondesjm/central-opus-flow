@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3 } from 'lucide-react';
+import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3, FileArchive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';

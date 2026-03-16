@@ -402,6 +402,9 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsA
                       <DropdownMenuItem onClick={() => sendMsg(`Olá! Tudo bem?\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização?`)}>
                         ⚡ Mais direta
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onCustomWhatsApp}>
+                        ✏️ Personalizada
+                      </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
                 );

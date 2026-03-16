@@ -92,7 +92,7 @@ export function ClippyAssistant() {
 
     const interval = setInterval(doRandomAction, 8000 + Math.random() * 12000);
     return () => clearInterval(interval);
-  }, [isOpen, sounds]);
+  }, [isOpen, isHidden, sounds]);
 
   // Go to sleep after inactivity, then knock on screen
   useEffect(() => {

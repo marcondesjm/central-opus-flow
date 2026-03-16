@@ -110,6 +110,8 @@ const demoKanbanDeals = [
   {
     company_name: 'TechNova Solutions',
     client_name: 'Carlos Mendes',
+    client_whatsapp: '5511999990001',
+    client_email: 'carlos@technova.com',
     description: 'Desenvolvimento de landing page para lançamento de produto SaaS',
     columnIndex: 0, // Prospecção
     progress: 20,
@@ -123,6 +125,8 @@ const demoKanbanDeals = [
   {
     company_name: 'Moda Express',
     client_name: 'Ana Beatriz',
+    client_whatsapp: '5511999990002',
+    client_email: 'ana@modaexpress.com',
     description: 'E-commerce completo com integração de pagamentos e gestão de estoque',
     columnIndex: 1, // Fechamento
     progress: 45,
@@ -137,6 +141,8 @@ const demoKanbanDeals = [
   {
     company_name: 'FitLife Academy',
     client_name: 'Roberto Alves',
+    client_whatsapp: '5521999990003',
+    client_email: 'roberto@fitlife.com',
     description: 'Plataforma de cursos online com área de membros',
     columnIndex: 2, // Contrato
     progress: 60,
@@ -150,6 +156,8 @@ const demoKanbanDeals = [
   {
     company_name: 'Restaurante Sabor & Arte',
     client_name: 'Lucia Fernandes',
+    client_whatsapp: '5531999990004',
+    client_email: 'lucia@saborarte.com',
     description: 'Website institucional com cardápio digital e reservas online',
     columnIndex: 3, // Em Andamento
     progress: 75,
@@ -163,6 +171,8 @@ const demoKanbanDeals = [
   {
     company_name: 'ImoTech',
     client_name: 'Fernando Lima',
+    client_whatsapp: '5541999990005',
+    client_email: 'fernando@imotech.com',
     description: 'Dashboard de analytics para gestão imobiliária',
     columnIndex: 3, // Em Andamento
     progress: 90,
@@ -177,6 +187,8 @@ const demoKanbanDeals = [
   {
     company_name: 'StartUp Boost',
     client_name: 'Camila Rocha',
+    client_whatsapp: '5511999990006',
+    client_email: 'camila@startupboost.com',
     description: 'MVP de aplicativo de produtividade',
     columnIndex: 5, // Concluído
     progress: 100,
@@ -190,6 +202,8 @@ const demoKanbanDeals = [
   {
     company_name: 'Clinica Bem Estar',
     client_name: 'Dra. Mariana Souza',
+    client_whatsapp: '5551999990007',
+    client_email: 'mariana@clinicabemestar.com',
     description: 'Sistema de agendamento online com integração WhatsApp',
     columnIndex: 4, // Entrega
     progress: 95,
@@ -204,6 +218,8 @@ const demoKanbanDeals = [
   {
     company_name: 'Petshop Amigão',
     client_name: 'Ricardo Gomes',
+    client_whatsapp: '5561999990008',
+    client_email: 'ricardo@petshopamigao.com',
     description: 'Loja virtual com delivery e programa de fidelidade',
     columnIndex: 0, // Prospecção
     progress: 10,
@@ -213,6 +229,42 @@ const demoKanbanDeals = [
     color: '#f97316',
     position: 1,
   },
+];
+
+// Demo scheduled messages for kanban deals (index matches demoKanbanDeals)
+const demoScheduledMessages = [
+  // TechNova - follow-up message
+  [
+    { message: 'Olá Carlos! 👋 Tudo bem? Passando para alinhar os próximos passos do projeto da landing page. Podemos conversar hoje?', scheduled_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '10:00' },
+  ],
+  // Moda Express - payment reminder
+  [
+    { message: 'Oi Ana! 😊 Lembrando que a 2ª parcela do projeto e-commerce vence em breve. Qualquer dúvida estou à disposição!', scheduled_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '09:00' },
+    { message: 'Bom dia Ana! 🚀 O módulo de pagamentos já está pronto para testes. Vou enviar o link de acesso hoje à tarde!', scheduled_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '08:30' },
+  ],
+  // FitLife - contract follow-up
+  [
+    { message: 'Roberto, bom dia! 📋 O contrato já foi enviado para seu email. Precisa de algum ajuste antes de assinar?', scheduled_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '11:00' },
+  ],
+  // Restaurante - progress update
+  [
+    { message: 'Lucia, boa tarde! 🍽️ O cardápio digital ficou incrível! Vou enviar o preview para aprovação amanhã.', scheduled_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '14:00' },
+  ],
+  // ImoTech - delivery reminder
+  [
+    { message: 'Fernando! 📊 Dashboard quase finalizado. A entrega está prevista para dia 21. Vamos marcar uma call de apresentação?', scheduled_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '09:30' },
+    { message: 'Bom dia Fernando! 💰 Lembrando da 3ª parcela prevista para a entrega do projeto. Qualquer dúvida, estou aqui!', scheduled_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '10:00' },
+  ],
+  // StartUp Boost - no messages (completed)
+  [],
+  // Clinica Bem Estar - final delivery
+  [
+    { message: 'Dra. Mariana! ✅ Sistema de agendamento está 100% funcional. Vamos agendar o treinamento da equipe?', scheduled_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '15:00' },
+  ],
+  // Petshop - initial contact
+  [
+    { message: 'Olá Ricardo! 🐾 Preparei uma proposta completa para a loja virtual do Petshop. Posso enviar por aqui?', scheduled_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], scheduled_time: '10:30' },
+  ],
 ];
 
 // Demo payments for kanban deals (index matches demoKanbanDeals)
@@ -523,6 +575,23 @@ export function useSeedDemoData() {
                     ...p,
                     deal_id: createdDeals[i].id,
                     user_id: user.id,
+                  }))
+                );
+            }
+          }
+
+          // Create scheduled messages for each deal
+          for (let i = 0; i < createdDeals.length; i++) {
+            const messages = demoScheduledMessages[i] || [];
+            if (messages.length > 0) {
+              await supabase
+                .from('kanban_scheduled_messages')
+                .insert(
+                  messages.map(m => ({
+                    ...m,
+                    deal_id: createdDeals[i].id,
+                    user_id: user.id,
+                    sent: false,
                   }))
                 );
             }

@@ -281,23 +281,25 @@ export function useSeedDemoData() {
   const [seeding, setSeeding] = useState(false);
   const [clearing, setClearing] = useState(false);
 
-  const seedDemoData = useCallback(async () => {
+  const seedDemoData = useCallback(async (force = false) => {
     if (!user?.id) return false;
     
     setSeeding(true);
     
     try {
-      // Check if user already has projects (not just accounts)
-      const { data: existingProjects } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('user_id', user.id)
-        .limit(1);
+      if (!force) {
+        // Check if user already has projects (not just accounts)
+        const { data: existingProjects } = await supabase
+          .from('projects')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1);
 
-      if (existingProjects && existingProjects.length > 0) {
-        console.log('User already has projects, skipping seed');
-        setSeeding(false);
-        return false;
+        if (existingProjects && existingProjects.length > 0) {
+          console.log('User already has projects, skipping seed');
+          setSeeding(false);
+          return false;
+        }
       }
 
       // Check if demo account exists, if not create it

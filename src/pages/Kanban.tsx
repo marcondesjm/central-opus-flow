@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ExportBackupButton } from '@/components/export/ExportBackupButton';
+import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -26,6 +26,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem, KanbanChecklistItem } from '@/hooks/useKanbanChecklist';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
@@ -355,10 +358,15 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsA
 }) {
   const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
   const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
+  const isApproachingDeadline = deal.due_date && !isOverdue && isBefore(new Date(deal.due_date), addDays(new Date(), 2));
 
   return (
     <Card
-      className="group hover:shadow-md transition-all cursor-pointer border-l-4"
+      className={cn(
+        "group hover:shadow-md transition-all cursor-pointer border-l-4",
+        isOverdue && "animate-pulse ring-2 ring-destructive/50",
+        isApproachingDeadline && "animate-[pulse_2s_ease-in-out_infinite] ring-2 ring-yellow-400/50"
+      )}
       style={{ borderLeftColor: deal.color || priority?.color?.replace('bg-', '') || 'hsl(var(--border))' }}
       onClick={onDetail}
     >
@@ -675,6 +683,8 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
 
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
   const updateDeal = useUpdateDeal();
@@ -693,6 +703,8 @@ export default function KanbanPage() {
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
   const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);
   const [customWhatsAppMsg, setCustomWhatsAppMsg] = useState('');
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [showScheduleDatePicker, setShowScheduleDatePicker] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -706,6 +718,41 @@ export default function KanbanPage() {
     oldPhaseName: string;
     newPhaseName: string;
   } | null>(null);
+
+  // Check for scheduled WhatsApp messages due today
+  useEffect(() => {
+    if (!user) return;
+    const checkScheduled = async () => {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const { data } = await supabase
+        .from('kanban_scheduled_messages')
+        .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+        .eq('user_id', user.id)
+        .eq('scheduled_date', today)
+        .eq('sent', false);
+      if (data && data.length > 0) {
+        data.forEach((msg: any) => {
+          const deal = msg.kanban_deals;
+          toast({
+            title: `📅 Mensagem agendada para hoje!`,
+            description: `${deal?.company_name || 'Cliente'} - Clique para enviar`,
+            duration: 15000,
+          });
+          if (deal?.client_whatsapp) {
+            const phone = deal.client_whatsapp.replace(/\D/g, '');
+            // Auto-open option after small delay
+            setTimeout(() => {
+              if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+                supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+              }
+            }, 2000);
+          }
+        });
+      }
+    };
+    checkScheduled();
+  }, [user]);
 
   const filteredDeals = useMemo(() => {
     let result = deals || [];
@@ -1066,7 +1113,7 @@ export default function KanbanPage() {
         />
       )}
 
-      <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) setWhatsAppCustomDeal(null); }}>
+      <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) { setWhatsAppCustomDeal(null); setScheduledDate(undefined); setShowScheduleDatePicker(false); } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>✏️ Mensagem personalizada</DialogTitle></DialogHeader>
           <div className="space-y-3">
@@ -1079,18 +1126,77 @@ export default function KanbanPage() {
               onChange={e => setCustomWhatsAppMsg(e.target.value)}
               placeholder="Digite sua mensagem..."
             />
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="schedule-msg"
+                checked={showScheduleDatePicker}
+                onCheckedChange={(v) => { setShowScheduleDatePicker(!!v); if (!v) setScheduledDate(undefined); }}
+              />
+              <Label htmlFor="schedule-msg" className="text-sm cursor-pointer">📅 Agendar para uma data</Label>
+            </div>
+
+            {showScheduleDatePicker && (
+              <div className="space-y-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {scheduledDate ? format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR }) : 'Selecione a data'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={scheduledDate}
+                      onSelect={setScheduledDate}
+                      disabled={(date) => isBefore(date, new Date())}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                {scheduledDate && (
+                  <p className="text-xs text-muted-foreground">
+                    🔔 Você receberá um lembrete em <strong>{format(scheduledDate, 'dd/MM/yyyy')}</strong> para enviar esta mensagem.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setWhatsAppCustomDeal(null)}>Cancelar</Button>
-            <Button onClick={() => {
-              if (whatsAppCustomDeal?.client_whatsapp && customWhatsAppMsg.trim()) {
-                const phone = whatsAppCustomDeal.client_whatsapp.replace(/\D/g, '');
-                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customWhatsAppMsg)}`, '_blank');
-                setWhatsAppCustomDeal(null);
-              }
-            }}>
-              <MessageCircle className="w-4 h-4 mr-2" /> Enviar via WhatsApp
-            </Button>
+            {showScheduleDatePicker && scheduledDate ? (
+              <Button onClick={async () => {
+                if (whatsAppCustomDeal && customWhatsAppMsg.trim() && scheduledDate) {
+                  const { error } = await supabase.from('kanban_scheduled_messages').insert({
+                    deal_id: whatsAppCustomDeal.id,
+                    user_id: user!.id,
+                    message: customWhatsAppMsg,
+                    scheduled_date: format(scheduledDate, 'yyyy-MM-dd'),
+                  });
+                  if (!error) {
+                    toast({ title: '📅 Mensagem agendada!', description: `Lembrete programado para ${format(scheduledDate, 'dd/MM/yyyy')}` });
+                  } else {
+                    toast({ title: 'Erro ao agendar', variant: 'destructive' });
+                  }
+                  setWhatsAppCustomDeal(null);
+                  setScheduledDate(undefined);
+                  setShowScheduleDatePicker(false);
+                }
+              }}>
+                <Calendar className="w-4 h-4 mr-2" /> Agendar Mensagem
+              </Button>
+            ) : (
+              <Button onClick={() => {
+                if (whatsAppCustomDeal?.client_whatsapp && customWhatsAppMsg.trim()) {
+                  const phone = whatsAppCustomDeal.client_whatsapp.replace(/\D/g, '');
+                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customWhatsAppMsg)}`, '_blank');
+                  setWhatsAppCustomDeal(null);
+                }
+              }}>
+                <MessageCircle className="w-4 h-4 mr-2" /> Enviar via WhatsApp
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

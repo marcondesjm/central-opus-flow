@@ -53,7 +53,7 @@ const demoProjects = [
     name: 'Funil de Vendas Curso',
     description: 'Funil completo com VSL, página de vendas e checkout',
     url: 'https://curso-digital.lovable.app',
-    screenshot: 'https://images.unsplash.com/photo-1553729459-uj46kGGmk-ksee?w=800&q=80',
+    screenshot: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80',
     status: 'draft',
     type: 'funnel',
     progress: 40,

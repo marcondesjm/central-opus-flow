@@ -451,12 +451,12 @@ export default function Proposals() {
                     </p>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
-                      <Button size="sm" variant="ghost" className="flex-1 h-8 text-xs" onClick={() => handlePreview(proposal)}>
+                    <div className="flex flex-wrap items-center gap-1 mt-4 pt-3 border-t border-border">
+                      <Button size="sm" variant="ghost" className="h-9 min-w-[60px] flex-1 text-xs" onClick={() => handlePreview(proposal)}>
                         <Eye className="w-3.5 h-3.5 mr-1" />
                         Ver
                       </Button>
-                      <Button size="sm" variant="ghost" className="flex-1 h-8 text-xs" onClick={() => handleEdit(proposal)}>
+                      <Button size="sm" variant="ghost" className="h-9 min-w-[60px] flex-1 text-xs" onClick={() => handleEdit(proposal)}>
                         <Pencil className="w-3.5 h-3.5 mr-1" />
                         Editar
                       </Button>
@@ -464,7 +464,7 @@ export default function Proposals() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="flex-1 h-8 text-xs text-blue-600"
+                          className="h-9 min-w-[60px] flex-1 text-xs text-blue-600"
                           onClick={() => handlePublish(proposal.id)}
                         >
                           <Send className="w-3.5 h-3.5 mr-1" />
@@ -474,7 +474,7 @@ export default function Proposals() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="flex-1 h-8 text-xs"
+                          className="h-9 min-w-[60px] flex-1 text-xs"
                           onClick={() => copyShareLink(proposal.share_token!)}
                         >
                           {copied ? <Check className="w-3.5 h-3.5 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
@@ -485,17 +485,17 @@ export default function Proposals() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-emerald-600"
+                          className="h-9 w-9 text-emerald-600 shrink-0"
                           onClick={() => sendWhatsApp(proposal)}
                           title="Enviar via WhatsApp"
                         >
-                          <MessageCircle className="w-3.5 h-3.5" />
+                          <MessageCircle className="w-4 h-4" />
                         </Button>
                       )}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive">
-                            <Trash2 className="w-3.5 h-3.5" />
+                          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive shrink-0">
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>

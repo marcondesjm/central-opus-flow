@@ -100,8 +100,11 @@ export function useChangelogByVersion() {
           date: entries[0]?.created_at,
         }));
     },
+    staleTime: 0,
+    gcTime: 30 * 1000,
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 }
 

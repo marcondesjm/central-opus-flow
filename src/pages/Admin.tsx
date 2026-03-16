@@ -1246,6 +1246,10 @@ export default function Admin() {
           <TabsContent value="coupons">
             <CouponManager />
           </TabsContent>
+
+          <TabsContent value="assistant">
+            <AssistantFaqManager />
+          </TabsContent>
         </Tabs>
       </main>
 

@@ -229,5 +229,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <ClippyAssistant />
+    </>
+  );
 }

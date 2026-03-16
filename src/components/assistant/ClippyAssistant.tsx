@@ -122,7 +122,7 @@ export function ClippyAssistant() {
     }, 45000);
 
     return () => clearTimeout(idleTimerRef.current);
-  }, [isOpen, showGreeting, animation, sounds]);
+  }, [isOpen, isHidden, showGreeting, animation, sounds]);
 
   // Wake up on mouse move near clippy
   useEffect(() => {

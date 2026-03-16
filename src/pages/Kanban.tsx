@@ -708,6 +708,7 @@ export default function KanbanPage() {
   const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);
   const [customWhatsAppMsg, setCustomWhatsAppMsg] = useState('');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [scheduledTime, setScheduledTime] = useState('09:00');
   const [showScheduleDatePicker, setShowScheduleDatePicker] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -736,7 +737,7 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
-  const getScheduledTimestamp = (scheduledDate: string) => new Date(`${scheduledDate}T09:00:00`).getTime();
+  const getScheduledTimestamp = (scheduledDate: string, scheduledTime?: string) => new Date(`${scheduledDate}T${scheduledTime || '09:00:00'}`).getTime();
 
   const formatCountdown = (diffMs: number) => {
     if (diffMs <= 0) return 'Disparando...';
@@ -780,7 +781,7 @@ export default function KanbanPage() {
           const phone = deal.client_whatsapp.replace(/\D/g, '');
           setTimeout(() => {
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-            supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+            supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id).then(() => {});
           }, 1500 + idx * 2000);
         });
       }
@@ -799,7 +800,7 @@ export default function KanbanPage() {
     if (!autoDispatchEnabled || !user || scheduledMessages.length === 0) return;
 
     const dueMessages = scheduledMessages.filter(
-      (msg: any) => !msg.sent && getScheduledTimestamp(msg.scheduled_date) <= nowTs
+      (msg: any) => !msg.sent && getScheduledTimestamp(msg.scheduled_date, msg.scheduled_time) <= nowTs
     );
 
     dueMessages.forEach(async (msg: any) => {
@@ -814,10 +815,10 @@ export default function KanbanPage() {
 
       await supabase
         .from('kanban_scheduled_messages')
-        .update({ sent: true })
+        .delete()
         .eq('id', msg.id);
 
-      setScheduledMessages(prev => prev.map(m => (m.id === msg.id ? { ...m, sent: true } : m)));
+      setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
       toast({ title: '🚀 Mensagem disparada automaticamente' });
       autoDispatchingIdsRef.current.delete(msg.id);
     });
@@ -1294,9 +1295,9 @@ export default function KanbanPage() {
               <Checkbox
                 id="schedule-msg"
                 checked={showScheduleDatePicker}
-                onCheckedChange={(v) => { setShowScheduleDatePicker(!!v); if (!v) setScheduledDate(undefined); }}
+              onCheckedChange={(v) => { setShowScheduleDatePicker(!!v); if (!v) { setScheduledDate(undefined); setScheduledTime('09:00'); } }}
               />
-              <Label htmlFor="schedule-msg" className="text-sm cursor-pointer">📅 Agendar para uma data</Label>
+              <Label htmlFor="schedule-msg" className="text-sm cursor-pointer">📅 Agendar para uma data e hora</Label>
             </div>
 
             {showScheduleDatePicker && (
@@ -1315,12 +1316,23 @@ export default function KanbanPage() {
                       onSelect={setScheduledDate}
                       disabled={(date) => isBefore(date, startOfDay(new Date()))}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-32"
+                  />
+                  <span className="text-xs text-muted-foreground">Horário do disparo</span>
+                </div>
                 {scheduledDate && (
                   <p className="text-xs text-muted-foreground">
-                    🔔 Você receberá um lembrete em <strong>{format(scheduledDate, 'dd/MM/yyyy')}</strong> para enviar esta mensagem.
+                    🔔 Disparo em <strong>{format(scheduledDate, 'dd/MM/yyyy')} às {scheduledTime}</strong>
                   </p>
                 )}
               </div>
@@ -1336,14 +1348,16 @@ export default function KanbanPage() {
                     user_id: user!.id,
                     message: customWhatsAppMsg,
                     scheduled_date: format(scheduledDate, 'yyyy-MM-dd'),
+                    scheduled_time: scheduledTime + ':00',
                   });
                   if (!error) {
-                    toast({ title: '📅 Mensagem agendada!', description: `Lembrete programado para ${format(scheduledDate, 'dd/MM/yyyy')}` });
+                    toast({ title: '📅 Mensagem agendada!', description: `Disparo programado para ${format(scheduledDate, 'dd/MM/yyyy')} às ${scheduledTime}` });
                   } else {
                     toast({ title: 'Erro ao agendar', variant: 'destructive' });
                   }
                   setWhatsAppCustomDeal(null);
                   setScheduledDate(undefined);
+                  setScheduledTime('09:00');
                   setShowScheduleDatePicker(false);
                 }
               }}>
@@ -1399,7 +1413,7 @@ export default function KanbanPage() {
                 const deal = msg.kanban_deals;
                 const isOverdue = msg.scheduled_date < format(new Date(), 'yyyy-MM-dd');
                 const isToday = msg.scheduled_date === format(new Date(), 'yyyy-MM-dd');
-                const countdown = formatCountdown(getScheduledTimestamp(msg.scheduled_date) - nowTs);
+                const countdown = formatCountdown(getScheduledTimestamp(msg.scheduled_date, msg.scheduled_time) - nowTs);
                 return (
                   <Card key={msg.id} className={cn(
                     'transition-colors',
@@ -1428,6 +1442,9 @@ export default function KanbanPage() {
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {format(new Date(msg.scheduled_date + 'T12:00:00'), 'dd/MM/yyyy', { locale: ptBR })}
+                        <span className="mx-0.5">às</span>
+                        <Clock className="w-3 h-3" />
+                        {msg.scheduled_time ? msg.scheduled_time.slice(0, 5) : '09:00'}
                         {deal?.client_name && (
                           <>
                             <span className="mx-1">·</span>
@@ -1450,12 +1467,12 @@ export default function KanbanPage() {
                       {!msg.sent && (
                         <div className="flex gap-2 pt-1">
                           {deal?.client_whatsapp && (
-                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={async () => {
                               const phone = deal.client_whatsapp.replace(/\D/g, '');
                               window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                              supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {
-                                setScheduledMessages(prev => prev.map(m => m.id === msg.id ? { ...m, sent: true } : m));
-                              });
+                              await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
+                              setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
+                              toast({ title: '✅ Mensagem enviada e removida' });
                             }}>
                               <MessageCircle className="w-3 h-3 mr-1" /> Enviar agora
                             </Button>

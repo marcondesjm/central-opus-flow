@@ -8,6 +8,7 @@ import { addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CompleteProfileGate } from './CompleteProfileGate';
+import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -228,5 +229,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <ClippyAssistant />
+    </>
+  );
 }

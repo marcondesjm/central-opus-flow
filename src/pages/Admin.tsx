@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Eye, Tag, LayoutGrid } from 'lucide-react';
+import { BookOpen, Eye, Tag, LayoutGrid, MessageCircleQuestion } from 'lucide-react';
 import { AdminMonitoringCharts } from '@/components/admin/AdminMonitoringCharts';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -88,6 +88,7 @@ import { BlogManager } from '@/components/admin/BlogManager';
 import { WordPressManager } from '@/components/admin/WordPressManager';
 import { CouponManager } from '@/components/admin/CouponManager';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
+import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -803,6 +804,10 @@ export default function Admin() {
                 <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Cupons
               </TabsTrigger>
+              <TabsTrigger value="assistant" className="gap-1.5 text-xs sm:text-sm">
+                <MessageCircleQuestion className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Assistente
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -1240,6 +1245,10 @@ export default function Admin() {
 
           <TabsContent value="coupons">
             <CouponManager />
+          </TabsContent>
+
+          <TabsContent value="assistant">
+            <AssistantFaqManager />
           </TabsContent>
         </Tabs>
       </main>

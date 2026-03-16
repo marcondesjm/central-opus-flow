@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
+// PWAInstallPrompt removed from main screen - now in Header dropdown menu
 import { DataProtectionBanner } from "@/components/privacy/DataProtectionBanner";
 import { ServiceWorkerUpdatePrompt } from "@/components/pwa/ServiceWorkerUpdatePrompt";
 import Landing from "./pages/Landing";
@@ -149,7 +149,7 @@ function AppContent() {
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <PWAInstallPrompt />
+      
       <ServiceWorkerUpdatePrompt />
       <DataProtectionBanner />
       <BrowserRouter>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield, CalendarDays, FileText } from 'lucide-react';
+import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield, CalendarDays, FileText, Download } from 'lucide-react';
+import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -67,7 +68,7 @@ export function Header({
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { data: subscription } = useSubscription();
   const isAdmin = useIsAdmin();
-
+  const { canInstall, install: installPwa } = usePwaInstall();
   // Fetch profile and subscribe to realtime updates
   useEffect(() => {
     if (!user?.id) return;
@@ -378,6 +379,15 @@ export function Header({
                 <FileText className="w-4 h-4" />
                 {t('sidebar.commercialProposals')}
               </DropdownMenuItem>
+              {canInstall && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="gap-2 text-primary focus:text-primary" onClick={installPwa}>
+                    <Download className="w-4 h-4" />
+                    Instalar Central Opus Flow
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <a

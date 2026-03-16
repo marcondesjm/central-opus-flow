@@ -60,7 +60,7 @@ const statusConfigMap = {
   archived: { key: 'filters.archived', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
 };
 
-export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
+export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onEditFiles, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);

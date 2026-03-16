@@ -74,8 +74,8 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
           <CardTitle className="text-base">Sua Empresa</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="relative group">
+          <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+            <div className="relative group mx-auto sm:mx-0">
               {proposal.company_logo_url ? (
                 <img src={proposal.company_logo_url} alt="" className="w-16 h-16 rounded-xl object-contain border border-border p-1" />
               ) : (
@@ -91,13 +91,13 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                 disabled={uploading === 'company'}
               />
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="w-full flex-1 space-y-2">
               <Input
                 placeholder="Nome da sua empresa"
                 value={proposal.company_name || ''}
                 onChange={(e) => update('company_name', e.target.value)}
               />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Input
                   placeholder="Email"
                   value={proposal.company_email || ''}

@@ -73,6 +73,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
   const [notes, setNotes] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [deadline, setDeadline] = useState<Date | null>(null);
+  const [repositoryUrl, setRepositoryUrl] = useState<string | null>(null);
   
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();

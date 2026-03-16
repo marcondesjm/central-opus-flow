@@ -21,6 +21,8 @@ import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
 import Kanban from "./pages/Kanban";
 import Billing from "./pages/Billing";
+import Proposals from "./pages/Proposals";
+import ProposalPublic from "./pages/ProposalPublic";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

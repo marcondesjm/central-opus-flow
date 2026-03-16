@@ -354,6 +354,17 @@ export default function Dashboard() {
                     collaboratedProjects.find(p => p.id === projectId);
     if (project) {
       setEditingProject(project as Project);
+      setEditProjectInitialTab('details');
+      setEditProjectOpen(true);
+    }
+  };
+
+  const handleEditFiles = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId) || 
+                    collaboratedProjects.find(p => p.id === projectId);
+    if (project) {
+      setEditingProject(project as Project);
+      setEditProjectInitialTab('code');
       setEditProjectOpen(true);
     }
   };

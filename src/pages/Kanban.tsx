@@ -1192,6 +1192,23 @@ export default function KanbanPage() {
               placeholder="Digite sua mensagem..."
             />
 
+            {/* Emoji picker */}
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground font-medium">Adicionar emoji:</p>
+              <div className="flex flex-wrap gap-1">
+                {['😊', '👋', '🙏', '💰', '📅', '⏰', '✅', '❤️', '🤝', '📩', '🔔', '💳', '🎯', '⭐', '👍', '😉', '🚀', '💡', '📌', '🙂'].map(emoji => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    className="text-lg hover:bg-muted rounded p-1 transition-colors hover:scale-125"
+                    onClick={() => setCustomWhatsAppMsg(prev => prev + emoji)}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
               <Checkbox
                 id="schedule-msg"

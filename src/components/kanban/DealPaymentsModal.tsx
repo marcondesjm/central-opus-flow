@@ -40,9 +40,9 @@ function buildWhatsAppMessage(deal: KanbanDeal, payment: KanbanPayment, style: '
   const desc = payment.description ? ` referente a "${payment.description}"` : '';
 
   const messages = {
-    profissional: `Olá, ${deal.client_name}! Tudo bem?\n\nEstou entrando em contato para lembrar sobre o pagamento${desc} no valor de *${valor}*, com vencimento em *${vencimento}*.\n\nPoderia verificar para mim, por gentileza?\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. Obrigado!`,
-    amigavel: `Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando para lembrar do pagamento${desc} de *${valor}* que vence em *${vencimento}*.\n\nQuando puder, dá uma olhadinha, por favor!\n\nQualquer dúvida estou à disposição.`,
-    direta: `Olá, ${deal.client_name}.\n\nVerifiquei que consta um pagamento pendente${desc} no valor de *${valor}*, vencimento *${vencimento}*.\n\nPoderia me informar quando será possível realizar o pagamento?`,
+    profissional: `Olá, ${deal.client_name}! Tudo bem? 👋\n\nEstou entrando em contato para lembrar sobre o pagamento${desc} no valor de *${valor}*, com vencimento em *${vencimento}*. 💰\n\nPoderia verificar para mim, por gentileza? 🙏\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. ✅ Obrigado!`,
+    amigavel: `Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando para lembrar do pagamento${desc} de *${valor}* que vence em *${vencimento}*. 📅\n\nQuando puder, dá uma olhadinha, por favor! 🙏\n\nQualquer dúvida estou à disposição 🤝`,
+    direta: `Olá, ${deal.client_name}. 👋\n\nVerifiquei que consta um pagamento pendente${desc} no valor de *${valor}*, vencimento *${vencimento}*. 💳\n\nPoderia me informar quando será possível realizar o pagamento? ⏰\n\nAgradeço! 🙏`,
   };
   return messages[style];
 }

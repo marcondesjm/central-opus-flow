@@ -226,7 +226,7 @@ export function Sidebar({
                     className="flex items-center gap-1 text-[10px] text-amber-600 hover:text-amber-500 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    Atualizar para v{serverVersion}
+                    {t('sidebar.updateTo', { version: serverVersion })}
                   </button>
                 );
               }

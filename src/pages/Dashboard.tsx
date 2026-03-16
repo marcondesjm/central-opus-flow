@@ -48,6 +48,7 @@ import { Loader2, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
+import { DailyScheduledMessagesReport } from '@/components/kanban/DailyScheduledMessagesReport';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -558,6 +559,11 @@ export default function Dashboard() {
         
         <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
           <div className="flex-1 p-3 sm:p-6 pb-20 lg:pb-6">
+          {/* Daily Scheduled Messages Report */}
+          <div className="mb-4">
+            <DailyScheduledMessagesReport />
+          </div>
+
           {/* Stats */}
           <StatsCards {...stats} />
 

@@ -68,10 +68,22 @@ export function useProposals() {
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return (data || []).map((d: any) => ({
-        ...d,
-        services: (typeof d.services === 'string' ? JSON.parse(d.services) : d.services) as ProposalService[],
-      })) as Proposal[];
+      return (data || []).map((d: any) => {
+        let parsedServices = typeof d.services === 'string' ? JSON.parse(d.services) : d.services;
+        if (!Array.isArray(parsedServices)) parsedServices = [];
+        parsedServices = parsedServices.map((s: any) => ({
+          name: s.name || '',
+          description: s.description || '',
+          quantity: Number(s.quantity) || 0,
+          unit_price: Number(s.unit_price) || 0,
+        }));
+        return {
+          ...d,
+          services: parsedServices as ProposalService[],
+          total_value: Number(d.total_value) || 0,
+          discount: Number(d.discount) || 0,
+        };
+      }) as Proposal[];
     },
     enabled: !!user?.id,
   });

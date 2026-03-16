@@ -1436,6 +1436,16 @@ export default function KanbanPage() {
                           </>
                         )}
                       </div>
+                      {!msg.sent && (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[11px]">
+                            ⏳ {countdown}
+                          </Badge>
+                          {!autoDispatchEnabled && (
+                            <span className="text-[11px] text-muted-foreground">Auto-disparo desativado</span>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs bg-muted/50 rounded p-2 whitespace-pre-wrap line-clamp-3">{msg.message}</p>
                       {!msg.sent && (
                         <div className="flex gap-2 pt-1">

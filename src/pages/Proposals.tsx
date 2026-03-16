@@ -33,6 +33,8 @@ import {
   Check,
   Send,
   Pencil,
+  MessageCircle,
+  Sparkles,
 } from 'lucide-react';
 
 import { ProposalForm } from '@/components/proposals/ProposalForm';
@@ -147,6 +149,68 @@ export default function Proposals() {
     setSelectedId(null);
   };
 
+  const createExampleProposal = async () => {
+    const example: Partial<Proposal> = {
+      proposal_title: 'Desenvolvimento de Landing Page',
+      client_name: 'Maria Silva',
+      client_email: 'maria@empresaexemplo.com.br',
+      client_phone: '5548999887766',
+      client_company: 'Empresa Exemplo LTDA',
+      company_name: 'Central Opus Flow',
+      company_email: 'contato@centralopus.com',
+      company_phone: '(48) 99602-9392',
+      company_address: 'Florianópolis, SC',
+      brand_color: '#6366f1',
+      brand_secondary_color: '#1e1b4b',
+      description: 'Desenvolvimento de uma landing page moderna e responsiva para captação de leads, com design personalizado, integração com formulários e otimização para SEO.',
+      services: [
+        { name: 'Design UI/UX', description: 'Criação de layout responsivo e wireframes', quantity: 1, unit_price: 2500 },
+        { name: 'Desenvolvimento Front-end', description: 'Codificação em React + Tailwind CSS', quantity: 1, unit_price: 3500 },
+        { name: 'Integração de Formulários', description: 'Setup de captura de leads e automação', quantity: 1, unit_price: 800 },
+        { name: 'Otimização SEO', description: 'Meta tags, performance e acessibilidade', quantity: 1, unit_price: 700 },
+      ],
+      total_value: 7500,
+      discount: 500,
+      deadline_days: 21,
+      validity_days: 10,
+      payment_conditions: '50% na aprovação do projeto\n50% na entrega final\n\nFormas aceitas: PIX, transferência bancária ou cartão de crédito.',
+      notes: '• O prazo começa a contar após a aprovação do briefing.\n• Inclui até 2 rodadas de revisão no design.\n• Hospedagem e domínio não estão inclusos.\n• Suporte técnico gratuito por 30 dias após a entrega.',
+      status: 'draft',
+    };
+    try {
+      await createProposal.mutateAsync(example);
+      toast({ title: 'Proposta de exemplo criada!', description: 'Você pode editá-la como quiser.' });
+    } catch (err: any) {
+      toast({ title: 'Erro ao criar exemplo', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const sendWhatsApp = (proposal: Partial<Proposal>) => {
+    const phone = proposal.client_phone?.replace(/\D/g, '');
+    if (!phone) {
+      toast({ title: 'Cliente sem WhatsApp', description: 'Adicione o telefone do cliente na proposta.', variant: 'destructive' });
+      return;
+    }
+    const total = (proposal.services || []).reduce((sum, s) => sum + s.quantity * s.unit_price, 0) - (proposal.discount || 0);
+    const shareUrl = proposal.share_token && proposal.status !== 'draft'
+      ? `${window.location.origin}/proposal/${proposal.share_token}`
+      : null;
+    const message = [
+      `Olá ${proposal.client_name}! 👋`,
+      '',
+      `Segue a proposta *${proposal.proposal_title}* no valor de *R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}*.`,
+      '',
+      proposal.deadline_days ? `⏰ Prazo de entrega: *${proposal.deadline_days} dias*` : '',
+      proposal.validity_days ? `📅 Validade: *${proposal.validity_days} dias*` : '',
+      '',
+      shareUrl ? `📄 Visualize a proposta completa:\n${shareUrl}` : '',
+      '',
+      'Fico no aguardo do seu retorno! 🤝',
+    ].filter(Boolean).join('\n');
+
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   const copyShareLink = (token: string) => {
     const url = `${window.location.origin}/proposal/${token}`;
     navigator.clipboard.writeText(url);
@@ -247,10 +311,18 @@ export default function Proposals() {
             <DialogHeader>
               <DialogTitle className="flex items-center justify-between">
                 Preview da Proposta
-                <Button size="sm" onClick={exportPDF} disabled={exporting}>
-                  {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-                  Exportar PDF
-                </Button>
+                <div className="flex items-center gap-2">
+                  {currentProposal.client_phone && (
+                    <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => sendWhatsApp(currentProposal)}>
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      WhatsApp
+                    </Button>
+                  )}
+                  <Button size="sm" onClick={exportPDF} disabled={exporting}>
+                    {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+                    Exportar PDF
+                  </Button>
+                </div>
               </DialogTitle>
             </DialogHeader>
             <ProposalPreview ref={previewRef} proposal={currentProposal} />
@@ -292,10 +364,20 @@ export default function Proposals() {
               <p className="text-sm text-muted-foreground mb-6 max-w-md">
                 Crie propostas profissionais com sua identidade visual, logo do cliente e exporte em PDF ou compartilhe via link.
               </p>
-              <Button onClick={() => setMode('create')}>
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeira Proposta
-              </Button>
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <Button onClick={() => setMode('create')}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeira Proposta
+                </Button>
+                <Button variant="outline" onClick={createExampleProposal} disabled={createProposal.isPending}>
+                  {createProposal.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  Ver Exemplo Preenchido
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -378,6 +460,17 @@ export default function Proposals() {
                           Link
                         </Button>
                       )}
+                      {proposal.client_phone && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-emerald-600"
+                          onClick={() => sendWhatsApp(proposal)}
+                          title="Enviar via WhatsApp"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive">
@@ -419,6 +512,12 @@ export default function Proposals() {
                   <Button size="sm" variant="outline" onClick={() => copyShareLink(currentProposal.share_token!)}>
                     {copied ? <Check className="w-4 h-4 mr-2" /> : <Share2 className="w-4 h-4 mr-2" />}
                     Copiar Link
+                  </Button>
+                )}
+                {currentProposal.client_phone && (
+                  <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => sendWhatsApp(currentProposal)}>
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    WhatsApp
                   </Button>
                 )}
                 <Button size="sm" onClick={exportPDF} disabled={exporting}>

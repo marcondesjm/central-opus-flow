@@ -82,7 +82,7 @@ export function ClippyAssistant() {
     return () => clearInterval(interval);
   }, [isOpen, sounds]);
 
-  // Go to sleep after inactivity
+  // Go to sleep after inactivity, then knock on screen
   useEffect(() => {
     if (isOpen) {
       setMood('happy');
@@ -92,13 +92,25 @@ export function ClippyAssistant() {
     clearTimeout(idleTimerRef.current);
     idleTimerRef.current = setTimeout(() => {
       if (!isOpen && !showGreeting) {
-        setMood('sleeping');
-        setAnimation('idle');
+        // Knock on screen animation before sleeping
+        setAnimation('knock');
+        setMood('surprised');
+        sounds.playTap();
+        setTimeout(() => {
+          sounds.playTap();
+          setTimeout(() => {
+            sounds.playTap();
+            setTimeout(() => {
+              setAnimation('idle');
+              setMood('sleeping');
+            }, 400);
+          }, 200);
+        }, 200);
       }
     }, 45000);
 
     return () => clearTimeout(idleTimerRef.current);
-  }, [isOpen, showGreeting, animation]);
+  }, [isOpen, showGreeting, animation, sounds]);
 
   // Wake up on mouse move near clippy
   useEffect(() => {

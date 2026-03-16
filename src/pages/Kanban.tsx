@@ -348,13 +348,13 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 }
 
 // ─── Task Card ──────────────────────────
-function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsApp }: {
+function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg }: {
   deal: KanbanDeal;
   onEdit: () => void;
   onDelete: () => void;
   onPayments: () => void;
   onDetail: () => void;
-  onCustomWhatsApp: () => void;
+  onWhatsAppMsg: (msg: string) => void;
 }) {
   const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
   const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
@@ -392,25 +392,28 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onCustomWhatsA
               <DropdownMenuItem onClick={onEdit}><Pencil className="w-3.5 h-3.5 mr-2" /> Editar</DropdownMenuItem>
               <DropdownMenuItem onClick={onPayments}><Receipt className="w-3.5 h-3.5 mr-2" /> Faturamento</DropdownMenuItem>
               {deal.client_whatsapp && (() => {
-                const phone = deal.client_whatsapp!.replace(/\D/g, '');
                 const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
-                const sendMsg = (msg: string) => window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                const msgs = {
+                  profissional: `Olá, ${deal.client_name}! Tudo bem? 👋\n\nEstou entrando em contato para lembrar sobre o pagamento que ficou pendente.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Poderia verificar para mim, por gentileza? 🙏\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. ✅ Obrigado!`,
+                  amigavel: `Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando apenas para lembrar do pagamento que está em aberto.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Quando puder, dá uma olhadinha para mim, por favor 🙏\n\nQualquer dúvida estou à disposição! 🤝`,
+                  direta: `Olá, ${deal.client_name}! 👋\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` 💳 *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização? ⏰\n\nAgradeço a atenção! 🙏`,
+                };
                 return (
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <MessageCircle className="w-3.5 h-3.5 mr-2 text-emerald-500" /> Cobrar via WhatsApp
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                      <DropdownMenuItem onClick={() => sendMsg(`Olá, ${deal.client_name}! Tudo bem? 👋\n\nEstou entrando em contato para lembrar sobre o pagamento que ficou pendente.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Poderia verificar para mim, por gentileza? 🙏\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. ✅ Obrigado!`)}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(msgs.profissional)}>
                         🏢 Profissional e educada
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => sendMsg(`Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando apenas para lembrar do pagamento que está em aberto.${valor ? ` 💰 *Valor:* ${valor}.` : ''} Quando puder, dá uma olhadinha para mim, por favor 🙏\n\nQualquer dúvida estou à disposição! 🤝`)}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(msgs.amigavel)}>
                         😊 Amigável
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => sendMsg(`Olá, ${deal.client_name}! 👋\n\nVerifiquei que ainda consta um pagamento pendente.${valor ? ` 💳 *Valor:* ${valor}.` : ''} Poderia, por gentileza, me informar quando será possível realizar a regularização? ⏰\n\nAgradeço a atenção! 🙏`)}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(msgs.direta)}>
                         ⚡ Mais direta
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={onCustomWhatsApp}>
+                      <DropdownMenuItem onClick={() => onWhatsAppMsg(`Olá, ${deal.client_name}! Tudo bem?\n\n${valor ? `Valor: ${valor}.\n\n` : ''}`)}>
                         ✏️ Personalizada
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
@@ -720,7 +723,7 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
-  // Check for scheduled WhatsApp messages due today
+  // Check for scheduled WhatsApp messages due today or overdue
   useEffect(() => {
     if (!user) return;
     const checkScheduled = async () => {
@@ -729,25 +732,32 @@ export default function KanbanPage() {
         .from('kanban_scheduled_messages')
         .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
         .eq('user_id', user.id)
-        .eq('scheduled_date', today)
+        .lte('scheduled_date', today)
         .eq('sent', false);
       if (data && data.length > 0) {
-        data.forEach((msg: any) => {
+        data.forEach((msg: any, idx: number) => {
           const deal = msg.kanban_deals;
+          const isOverdue = msg.scheduled_date < today;
           toast({
-            title: `📅 Mensagem agendada para hoje!`,
-            description: `${deal?.company_name || 'Cliente'} - Clique para enviar`,
-            duration: 15000,
+            title: isOverdue ? `⚠️ Mensagem atrasada!` : `📅 Mensagem agendada para hoje!`,
+            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Enviar agora'}`,
+            duration: 20000,
+            variant: isOverdue ? 'destructive' : undefined,
           });
           if (deal?.client_whatsapp) {
             const phone = deal.client_whatsapp.replace(/\D/g, '');
-            // Auto-open option after small delay
+            // Auto-open WhatsApp for overdue messages, prompt for today's
             setTimeout(() => {
-              if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
+              if (isOverdue) {
                 window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
                 supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+              } else {
+                if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
+                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+                  supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+                }
               }
-            }, 2000);
+            }, 1500 + idx * 2000);
           }
         });
       }
@@ -1058,9 +1068,8 @@ export default function KanbanPage() {
                                           onDelete={() => setDeletingId(deal.id)}
                                           onPayments={() => setPaymentsDeal(deal)}
                                           onDetail={() => setDetailDeal(deal)}
-                                          onCustomWhatsApp={() => {
-                                            const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
-                                            setCustomWhatsAppMsg(`Olá! Tudo bem?\n\n${valor ? `Valor: ${valor}.\n\n` : ''}`);
+                                          onWhatsAppMsg={(msg) => {
+                                            setCustomWhatsAppMsg(msg);
                                             setWhatsAppCustomDeal(deal);
                                           }}
                                         />

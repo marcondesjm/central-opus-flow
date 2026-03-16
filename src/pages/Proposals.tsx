@@ -356,10 +356,20 @@ export default function Proposals() {
               <p className="text-sm text-muted-foreground mb-6 max-w-md">
                 Crie propostas profissionais com sua identidade visual, logo do cliente e exporte em PDF ou compartilhe via link.
               </p>
-              <Button onClick={() => setMode('create')}>
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeira Proposta
-              </Button>
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <Button onClick={() => setMode('create')}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeira Proposta
+                </Button>
+                <Button variant="outline" onClick={createExampleProposal} disabled={createProposal.isPending}>
+                  {createProposal.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  Ver Exemplo Preenchido
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (

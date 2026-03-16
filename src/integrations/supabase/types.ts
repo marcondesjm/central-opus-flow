@@ -800,6 +800,7 @@ export type Database = {
           id: string
           message: string
           scheduled_date: string
+          scheduled_time: string | null
           sent: boolean
           updated_at: string
           user_id: string
@@ -810,6 +811,7 @@ export type Database = {
           id?: string
           message: string
           scheduled_date: string
+          scheduled_time?: string | null
           sent?: boolean
           updated_at?: string
           user_id: string
@@ -820,6 +822,7 @@ export type Database = {
           id?: string
           message?: string
           scheduled_date?: string
+          scheduled_time?: string | null
           sent?: boolean
           updated_at?: string
           user_id?: string

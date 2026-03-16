@@ -911,11 +911,7 @@ export default function KanbanPage() {
       return;
     }
 
-    // Deal dragging only works reliably in manual mode
-    if (sortMode !== 'default') {
-      setSortMode('default');
-      toast({ title: 'Ordenação alterada para Manual (arrastar)' });
-    }
+    // Handle deal dragging
 
     const sourcePhase = source.droppableId;
     const destinationPhase = destination.droppableId;

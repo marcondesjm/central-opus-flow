@@ -776,33 +776,35 @@ export default function Admin() {
 
         {/* Tabs for Users and Payments */}
         <Tabs value={activeAdminTab} onValueChange={setActiveAdminTab} className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="w-4 h-4" />
-              Usuários
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="gap-2">
-              <Receipt className="w-4 h-4" />
-              Comprovantes
-              {pendingReceipts.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                  {pendingReceipts.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="blog" className="gap-2" data-value="blog">
-              <BookOpen className="w-4 h-4" />
-              Blog
-            </TabsTrigger>
-            <TabsTrigger value="wordpress" className="gap-2">
-              <Globe className="w-4 h-4" />
-              WordPress
-            </TabsTrigger>
-            <TabsTrigger value="coupons" className="gap-2">
-              <Tag className="w-4 h-4" />
-              Cupons
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-3 px-3 sm:-mx-4 sm:px-4">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0">
+              <TabsTrigger value="users" className="gap-1.5 text-xs sm:text-sm">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Usuários
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="gap-1.5 text-xs sm:text-sm">
+                <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Comprovantes
+                {pendingReceipts.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                    {pendingReceipts.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="blog" className="gap-1.5 text-xs sm:text-sm" data-value="blog">
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Blog
+              </TabsTrigger>
+              <TabsTrigger value="wordpress" className="gap-1.5 text-xs sm:text-sm">
+                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                WordPress
+              </TabsTrigger>
+              <TabsTrigger value="coupons" className="gap-1.5 text-xs sm:text-sm">
+                <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Cupons
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="users" className="space-y-6">
             {/* Monitoring Charts */}

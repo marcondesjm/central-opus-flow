@@ -8,6 +8,7 @@ import { Plus, Trash2, Upload, Palette } from 'lucide-react';
 import type { Proposal, ProposalService } from '@/hooks/useProposals';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SignaturePad } from '@/components/proposals/SignaturePad';
 
 interface ProposalFormProps {
   proposal: Partial<Proposal>;

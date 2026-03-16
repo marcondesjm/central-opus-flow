@@ -452,6 +452,17 @@ export default function Proposals() {
                           Link
                         </Button>
                       )}
+                      {proposal.client_phone && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-emerald-600"
+                          onClick={() => sendWhatsApp(proposal)}
+                          title="Enviar via WhatsApp"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive">

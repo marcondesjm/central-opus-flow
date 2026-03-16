@@ -1436,7 +1436,7 @@ export default function KanbanPage() {
                   })}
                   {colProvided.placeholder}
                   {/* Add column button */}
-                  <div className="w-72 flex-shrink-0">
+                  <div className="flex-shrink-0" style={{ width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px' }}>
                     <button
                       onClick={() => setShowAddColumn(true)}
                       className="w-full h-12 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:bg-muted/30 hover:border-muted-foreground/50 transition-colors"

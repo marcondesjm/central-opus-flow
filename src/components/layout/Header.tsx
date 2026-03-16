@@ -356,7 +356,7 @@ export function Header({
                   if (isPaidPlan && diff > 30) return null;
                   return (
                     <div className={`text-[10px] mt-1 font-medium ${diff <= 3 ? 'text-destructive' : diff <= 7 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                      ⏳ {diff > 0 ? `${diff} dia${diff !== 1 ? 's' : ''} restante${diff !== 1 ? 's' : ''}` : 'Expirado'}
+                      ⏳ {diff > 0 ? t('sidebar.daysRemaining', { days: diff }) : t('sidebar.expired')}
                     </div>
                   );
                 })()}

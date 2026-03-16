@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAssistantFaqs, AssistantFaq } from '@/hooks/useAssistantFaqs';
 import { useClippySounds } from '@/hooks/useClippySounds';
 import { ClippyEyes } from './ClippyEyes';
-import clippyImage from '@/assets/clippy-assistant.png';
+import clippyImage from '@/assets/clippy-classic.png';
 import { cn } from '@/lib/utils';
 
 const categoryLabels: Record<string, string> = {

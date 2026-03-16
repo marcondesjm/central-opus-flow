@@ -365,6 +365,48 @@ export function ClippyAssistant() {
         }}
         title="Assistente de Ajuda — arraste para mover"
       >
+        {/* Speech bubble - anchored above clippy */}
+        <AnimatePresence>
+          {(showGreeting || isTypingBubble) && !isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.8 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              className="absolute bottom-full right-0 mb-2 w-[220px] pointer-events-auto z-10"
+            >
+              <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowGreeting(false);
+                    setIsTypingBubble(false);
+                    sounds.playTap();
+                  }}
+                  className="absolute -top-2 -right-2 bg-muted hover:bg-muted-foreground/20 rounded-full p-0.5 transition-colors z-10"
+                >
+                  <X className="w-3 h-3 text-muted-foreground" />
+                </button>
+                {isTypingBubble ? (
+                  <div className="flex items-center gap-1 py-1 px-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 rounded-full bg-primary/60"
+                        animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-foreground leading-relaxed">{greetingText}</p>
+                )}
+                <div className="absolute -bottom-[6px] right-6 w-3 h-3 bg-card border-b border-r border-border rotate-45 transform" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Idle animation wrapper */}
         <motion.div animate={getAnimationStyle()}>
           {/* Shadow */}

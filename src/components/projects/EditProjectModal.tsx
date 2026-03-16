@@ -29,6 +29,7 @@ import { DeadlinePicker } from './DeadlinePicker';
 import { ProjectHistoryPanel } from './ProjectHistoryPanel';
 import { ProjectChecklist } from './ProjectChecklist';
 import { ProjectKeysPanel } from './ProjectKeysPanel';
+import { ProjectCodePanel } from './ProjectCodePanel';
 
 interface EditProjectModalProps {
   open: boolean;

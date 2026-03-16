@@ -723,7 +723,7 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
-  // Check for scheduled WhatsApp messages due today
+  // Check for scheduled WhatsApp messages due today or overdue
   useEffect(() => {
     if (!user) return;
     const checkScheduled = async () => {
@@ -732,25 +732,32 @@ export default function KanbanPage() {
         .from('kanban_scheduled_messages')
         .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
         .eq('user_id', user.id)
-        .eq('scheduled_date', today)
+        .lte('scheduled_date', today)
         .eq('sent', false);
       if (data && data.length > 0) {
-        data.forEach((msg: any) => {
+        data.forEach((msg: any, idx: number) => {
           const deal = msg.kanban_deals;
+          const isOverdue = msg.scheduled_date < today;
           toast({
-            title: `📅 Mensagem agendada para hoje!`,
-            description: `${deal?.company_name || 'Cliente'} - Clique para enviar`,
-            duration: 15000,
+            title: isOverdue ? `⚠️ Mensagem atrasada!` : `📅 Mensagem agendada para hoje!`,
+            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Enviar agora'}`,
+            duration: 20000,
+            variant: isOverdue ? 'destructive' : undefined,
           });
           if (deal?.client_whatsapp) {
             const phone = deal.client_whatsapp.replace(/\D/g, '');
-            // Auto-open option after small delay
+            // Auto-open WhatsApp for overdue messages, prompt for today's
             setTimeout(() => {
-              if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
+              if (isOverdue) {
                 window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
                 supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+              } else {
+                if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
+                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+                  supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+                }
               }
-            }, 2000);
+            }, 1500 + idx * 2000);
           }
         });
       }

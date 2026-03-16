@@ -364,7 +364,7 @@ export function Header({
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/dashboard?settings=profile')}>
                 <UserPen className="w-4 h-4" />
-                {t('header.editProfile', 'Editar Perfil')}
+                {t('sidebar.editProfile')}
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={onOpenSettings}>
                 <Settings className="w-4 h-4" />

@@ -564,6 +564,25 @@ export default function Dashboard() {
                 <ImportBackupButton />
                 <ExportBackupButton />
               </div>
+
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-0.5 border rounded-md px-1">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </Button>
+                <button onClick={() => setZoomLevel(1)} className="text-xs text-muted-foreground hover:text-foreground min-w-[2.5rem] text-center">
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.1))} disabled={zoomLevel >= 1.5}>
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </Button>
+                {zoomLevel !== 1 && (
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(1)}>
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </Button>
+                )}
+              </div>
+
               <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                 {filteredProjects.length} {filteredProjects.length !== 1 ? t('dashboardPage.projectCount_plural', { count: filteredProjects.length }).split(' ').slice(1).join(' ') : t('dashboardPage.projectCount', { count: filteredProjects.length }).split(' ').slice(1).join(' ')}
               </span>

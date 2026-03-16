@@ -37,6 +37,7 @@ const greetings = [
   '🔍 Quer aprender a usar o sistema? Me chama!',
   '✨ Ei! Posso te mostrar como usar tudo por aqui!',
   '🤔 Parece que você está explorando... precisa de ajuda?',
+  '🖐️ Sabia que você pode me arrastar pra qualquer canto da tela?',
 ];
 
 type ClippyMood = 'normal' | 'happy' | 'thinking' | 'surprised' | 'sleeping' | 'wink';

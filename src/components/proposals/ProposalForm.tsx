@@ -74,8 +74,8 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
           <CardTitle className="text-base">Sua Empresa</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="relative group">
+          <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+            <div className="relative group mx-auto sm:mx-0">
               {proposal.company_logo_url ? (
                 <img src={proposal.company_logo_url} alt="" className="w-16 h-16 rounded-xl object-contain border border-border p-1" />
               ) : (
@@ -91,13 +91,13 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                 disabled={uploading === 'company'}
               />
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="w-full flex-1 space-y-2">
               <Input
                 placeholder="Nome da sua empresa"
                 value={proposal.company_name || ''}
                 onChange={(e) => update('company_name', e.target.value)}
               />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Input
                   placeholder="Email"
                   value={proposal.company_email || ''}
@@ -128,7 +128,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Cor Principal</Label>
               <div className="flex items-center gap-2">
@@ -136,12 +136,12 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                   type="color"
                   value={proposal.brand_color || '#3b82f6'}
                   onChange={(e) => update('brand_color', e.target.value)}
-                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                  className="h-10 w-10 shrink-0 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={proposal.brand_color || '#3b82f6'}
                   onChange={(e) => update('brand_color', e.target.value)}
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
               </div>
             </div>
@@ -152,12 +152,12 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                   type="color"
                   value={proposal.brand_secondary_color || '#1e293b'}
                   onChange={(e) => update('brand_secondary_color', e.target.value)}
-                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                  className="h-10 w-10 shrink-0 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={proposal.brand_secondary_color || '#1e293b'}
                   onChange={(e) => update('brand_secondary_color', e.target.value)}
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
               </div>
             </div>
@@ -171,8 +171,8 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
           <CardTitle className="text-base">Dados do Cliente</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="relative group">
+          <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+            <div className="relative group mx-auto sm:mx-0">
               {proposal.client_logo_url ? (
                 <img src={proposal.client_logo_url} alt="" className="w-16 h-16 rounded-xl object-contain border border-border p-1" />
               ) : (
@@ -188,7 +188,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                 disabled={uploading === 'client'}
               />
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="w-full flex-1 space-y-2">
               <Input
                 placeholder="Nome do cliente *"
                 value={proposal.client_name || ''}
@@ -201,7 +201,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Input
               placeholder="Email do cliente"
               value={proposal.client_email || ''}
@@ -233,7 +233,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
             onChange={(e) => update('description', e.target.value)}
             rows={3}
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Prazo de entrega (dias)</Label>
               <Input
@@ -289,7 +289,7 @@ export function ProposalForm({ proposal, onChange }: ProposalFormProps) {
                 value={service.description || ''}
                 onChange={(e) => updateService(i, 'description', e.target.value)}
               />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-1">
                   <Label className="text-xs">Quantidade</Label>
                   <Input

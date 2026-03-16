@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
-  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle,
+  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle, ZoomIn, ZoomOut, Maximize2,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';

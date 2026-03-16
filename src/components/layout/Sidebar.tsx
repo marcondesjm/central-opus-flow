@@ -425,10 +425,10 @@ export function Sidebar({
           <button
             onClick={() => navigate('/kanban')}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-            aria-label="Abrir Kanban de Clientes"
+            aria-label={t('sidebar.kanban')}
           >
             <Kanban className="w-4 h-4" aria-hidden="true" />
-            Kanban
+            {t('sidebar.kanban')}
           </button>
         </div>
 
@@ -437,10 +437,10 @@ export function Sidebar({
           <button
             onClick={() => navigate('/proposals')}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-            aria-label="Abrir Propostas Comerciais"
+            aria-label={t('sidebar.proposals')}
           >
             <FileText className="w-4 h-4" aria-hidden="true" />
-            Propostas
+            {t('sidebar.proposals')}
           </button>
         </div>
 

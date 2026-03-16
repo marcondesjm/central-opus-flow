@@ -715,14 +715,16 @@ export default function BillingPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="flex-wrap">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="clients">Por Cliente</TabsTrigger>
-            <TabsTrigger value="ai-costs">🤖 IA & Créditos</TabsTrigger>
-            <TabsTrigger value="expenses">Despesas</TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-            <TabsTrigger value="pix">💳 PIX</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm">Visão Geral</TabsTrigger>
+              <TabsTrigger value="clients" className="text-xs sm:text-sm">Por Cliente</TabsTrigger>
+              <TabsTrigger value="ai-costs" className="text-xs sm:text-sm">🤖 IA & Créditos</TabsTrigger>
+              <TabsTrigger value="expenses" className="text-xs sm:text-sm">Despesas</TabsTrigger>
+              <TabsTrigger value="history" className="text-xs sm:text-sm">Histórico</TabsTrigger>
+              <TabsTrigger value="pix" className="text-xs sm:text-sm">💳 PIX</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4 mt-4">

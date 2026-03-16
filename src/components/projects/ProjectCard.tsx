@@ -217,6 +217,10 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
                 <ListChecks className="w-4 h-4" />
                 {t('cards.checklist')}
               </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => onEditFiles?.(project.id)}>
+                <FileArchive className="w-4 h-4" />
+                Arquivos
+              </DropdownMenuItem>
               <DropdownMenuItem className="gap-2" onClick={() => navigate('/kanban')}>
                 <Columns3 className="w-4 h-4" />
                 Kanban

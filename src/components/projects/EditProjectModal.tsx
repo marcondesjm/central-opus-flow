@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUpdateProject, useAccounts, useTags, Project } from '@/hooks/useProjects';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, X, FileEdit, History, CheckSquare, Key } from 'lucide-react';
+import { Loader2, X, FileEdit, History, CheckSquare, Key, Code2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { CoverUpload } from './CoverUpload';

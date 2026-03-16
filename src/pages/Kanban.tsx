@@ -578,22 +578,47 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
 // ─── Revenue Chart ──────────────────────────
 function RevenueChart({ deals }: { deals: KanbanDeal[] }) {
   const chartData = useMemo(() => {
+    const now = new Date();
     const monthMap: Record<string, Record<string, number>> = {};
+    const overdueMap: Record<string, Record<string, number>> = {};
+
     deals.filter(d => d.revenue > 0).forEach(deal => {
       const month = format(new Date(deal.created_at), 'MMM/yy', { locale: ptBR });
-      if (!monthMap[month]) monthMap[month] = {};
       const key = deal.company_name.slice(0, 15);
-      monthMap[month][key] = (monthMap[month][key] || 0) + Number(deal.revenue);
+      const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), now);
+
+      if (isOverdue) {
+        if (!overdueMap[month]) overdueMap[month] = {};
+        overdueMap[month][key] = (overdueMap[month][key] || 0) + Number(deal.revenue);
+      } else {
+        if (!monthMap[month]) monthMap[month] = {};
+        monthMap[month][key] = (monthMap[month][key] || 0) + Number(deal.revenue);
+      }
     });
+
     const companies = [...new Set(deals.filter(d => d.revenue > 0).map(d => d.company_name.slice(0, 15)))];
-    return { data: Object.entries(monthMap).map(([month, revenues]) => ({ month, ...revenues })), companies };
+    const allMonths = [...new Set([...Object.keys(monthMap), ...Object.keys(overdueMap)])];
+
+    const data = allMonths.map(month => ({
+      month,
+      ...monthMap[month],
+      ...Object.fromEntries(
+        Object.entries(overdueMap[month] || {}).map(([k, v]) => [`${k} (Atrasado)`, v])
+      ),
+    }));
+
+    const overdueCompanies = [...new Set(
+      Object.values(overdueMap).flatMap(m => Object.keys(m).map(k => `${k} (Atrasado)`))
+    )];
+
+    return { data, companies, overdueCompanies };
   }, [deals]);
 
   if (chartData.data.length === 0) {
     return <p className="text-sm text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>;
   }
 
-  const colors = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899'];
+  const colors = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ec4899', '#14b8a6'];
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -605,6 +630,9 @@ function RevenueChart({ deals }: { deals: KanbanDeal[] }) {
         <Legend />
         {chartData.companies.map((company, i) => (
           <Bar key={company} dataKey={company} fill={colors[i % colors.length]} radius={[4, 4, 0, 0]} />
+        ))}
+        {chartData.overdueCompanies.map((company, i) => (
+          <Bar key={company} dataKey={company} fill="#ef4444" radius={[4, 4, 0, 0]} strokeDasharray="3 3" stroke="#b91c1c" strokeWidth={1} />
         ))}
       </BarChart>
     </ResponsiveContainer>

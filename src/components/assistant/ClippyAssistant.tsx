@@ -74,7 +74,7 @@ export function ClippyAssistant() {
     const moods: ClippyMood[] = ['happy', 'thinking', 'wink', 'normal'];
 
     const doRandomAction = () => {
-      if (isOpen) return;
+      if (isOpen || isHidden) return;
 
       const anim = animations[Math.floor(Math.random() * animations.length)];
       const randomMood = moods[Math.floor(Math.random() * moods.length)];
@@ -92,12 +92,12 @@ export function ClippyAssistant() {
 
     const interval = setInterval(doRandomAction, 8000 + Math.random() * 12000);
     return () => clearInterval(interval);
-  }, [isOpen, sounds]);
+  }, [isOpen, isHidden, sounds]);
 
   // Go to sleep after inactivity, then knock on screen
   useEffect(() => {
-    if (isOpen) {
-      setMood('happy');
+    if (isOpen || isHidden) {
+      if (isOpen) setMood('happy');
       return;
     }
 
@@ -122,7 +122,7 @@ export function ClippyAssistant() {
     }, 45000);
 
     return () => clearTimeout(idleTimerRef.current);
-  }, [isOpen, showGreeting, animation, sounds]);
+  }, [isOpen, isHidden, showGreeting, animation, sounds]);
 
   // Wake up on mouse move near clippy
   useEffect(() => {

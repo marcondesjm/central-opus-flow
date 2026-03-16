@@ -1394,7 +1394,7 @@ export default function KanbanPage() {
                                 {...provided.droppableProps}
                                 className={cn(
                                   'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0 transition-colors',
-                                  snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                                  snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-card/80 border-border'
                                 )}
                               >
                                 {dealsByColumn[column.id]?.map((deal, index) => (

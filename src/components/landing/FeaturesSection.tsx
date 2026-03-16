@@ -141,14 +141,14 @@ export function FeaturesSection() {
             Funcionalidades
           </Badge>
           <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
-            Tudo para ser{' '}
+            Tudo para{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              mais produtivo
+              gerenciar com eficiência
             </span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Cada funcionalidade foi pensada para economizar seu tempo e 
-            eliminar a frustração de gerenciar múltiplas contas.
+            Mais de 12 funcionalidades pensadas para economizar seu tempo e 
+            dar controle total sobre projetos, finanças e equipe.
           </p>
         </motion.div>
 

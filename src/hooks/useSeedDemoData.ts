@@ -531,14 +531,18 @@ export function useSeedDemoData() {
       }
 
       console.log('Demo data seeded successfully');
-      toast.success('Projetos de demonstração criados!', {
-        description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
-      });
+      if (!silent) {
+        toast.success('Projetos de demonstração criados!', {
+          description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
+        });
+      }
       setSeeding(false);
       return true;
     } catch (error) {
       console.error('Error seeding demo data:', error);
-      toast.error('Erro ao criar projetos de demonstração');
+      if (!silent) {
+        toast.error('Erro ao criar projetos de demonstração');
+      }
       setSeeding(false);
       return false;
     }

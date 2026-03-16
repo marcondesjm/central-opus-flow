@@ -234,8 +234,8 @@ export function Header({
               </TooltipTrigger>
               <TooltipContent>
                 <p>{isExpired 
-                  ? 'Sua assinatura expirou. Renove para continuar.' 
-                  : `${daysLeft} dia${daysLeft !== 1 ? 's' : ''} restante${daysLeft !== 1 ? 's' : ''}`
+                  ? t('sidebar.expired')
+                  : t('sidebar.daysRemaining', { days: daysLeft })
                 }</p>
               </TooltipContent>
             </Tooltip>

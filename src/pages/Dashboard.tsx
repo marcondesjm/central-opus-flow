@@ -603,8 +603,8 @@ export default function Dashboard() {
           />
 
           {/* Projects */}
-          <div ref={projectsRef} className="overflow-x-auto">
-          <div className="origin-top-left transition-transform duration-150" style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', width: `${100 / zoomLevel}%` }}>
+          <div ref={projectsRef}>
+          <div style={{ zoom: zoomLevel }}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />

@@ -1073,7 +1073,7 @@ export default function KanbanPage() {
         />
       )}
 
-      <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) setWhatsAppCustomDeal(null); }}>
+      <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) { setWhatsAppCustomDeal(null); setScheduledDate(undefined); setShowScheduleDatePicker(false); } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>✏️ Mensagem personalizada</DialogTitle></DialogHeader>
           <div className="space-y-3">
@@ -1086,18 +1086,77 @@ export default function KanbanPage() {
               onChange={e => setCustomWhatsAppMsg(e.target.value)}
               placeholder="Digite sua mensagem..."
             />
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="schedule-msg"
+                checked={showScheduleDatePicker}
+                onCheckedChange={(v) => { setShowScheduleDatePicker(!!v); if (!v) setScheduledDate(undefined); }}
+              />
+              <Label htmlFor="schedule-msg" className="text-sm cursor-pointer">📅 Agendar para uma data</Label>
+            </div>
+
+            {showScheduleDatePicker && (
+              <div className="space-y-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {scheduledDate ? format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR }) : 'Selecione a data'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={scheduledDate}
+                      onSelect={setScheduledDate}
+                      disabled={(date) => isBefore(date, new Date())}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                {scheduledDate && (
+                  <p className="text-xs text-muted-foreground">
+                    🔔 Você receberá um lembrete em <strong>{format(scheduledDate, 'dd/MM/yyyy')}</strong> para enviar esta mensagem.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setWhatsAppCustomDeal(null)}>Cancelar</Button>
-            <Button onClick={() => {
-              if (whatsAppCustomDeal?.client_whatsapp && customWhatsAppMsg.trim()) {
-                const phone = whatsAppCustomDeal.client_whatsapp.replace(/\D/g, '');
-                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customWhatsAppMsg)}`, '_blank');
-                setWhatsAppCustomDeal(null);
-              }
-            }}>
-              <MessageCircle className="w-4 h-4 mr-2" /> Enviar via WhatsApp
-            </Button>
+            {showScheduleDatePicker && scheduledDate ? (
+              <Button onClick={async () => {
+                if (whatsAppCustomDeal && customWhatsAppMsg.trim() && scheduledDate) {
+                  const { error } = await supabase.from('kanban_scheduled_messages').insert({
+                    deal_id: whatsAppCustomDeal.id,
+                    user_id: user!.id,
+                    message: customWhatsAppMsg,
+                    scheduled_date: format(scheduledDate, 'yyyy-MM-dd'),
+                  });
+                  if (!error) {
+                    toast({ title: '📅 Mensagem agendada!', description: `Lembrete programado para ${format(scheduledDate, 'dd/MM/yyyy')}` });
+                  } else {
+                    toast({ title: 'Erro ao agendar', variant: 'destructive' });
+                  }
+                  setWhatsAppCustomDeal(null);
+                  setScheduledDate(undefined);
+                  setShowScheduleDatePicker(false);
+                }
+              }}>
+                <Calendar className="w-4 h-4 mr-2" /> Agendar Mensagem
+              </Button>
+            ) : (
+              <Button onClick={() => {
+                if (whatsAppCustomDeal?.client_whatsapp && customWhatsAppMsg.trim()) {
+                  const phone = whatsAppCustomDeal.client_whatsapp.replace(/\D/g, '');
+                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customWhatsAppMsg)}`, '_blank');
+                  setWhatsAppCustomDeal(null);
+                }
+              }}>
+                <MessageCircle className="w-4 h-4 mr-2" /> Enviar via WhatsApp
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

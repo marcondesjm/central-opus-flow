@@ -578,11 +578,65 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
 // ─── Revenue Chart ──────────────────────────
 const PIE_COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
 
-function RevenuePieChart({ deals }: { deals: KanbanDeal[] }) {
-  const pieData = useMemo(() => {
+type PieMode = 'cliente' | 'atrasados' | 'prioridade' | 'fase';
+
+const PIE_RADIAN = Math.PI / 180;
+const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  if (percent < 0.05) return null;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * PIE_RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * PIE_RADIAN);
+  return <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{(percent * 100).toFixed(0)}%</text>;
+};
+
+function RevenuePieChart({ deals, mode }: { deals: KanbanDeal[]; mode: PieMode }) {
+  const { pieData, colors } = useMemo(() => {
     const now = new Date();
+
+    if (mode === 'atrasados') {
+      let atrasado = 0, emDia = 0, semPrazo = 0;
+      deals.forEach(d => {
+        const rev = Number(d.revenue) || 0;
+        if (!d.due_date) { semPrazo += rev; }
+        else if (isBefore(new Date(d.due_date), now)) { atrasado += rev; }
+        else { emDia += rev; }
+      });
+      const data = [
+        { name: 'Atrasado', value: atrasado },
+        { name: 'Em dia', value: emDia },
+        { name: 'Sem prazo', value: semPrazo },
+      ].filter(d => d.value > 0);
+      return { pieData: data, colors: ['#ef4444', '#10b981', '#94a3b8'] };
+    }
+
+    if (mode === 'prioridade') {
+      const map: Record<string, number> = {};
+      deals.forEach(d => {
+        const rev = Number(d.revenue) || 0;
+        if (rev <= 0) return;
+        const label = PRIORITY_OPTIONS.find(p => p.id === d.priority)?.label || d.priority || 'Sem prioridade';
+        map[label] = (map[label] || 0) + rev;
+      });
+      const prioColors: Record<string, string> = { 'Urgente': '#ef4444', 'Alta': '#f97316', 'Média': '#f59e0b', 'Baixa': '#10b981' };
+      const data = Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+      return { pieData: data, colors: data.map(d => prioColors[d.name] || '#94a3b8') };
+    }
+
+    if (mode === 'fase') {
+      const map: Record<string, number> = {};
+      deals.forEach(d => {
+        const rev = Number(d.revenue) || 0;
+        if (rev <= 0) return;
+        const phase = d.phase || 'Sem fase';
+        map[phase] = (map[phase] || 0) + rev;
+      });
+      const data = Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+      return { pieData: data, colors: PIE_COLORS };
+    }
+
+    // default: cliente
     const map: Record<string, { total: number; overdue: number }> = {};
-    deals.filter(d => d.revenue > 0).forEach(deal => {
+    deals.filter(d => (Number(d.revenue) || 0) > 0).forEach(deal => {
       const key = deal.company_name.slice(0, 15);
       if (!map[key]) map[key] = { total: 0, overdue: 0 };
       map[key].total += Number(deal.revenue);
@@ -590,43 +644,33 @@ function RevenuePieChart({ deals }: { deals: KanbanDeal[] }) {
         map[key].overdue += Number(deal.revenue);
       }
     });
-    return Object.entries(map)
+    const data = Object.entries(map)
       .map(([name, { total, overdue }]) => ({ name, value: total, overdue }))
       .sort((a, b) => b.value - a.value);
-  }, [deals]);
+    const cols = data.map((entry, i) => entry.overdue && entry.overdue > 0 ? '#ef4444' : PIE_COLORS[i % PIE_COLORS.length]);
+    return { pieData: data, colors: cols };
+  }, [deals, mode]);
 
   if (pieData.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>;
+    return <p className="text-sm text-muted-foreground text-center py-8">Nenhum dado disponível.</p>;
   }
-
-  const RADIAN = Math.PI / 180;
-  const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    if (percent < 0.05) return null;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    return <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{(percent * 100).toFixed(0)}%</text>;
-  };
 
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
-        <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={renderLabel} outerRadius={120} dataKey="value" nameKey="name">
+        <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={renderPieLabel} outerRadius={120} dataKey="value" nameKey="name">
           {pieData.map((entry, i) => (
-            <Cell key={entry.name} fill={entry.overdue > 0 ? '#ef4444' : PIE_COLORS[i % PIE_COLORS.length]} stroke={entry.overdue > 0 ? '#b91c1c' : undefined} strokeWidth={entry.overdue > 0 ? 2 : 0} />
+            <Cell key={entry.name} fill={colors[i] || PIE_COLORS[i % PIE_COLORS.length]} />
           ))}
         </Pie>
         <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
-        <Legend formatter={(value: string) => {
-          const item = pieData.find(d => d.name === value);
-          return item && item.overdue > 0 ? `${value} ⚠️` : value;
-        }} />
+        <Legend />
       </PieChart>
     </ResponsiveContainer>
   );
 }
 
-function RevenueChart({ deals, chartType }: { deals: KanbanDeal[]; chartType: 'bar' | 'pie' }) {
+function RevenueChart({ deals, chartType, pieMode }: { deals: KanbanDeal[]; chartType: 'bar' | 'pie'; pieMode: PieMode }) {
   const chartData = useMemo(() => {
     const now = new Date();
     const monthMap: Record<string, Record<string, number>> = {};
@@ -665,7 +709,7 @@ function RevenueChart({ deals, chartType }: { deals: KanbanDeal[]; chartType: 'b
   }, [deals]);
 
   if (chartType === 'pie') {
-    return <RevenuePieChart deals={deals} />;
+    return <RevenuePieChart deals={deals} mode={pieMode} />;
   }
 
   if (chartData.data.length === 0) {
@@ -786,6 +830,7 @@ export default function KanbanPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showChart, setShowChart] = useState(searchParams.get('view') === 'billing');
   const [revenueChartType, setRevenueChartType] = useState<'bar' | 'pie'>('bar');
+  const [pieMode, setPieMode] = useState<PieMode>('cliente');
   const [paymentsDeal, setPaymentsDeal] = useState<KanbanDeal | null>(null);
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
   const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);
@@ -1188,19 +1233,35 @@ export default function KanbanPage() {
         <div className="max-w-[1800px] mx-auto px-4 pt-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h3 className="text-sm font-semibold flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
-                  Faturamento por Cliente {revenueChartType === 'bar' ? '/ Mês' : '(Total)'}
+                  {revenueChartType === 'bar' ? 'Faturamento por Cliente / Mês' : 
+                    pieMode === 'cliente' ? 'Faturamento por Cliente' :
+                    pieMode === 'atrasados' ? 'Atrasados vs Em Dia' :
+                    pieMode === 'prioridade' ? 'Faturamento por Prioridade' :
+                    'Faturamento por Fase'}
                 </h3>
-                <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
-                  <TabsList className="h-7">
-                    <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>
-                    <TabsTrigger value="pie" className="text-xs px-2 h-6">Pizza</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <div className="flex items-center gap-2">
+                  {revenueChartType === 'pie' && (
+                    <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
+                      <TabsList className="h-7">
+                        <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
+                        <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
+                        <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
+                        <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  )}
+                  <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
+                    <TabsList className="h-7">
+                      <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>
+                      <TabsTrigger value="pie" className="text-xs px-2 h-6">Pizza</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
               </div>
-              <RevenueChart deals={deals || []} chartType={revenueChartType} />
+              <RevenueChart deals={deals || []} chartType={revenueChartType} pieMode={pieMode} />
             </CardContent>
           </Card>
         </div>

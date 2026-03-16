@@ -58,8 +58,11 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    if ('touches' in e) {
+    if ('touches' in e && e.touches.length > 0) {
       return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    if ('changedTouches' in e && e.changedTouches.length > 0) {
+      return { x: e.changedTouches[0].clientX - rect.left, y: e.changedTouches[0].clientY - rect.top };
     }
     return { x: (e as React.MouseEvent).clientX - rect.left, y: (e as React.MouseEvent).clientY - rect.top };
   }, []);

@@ -302,6 +302,9 @@ export function ClippyAssistant() {
 
   return (
     <>
+      {/* Speech bubble with typing indicator */}
+      <AnimatePresence>
+        {(showGreeting || isTypingBubble) && !isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

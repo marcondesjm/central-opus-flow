@@ -7,14 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { usePixKeys, useCreatePixKey, useUpdatePixKey, useDeletePixKey, PixKey, KEY_TYPE_LABELS } from '@/hooks/usePixKeys';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from '@/lib/utils';
 import {
   Plus, Trash2, Copy, Check, QrCode, Key, Star,
-  Loader2, Pencil, Phone, Mail, CreditCard, Hash, Shuffle,
+  Loader2, Pencil, Phone, Mail, CreditCard, Hash, Shuffle, MessageCircle, Send,
 } from 'lucide-react';
 
 const KEY_TYPE_ICONS: Record<string, React.ElementType> = {

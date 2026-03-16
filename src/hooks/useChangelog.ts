@@ -28,8 +28,11 @@ export function useChangelog() {
       if (error) throw error;
       return data as ChangelogEntry[];
     },
+    staleTime: 0,
+    gcTime: 30 * 1000,
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 }
 

@@ -719,6 +719,41 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
+  // Check for scheduled WhatsApp messages due today
+  useEffect(() => {
+    if (!user) return;
+    const checkScheduled = async () => {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const { data } = await supabase
+        .from('kanban_scheduled_messages')
+        .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+        .eq('user_id', user.id)
+        .eq('scheduled_date', today)
+        .eq('sent', false);
+      if (data && data.length > 0) {
+        data.forEach((msg: any) => {
+          const deal = msg.kanban_deals;
+          toast({
+            title: `📅 Mensagem agendada para hoje!`,
+            description: `${deal?.company_name || 'Cliente'} - Clique para enviar`,
+            duration: 15000,
+          });
+          if (deal?.client_whatsapp) {
+            const phone = deal.client_whatsapp.replace(/\D/g, '');
+            // Auto-open option after small delay
+            setTimeout(() => {
+              if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+                supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+              }
+            }, 2000);
+          }
+        });
+      }
+    };
+    checkScheduled();
+  }, [user]);
+
   const filteredDeals = useMemo(() => {
     let result = deals || [];
     if (searchQuery) {

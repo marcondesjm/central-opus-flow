@@ -843,14 +843,21 @@ export default function KanbanPage() {
 
   const kanbanRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      setZoomLevel(prev => {
-        const delta = e.deltaY > 0 ? -0.05 : 0.05;
-        return Math.min(1.5, Math.max(0.4, prev + delta));
-      });
-    }
+  // Native wheel handler to prevent browser zoom on Ctrl+Scroll
+  useEffect(() => {
+    const el = kanbanRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setZoomLevel(prev => {
+          const delta = e.deltaY > 0 ? -0.05 : 0.05;
+          return Math.min(1.5, Math.max(0.4, prev + delta));
+        });
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
   }, []);
 
   const isLoading = dealsLoading || columnsLoading;

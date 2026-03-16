@@ -173,26 +173,28 @@ export default function Collaborations() {
       </header>
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
-        <Tabs defaultValue="received" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="received" className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              Recebidos
-              {pendingInvitations.length > 0 && (
-                <Badge variant="destructive" className="ml-1 h-5 px-1.5">
-                  {pendingInvitations.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="sent" className="gap-2">
-              <Clock className="h-4 w-4" />
-              Enviados
-            </TabsTrigger>
-            <TabsTrigger value="active" className="gap-2">
-              <Users className="h-4 w-4" />
-              Ativos
-            </TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="received" className="space-y-4 sm:space-y-6">
+          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 sm:grid sm:w-full sm:grid-cols-3 sm:max-w-md">
+              <TabsTrigger value="received" className="gap-1.5 text-xs sm:text-sm">
+                <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Recebidos
+                {pendingInvitations.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-5 px-1.5">
+                    {pendingInvitations.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="sent" className="gap-1.5 text-xs sm:text-sm">
+                <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Enviados
+              </TabsTrigger>
+              <TabsTrigger value="active" className="gap-1.5 text-xs sm:text-sm">
+                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Ativos
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Received Invitations */}
           <TabsContent value="received" className="space-y-4">

@@ -1467,12 +1467,12 @@ export default function KanbanPage() {
                       {!msg.sent && (
                         <div className="flex gap-2 pt-1">
                           {deal?.client_whatsapp && (
-                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={async () => {
                               const phone = deal.client_whatsapp.replace(/\D/g, '');
                               window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                              supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {
-                                setScheduledMessages(prev => prev.map(m => m.id === msg.id ? { ...m, sent: true } : m));
-                              });
+                              await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
+                              setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
+                              toast({ title: '✅ Mensagem enviada e removida' });
                             }}>
                               <MessageCircle className="w-3 h-3 mr-1" /> Enviar agora
                             </Button>

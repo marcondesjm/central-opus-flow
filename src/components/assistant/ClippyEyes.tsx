@@ -191,31 +191,27 @@ export function ClippyEyes({ mood, size = 1 }: ClippyEyesProps) {
         transition={{ duration: 0.3 }}
       />
 
-      {/* Sleeping Zs */}
+      {/* Sleeping eyes (closed) */}
       {mood === 'sleeping' && (
         <>
-          <motion.text
-            x={eyeSpacing / 2 + 6 * size}
-            y={-4 * size}
-            fontSize={6 * size}
-            fill="#888"
-            fontWeight="bold"
-            animate={{ opacity: [0, 1, 0], y: [-4 * size, -10 * size] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 0.5 }}
-          >
-            z
-          </motion.text>
-          <motion.text
-            x={eyeSpacing / 2 + 10 * size}
-            y={-8 * size}
-            fontSize={8 * size}
-            fill="#888"
-            fontWeight="bold"
-            animate={{ opacity: [0, 1, 0], y: [-8 * size, -16 * size] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.7, repeatDelay: 0.5 }}
-          >
-            Z
-          </motion.text>
+          <line
+            x1={-eyeSpacing / 2 - 4 * size}
+            y1={0}
+            x2={-eyeSpacing / 2 + 4 * size}
+            y2={0}
+            stroke="#555"
+            strokeWidth={1.5 * size}
+            strokeLinecap="round"
+          />
+          <line
+            x1={eyeSpacing / 2 - 4 * size}
+            y1={0}
+            x2={eyeSpacing / 2 + 4 * size}
+            y2={0}
+            stroke="#555"
+            strokeWidth={1.5 * size}
+            strokeLinecap="round"
+          />
         </>
       )}
     </svg>

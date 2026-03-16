@@ -683,6 +683,8 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
 
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
   const updateDeal = useUpdateDeal();

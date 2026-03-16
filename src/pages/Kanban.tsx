@@ -800,7 +800,7 @@ export default function KanbanPage() {
     if (!autoDispatchEnabled || !user || scheduledMessages.length === 0) return;
 
     const dueMessages = scheduledMessages.filter(
-      (msg: any) => !msg.sent && getScheduledTimestamp(msg.scheduled_date) <= nowTs
+      (msg: any) => !msg.sent && getScheduledTimestamp(msg.scheduled_date, msg.scheduled_time) <= nowTs
     );
 
     dueMessages.forEach(async (msg: any) => {

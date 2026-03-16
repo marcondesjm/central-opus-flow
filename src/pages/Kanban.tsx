@@ -710,6 +710,9 @@ export default function KanbanPage() {
   const [showScheduleDatePicker, setShowScheduleDatePicker] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [showScheduledList, setShowScheduledList] = useState(false);
+  const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
+  const [loadingScheduled, setLoadingScheduled] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');

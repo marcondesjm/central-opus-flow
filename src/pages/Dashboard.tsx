@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileSidebar } from '@/components/layout/MobileSidebar';
@@ -44,7 +44,8 @@ import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButto
 import { ProjectStatus, ProjectType } from '@/types/project';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -67,6 +68,25 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const projectsRef = useRef<HTMLDivElement>(null);
+
+  // Zoom with Ctrl+Scroll
+  useEffect(() => {
+    const el = projectsRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setZoomLevel(prev => {
+          const delta = e.deltaY > 0 ? -0.05 : 0.05;
+          return Math.min(1.5, Math.max(0.4, prev + delta));
+        });
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
+  }, []);
 
   // Open settings modal from URL query param (?settings=profile)
   const location = useLocation();
@@ -544,6 +564,25 @@ export default function Dashboard() {
                 <ImportBackupButton />
                 <ExportBackupButton />
               </div>
+
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-0.5 border rounded-md px-1">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </Button>
+                <button onClick={() => setZoomLevel(1)} className="text-xs text-muted-foreground hover:text-foreground min-w-[2.5rem] text-center">
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(prev => Math.min(1.5, prev + 0.1))} disabled={zoomLevel >= 1.5}>
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </Button>
+                {zoomLevel !== 1 && (
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(1)}>
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </Button>
+                )}
+              </div>
+
               <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                 {filteredProjects.length} {filteredProjects.length !== 1 ? t('dashboardPage.projectCount_plural', { count: filteredProjects.length }).split(' ').slice(1).join(' ') : t('dashboardPage.projectCount', { count: filteredProjects.length }).split(' ').slice(1).join(' ')}
               </span>
@@ -564,6 +603,8 @@ export default function Dashboard() {
           />
 
           {/* Projects */}
+          <div ref={projectsRef} className="overflow-x-auto">
+          <div className="origin-top-left transition-transform duration-150" style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', width: `${100 / zoomLevel}%` }}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
@@ -621,6 +662,8 @@ export default function Dashboard() {
               onArchive={handleArchiveProject}
             />
           )}
+          </div>
+          </div>
           </div>
           
           {/* Footer com versão */}

@@ -374,6 +374,10 @@ export function Header({
                 <Key className="w-4 h-4" />
                 {t('sidebar.apiKeys', 'API Keys')}
               </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => navigate('/proposals')}>
+                <FileText className="w-4 h-4" />
+                Propostas Comerciais
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <a

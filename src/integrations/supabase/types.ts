@@ -1456,6 +1456,105 @@ export type Database = {
           },
         ]
       }
+      proposals: {
+        Row: {
+          accepted_at: string | null
+          brand_color: string
+          brand_secondary_color: string
+          client_company: string | null
+          client_email: string | null
+          client_logo_url: string | null
+          client_name: string
+          client_phone: string | null
+          company_address: string | null
+          company_email: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          company_phone: string | null
+          created_at: string
+          deadline_days: number | null
+          description: string | null
+          discount: number
+          id: string
+          notes: string | null
+          payment_conditions: string | null
+          proposal_title: string
+          rejected_at: string | null
+          services: Json
+          share_token: string | null
+          status: string
+          total_value: number
+          updated_at: string
+          user_id: string
+          validity_days: number | null
+          viewed_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          brand_color?: string
+          brand_secondary_color?: string
+          client_company?: string | null
+          client_email?: string | null
+          client_logo_url?: string | null
+          client_name: string
+          client_phone?: string | null
+          company_address?: string | null
+          company_email?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          created_at?: string
+          deadline_days?: number | null
+          description?: string | null
+          discount?: number
+          id?: string
+          notes?: string | null
+          payment_conditions?: string | null
+          proposal_title?: string
+          rejected_at?: string | null
+          services?: Json
+          share_token?: string | null
+          status?: string
+          total_value?: number
+          updated_at?: string
+          user_id: string
+          validity_days?: number | null
+          viewed_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          brand_color?: string
+          brand_secondary_color?: string
+          client_company?: string | null
+          client_email?: string | null
+          client_logo_url?: string | null
+          client_name?: string
+          client_phone?: string | null
+          company_address?: string | null
+          company_email?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          created_at?: string
+          deadline_days?: number | null
+          description?: string | null
+          discount?: number
+          id?: string
+          notes?: string | null
+          payment_conditions?: string | null
+          proposal_title?: string
+          rejected_at?: string | null
+          services?: Json
+          share_token?: string | null
+          status?: string
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+          validity_days?: number | null
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
       signup_ips: {
         Row: {
           created_at: string

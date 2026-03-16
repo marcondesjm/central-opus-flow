@@ -12,6 +12,7 @@ interface ScheduledMessage {
   id: string;
   message: string;
   scheduled_date: string;
+  scheduled_time: string | null;
   sent: boolean;
   deal_id: string;
   kanban_deals: {
@@ -63,10 +64,13 @@ export function DailyScheduledMessagesReport() {
     setDismissed(true);
   };
 
-  const handleSendWhatsApp = (msg: ScheduledMessage) => {
+  const handleSendWhatsApp = async (msg: ScheduledMessage) => {
     const phone = msg.kanban_deals?.client_whatsapp?.replace(/\D/g, '');
     if (phone) {
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+      // Delete after sending
+      await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
+      setMessages(prev => prev.filter(m => m.id !== msg.id));
     }
   };
 
@@ -98,6 +102,7 @@ export function DailyScheduledMessagesReport() {
         <div className="space-y-3">
           {messages.map((msg) => {
             const phone = msg.kanban_deals?.client_whatsapp?.replace(/\D/g, '');
+            const time = msg.scheduled_time ? msg.scheduled_time.slice(0, 5) : '09:00';
             return (
               <div
                 key={msg.id}
@@ -111,7 +116,7 @@ export function DailyScheduledMessagesReport() {
                     </span>
                     <Badge variant="outline" className="text-xs flex-shrink-0">
                       <Clock className="h-3 w-3 mr-1" />
-                      Hoje
+                      {time}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 pl-5">

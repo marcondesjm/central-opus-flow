@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, Plus, Pencil, Trash2, Loader2, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { DollarSign, Plus, Pencil, Trash2, Loader2, CheckCircle, Clock, XCircle, MessageCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,16 +8,94 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useKanbanPayments, useCreatePayment, useUpdatePayment, useDeletePayment, KanbanPayment, PAYMENT_METHODS, PAYMENT_CATEGORIES } from '@/hooks/useKanbanPayments';
 import { KanbanDeal } from '@/hooks/useKanban';
-import { format } from 'date-fns';
+import { format, isBefore, addDays, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 const STATUS_OPTIONS = [
   { value: 'pago', label: 'Pago', icon: CheckCircle, className: 'text-emerald-600 bg-emerald-50' },
   { value: 'pendente', label: 'Pendente', icon: Clock, className: 'text-amber-600 bg-amber-50' },
   { value: 'cancelado', label: 'Cancelado', icon: XCircle, className: 'text-destructive bg-destructive/10' },
 ];
+
+function getPaymentUrgency(payment: KanbanPayment) {
+  if (payment.status !== 'pendente') return null;
+  const today = new Date();
+  const payDate = new Date(payment.payment_date);
+  const daysUntil = differenceInDays(payDate, today);
+
+  if (daysUntil < 0) return 'overdue';
+  if (daysUntil <= 2) return 'urgent';
+  if (daysUntil <= 5) return 'approaching';
+  return null;
+}
+
+function buildWhatsAppMessage(deal: KanbanDeal, payment: KanbanPayment, style: 'profissional' | 'amigavel' | 'direta') {
+  const valor = `R$ ${Number(payment.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  const vencimento = format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: ptBR });
+  const desc = payment.description ? ` referente a "${payment.description}"` : '';
+
+  const messages = {
+    profissional: `Olá, ${deal.client_name}! Tudo bem?\n\nEstou entrando em contato para lembrar sobre o pagamento${desc} no valor de *${valor}*, com vencimento em *${vencimento}*.\n\nPoderia verificar para mim, por gentileza?\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem. Obrigado!`,
+    amigavel: `Oi, ${deal.client_name}! Tudo bem? 😊\n\nPassando para lembrar do pagamento${desc} de *${valor}* que vence em *${vencimento}*.\n\nQuando puder, dá uma olhadinha, por favor!\n\nQualquer dúvida estou à disposição.`,
+    direta: `Olá, ${deal.client_name}.\n\nVerifiquei que consta um pagamento pendente${desc} no valor de *${valor}*, vencimento *${vencimento}*.\n\nPoderia me informar quando será possível realizar o pagamento?`,
+  };
+  return messages[style];
+}
+
+function WhatsAppBillingButton({ deal, payment }: { deal: KanbanDeal; payment: KanbanPayment }) {
+  if (!deal.client_whatsapp || payment.status !== 'pendente') return null;
+
+  const phone = deal.client_whatsapp.replace(/\D/g, '');
+  const sendMsg = (msg: string) => window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  const urgency = getPaymentUrgency(payment);
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                onClick={e => e.stopPropagation()}
+                className={cn(
+                  'p-1 rounded transition-all',
+                  urgency === 'overdue' && 'animate-pulse bg-destructive/10 text-destructive',
+                  urgency === 'urgent' && 'animate-[pulse_1.5s_ease-in-out_infinite] bg-amber-100 text-amber-600',
+                  urgency === 'approaching' && 'animate-[pulse_3s_ease-in-out_infinite] bg-yellow-50 text-yellow-600',
+                  !urgency && 'hover:bg-emerald-50 text-emerald-600 opacity-0 group-hover:opacity-100'
+                )}
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
+              <DropdownMenuItem onClick={() => sendMsg(buildWhatsAppMessage(deal, payment, 'profissional'))}>
+                🏢 Profissional
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => sendMsg(buildWhatsAppMessage(deal, payment, 'amigavel'))}>
+                😊 Amigável
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => sendMsg(buildWhatsAppMessage(deal, payment, 'direta'))}>
+                ⚡ Direta
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TooltipTrigger>
+        <TooltipContent>
+          {urgency === 'overdue' ? 'Pagamento vencido! Cobrar agora' :
+           urgency === 'urgent' ? 'Vence em breve! Cobrar via WhatsApp' :
+           urgency === 'approaching' ? 'Pagamento se aproximando' :
+           'Cobrar via WhatsApp'}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 function PaymentForm({ open, onOpenChange, dealId, editPayment }: {
   open: boolean;
@@ -124,6 +202,12 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
   const totalPago = payments?.filter(p => p.status === 'pago').reduce((s, p) => s + Number(p.amount), 0) || 0;
   const totalPendente = payments?.filter(p => p.status === 'pendente').reduce((s, p) => s + Number(p.amount), 0) || 0;
 
+  // Count urgent payments
+  const urgentPayments = payments?.filter(p => {
+    const u = getPaymentUrgency(p);
+    return u === 'overdue' || u === 'urgent';
+  }).length || 0;
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -132,6 +216,12 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
             <DialogTitle className="flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
               Faturamento - {deal.company_name}
+              {urgentPayments > 0 && (
+                <Badge variant="destructive" className="animate-pulse text-[10px] ml-1">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  {urgentPayments} {urgentPayments === 1 ? 'vencendo' : 'vencendo'}
+                </Badge>
+              )}
             </DialogTitle>
           </DialogHeader>
 
@@ -148,7 +238,7 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
             <Card>
               <CardContent className="p-3 text-center">
                 <p className="text-xs text-muted-foreground">Pendente</p>
-                <p className="text-lg font-bold text-amber-600">
+                <p className={cn("text-lg font-bold", urgentPayments > 0 ? "text-destructive animate-pulse" : "text-amber-600")}>
                   R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </CardContent>
@@ -171,8 +261,19 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
                 {payments.map(payment => {
                   const statusInfo = STATUS_OPTIONS.find(s => s.value === payment.status) || STATUS_OPTIONS[1];
                   const StatusIcon = statusInfo.icon;
+                  const urgency = getPaymentUrgency(payment);
+                  const daysUntil = differenceInDays(new Date(payment.payment_date), new Date());
+
                   return (
-                    <div key={payment.id} className="flex items-center gap-3 p-2.5 rounded-lg border bg-card group">
+                    <div
+                      key={payment.id}
+                      className={cn(
+                        "flex items-center gap-3 p-2.5 rounded-lg border bg-card group transition-all",
+                        urgency === 'overdue' && "border-destructive/50 bg-destructive/5 animate-[pulse_2s_ease-in-out_infinite]",
+                        urgency === 'urgent' && "border-amber-400/50 bg-amber-50/50 animate-[pulse_3s_ease-in-out_infinite]",
+                        urgency === 'approaching' && "border-yellow-300/50 bg-yellow-50/30"
+                      )}
+                    >
                       <StatusIcon className={`w-4 h-4 flex-shrink-0 ${statusInfo.className.split(' ')[0]}`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -182,6 +283,21 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
                           <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>
                             {statusInfo.label}
                           </Badge>
+                          {urgency === 'overdue' && (
+                            <Badge variant="destructive" className="text-[10px] animate-pulse">
+                              Vencido há {Math.abs(daysUntil)}d
+                            </Badge>
+                          )}
+                          {urgency === 'urgent' && (
+                            <Badge className="text-[10px] bg-amber-500 text-white animate-bounce">
+                              {daysUntil === 0 ? 'Vence hoje!' : `Vence em ${daysUntil}d`}
+                            </Badge>
+                          )}
+                          {urgency === 'approaching' && (
+                            <Badge variant="outline" className="text-[10px] text-yellow-600 border-yellow-400">
+                              Em {daysUntil}d
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>{format(new Date(payment.payment_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
@@ -194,6 +310,10 @@ export default function DealPaymentsModal({ open, onOpenChange, deal }: {
                           {payment.description && <span>· {payment.description}</span>}
                         </div>
                       </div>
+
+                      {/* WhatsApp billing button - always visible when urgent */}
+                      <WhatsAppBillingButton deal={deal} payment={payment} />
+
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => { setEditPayment(payment); setShowForm(true); }} className="p-1 rounded hover:bg-muted">
                           <Pencil className="w-3.5 h-3.5" />

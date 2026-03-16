@@ -29,26 +29,40 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
   const [certFile, setCertFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState<string>('draw');
 
-  useEffect(() => {
+  const initCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    canvas.width = canvas.offsetWidth * 2;
-    canvas.height = canvas.offsetHeight * 2;
-    ctx.scale(2, 2);
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
     ctx.strokeStyle = '#1a1a2e';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
   }, []);
+
+  useEffect(() => {
+    initCanvas();
+    const handleResize = () => {
+      if (!hasDrawn) initCanvas();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [initCanvas, hasDrawn]);
 
   const getPos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    if ('touches' in e) {
+    if ('touches' in e && e.touches.length > 0) {
       return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    if ('changedTouches' in e && e.changedTouches.length > 0) {
+      return { x: e.changedTouches[0].clientX - rect.left, y: e.changedTouches[0].clientY - rect.top };
     }
     return { x: (e as React.MouseEvent).clientX - rect.left, y: (e as React.MouseEvent).clientY - rect.top };
   }, []);
@@ -190,20 +204,22 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
         </TabsList>
 
         <TabsContent value="draw" className="mt-3">
-          <div className="relative">
+          <div className="relative select-none">
             <canvas
               ref={canvasRef}
-              className="w-full h-32 rounded-lg border border-gray-200 bg-white cursor-crosshair touch-none"
+              className="w-full h-40 sm:h-32 rounded-lg border-2 border-gray-200 bg-white cursor-crosshair"
+              style={{ touchAction: 'none', msTouchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
+              onTouchStart={(e) => { e.preventDefault(); startDrawing(e); }}
+              onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+              onTouchEnd={(e) => { e.preventDefault(); stopDrawing(); }}
+              onTouchCancel={stopDrawing}
             />
             {!hasDrawn && (
-              <p className="absolute inset-0 flex items-center justify-center text-gray-300 text-sm pointer-events-none">
+              <p className="absolute inset-0 flex items-center justify-center text-gray-300 text-xs sm:text-sm pointer-events-none px-4 text-center">
                 Desenhe sua assinatura aqui
               </p>
             )}
@@ -211,10 +227,10 @@ export function SignaturePad({ onSign, brandColor = '#3b82f6', disabled, existin
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearCanvas}
-                className="absolute top-1 right-1 h-7 text-xs gap-1 text-gray-400 hover:text-red-500"
+                onClick={() => { clearCanvas(); initCanvas(); }}
+                className="absolute top-1 right-1 h-8 text-xs gap-1 text-gray-400 hover:text-red-500"
               >
-                <Trash2 className="w-3 h-3" /> Limpar
+                <Trash2 className="w-3.5 h-3.5" /> Limpar
               </Button>
             )}
           </div>

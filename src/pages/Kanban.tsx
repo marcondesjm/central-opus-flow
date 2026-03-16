@@ -714,6 +714,15 @@ export default function KanbanPage() {
   const [showScheduledList, setShowScheduledList] = useState(false);
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
+  const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('kanban-auto-dispatch-enabled') !== 'false';
+    } catch {
+      return true;
+    }
+  });
+  const [nowTs, setNowTs] = useState(Date.now());
+  const autoDispatchingIdsRef = useRef<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
@@ -727,6 +736,21 @@ export default function KanbanPage() {
     newPhaseName: string;
   } | null>(null);
 
+  const getScheduledTimestamp = (scheduledDate: string) => new Date(`${scheduledDate}T09:00:00`).getTime();
+
+  const formatCountdown = (diffMs: number) => {
+    if (diffMs <= 0) return 'Disparando...';
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+    return `${minutes}m ${seconds}s`;
+  };
+
   // Check for scheduled WhatsApp messages due today or overdue
   useEffect(() => {
     if (!user) return;
@@ -738,36 +762,66 @@ export default function KanbanPage() {
         .eq('user_id', user.id)
         .lte('scheduled_date', today)
         .eq('sent', false);
+
       if (data && data.length > 0) {
         data.forEach((msg: any, idx: number) => {
           const deal = msg.kanban_deals;
           const isOverdue = msg.scheduled_date < today;
+
           toast({
             title: isOverdue ? `⚠️ Mensagem atrasada!` : `📅 Mensagem agendada para hoje!`,
-            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Enviar agora'}`,
+            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Pronta para envio'}`,
             duration: 20000,
             variant: isOverdue ? 'destructive' : undefined,
           });
-          if (deal?.client_whatsapp) {
-            const phone = deal.client_whatsapp.replace(/\D/g, '');
-            // Auto-open WhatsApp for overdue messages, prompt for today's
-            setTimeout(() => {
-              if (isOverdue) {
-                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
-              } else {
-                if (confirm(`Deseja enviar a mensagem agendada para ${deal.company_name}?`)) {
-                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                  supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
-                }
-              }
-            }, 1500 + idx * 2000);
-          }
+
+          if (!autoDispatchEnabled || !deal?.client_whatsapp) return;
+
+          const phone = deal.client_whatsapp.replace(/\D/g, '');
+          setTimeout(() => {
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+            supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {});
+          }, 1500 + idx * 2000);
         });
       }
     };
+
     checkScheduled();
-  }, [user]);
+  }, [user, autoDispatchEnabled, toast]);
+
+  useEffect(() => {
+    if (!showScheduledList) return;
+    const interval = setInterval(() => setNowTs(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [showScheduledList]);
+
+  useEffect(() => {
+    if (!autoDispatchEnabled || !user || scheduledMessages.length === 0) return;
+
+    const dueMessages = scheduledMessages.filter(
+      (msg: any) => !msg.sent && getScheduledTimestamp(msg.scheduled_date) <= nowTs
+    );
+
+    dueMessages.forEach(async (msg: any) => {
+      if (autoDispatchingIdsRef.current.has(msg.id)) return;
+
+      const phoneRaw = msg?.kanban_deals?.client_whatsapp;
+      const phone = phoneRaw?.replace(/\D/g, '');
+      if (!phone) return;
+
+      autoDispatchingIdsRef.current.add(msg.id);
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+
+      await supabase
+        .from('kanban_scheduled_messages')
+        .update({ sent: true })
+        .eq('id', msg.id);
+
+      setScheduledMessages(prev => prev.map(m => (m.id === msg.id ? { ...m, sent: true } : m)));
+      toast({ title: '🚀 Mensagem disparada automaticamente' });
+      autoDispatchingIdsRef.current.delete(msg.id);
+    });
+  }, [scheduledMessages, nowTs, autoDispatchEnabled, user, toast]);
 
   const filteredDeals = useMemo(() => {
     let result = deals || [];

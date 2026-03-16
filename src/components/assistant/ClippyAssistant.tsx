@@ -44,6 +44,7 @@ type ClippyAnimation = 'idle' | 'wave' | 'jump' | 'lean' | 'spin' | 'bounce' | '
 
 export function ClippyAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(() => sessionStorage.getItem('clippy-hidden') === 'true');
   const [selectedFaq, setSelectedFaq] = useState<AssistantFaq | null>(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -55,6 +56,17 @@ export function ClippyAssistant() {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const { data: faqs, isLoading } = useAssistantFaqs();
   const sounds = useClippySounds();
+
+  const handleHide = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsHidden(true);
+    setIsOpen(false);
+    setShowGreeting(false);
+    sessionStorage.setItem('clippy-hidden', 'true');
+    sounds.playClose();
+  }, [sounds]);
+
+  // If hidden, render a tiny button to bring him back — moved after all hooks below in JSX
 
   // Cycle through random idle animations
   useEffect(() => {
@@ -267,6 +279,27 @@ export function ClippyAssistant() {
     }
   };
 
+  if (isHidden) {
+    return (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-accent transition-colors"
+        onClick={() => {
+          setIsHidden(false);
+          sessionStorage.removeItem('clippy-hidden');
+          setMood('happy');
+          setAnimation('wave');
+          sounds.playGreeting();
+          setTimeout(() => setAnimation('idle'), 1200);
+        }}
+        title="Mostrar Clippy"
+      >
+        <MessageCircleQuestion className="w-4 h-4 text-primary" />
+      </motion.button>
+    );
+  }
+
   return (
     <>
       {/* Speech bubble with typing indicator */}
@@ -319,7 +352,7 @@ export function ClippyAssistant() {
 
       {/* Clippy character */}
       <motion.div
-        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] cursor-pointer select-none"
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] cursor-pointer select-none group/clippy"
         animate={getAnimationStyle()}
         onClick={handleOpen}
         onMouseEnter={() => {
@@ -378,6 +411,15 @@ export function ClippyAssistant() {
               </motion.span>
             </div>
           )}
+
+          {/* Close/Hide button */}
+          <button
+            onClick={handleHide}
+            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-card border border-border shadow-sm flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors opacity-0 group-hover/clippy:opacity-100"
+            title="Ocultar Clippy"
+          >
+            <X className="w-3 h-3" />
+          </button>
         </div>
       </motion.div>
 

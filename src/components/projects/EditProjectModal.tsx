@@ -378,6 +378,20 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
         </form>
           </TabsContent>
           
+          <TabsContent value="code" className="mt-4">
+            <ProjectCodePanel
+              projectId={project.id}
+              repositoryUrl={repositoryUrl}
+              onRepositoryUrlChange={(url) => {
+                setRepositoryUrl(url);
+                updateProject.mutateAsync({
+                  id: project.id,
+                  repository_url: url,
+                } as any);
+              }}
+            />
+          </TabsContent>
+          
           <TabsContent value="keys" className="mt-4">
             <ProjectKeysPanel projectId={project.id} projectName={project.name} />
           </TabsContent>

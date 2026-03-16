@@ -53,7 +53,17 @@ export function ClippyAssistant() {
   const [mood, setMood] = useState<ClippyMood>('normal');
   const [animation, setAnimation] = useState<ClippyAnimation>('idle');
   const [isTypingBubble, setIsTypingBubble] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number }>(() => {
+    try {
+      const saved = localStorage.getItem('clippy-position');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { x: 0, y: 0 };
+  });
   const idleTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const constraintsRef = useRef<HTMLDivElement>(null);
   const { data: faqs, isLoading } = useAssistantFaqs();
   const sounds = useClippySounds();
 
@@ -302,6 +312,9 @@ export function ClippyAssistant() {
 
   return (
     <>
+      {/* Drag constraints - full viewport */}
+      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-[59]" />
+
       {/* Speech bubble with typing indicator */}
       <AnimatePresence>
         {(showGreeting || isTypingBubble) && !isOpen && (
@@ -310,7 +323,11 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.8 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-[220px] right-3 sm:right-4 lg:bottom-[150px] z-[60] max-w-[230px]"
+            className="fixed z-[60] max-w-[230px] pointer-events-auto"
+            style={{
+              bottom: `calc(100vh - ${window.innerHeight + dragPosition.y - 90}px)`,
+              right: `calc(100vw - ${window.innerWidth + dragPosition.x + 80}px)`,
+            }}
           >
             <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
               <button
@@ -350,11 +367,37 @@ export function ClippyAssistant() {
         )}
       </AnimatePresence>
 
-      {/* Clippy character */}
+      {/* Clippy character - draggable */}
       <motion.div
-        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] cursor-pointer select-none group/clippy"
-        animate={getAnimationStyle()}
-        onClick={handleOpen}
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] select-none group/clippy"
+        style={{ cursor: isDragging ? 'grabbing' : 'grab', x: dragPosition.x, y: dragPosition.y }}
+        drag
+        dragConstraints={constraintsRef}
+        dragElastic={0.1}
+        dragMomentum={false}
+        onDragStart={() => {
+          setIsDragging(true);
+          dragStartRef.current = { ...dragPosition };
+        }}
+        onDrag={(_, info) => {
+          setDragPosition({
+            x: dragStartRef.current.x + info.offset.x,
+            y: dragStartRef.current.y + info.offset.y,
+          });
+        }}
+        onDragEnd={(_, info) => {
+          const newPos = {
+            x: dragStartRef.current.x + info.offset.x,
+            y: dragStartRef.current.y + info.offset.y,
+          };
+          setDragPosition(newPos);
+          localStorage.setItem('clippy-position', JSON.stringify(newPos));
+          // Only open if it was a click (not a drag)
+          setTimeout(() => setIsDragging(false), 50);
+        }}
+        onClick={() => {
+          if (!isDragging) handleOpen();
+        }}
         onMouseEnter={() => {
           if (mood === 'sleeping') {
             setMood('surprised');
@@ -369,58 +412,61 @@ export function ClippyAssistant() {
             setMood('normal');
           }
         }}
-        title="Assistente de Ajuda"
+        title="Assistente de Ajuda — arraste para mover"
       >
-        {/* Shadow */}
-        <motion.div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/10 rounded-full blur-sm"
-          animate={{
-            scaleX: animation === 'jump' ? [1, 0.6, 1.2, 0.8, 1] : [1, 0.9, 1, 0.95, 1],
-            opacity: animation === 'jump' ? [0.3, 0.1, 0.4, 0.2, 0.3] : [0.3, 0.2, 0.3, 0.25, 0.3],
-          }}
-          transition={{ duration: animation === 'jump' ? 0.6 : 4, repeat: animation === 'idle' ? Infinity : 0, ease: 'easeInOut' }}
-        />
-
-        {/* Clippy body */}
-        <div className="relative">
-          <motion.img
-            src={clippyImage}
-            alt="Clippy - Assistente"
-            className="w-16 h-24 object-contain drop-shadow-lg"
-            whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.88 }}
-            style={{ filter: mood === 'sleeping' ? 'brightness(0.85) saturate(0.7)' : 'none' }}
+        {/* Idle animation wrapper */}
+        <motion.div animate={getAnimationStyle()}>
+          {/* Shadow */}
+          <motion.div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/10 rounded-full blur-sm"
+            animate={{
+              scaleX: animation === 'jump' ? [1, 0.6, 1.2, 0.8, 1] : [1, 0.9, 1, 0.95, 1],
+              opacity: animation === 'jump' ? [0.3, 0.1, 0.4, 0.2, 0.3] : [0.3, 0.2, 0.3, 0.25, 0.3],
+            }}
+            transition={{ duration: animation === 'jump' ? 0.6 : 4, repeat: animation === 'idle' ? Infinity : 0, ease: 'easeInOut' }}
           />
 
-          {/* Sleeping Zzz */}
-          {mood === 'sleeping' && (
-            <div className="absolute -top-1 -right-2">
-              <motion.span
-                className="text-[10px] font-bold text-muted-foreground"
-                animate={{ opacity: [0, 1, 0], y: [0, -8] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                z
-              </motion.span>
-              <motion.span
-                className="text-xs font-bold text-muted-foreground absolute -top-2 left-2"
-                animate={{ opacity: [0, 1, 0], y: [0, -10] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-              >
-                Z
-              </motion.span>
-            </div>
-          )}
+          {/* Clippy body */}
+          <div className="relative">
+            <motion.img
+              src={clippyImage}
+              alt="Clippy - Assistente"
+              className="w-16 h-24 object-contain drop-shadow-lg pointer-events-none"
+              whileHover={{ scale: 1.12 }}
+              whileTap={{ scale: 0.88 }}
+              style={{ filter: mood === 'sleeping' ? 'brightness(0.85) saturate(0.7)' : 'none' }}
+            />
 
-          {/* Close/Hide button */}
-          <button
-            onClick={handleHide}
-            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-card border border-border shadow-sm flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors opacity-0 group-hover/clippy:opacity-100"
-            title="Ocultar Clippy"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
+            {/* Sleeping Zzz */}
+            {mood === 'sleeping' && (
+              <div className="absolute -top-1 -right-2">
+                <motion.span
+                  className="text-[10px] font-bold text-muted-foreground"
+                  animate={{ opacity: [0, 1, 0], y: [0, -8] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  z
+                </motion.span>
+                <motion.span
+                  className="text-xs font-bold text-muted-foreground absolute -top-2 left-2"
+                  animate={{ opacity: [0, 1, 0], y: [0, -10] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                >
+                  Z
+                </motion.span>
+              </div>
+            )}
+
+            {/* Close/Hide button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); handleHide(e); }}
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-card border border-border shadow-sm flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors opacity-0 group-hover/clippy:opacity-100"
+              title="Ocultar Clippy"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        </motion.div>
       </motion.div>
 
       {/* FAQ Panel */}
@@ -431,7 +477,11 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-[230px] right-3 sm:right-4 lg:bottom-[170px] z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            style={{
+              bottom: `calc(100vh - ${window.innerHeight + dragPosition.y - 100}px)`,
+              right: `calc(100vw - ${window.innerWidth + dragPosition.x + 80}px)`,
+            }}
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-gradient-to-r from-primary/5 to-primary/10">

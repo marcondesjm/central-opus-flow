@@ -980,7 +980,7 @@ export default function KanbanPage() {
           <div ref={kanbanRef} onWheel={handleWheel} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto" style={{ maxWidth: `${1800 / zoomLevel}px` }}>
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
-                <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4">
+                <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4 origin-top-left transition-transform duration-150" style={{ transform: `scale(${zoomLevel})` }}>
                   {columns?.map((column, colIndex) => {
                     const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
                     return (

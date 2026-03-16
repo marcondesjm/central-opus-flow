@@ -585,9 +585,9 @@ export function Sidebar({
               const isPaidPlan = (currentPlan === 'pro' || currentPlan === 'business') && 
                 (sub?.payment_status === 'paid' || sub?.payment_status === 'verified');
               if (isPaidPlan && daysLeft > 30) return null;
-              return (
+                return (
                 <p className={cn("text-[10px]", daysLeft <= 3 ? 'text-destructive font-semibold' : daysLeft <= 7 ? 'text-amber-600' : 'text-muted-foreground')}>
-                  {daysLeft <= 0 ? 'Expirado' : `Expira em ${daysLeft} dia${daysLeft !== 1 ? 's' : ''}`}
+                  {daysLeft <= 0 ? t('sidebar.expired') : t('sidebar.expiresIn', { days: daysLeft })}
                 </p>
               );
             })()}

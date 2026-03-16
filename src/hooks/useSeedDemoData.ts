@@ -686,7 +686,7 @@ export function useSeedDemoData() {
       
       // Now re-seed fresh data
       setSeeding(false);
-      return await seedDemoData(true);
+      return await seedDemoData(true, true);
     } catch (error) {
       console.error('Error resetting demo data:', error);
       setSeeding(false);

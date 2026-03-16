@@ -416,7 +416,7 @@ export function AddAccountModal({ open, onOpenChange }: AddAccountModalProps) {
                 </AccordionItem>
               </Accordion>
             </div>
-          </ScrollArea>
+          </div>
           
           <DialogFooter className="flex-shrink-0 p-6 pt-4 border-t">
             <Button

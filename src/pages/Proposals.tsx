@@ -524,24 +524,24 @@ export default function Proposals() {
 
       {/* Preview Dialog for list mode */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto px-3 sm:px-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              Preview da Proposta
-              <div className="flex items-center gap-2">
+            <DialogTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span>Preview da Proposta</span>
+              <div className="grid grid-cols-1 gap-2 sm:flex sm:items-center">
                 {currentProposal.status !== 'draft' && currentProposal.share_token && (
-                  <Button size="sm" variant="outline" onClick={() => copyShareLink(currentProposal.share_token!)}>
+                  <Button size="sm" variant="outline" onClick={() => copyShareLink(currentProposal.share_token!)} className="w-full sm:w-auto">
                     {copied ? <Check className="w-4 h-4 mr-2" /> : <Share2 className="w-4 h-4 mr-2" />}
                     Copiar Link
                   </Button>
                 )}
                 {currentProposal.client_phone && (
-                  <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => sendWhatsApp(currentProposal)}>
+                  <Button size="sm" variant="outline" className="w-full text-emerald-600 border-emerald-200 hover:bg-emerald-50 sm:w-auto" onClick={() => sendWhatsApp(currentProposal)}>
                     <MessageCircle className="w-4 h-4 mr-2" />
                     WhatsApp
                   </Button>
                 )}
-                <Button size="sm" onClick={exportPDF} disabled={exporting}>
+                <Button size="sm" onClick={exportPDF} disabled={exporting} className="w-full sm:w-auto">
                   {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
                   PDF
                 </Button>

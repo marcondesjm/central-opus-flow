@@ -40,7 +40,7 @@ const greetings = [
 ];
 
 type ClippyMood = 'normal' | 'happy' | 'thinking' | 'surprised' | 'sleeping' | 'wink';
-type ClippyAnimation = 'idle' | 'wave' | 'jump' | 'lean' | 'spin' | 'bounce' | 'peek';
+type ClippyAnimation = 'idle' | 'wave' | 'jump' | 'lean' | 'spin' | 'bounce' | 'peek' | 'knock';
 
 export function ClippyAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,7 +82,7 @@ export function ClippyAssistant() {
     return () => clearInterval(interval);
   }, [isOpen, sounds]);
 
-  // Go to sleep after inactivity
+  // Go to sleep after inactivity, then knock on screen
   useEffect(() => {
     if (isOpen) {
       setMood('happy');
@@ -92,13 +92,25 @@ export function ClippyAssistant() {
     clearTimeout(idleTimerRef.current);
     idleTimerRef.current = setTimeout(() => {
       if (!isOpen && !showGreeting) {
-        setMood('sleeping');
-        setAnimation('idle');
+        // Knock on screen animation before sleeping
+        setAnimation('knock');
+        setMood('surprised');
+        sounds.playTap();
+        setTimeout(() => {
+          sounds.playTap();
+          setTimeout(() => {
+            sounds.playTap();
+            setTimeout(() => {
+              setAnimation('idle');
+              setMood('sleeping');
+            }, 400);
+          }, 200);
+        }, 200);
       }
     }, 45000);
 
     return () => clearTimeout(idleTimerRef.current);
-  }, [isOpen, showGreeting, animation]);
+  }, [isOpen, showGreeting, animation, sounds]);
 
   // Wake up on mouse move near clippy
   useEffect(() => {
@@ -240,6 +252,12 @@ export function ClippyAssistant() {
           rotate: [0, 360],
           transition: { duration: 0.8, ease: 'easeInOut' as const },
         };
+      case 'knock':
+        return {
+          x: [0, -6, 2, -6, 2, -4, 0],
+          rotate: [0, -8, 3, -8, 3, -4, 0],
+          transition: { duration: 0.8, ease: 'easeInOut' as const },
+        };
       default: // idle
         return {
           y: [0, -4, 0, -2, 0],
@@ -259,7 +277,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.8 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-[160px] right-3 sm:right-4 lg:bottom-[100px] z-[60] max-w-[230px]"
+            className="fixed bottom-[220px] right-3 sm:right-4 lg:bottom-[150px] z-[60] max-w-[230px]"
           >
             <div className="relative bg-card border border-border shadow-lg rounded-xl px-3 py-2.5">
               <button
@@ -301,7 +319,7 @@ export function ClippyAssistant() {
 
       {/* Clippy character */}
       <motion.div
-        className="fixed bottom-[88px] right-3 sm:right-4 lg:bottom-[60px] z-[60] cursor-pointer select-none"
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] cursor-pointer select-none"
         animate={getAnimationStyle()}
         onClick={handleOpen}
         onMouseEnter={() => {
@@ -322,7 +340,7 @@ export function ClippyAssistant() {
       >
         {/* Shadow */}
         <motion.div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-3 bg-black/10 rounded-full blur-sm"
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/10 rounded-full blur-sm"
           animate={{
             scaleX: animation === 'jump' ? [1, 0.6, 1.2, 0.8, 1] : [1, 0.9, 1, 0.95, 1],
             opacity: animation === 'jump' ? [0.3, 0.1, 0.4, 0.2, 0.3] : [0.3, 0.2, 0.3, 0.25, 0.3],
@@ -335,16 +353,11 @@ export function ClippyAssistant() {
           <motion.img
             src={clippyImage}
             alt="Clippy - Assistente"
-            className="w-16 h-20 object-contain drop-shadow-md"
+            className="w-20 h-24 object-contain drop-shadow-lg"
             whileHover={{ scale: 1.12 }}
             whileTap={{ scale: 0.88 }}
             style={{ filter: mood === 'sleeping' ? 'brightness(0.85)' : 'none' }}
           />
-
-          {/* Animated eyes overlay */}
-          <div className="absolute top-[12px] left-1/2 -translate-x-1/2">
-            <ClippyEyes mood={mood} size={0.7} />
-          </div>
         </div>
       </motion.div>
 
@@ -356,7 +369,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-[170px] right-3 sm:right-4 lg:bottom-[140px] z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-[230px] right-3 sm:right-4 lg:bottom-[170px] z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-gradient-to-r from-primary/5 to-primary/10">

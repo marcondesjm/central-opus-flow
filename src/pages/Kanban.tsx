@@ -1061,9 +1061,8 @@ export default function KanbanPage() {
                                           onDelete={() => setDeletingId(deal.id)}
                                           onPayments={() => setPaymentsDeal(deal)}
                                           onDetail={() => setDetailDeal(deal)}
-                                          onCustomWhatsApp={() => {
-                                            const valor = deal.revenue ? `R$ ${Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '';
-                                            setCustomWhatsAppMsg(`Olá! Tudo bem?\n\n${valor ? `Valor: ${valor}.\n\n` : ''}`);
+                                          onWhatsAppMsg={(msg) => {
+                                            setCustomWhatsAppMsg(msg);
                                             setWhatsAppCustomDeal(deal);
                                           }}
                                         />

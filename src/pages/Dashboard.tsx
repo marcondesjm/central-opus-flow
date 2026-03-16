@@ -664,6 +664,7 @@ export default function Dashboard() {
           )}
           </div>
           </div>
+          </div>
           
           {/* Footer com versão */}
           <AppFooter />

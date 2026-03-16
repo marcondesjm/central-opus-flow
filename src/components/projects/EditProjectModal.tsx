@@ -387,7 +387,7 @@ export function EditProjectModal({ open, onOpenChange, project }: EditProjectMod
                 updateProject.mutateAsync({
                   id: project.id,
                   repository_url: url,
-                } as any);
+                });
               }}
             />
           </TabsContent>

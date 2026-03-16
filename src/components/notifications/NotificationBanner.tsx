@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Bell, CheckCircle, AlertTriangle, AlertCircle, Info } from 'lucide-react';
+import { X, Bell, CheckCircle, AlertTriangle, AlertCircle, Info, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Notification } from './NotificationCenter';
@@ -47,38 +47,47 @@ export function NotificationBanner({ notifications, onMarkAsRead }: Notification
   return (
     <div className="fixed top-20 right-4 z-[60] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
       <AnimatePresence>
-        {visibleNotifications.map((notification) => (
-          <motion.div
-            key={notification.id}
-            initial={{ opacity: 0, x: 100, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 100, scale: 0.95 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="pointer-events-auto"
-          >
-            <div className={`bg-card border border-border border-l-4 ${borderMap[notification.type]} rounded-xl p-4 shadow-lg`}>
-              <div className="flex items-start gap-3">
-                <div className="shrink-0 mt-0.5">
-                  {iconMap[notification.type]}
+        {visibleNotifications.map((notification) => {
+          const isScheduledMsg = notification.notificationType === 'scheduled_message';
+
+          return (
+            <motion.div
+              key={notification.id}
+              initial={{ opacity: 0, x: 100, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 100, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="pointer-events-auto"
+            >
+              <div className={`bg-card border border-border border-l-4 ${borderMap[notification.type]} rounded-xl p-4 shadow-lg ${isScheduledMsg ? 'ring-2 ring-amber-500/50 animate-pulse' : ''}`}>
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 mt-0.5">
+                    {isScheduledMsg ? <MessageCircle className="w-5 h-5 text-green-500" /> : iconMap[notification.type]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold">{notification.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {notification.message}
+                    </p>
+                    {isScheduledMsg && (
+                      <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mt-1">
+                        📲 Abra o menu Agendadas no Kanban para enviar
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 shrink-0"
+                    onClick={() => handleDismiss(notification.id)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold">{notification.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {notification.message}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={() => handleDismiss(notification.id)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
     </div>
   );

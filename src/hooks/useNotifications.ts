@@ -73,11 +73,12 @@ export function useNotifications() {
         },
         (payload) => {
           const n = payload.new as any;
+          const isScheduledMessage = n.type === 'scheduled_message';
           const mapped: Notification = {
             id: `collab-${n.id}`,
             title: n.title,
             message: n.message,
-            type: 'info',
+            type: isScheduledMessage ? 'warning' : 'info',
             read: false,
             createdAt: new Date(n.created_at),
             entityType: n.entity_type,
@@ -85,6 +86,30 @@ export function useNotifications() {
             notificationType: n.type,
           };
           setCollabNotifications(prev => [mapped, ...prev]);
+
+          // Play sound alert for scheduled messages
+          if (isScheduledMessage) {
+            try {
+              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const playTone = (freq: number, start: number, dur: number) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime + start);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + start + dur);
+                osc.start(audioCtx.currentTime + start);
+                osc.stop(audioCtx.currentTime + start + dur);
+              };
+              playTone(587, 0, 0.15);
+              playTone(784, 0.15, 0.15);
+              playTone(880, 0.3, 0.3);
+            } catch (e) {
+              console.warn('Audio alert failed:', e);
+            }
+          }
         }
       )
       .subscribe();

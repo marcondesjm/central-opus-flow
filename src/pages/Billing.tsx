@@ -1136,6 +1136,11 @@ export default function BillingPage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* PIX Tab */}
+          <TabsContent value="pix" className="mt-4">
+            <PixKeysManager />
+          </TabsContent>
         </Tabs>
       </div>
 

@@ -68,6 +68,25 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const projectsRef = useRef<HTMLDivElement>(null);
+
+  // Zoom with Ctrl+Scroll
+  useEffect(() => {
+    const el = projectsRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setZoomLevel(prev => {
+          const delta = e.deltaY > 0 ? -0.05 : 0.05;
+          return Math.min(1.5, Math.max(0.4, prev + delta));
+        });
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
+  }, []);
 
   // Open settings modal from URL query param (?settings=profile)
   const location = useLocation();

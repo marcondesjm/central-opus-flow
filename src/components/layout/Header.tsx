@@ -379,6 +379,15 @@ export function Header({
                 <FileText className="w-4 h-4" />
                 {t('sidebar.commercialProposals')}
               </DropdownMenuItem>
+              {canInstall && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="gap-2 text-primary focus:text-primary" onClick={installPwa}>
+                    <Download className="w-4 h-4" />
+                    Instalar Central Opus Flow
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <a

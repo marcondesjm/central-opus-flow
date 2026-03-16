@@ -279,11 +279,29 @@ export function ClippyAssistant() {
     }
   };
 
+  if (isHidden) {
+    return (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="fixed bottom-[130px] right-3 sm:right-4 lg:bottom-[80px] z-[60] w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-accent transition-colors"
+        onClick={() => {
+          setIsHidden(false);
+          sessionStorage.removeItem('clippy-hidden');
+          setMood('happy');
+          setAnimation('wave');
+          sounds.playGreeting();
+          setTimeout(() => setAnimation('idle'), 1200);
+        }}
+        title="Mostrar Clippy"
+      >
+        <MessageCircleQuestion className="w-4 h-4 text-primary" />
+      </motion.button>
+    );
+  }
+
   return (
     <>
-      {/* Speech bubble with typing indicator */}
-      <AnimatePresence>
-        {(showGreeting || isTypingBubble) && !isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

@@ -304,10 +304,10 @@ export default function Proposals() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="order-2 lg:order-1">
+            <div>
               <ProposalForm proposal={currentProposal} onChange={setCurrentProposal} />
             </div>
-            <div className="order-1 lg:order-2 lg:sticky lg:top-6 lg:self-start">
+            <div className="hidden lg:block lg:sticky lg:top-6 lg:self-start">
               <div className="rounded-xl border border-border overflow-hidden bg-muted/30">
                 <div className="p-3 border-b border-border flex items-center justify-between">
                   <span className="text-xs font-semibold text-muted-foreground">PREVIEW</span>

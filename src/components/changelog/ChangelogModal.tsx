@@ -53,6 +53,8 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
     setIsRefreshing(true);
     await queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
     await queryClient.invalidateQueries({ queryKey: ['changelog'] });
+    await queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+    await queryClient.invalidateQueries({ queryKey: ['system-version'] });
     toast.success('Histórico atualizado!');
     setIsRefreshing(false);
   };

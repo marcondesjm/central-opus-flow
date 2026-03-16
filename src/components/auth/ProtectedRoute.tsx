@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CompleteProfileGate } from './CompleteProfileGate';
 import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
+import { useGlobalSync } from '@/hooks/useGlobalSync';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -32,6 +33,9 @@ interface ProfileCompletion {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading, signOut } = useAuth();
+  
+  // Sincronização global em tempo real
+  useGlobalSync();
 
   const { data: subStatus, isLoading: statusLoading } = useQuery({
     queryKey: ['user-status', user?.id],

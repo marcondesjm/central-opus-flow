@@ -281,7 +281,7 @@ export function useSeedDemoData() {
   const [seeding, setSeeding] = useState(false);
   const [clearing, setClearing] = useState(false);
 
-  const seedDemoData = useCallback(async (force = false) => {
+  const seedDemoData = useCallback(async (force = false, silent = false) => {
     if (!user?.id) return false;
     
     setSeeding(true);

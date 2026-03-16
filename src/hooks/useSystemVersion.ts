@@ -40,8 +40,9 @@ export function useSystemVersion() {
         updatedAt: new Date(configMap['app_version']?.updated_at || Date.now()),
       };
     },
-    staleTime: 30 * 1000, // 30 segundos
-    gcTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: 15 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: 30 * 1000,
   });
 }
 

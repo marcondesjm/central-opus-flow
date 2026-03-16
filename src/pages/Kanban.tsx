@@ -671,66 +671,67 @@ function RevenuePieChart({ deals, mode }: { deals: KanbanDeal[]; mode: PieMode }
 }
 
 function RevenueChart({ deals, chartType, pieMode }: { deals: KanbanDeal[]; chartType: 'bar' | 'pie'; pieMode: PieMode }) {
-  const chartData = useMemo(() => {
+  const barData = useMemo(() => {
     const now = new Date();
-    const monthMap: Record<string, Record<string, number>> = {};
-    const overdueMap: Record<string, Record<string, number>> = {};
+    const filteredDeals = deals.filter(d => (Number(d.revenue) || 0) > 0);
 
-    deals.filter(d => d.revenue > 0).forEach(deal => {
-      const month = format(new Date(deal.created_at), 'MMM/yy', { locale: ptBR });
-      const key = deal.company_name.slice(0, 15);
-      const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), now);
-
-      if (isOverdue) {
-        if (!overdueMap[month]) overdueMap[month] = {};
-        overdueMap[month][key] = (overdueMap[month][key] || 0) + Number(deal.revenue);
-      } else {
-        if (!monthMap[month]) monthMap[month] = {};
-        monthMap[month][key] = (monthMap[month][key] || 0) + Number(deal.revenue);
+    const getKey = (deal: KanbanDeal): string => {
+      if (pieMode === 'atrasados') {
+        if (!deal.due_date) return 'Sem prazo';
+        return isBefore(new Date(deal.due_date), now) ? 'Atrasado' : 'Em dia';
       }
+      if (pieMode === 'prioridade') {
+        return PRIORITY_OPTIONS.find(p => p.id === deal.priority)?.label || deal.priority || 'Sem prioridade';
+      }
+      if (pieMode === 'fase') {
+        return deal.phase || 'Sem fase';
+      }
+      return deal.company_name.slice(0, 15);
+    };
+
+    const monthMap: Record<string, Record<string, number>> = {};
+    const allKeys = new Set<string>();
+
+    filteredDeals.forEach(deal => {
+      const month = format(new Date(deal.created_at), 'MMM/yy', { locale: ptBR });
+      const key = getKey(deal);
+      allKeys.add(key);
+      if (!monthMap[month]) monthMap[month] = {};
+      monthMap[month][key] = (monthMap[month][key] || 0) + Number(deal.revenue);
     });
 
-    const companies = [...new Set(deals.filter(d => d.revenue > 0).map(d => d.company_name.slice(0, 15)))];
-    const allMonths = [...new Set([...Object.keys(monthMap), ...Object.keys(overdueMap)])];
+    const data = Object.keys(monthMap).map(month => ({ month, ...monthMap[month] }));
+    return { data, keys: [...allKeys] };
+  }, [deals, pieMode]);
 
-    const data = allMonths.map(month => ({
-      month,
-      ...monthMap[month],
-      ...Object.fromEntries(
-        Object.entries(overdueMap[month] || {}).map(([k, v]) => [`${k} (Atrasado)`, v])
-      ),
-    }));
-
-    const overdueCompanies = [...new Set(
-      Object.values(overdueMap).flatMap(m => Object.keys(m).map(k => `${k} (Atrasado)`))
-    )];
-
-    return { data, companies, overdueCompanies };
-  }, [deals]);
+  const getBarColor = (key: string, index: number) => {
+    if (pieMode === 'atrasados') {
+      return { 'Atrasado': '#ef4444', 'Em dia': '#10b981', 'Sem prazo': '#94a3b8' }[key] || PIE_COLORS[index % PIE_COLORS.length];
+    }
+    if (pieMode === 'prioridade') {
+      return { 'Urgente': '#ef4444', 'Alta': '#f97316', 'Média': '#f59e0b', 'Baixa': '#10b981' }[key] || '#94a3b8';
+    }
+    return PIE_COLORS[index % PIE_COLORS.length];
+  };
 
   if (chartType === 'pie') {
     return <RevenuePieChart deals={deals} mode={pieMode} />;
   }
 
-  if (chartData.data.length === 0) {
+  if (barData.data.length === 0) {
     return <p className="text-sm text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>;
   }
 
-  const colors = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ec4899', '#14b8a6'];
-
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData.data}>
+      <BarChart data={barData.data}>
         <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
         <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `R$${v}`} />
         <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
         <Legend />
-        {chartData.companies.map((company, i) => (
-          <Bar key={company} dataKey={company} fill={colors[i % colors.length]} radius={[4, 4, 0, 0]} />
-        ))}
-        {chartData.overdueCompanies.map((company, i) => (
-          <Bar key={company} dataKey={company} fill="#ef4444" radius={[4, 4, 0, 0]} strokeDasharray="3 3" stroke="#b91c1c" strokeWidth={1} />
+        {barData.keys.map((key, i) => (
+          <Bar key={key} dataKey={key} fill={getBarColor(key, i)} radius={[4, 4, 0, 0]} />
         ))}
       </BarChart>
     </ResponsiveContainer>
@@ -1243,16 +1244,14 @@ export default function KanbanPage() {
                     'Faturamento por Fase'}
                 </h3>
                 <div className="flex items-center gap-2">
-                  {revenueChartType === 'pie' && (
-                    <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
-                      <TabsList className="h-7">
-                        <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
-                        <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
-                        <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
-                        <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  )}
+                  <Tabs value={pieMode} onValueChange={v => setPieMode(v as PieMode)}>
+                    <TabsList className="h-7">
+                      <TabsTrigger value="cliente" className="text-xs px-2 h-6">Cliente</TabsTrigger>
+                      <TabsTrigger value="atrasados" className="text-xs px-2 h-6">Atrasados</TabsTrigger>
+                      <TabsTrigger value="prioridade" className="text-xs px-2 h-6">Prioridade</TabsTrigger>
+                      <TabsTrigger value="fase" className="text-xs px-2 h-6">Fase</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                   <Tabs value={revenueChartType} onValueChange={v => setRevenueChartType(v as 'bar' | 'pie')}>
                     <TabsList className="h-7">
                       <TabsTrigger value="bar" className="text-xs px-2 h-6">Barras</TabsTrigger>

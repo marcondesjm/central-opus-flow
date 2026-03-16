@@ -691,6 +691,8 @@ export default function KanbanPage() {
   const [showChart, setShowChart] = useState(searchParams.get('view') === 'billing');
   const [paymentsDeal, setPaymentsDeal] = useState<KanbanDeal | null>(null);
   const [detailDeal, setDetailDeal] = useState<KanbanDeal | null>(null);
+  const [whatsAppCustomDeal, setWhatsAppCustomDeal] = useState<KanbanDeal | null>(null);
+  const [customWhatsAppMsg, setCustomWhatsAppMsg] = useState('');
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');

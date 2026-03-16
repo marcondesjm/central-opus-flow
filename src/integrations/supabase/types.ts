@@ -793,6 +793,47 @@ export type Database = {
           },
         ]
       }
+      kanban_scheduled_messages: {
+        Row: {
+          created_at: string
+          deal_id: string
+          id: string
+          message: string
+          scheduled_date: string
+          sent: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          id?: string
+          message: string
+          scheduled_date: string
+          sent?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          id?: string
+          message?: string
+          scheduled_date?: string
+          sent?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_scheduled_messages_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kanban_task_checklist: {
         Row: {
           created_at: string

@@ -1308,6 +1308,97 @@ export default function KanbanPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Scheduled Messages List */}
+      <Dialog open={showScheduledList} onOpenChange={setShowScheduledList}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-muted-foreground" />
+              Mensagens Agendadas
+            </DialogTitle>
+          </DialogHeader>
+          {loadingScheduled ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : scheduledMessages.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">Nenhuma mensagem agendada</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {scheduledMessages.map((msg: any) => {
+                const deal = msg.kanban_deals;
+                const isOverdue = msg.scheduled_date < format(new Date(), 'yyyy-MM-dd');
+                const isToday = msg.scheduled_date === format(new Date(), 'yyyy-MM-dd');
+                return (
+                  <Card key={msg.id} className={cn(
+                    'transition-colors',
+                    msg.sent ? 'opacity-60' : '',
+                    isOverdue && !msg.sent ? 'border-destructive/50 bg-destructive/5' : '',
+                    isToday && !msg.sent ? 'border-primary/50 bg-primary/5' : ''
+                  )}>
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium text-sm">{deal?.company_name || 'Cliente'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {msg.sent ? (
+                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">✅ Enviada</Badge>
+                          ) : isOverdue ? (
+                            <Badge variant="destructive" className="text-xs">⚠️ Atrasada</Badge>
+                          ) : isToday ? (
+                            <Badge className="text-xs bg-primary/10 text-primary border-primary/30" variant="outline">📅 Hoje</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">⏰ Pendente</Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {format(new Date(msg.scheduled_date + 'T12:00:00'), 'dd/MM/yyyy', { locale: ptBR })}
+                        {deal?.client_name && (
+                          <>
+                            <span className="mx-1">·</span>
+                            <User className="w-3 h-3" />
+                            {deal.client_name}
+                          </>
+                        )}
+                      </div>
+                      <p className="text-xs bg-muted/50 rounded p-2 whitespace-pre-wrap line-clamp-3">{msg.message}</p>
+                      {!msg.sent && (
+                        <div className="flex gap-2 pt-1">
+                          {deal?.client_whatsapp && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
+                              const phone = deal.client_whatsapp.replace(/\D/g, '');
+                              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+                              supabase.from('kanban_scheduled_messages').update({ sent: true }).eq('id', msg.id).then(() => {
+                                setScheduledMessages(prev => prev.map(m => m.id === msg.id ? { ...m, sent: true } : m));
+                              });
+                            }}>
+                              <MessageCircle className="w-3 h-3 mr-1" /> Enviar agora
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive hover:text-destructive" onClick={async () => {
+                            await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
+                            setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
+                            toast({ title: 'Mensagem removida' });
+                          }}>
+                            <Trash2 className="w-3 h-3 mr-1" /> Remover
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

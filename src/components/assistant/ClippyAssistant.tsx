@@ -433,9 +433,25 @@ export function ClippyAssistant() {
               src={clippyImage}
               alt="Clippy - Assistente"
               className="w-16 h-24 object-contain drop-shadow-lg pointer-events-none"
+              style={{
+                filter: mood === 'sleeping' ? 'brightness(0.85) saturate(0.7)' : 'none',
+                transformOrigin: 'bottom center',
+              }}
+              animate={
+                mood === 'surprised' ? { rotateZ: [0, -8, 8, -4, 0], scaleX: [1, 1.05, 0.95, 1] } :
+                mood === 'happy' ? { rotateZ: [0, -4, 4, -2, 0], y: [0, -3, 0] } :
+                mood === 'thinking' ? { rotateZ: [0, 3, 0, 3, 0] } :
+                mood === 'wink' ? { rotateZ: [0, -5, 0] } :
+                mood === 'sleeping' ? { rotateZ: [0, 2, 0, -2, 0] } :
+                { rotateZ: [0, -3, 3, -1.5, 0], y: [0, -1, 0] }
+              }
+              transition={
+                mood === 'surprised' ? { duration: 0.5, ease: 'easeOut' } :
+                mood === 'happy' ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } :
+                { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+              }
               whileHover={{ scale: 1.12 }}
               whileTap={{ scale: 0.88 }}
-              style={{ filter: mood === 'sleeping' ? 'brightness(0.85) saturate(0.7)' : 'none' }}
             />
 
 

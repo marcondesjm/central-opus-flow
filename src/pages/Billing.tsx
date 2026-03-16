@@ -615,13 +615,13 @@ export default function BillingPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="flex items-center justify-between px-4 py-3 max-w-[1400px] mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1400px] mx-auto gap-2">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-lg font-bold flex items-center gap-2">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-primary" />
                 Faturamento
               </h1>
@@ -630,30 +630,30 @@ export default function BillingPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={handleExportBilling} className="gap-1.5" title="Exportar dados">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <Button size="sm" variant="ghost" onClick={handleExportBilling} className="gap-1.5 h-8 text-xs px-2" title="Exportar dados">
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">Exportar</span>
             </Button>
             <label>
               <input type="file" accept=".json" className="hidden" onChange={handleImportBilling} />
-              <Button size="sm" variant="ghost" asChild className="gap-1.5 cursor-pointer" title="Importar dados">
+              <Button size="sm" variant="ghost" asChild className="gap-1.5 cursor-pointer h-8 text-xs px-2" title="Importar dados">
                 <span>
                   <Upload className="w-4 h-4" />
                   <span className="hidden sm:inline">Importar</span>
                 </span>
               </Button>
             </label>
-            <Button size="sm" variant="outline" onClick={() => setShowAddExpense(true)} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setShowAddExpense(true)} className="gap-1.5 h-8 text-xs px-2">
               <Minus className="w-4 h-4" />
               <span className="hidden sm:inline">Despesa</span>
             </Button>
-            <Button size="sm" onClick={() => setShowAddPayment(true)} className="gap-1.5">
+            <Button size="sm" onClick={() => setShowAddPayment(true)} className="gap-1.5 h-8 text-xs px-2">
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Pagamento</span>
             </Button>
             <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-44 h-8 text-xs">
+              <SelectTrigger className="w-32 sm:w-44 h-8 text-xs">
                 <Calendar className="w-3.5 h-3.5 mr-1" />
                 <SelectValue />
               </SelectTrigger>

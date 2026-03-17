@@ -180,6 +180,8 @@ export function ClippyAssistant() {
 
   // Periodically show tips
   useEffect(() => {
+    if (isHidden) return; // Don't run when hidden
+
     const tipInterval = setInterval(() => {
       if (!isOpen && !showGreeting && mood !== 'sleeping') {
         const text = greetings[Math.floor(Math.random() * greetings.length)];
@@ -198,10 +200,10 @@ export function ClippyAssistant() {
           }, 6000);
         }, 1000);
       }
-    }, 50000 + Math.random() * 30000);
+    }, 80000 + Math.random() * 40000); // Less frequent tips
 
     return () => clearInterval(tipInterval);
-  }, [isOpen, showGreeting, mood, sounds]);
+  }, [isOpen, isHidden, showGreeting, mood, sounds]);
 
   const filteredFaqs = faqs?.filter((faq) => {
     const matchesSearch =

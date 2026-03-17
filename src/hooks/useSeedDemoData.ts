@@ -412,6 +412,97 @@ const demoIdeas = [
   },
 ];
 
+// Demo proposals
+const demoProposals = [
+  {
+    client_name: 'Carlos Mendes',
+    client_email: 'carlos@technova.com',
+    client_phone: '5511999990001',
+    client_company: 'TechNova Solutions',
+    proposal_title: 'Desenvolvimento de Landing Page SaaS',
+    description: 'Proposta para criação de landing page responsiva com integração de formulário de captura, analytics e otimização SEO.',
+    services: JSON.stringify([
+      { name: 'Design UI/UX', description: 'Wireframes e protótipo interativo', quantity: 1, unit_price: 1200 },
+      { name: 'Desenvolvimento Front-end', description: 'Implementação responsiva com React', quantity: 1, unit_price: 1800 },
+      { name: 'Integração Analytics', description: 'Google Analytics + Meta Pixel', quantity: 1, unit_price: 500 },
+    ]),
+    total_value: 3500,
+    discount: 0,
+    status: 'sent',
+    brand_color: '#3b82f6',
+    brand_secondary_color: '#1e293b',
+    company_name: 'Opus Digital',
+    company_email: 'contato@opusdigital.com',
+    company_phone: '5548996029392',
+    payment_conditions: '50% na aprovação, 50% na entrega',
+    validity_days: 15,
+    deadline_days: 30,
+  },
+  {
+    client_name: 'Ana Beatriz',
+    client_email: 'ana@modaexpress.com',
+    client_phone: '5511999990002',
+    client_company: 'Moda Express',
+    proposal_title: 'E-commerce Completo com Gestão de Estoque',
+    description: 'Proposta para desenvolvimento de loja virtual completa com catálogo, carrinho, checkout, gestão de estoque e integração de pagamentos.',
+    services: JSON.stringify([
+      { name: 'Design E-commerce', description: 'Layout personalizado com identidade visual', quantity: 1, unit_price: 2500 },
+      { name: 'Desenvolvimento Full-stack', description: 'Front-end + Back-end + Banco de dados', quantity: 1, unit_price: 5000 },
+      { name: 'Integração Pagamentos', description: 'Stripe + PIX + Boleto', quantity: 1, unit_price: 1500 },
+      { name: 'Gestão de Estoque', description: 'Painel administrativo com controle de inventário', quantity: 1, unit_price: 2000 },
+      { name: 'Treinamento', description: 'Capacitação da equipe (4h)', quantity: 1, unit_price: 1000 },
+    ]),
+    total_value: 12000,
+    discount: 0,
+    status: 'accepted',
+    accepted_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    brand_color: '#ef4444',
+    brand_secondary_color: '#1e293b',
+    company_name: 'Opus Digital',
+    company_email: 'contato@opusdigital.com',
+    payment_conditions: '3x de R$ 4.000 (entrada + 30 + 60 dias)',
+    validity_days: 10,
+    deadline_days: 45,
+  },
+  {
+    client_name: 'Fernando Lima',
+    client_email: 'fernando@imotech.com',
+    client_phone: '5541999990005',
+    client_company: 'ImoTech',
+    proposal_title: 'Dashboard Analytics Imobiliário',
+    description: 'Proposta para desenvolvimento de painel de analytics com KPIs do mercado imobiliário, gráficos interativos e exportação de relatórios.',
+    services: JSON.stringify([
+      { name: 'Arquitetura de Dados', description: 'Modelagem e ETL dos dados imobiliários', quantity: 1, unit_price: 3000 },
+      { name: 'Dashboard Interativo', description: 'Painel com filtros, gráficos e mapas', quantity: 1, unit_price: 6000 },
+      { name: 'Relatórios PDF', description: 'Geração automática de relatórios', quantity: 1, unit_price: 2000 },
+      { name: 'API de Integração', description: 'Conexão com sistemas existentes', quantity: 1, unit_price: 3000 },
+      { name: 'Suporte 3 meses', description: 'Manutenção e ajustes pós-entrega', quantity: 1, unit_price: 1000 },
+    ]),
+    total_value: 15000,
+    discount: 0,
+    status: 'draft',
+    brand_color: '#06b6d4',
+    brand_secondary_color: '#0f172a',
+    company_name: 'Opus Digital',
+    company_email: 'contato@opusdigital.com',
+    payment_conditions: '3 parcelas iguais de R$ 5.000',
+    validity_days: 15,
+    deadline_days: 60,
+  },
+];
+
+// Demo expenses
+const demoExpenses = [
+  { amount: 49.90, category: 'ferramentas', description: 'Assinatura Figma Pro', expense_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 29.90, category: 'ferramentas', description: 'Assinatura Vercel Pro', expense_date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 150.00, category: 'marketing', description: 'Google Ads - campanha leads', expense_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 200.00, category: 'marketing', description: 'Meta Ads - Instagram', expense_date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 85.00, category: 'infraestrutura', description: 'Servidor AWS (mês atual)', expense_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 120.00, category: 'geral', description: 'Compra de imagens stock (Shutterstock)', expense_date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 350.00, category: 'freelancer', description: 'Designer freelancer - ícones personalizados', expense_date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+  { amount: 75.00, category: 'ferramentas', description: 'Plugin premium WordPress', expense_date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+];
+
 export function useSeedDemoData() {
   const { user } = useAuth();
   const [seeding, setSeeding] = useState(false);

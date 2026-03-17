@@ -970,6 +970,38 @@ export function useSeedDemoData() {
     return projects && projects.length > 0;
   }, [user?.id]);
 
+  const hasCompleteDemoData = useCallback(async () => {
+    if (!user?.id) return false;
+
+    const [
+      accountsResult,
+      projectsResult,
+      dealsResult,
+      messagesResult,
+      ideasResult,
+      proposalsResult,
+      expensesResult,
+    ] = await Promise.all([
+      supabase.from('lovable_accounts').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('projects').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('kanban_deals').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('kanban_scheduled_messages').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('ideas').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('proposals').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('kanban_expenses').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    ]);
+
+    return [
+      accountsResult.count,
+      projectsResult.count,
+      dealsResult.count,
+      messagesResult.count,
+      ideasResult.count,
+      proposalsResult.count,
+      expensesResult.count,
+    ].every((count) => (count ?? 0) > 0);
+  }, [user?.id]);
+
   const resetDemoData = useCallback(async () => {
     if (!user?.id) return false;
     
@@ -1027,6 +1059,7 @@ export function useSeedDemoData() {
     resetDemoData,
     hasDemoAccount,
     hasDemoProjects,
+    hasCompleteDemoData,
     seeding,
     clearing,
   };

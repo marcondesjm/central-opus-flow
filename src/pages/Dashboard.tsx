@@ -149,7 +149,7 @@ export default function Dashboard() {
     showTour,
   } = useOnboarding();
 
-  const { seedDemoData, resetDemoData, seeding: demoResetting } = useSeedDemoData();
+  const { seedDemoData, resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
   const [demoSeeded, setDemoSeeded] = useState(false);
   const [demoResetDone, setDemoResetDone] = useState(() => {
@@ -178,16 +178,30 @@ export default function Dashboard() {
   // Auto-reset demo data for the demo account on each new session (login)
   const isDemoAccount = user?.email === 'usercentral@gmail.com';
   useEffect(() => {
-    if (isDemoAccount && !demoResetDone && !accountsLoading && user?.id) {
-      setDemoResetDone(true);
-      sessionStorage.setItem('demo_data_reset', 'true');
-      resetDemoData().then((result) => {
-        if (result) {
+    if (!isDemoAccount || accountsLoading || !user?.id || demoResetting) return;
+
+    let cancelled = false;
+
+    const ensureDemoAccountData = async () => {
+      const hasAllExamples = await hasCompleteDemoData();
+      if (cancelled) return;
+
+      if (!demoResetDone || !hasAllExamples) {
+        setDemoResetDone(true);
+        sessionStorage.setItem('demo_data_reset', 'true');
+        const result = await resetDemoData();
+        if (!cancelled && result) {
           window.location.reload();
         }
-      });
-    }
-  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, resetDemoData]);
+      }
+    };
+
+    void ensureDemoAccountData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData]);
 
   // Seed demo data for new users (non-demo accounts)
   useEffect(() => {

@@ -565,10 +565,36 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     </Popover>
                   </div>
 
-                  {/* Start date */}
+                  {/* Start date - date picker */}
                   <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                     <span className="text-sm text-muted-foreground">Start date</span>
-                    <span className="text-sm text-muted-foreground">Nenhum</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="text-sm inline-flex items-center gap-1 px-2 py-0.5 rounded border border-border w-fit hover:bg-muted/50 transition-colors">
+                          {deal.start_date ? (
+                            format(new Date(deal.start_date), "d 'de' MMM. 'de' yyyy", { locale: ptBR })
+                          ) : (
+                            <span className="text-muted-foreground">Nenhum</span>
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={deal.start_date ? new Date(deal.start_date) : undefined}
+                          onSelect={(date) => updateDeal.mutate({ id: deal.id, start_date: date ? date.toISOString() : null })}
+                          locale={ptBR}
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                        {deal.start_date && (
+                          <div className="p-2 border-t">
+                            <Button size="sm" variant="ghost" className="w-full text-xs text-destructive" onClick={() => updateDeal.mutate({ id: deal.id, start_date: null })}>
+                              Remover data
+                            </Button>
+                          </div>
+                        )}
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Valor - editable */}

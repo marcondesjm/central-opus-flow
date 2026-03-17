@@ -32,6 +32,8 @@ import {
   CheckCircle2,
   CreditCard,
   FileText,
+  Settings2,
+  UsersRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

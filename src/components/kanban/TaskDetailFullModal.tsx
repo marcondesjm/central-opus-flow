@@ -218,7 +218,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               <span className="text-xs">1</span>
             </Button>
             <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex"
               title="Compartilhar"
               onClick={() => {
                 const url = `${window.location.origin}/kanban?deal=${deal.id}`;

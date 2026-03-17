@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { AppNavBar } from '@/components/layout/AppNavBar';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
@@ -943,6 +944,7 @@ function AddSpaceModal({ open, onOpenChange, existingCount }: { open: boolean; o
 
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const scheduledCount = useScheduledMessagesCount();
   const { toast } = useToast();
@@ -1224,12 +1226,14 @@ export default function KanbanPage() {
     const { draggableId, destination, source, type } = result;
     if (!destination) return;
 
+    // Force manual sort during drag
+    setSortMode('default');
+
     // Handle column reordering
     if (type === 'COLUMN') {
       if (source.index === destination.index) return;
       const sortedCols = [...(columns || [])];
       
-      // Find the "finalizados/concluido" column - prevent it from moving
       const movedCol = sortedCols[source.index];
       const isFinalizadoCol = movedCol?.name?.toLowerCase().includes('finalizado') || movedCol?.name?.toLowerCase().includes('conclu');
       if (isFinalizadoCol) return;
@@ -1241,16 +1245,18 @@ export default function KanbanPage() {
       const reordered = [...sortedCols];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
-      reordered.forEach((col, idx) => {
-        if (col.position !== idx) {
-          updateColumn.mutate({ id: col.id, position: idx });
-        }
-      });
+      await Promise.all(
+        reordered.map((col, idx) =>
+          col.position !== idx
+            ? supabase.from('kanban_columns').update({ position: idx }).eq('id', col.id)
+            : Promise.resolve()
+        )
+      );
+      queryClient.invalidateQueries({ queryKey: ['kanban-columns'] });
       return;
     }
 
     // Handle deal dragging
-
     const sourcePhase = source.droppableId;
     const destinationPhase = destination.droppableId;
     const sourceDeals = [...(dealsByColumn[sourcePhase] || [])];
@@ -1271,6 +1277,7 @@ export default function KanbanPage() {
             .eq('id', deal.id)
         )
       );
+      queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
       return;
     }
 
@@ -1295,6 +1302,8 @@ export default function KanbanPage() {
           .eq('id', deal.id)
       ),
     ]);
+
+    queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
 
     const oldColumn = columns?.find(c => c.id === movedDeal.phase);
     const newColumn = columns?.find(c => c.id === destinationPhase);

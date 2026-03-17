@@ -943,6 +943,7 @@ function AddSpaceModal({ open, onOpenChange, existingCount }: { open: boolean; o
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
   const { user } = useAuth();
+  const scheduledCount = useScheduledMessagesCount();
   const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();

@@ -5,6 +5,7 @@ import { DotRating } from '@/components/ideas/DotRating';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Header } from '@/components/layout/Header';

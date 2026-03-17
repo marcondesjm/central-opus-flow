@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Clock, Flag, User, Building2, X, Calendar, Tag, DollarSign, CheckSquare, Plus, Trash2, FileText, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, Clock, Flag, User, Building2, X, Calendar, Tag, DollarSign, CheckSquare, Plus, Trash2, FileText, AlertTriangle, Settings2, CalendarDays } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';

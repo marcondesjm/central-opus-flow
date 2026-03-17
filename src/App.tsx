@@ -142,10 +142,10 @@ function useDisableDevTools() {
       }
     };
 
-    // Limpar console periodicamente
+    // Clear console less frequently (30s instead of 3s)
     const consoleClearInterval = setInterval(() => {
       console.clear();
-    }, 3000);
+    }, 30000);
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);

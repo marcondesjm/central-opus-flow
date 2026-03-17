@@ -328,6 +328,90 @@ const demoHistoryEntries = [
   ],
 ];
 
+// Demo ideas for the Ideas/Discovery module
+const demoIdeas = [
+  {
+    title: 'Novo programa de recompensas',
+    description: 'Sistema de pontos e recompensas para fidelização de clientes recorrentes, com gamificação e níveis.',
+    theme: 'aumentar-receita',
+    theme_color: '#22c55e',
+    hypothesis: 'Se implementarmos um programa de fidelidade com gamificação, aumentaremos a retenção em 30% e o ticket médio em 15%.',
+    validation: 'Pesquisa com 50 clientes mostrou que 78% gostariam de acumular pontos. Benchmark: concorrentes com programa similar têm +25% retenção.',
+    decision: 'Aprovado para desenvolvimento. MVP com sistema de pontos simples, níveis Bronze/Prata/Ouro e resgate por descontos.',
+    impact: 5,
+    effort: 4,
+    roadmap: 'next',
+    progress: 35,
+    insights_count: 2,
+    start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end_date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  },
+  {
+    title: 'Finalização de compra expressa',
+    description: 'Checkout em 1 clique para clientes cadastrados, com dados salvos e confirmação por biometria.',
+    theme: 'conquistar-clientes',
+    theme_color: '#ef4444',
+    hypothesis: 'Reduzir o checkout de 5 etapas para 1 clique pode aumentar a conversão em 40%.',
+    validation: 'Testes A/B em andamento. Dados preliminares mostram +28% de conversão no fluxo simplificado.',
+    decision: 'Em execução. Prioridade máxima para o sprint atual.',
+    impact: 5,
+    effort: 3,
+    roadmap: 'now',
+    progress: 65,
+    insights_count: 1,
+    start_date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  },
+  {
+    title: 'Melhore a experiência da lista de espera',
+    description: 'Reformular a página de lista de espera com posição em tempo real, estimativa de tempo e conteúdo exclusivo.',
+    theme: 'atrair-usuarios',
+    theme_color: '#ec4899',
+    hypothesis: 'Uma lista de espera gamificada com referral pode gerar 3x mais inscrições orgânicas.',
+    validation: 'Benchmark: Robinhood gerou 1M+ de inscrições com lista de espera gamificada. Nosso público responde bem a urgência.',
+    decision: null,
+    impact: 4,
+    effort: 2,
+    roadmap: 'next',
+    progress: 15,
+    insights_count: 4,
+    start_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end_date: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  },
+  {
+    title: 'Refatore os dados do perfil do usuário',
+    description: 'Migrar dados de perfil para nova estrutura com campos customizáveis e preferências granulares.',
+    theme: 'atrair-usuarios',
+    theme_color: '#ec4899',
+    hypothesis: 'Perfis mais completos com preferências personalizadas aumentam o engajamento em 20%.',
+    validation: 'Análise de dados mostra que usuários com perfil completo têm 2.5x mais sessões por semana.',
+    decision: 'Planejado para Q2. Necessário refatorar o schema do banco antes.',
+    impact: 3,
+    effort: 3,
+    roadmap: 'later',
+    progress: 5,
+    insights_count: 0,
+    start_date: null,
+    end_date: null,
+  },
+  {
+    title: 'Explore as funções de viagem em realidade virtual',
+    description: 'Protótipo de experiência VR para pré-visualização de destinos turísticos integrada à plataforma.',
+    theme: 'expandir-horizontes',
+    theme_color: '#8b5cf6',
+    hypothesis: 'Experiências VR podem diferenciar a plataforma e justificar um premium de 25% no preço.',
+    validation: 'Pesquisa exploratória. Mercado de VR travel estimado em $12B até 2028, mas adoção ainda é baixa no público-alvo.',
+    decision: 'Não vai ser implementado agora. Custo de desenvolvimento muito alto e base de usuários sem headsets VR.',
+    impact: 1,
+    effort: 5,
+    roadmap: 'wont',
+    progress: 0,
+    insights_count: 0,
+    start_date: null,
+    end_date: null,
+  },
+];
+
 export function useSeedDemoData() {
   const { user } = useAuth();
   const [seeding, setSeeding] = useState(false);
@@ -599,10 +683,35 @@ export function useSeedDemoData() {
         }
       }
 
+      // Create demo ideas
+      const { data: existingIdeas } = await supabase
+        .from('ideas')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (!existingIdeas || existingIdeas.length === 0) {
+        const ideasToInsert = demoIdeas.map((idea, index) => ({
+          ...idea,
+          user_id: user.id,
+          position: index,
+        }));
+
+        const { error: ideasError } = await supabase
+          .from('ideas')
+          .insert(ideasToInsert);
+
+        if (ideasError) {
+          console.error('Error creating demo ideas:', ideasError);
+        } else {
+          console.log('Created demo ideas:', ideasToInsert.length);
+        }
+      }
+
       console.log('Demo data seeded successfully');
       if (!silent) {
         toast.success('Projetos de demonstração criados!', {
-          description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
+          description: '4 projetos, 8 tarefas Kanban e 5 ideias de exemplo foram adicionados.'
         });
       }
       setSeeding(false);
@@ -667,6 +776,14 @@ export function useSeedDemoData() {
         .delete()
         .eq('user_id', user.id)
         .in('name', demoTagNames);
+
+      // Delete demo ideas
+      const demoIdeaTitles = demoIdeas.map(i => i.title);
+      await supabase
+        .from('ideas')
+        .delete()
+        .eq('user_id', user.id)
+        .in('title', demoIdeaTitles);
 
       console.log('Demo data cleared successfully');
       toast.success('Dados de demonstração removidos');
@@ -750,6 +867,7 @@ export function useSeedDemoData() {
       await supabase.from('kanban_columns').delete().eq('user_id', user.id);
       await supabase.from('tags').delete().eq('user_id', user.id);
       await supabase.from('kanban_expenses').delete().eq('user_id', user.id);
+      await supabase.from('ideas').delete().eq('user_id', user.id);
 
       console.log('All demo user data cleared, re-seeding...');
       

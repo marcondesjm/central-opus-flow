@@ -1085,6 +1085,7 @@ export default function KanbanPage() {
     fetchCount();
   }, [user, scheduledMessages]);
 
+  useEffect(() => {
     if (!showScheduledList) return;
     const interval = setInterval(() => setNowTs(Date.now()), 1000);
     return () => clearInterval(interval);

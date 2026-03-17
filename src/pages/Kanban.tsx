@@ -1698,6 +1698,14 @@ export default function KanbanPage() {
         />
       )}
 
+      {showAddSpace && (
+        <AddSpaceModal
+          open={showAddSpace}
+          onOpenChange={setShowAddSpace}
+          existingCount={spaces?.length || 0}
+        />
+      )}
+
       <AlertDialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

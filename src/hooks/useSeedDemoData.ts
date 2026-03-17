@@ -683,10 +683,35 @@ export function useSeedDemoData() {
         }
       }
 
+      // Create demo ideas
+      const { data: existingIdeas } = await supabase
+        .from('ideas')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (!existingIdeas || existingIdeas.length === 0) {
+        const ideasToInsert = demoIdeas.map((idea, index) => ({
+          ...idea,
+          user_id: user.id,
+          position: index,
+        }));
+
+        const { error: ideasError } = await supabase
+          .from('ideas')
+          .insert(ideasToInsert);
+
+        if (ideasError) {
+          console.error('Error creating demo ideas:', ideasError);
+        } else {
+          console.log('Created demo ideas:', ideasToInsert.length);
+        }
+      }
+
       console.log('Demo data seeded successfully');
       if (!silent) {
         toast.success('Projetos de demonstração criados!', {
-          description: '4 projetos e 8 tarefas Kanban de exemplo foram adicionados.'
+          description: '4 projetos, 8 tarefas Kanban e 5 ideias de exemplo foram adicionados.'
         });
       }
       setSeeding(false);

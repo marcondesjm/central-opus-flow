@@ -799,10 +799,58 @@ export function useSeedDemoData() {
         }
       }
 
+      // Create demo proposals
+      const { data: existingProposals } = await supabase
+        .from('proposals')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (!existingProposals || existingProposals.length === 0) {
+        const proposalsToInsert = demoProposals.map(p => ({
+          ...p,
+          user_id: user.id,
+        }));
+
+        const { error: proposalsError } = await supabase
+          .from('proposals')
+          .insert(proposalsToInsert);
+
+        if (proposalsError) {
+          console.error('Error creating demo proposals:', proposalsError);
+        } else {
+          console.log('Created demo proposals:', proposalsToInsert.length);
+        }
+      }
+
+      // Create demo expenses
+      const { data: existingExpenses } = await supabase
+        .from('kanban_expenses')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (!existingExpenses || existingExpenses.length === 0) {
+        const expensesToInsert = demoExpenses.map(e => ({
+          ...e,
+          user_id: user.id,
+        }));
+
+        const { error: expensesError } = await supabase
+          .from('kanban_expenses')
+          .insert(expensesToInsert);
+
+        if (expensesError) {
+          console.error('Error creating demo expenses:', expensesError);
+        } else {
+          console.log('Created demo expenses:', expensesToInsert.length);
+        }
+      }
+
       console.log('Demo data seeded successfully');
       if (!silent) {
         toast.success('Projetos de demonstração criados!', {
-          description: '4 projetos, 8 tarefas Kanban e 5 ideias de exemplo foram adicionados.'
+          description: '4 projetos, 8 tarefas, 5 ideias, 3 propostas e despesas de exemplo foram adicionados.'
         });
       }
       setSeeding(false);

@@ -2,10 +2,11 @@ import { useMemo, useRef, useState } from 'react';
 import { KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { KanbanColumn } from '@/hooks/useKanbanColumns';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Building2, ChevronLeft, ChevronRight, Flag, GripHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Flag } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   format,
   startOfMonth,
@@ -14,14 +15,11 @@ import {
   subMonths,
   differenceInDays,
   eachMonthOfInterval,
-  eachWeekOfInterval,
-  startOfWeek,
-  endOfWeek,
-  isWithinInterval,
   addDays,
   isSameMonth,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TimelineViewProps {
   deals: KanbanDeal[];
@@ -31,10 +29,11 @@ interface TimelineViewProps {
 
 export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const ticketScrollRef = useRef<HTMLDivElement>(null);
   const [centerDate, setCenterDate] = useState(() => startOfMonth(new Date()));
   const [zoom, setZoom] = useState<'month' | 'week'>('month');
+  const isMobile = useIsMobile();
 
-  // Range: 6 months before and after center
   const rangeStart = subMonths(centerDate, 3);
   const rangeEnd = addMonths(centerDate, 4);
 
@@ -44,15 +43,14 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
   );
 
   const totalDays = differenceInDays(endOfMonth(rangeEnd), rangeStart) + 1;
-  const dayWidth = zoom === 'month' ? 4 : 12;
+  const dayWidth = zoom === 'month' ? (isMobile ? 3 : 4) : (isMobile ? 8 : 12);
   const totalWidth = totalDays * dayWidth;
-  const ticketColWidth = 280;
+  const ticketColWidth = isMobile ? 140 : 280;
+  const rowHeight = isMobile ? 36 : 40;
 
-  // Today marker position
   const today = new Date();
   const todayOffset = differenceInDays(today, rangeStart);
 
-  // Sort deals: those with dates first, then by start_date
   const sortedDeals = useMemo(() => {
     return [...deals].sort((a, b) => {
       const aHasDate = a.start_date || a.due_date;
@@ -74,7 +72,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
     const end = deal.due_date
       ? new Date(deal.due_date)
-      : addDays(start, 14); // default 2 weeks duration
+      : addDays(start, 14);
 
     const startOffset = differenceInDays(start, rangeStart);
     const duration = Math.max(differenceInDays(end, start), 1);
@@ -85,14 +83,8 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
     };
   };
 
-  const getColumnForDeal = (deal: KanbanDeal) => {
-    return columns.find(c => c.id === deal.phase);
-  };
-
-  const getPriorityColor = (deal: KanbanDeal) => {
-    const p = PRIORITY_OPTIONS.find(pr => pr.id === deal.priority);
-    return p;
-  };
+  const getColumnForDeal = (deal: KanbanDeal) => columns.find(c => c.id === deal.phase);
+  const getPriorityColor = (deal: KanbanDeal) => PRIORITY_OPTIONS.find(pr => pr.id === deal.priority);
 
   const priorityBarColors: Record<string, string> = {
     urgent: 'bg-red-400',
@@ -101,6 +93,190 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
     low: 'bg-emerald-400',
   };
 
+  // Sync vertical scroll between ticket column and timeline
+  const handleTimelineScroll = () => {
+    if (scrollRef.current && ticketScrollRef.current) {
+      ticketScrollRef.current.scrollTop = scrollRef.current.scrollTop;
+    }
+  };
+
+  const handleTicketScroll = () => {
+    if (scrollRef.current && ticketScrollRef.current) {
+      scrollRef.current.scrollTop = ticketScrollRef.current.scrollTop;
+    }
+  };
+
+  // Mobile card list view
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Toolbar - mobile optimized */}
+        <div className="flex items-center justify-between gap-1 px-3 py-2 border-b bg-card">
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCenterDate(d => subMonths(d, 1))}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-xs font-medium min-w-[90px] text-center capitalize">
+              {format(centerDate, 'MMM yyyy', { locale: ptBR })}
+            </span>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCenterDate(d => addMonths(d, 1))}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" className="h-7 text-xs px-2" onClick={() => setCenterDate(startOfMonth(new Date()))}>
+              Hoje
+            </Button>
+            <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+              <button
+                className={cn(
+                  'px-2 py-0.5 text-[10px] rounded transition-colors',
+                  zoom === 'month' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground'
+                )}
+                onClick={() => setZoom('month')}
+              >
+                Mês
+              </button>
+              <button
+                className={cn(
+                  'px-2 py-0.5 text-[10px] rounded transition-colors',
+                  zoom === 'week' ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground'
+                )}
+                onClick={() => setZoom('week')}
+              >
+                Sem
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline with fixed ticket col */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Ticket column (fixed, narrow on mobile) */}
+          <div className="flex-shrink-0 border-r bg-card z-10" style={{ width: ticketColWidth }}>
+            <div className="border-b flex items-center px-2 bg-muted/50" style={{ height: rowHeight }}>
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Tarefa</span>
+            </div>
+            <div
+              ref={ticketScrollRef}
+              onScroll={handleTicketScroll}
+              className="overflow-y-auto"
+              style={{ maxHeight: 'calc(100vh - 320px)' }}
+            >
+              {sortedDeals.map(deal => {
+                const col = getColumnForDeal(deal);
+                return (
+                  <div
+                    key={deal.id}
+                    className="border-b flex items-center gap-1.5 px-2 active:bg-muted/40 cursor-pointer transition-colors"
+                    style={{ height: rowHeight, minHeight: rowHeight }}
+                    onClick={() => onDetail(deal)}
+                  >
+                    <div
+                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: col?.color || 'hsl(var(--muted-foreground))' }}
+                    />
+                    <span className="text-[10px] font-medium truncate flex-1">{deal.company_name}</span>
+                  </div>
+                );
+              })}
+              {sortedDeals.length === 0 && (
+                <div className="h-16 flex items-center justify-center text-[10px] text-muted-foreground">
+                  Nenhuma tarefa
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Scrollable timeline */}
+          <div
+            ref={scrollRef}
+            onScroll={handleTimelineScroll}
+            className="flex-1 overflow-auto"
+            style={{ maxHeight: 'calc(100vh - 320px)' }}
+          >
+            <div style={{ width: totalWidth, minHeight: '100%' }} className="relative">
+              {/* Month headers */}
+              <div className="border-b flex sticky top-0 z-10 bg-card" style={{ height: rowHeight }}>
+                {months.map(month => {
+                  const monthStart = month;
+                  const monthEnd = endOfMonth(month);
+                  const startOff = Math.max(differenceInDays(monthStart, rangeStart), 0);
+                  const endOff = differenceInDays(monthEnd, rangeStart) + 1;
+                  const width = (endOff - startOff) * dayWidth;
+
+                  return (
+                    <div
+                      key={month.toISOString()}
+                      className={cn(
+                        'flex-shrink-0 border-r flex items-center justify-center text-[10px] font-medium capitalize',
+                        isSameMonth(month, today) ? 'text-primary bg-primary/5' : 'text-muted-foreground'
+                      )}
+                      style={{ width, position: 'absolute', left: startOff * dayWidth }}
+                    >
+                      {format(month, 'MMM yy', { locale: ptBR })}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Grid lines */}
+              {months.map(month => {
+                const startOff = Math.max(differenceInDays(month, rangeStart), 0);
+                return (
+                  <div
+                    key={`grid-${month.toISOString()}`}
+                    className="absolute bottom-0 border-r border-border/40"
+                    style={{ left: startOff * dayWidth, top: rowHeight }}
+                  />
+                );
+              })}
+
+              {/* Today line */}
+              {todayOffset >= 0 && todayOffset <= totalDays && (
+                <div
+                  className="absolute top-0 bottom-0 w-px bg-primary z-20"
+                  style={{ left: todayOffset * dayWidth }}
+                >
+                  <div className="absolute -top-0 -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-primary" />
+                </div>
+              )}
+
+              {/* Deal bars */}
+              <div className="relative" style={{ paddingTop: rowHeight }}>
+                {sortedDeals.map(deal => {
+                  const { left, width } = getBarPosition(deal);
+                  const barColor = priorityBarColors[deal.priority] || 'bg-violet-400';
+
+                  return (
+                    <div key={deal.id} className="relative flex items-center" style={{ height: rowHeight }}>
+                      <div
+                        className={cn(
+                          'absolute h-5 rounded cursor-pointer transition-all active:brightness-90 flex items-center px-1 overflow-hidden',
+                          barColor
+                        )}
+                        style={{
+                          left: Math.max(left, 0),
+                          width: Math.max(width, dayWidth * 3),
+                        }}
+                        onClick={() => onDetail(deal)}
+                      >
+                        <span className="text-[8px] text-white font-medium truncate">
+                          {deal.company_name}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
@@ -148,12 +324,15 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
       <div className="flex flex-1 overflow-hidden">
         {/* Ticket column (fixed) */}
         <div className="flex-shrink-0 border-r bg-card z-10" style={{ width: ticketColWidth }}>
-          {/* Header */}
           <div className="h-10 border-b flex items-center px-3 bg-muted/50">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tarefa</span>
           </div>
-          {/* Rows */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <div
+            ref={ticketScrollRef}
+            onScroll={handleTicketScroll}
+            className="overflow-y-auto"
+            style={{ maxHeight: 'calc(100vh - 280px)' }}
+          >
             {sortedDeals.map(deal => {
               const col = getColumnForDeal(deal);
               const priority = getPriorityColor(deal);
@@ -183,7 +362,12 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
         </div>
 
         {/* Scrollable timeline area */}
-        <div ref={scrollRef} className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+        <div
+          ref={scrollRef}
+          onScroll={handleTimelineScroll}
+          className="flex-1 overflow-auto"
+          style={{ maxHeight: 'calc(100vh - 280px)' }}
+        >
           <div style={{ width: totalWidth, minHeight: '100%' }} className="relative">
             {/* Month headers */}
             <div className="h-10 border-b flex sticky top-0 z-10 bg-card">
@@ -209,7 +393,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
               })}
             </div>
 
-            {/* Grid lines (monthly) */}
+            {/* Grid lines */}
             {months.map(month => {
               const startOff = Math.max(differenceInDays(month, rangeStart), 0);
               return (

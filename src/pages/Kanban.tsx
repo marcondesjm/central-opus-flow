@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
 import { CalendarView } from '@/components/kanban/CalendarView';
+import TaskDetailFullModal from '@/components/kanban/TaskDetailFullModal';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
 function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -1706,8 +1707,9 @@ export default function KanbanPage() {
       )}
 
       {detailDeal && (
-        <TaskDetailModal
+        <TaskDetailFullModal
           deal={detailDeal}
+          columns={columns || []}
           open={!!detailDeal}
           onOpenChange={v => { if (!v) setDetailDeal(null); }}
         />

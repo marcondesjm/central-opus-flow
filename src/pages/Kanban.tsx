@@ -890,12 +890,61 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
   );
 }
 
+// ─── Add Space Modal ──────────────────────────
+function AddSpaceModal({ open, onOpenChange, existingCount }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number }) {
+  const createSpace = useCreateSpace();
+  const [name, setName] = useState('');
+  const [color, setColor] = useState('#3b82f6');
+  const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader><DialogTitle>Novo Espaço</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Nome</Label>
+            <Input placeholder="Ex: Marketing, Vendas..." value={name} onChange={e => setName(e.target.value)} />
+          </div>
+          <div>
+            <Label>Cor</Label>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  className={cn('w-7 h-7 rounded-full border-2 transition-transform', color === c ? 'scale-110 border-foreground' : 'border-transparent hover:scale-105')}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={() => {
+            if (name.trim()) {
+              createSpace.mutate({ name: name.trim(), color, position: existingCount });
+              onOpenChange(false);
+            }
+          }} disabled={!name.trim()}>
+            Criar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
+  const { data: spaces } = useKanbanSpaces();
+  const { data: systemUsers } = useSystemUsers();
+  const deleteSpace = useDeleteSpace();
   const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();
   const deleteColumn = useDeleteColumn();

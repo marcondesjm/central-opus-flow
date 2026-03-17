@@ -71,6 +71,12 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [progressDraft, setProgressDraft] = useState(deal.progress);
   const [isLocked, setIsLocked] = useState(false);
 
+  const TASK_COLORS = [
+    '#8B5CF6', '#3B82F6', '#10B981', '#06B6D4', '#22D3EE',
+    '#EAB308', '#F43F5E', '#6B7280',
+    '#6D28D9', '#1D4ED8', '#047857', '#0E7490', '#D97706', '#DC2626', '#4B5563',
+  ];
+
   // Automation states persisted in localStorage per deal
   const storageKey = `automations_${deal.id}`;
   const loadAutomations = () => {
@@ -306,7 +312,30 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
               {/* Title - editable */}
               <div className="flex items-start gap-3">
-                {col && <span className="w-5 h-5 rounded mt-0.5 flex-shrink-0" style={{ backgroundColor: col.color }} />}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="w-5 h-5 rounded mt-0.5 flex-shrink-0 ring-offset-background transition-all hover:ring-2 hover:ring-primary hover:ring-offset-1 cursor-pointer"
+                      style={{ backgroundColor: deal.color || col?.color || '#3B82F6' }}
+                      title="Trocar cor"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3" align="start">
+                    <div className="grid grid-cols-5 gap-2">
+                      {TASK_COLORS.map(c => (
+                        <button
+                          key={c}
+                          className={cn(
+                            "w-8 h-8 rounded-md transition-all hover:scale-110 ring-offset-background",
+                            deal.color === c && "ring-2 ring-primary ring-offset-2"
+                          )}
+                          style={{ backgroundColor: c }}
+                          onClick={() => updateDeal.mutate({ id: deal.id, color: c })}
+                        />
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 {isEditingTitle ? (
                   <Input
                     value={titleDraft}

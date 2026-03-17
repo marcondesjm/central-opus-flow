@@ -190,7 +190,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[96vw] max-h-[92vh] p-0 gap-0 overflow-hidden rounded-lg">
+      <DialogContent className="max-w-5xl w-[98vw] sm:w-[96vw] max-h-[95vh] sm:max-h-[92vh] p-0 gap-0 overflow-hidden rounded-lg">
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-2 border-b bg-background flex-shrink-0">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

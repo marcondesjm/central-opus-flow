@@ -228,20 +228,55 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             >
               <Share2 className="w-4 h-4" />
             </Button>
-            <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title="Mais opções"
-              onClick={() => {
-                const action = prompt('Ação:\n1 - Duplicar tarefa\n2 - Mover para outro espaço\n3 - Arquivar');
-                if (action === '1') {
-                  toast({ title: 'Tarefa duplicada!' });
-                } else if (action === '3') {
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  title="Mais opções"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onSelect={() => {
+                  createDeal.mutate({
+                    company_name: deal.company_name + ' (cópia)',
+                    client_name: deal.client_name,
+                    description: deal.description || undefined,
+                    phase: deal.phase,
+                    priority: deal.priority,
+                    revenue: deal.revenue,
+                    tags: deal.tags || [],
+                    due_date: deal.due_date,
+                    color: deal.color,
+                    client_email: deal.client_email,
+                    client_whatsapp: deal.client_whatsapp,
+                    space_id: deal.space_id,
+                  } as any);
+                }}>
+                  <Copy className="w-4 h-4 mr-2" /> Duplicar tarefa
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  updateDeal.mutate({ id: deal.id, phase: 'archived' });
                   toast({ title: 'Tarefa arquivada!' });
-                }
-              }}
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
+                  onOpenChange(false);
+                }}>
+                  <Archive className="w-4 h-4 mr-2" /> Arquivar
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={() => {
+                    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                      deleteDeal.mutate(deal.id);
+                      onOpenChange(false);
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Excluir tarefa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
               title="Tela cheia"

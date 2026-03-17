@@ -1996,7 +1996,7 @@ export default function KanbanPage() {
         <AddDealModal
           open={showAddModal}
           onOpenChange={v => { setShowAddModal(v); if (!v) setEditDeal(null); }}
-          editDeal={editDeal}
+          editDeal={freshEditDeal}
           columns={columns}
         />
       )}
@@ -2009,11 +2009,11 @@ export default function KanbanPage() {
         />
       )}
 
-      {detailDeal && (
+      {freshDetailDeal && (
         <TaskDetailFullModal
-          deal={detailDeal}
+          deal={freshDetailDeal}
           columns={columns || []}
-          open={!!detailDeal}
+          open={!!freshDetailDeal}
           onOpenChange={v => { if (!v) setDetailDeal(null); }}
         />
       )}

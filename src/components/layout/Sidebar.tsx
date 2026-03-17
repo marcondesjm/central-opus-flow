@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { SidebarCustomizeModal, getSidebarVisibility, type SidebarVisibility } from '@/components/layout/SidebarCustomizeModal';
+import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 import { 
   LayoutDashboard, 
   FolderKanban, 

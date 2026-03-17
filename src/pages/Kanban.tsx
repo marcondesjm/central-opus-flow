@@ -954,7 +954,7 @@ export default function KanbanPage() {
   const updateColumn = useUpdateColumn();
   const [editingColumn, setEditingColumn] = useState<KanbanColumn | null>(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editDeal, setEditDeal] = useState<KanbanDeal | null>(null);

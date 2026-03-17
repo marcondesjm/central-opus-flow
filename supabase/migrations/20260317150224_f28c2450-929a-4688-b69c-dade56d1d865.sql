@@ -1,0 +1,1 @@
+SELECT register_changelog('Modal de atualização global', 'Modal de nova versão agora aparece em todas as páginas e detecta corretamente novas versões.', 'fix', 'patch');

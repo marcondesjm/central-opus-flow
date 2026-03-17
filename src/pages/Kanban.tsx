@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { AppNavBar } from '@/components/layout/AppNavBar';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';

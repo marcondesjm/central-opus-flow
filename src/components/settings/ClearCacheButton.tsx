@@ -4,6 +4,9 @@ import { Trash2, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { clearServiceWorkerCache } from '@/lib/serviceWorker';
+import { supabase } from '@/integrations/supabase/client';
+
+const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +28,17 @@ export function ClearCacheButton() {
     setIsClearing(true);
     
     try {
+      // Fetch current DB version before clearing, so we can detect updates after reload
+      let dbVersion: string | null = null;
+      try {
+        const { data } = await supabase
+          .from('system_config')
+          .select('value')
+          .eq('key', 'app_version')
+          .single();
+        dbVersion = data?.value || null;
+      } catch {}
+
       // Clear React Query cache
       queryClient.clear();
       
@@ -37,6 +51,12 @@ export function ClearCacheButton() {
           localStorage.removeItem(key);
         }
       });
+
+      // After clearing, set last seen to a dummy value so the version modal
+      // will trigger on reload if there's a real version in the DB
+      if (dbVersion) {
+        localStorage.setItem(LAST_SEEN_KEY, '0.0.0');
+      }
       
       // Clear sessionStorage
       sessionStorage.clear();

@@ -17,12 +17,14 @@ export interface KanbanDeal {
   position: number;
   tags: string[];
   assignee_name: string | null;
+  assignee_id: string | null;
   color: string | null;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
   client_email: string | null;
   client_whatsapp: string | null;
+  space_id: string | null;
 }
 
 export const PRIORITY_OPTIONS = [

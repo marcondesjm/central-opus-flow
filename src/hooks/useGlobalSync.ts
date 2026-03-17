@@ -61,6 +61,7 @@ export function useGlobalSync() {
       { table: 'subscriptions', keys: ['subscription', 'user-status'] },
       { table: 'kanban_deals', keys: ['kanban-deals', 'kanban'] },
       { table: 'kanban_columns', keys: ['kanban-columns'] },
+      { table: 'kanban_spaces', keys: ['kanban-spaces'] },
       { table: 'proposals', keys: ['proposals'] },
       { table: 'lovable_accounts', keys: ['accounts'] },
       { table: 'project_collaborators', keys: ['project-collaborators', 'collaborated-projects'] },

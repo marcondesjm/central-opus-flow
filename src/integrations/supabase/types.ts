@@ -646,6 +646,7 @@ export type Database = {
           id: string
           name: string
           position: number
+          space_id: string | null
           updated_at: string
           user_id: string
         }
@@ -655,6 +656,7 @@ export type Database = {
           id?: string
           name: string
           position?: number
+          space_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -664,13 +666,23 @@ export type Database = {
           id?: string
           name?: string
           position?: number
+          space_id?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kanban_columns_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kanban_deals: {
         Row: {
+          assignee_id: string | null
           assignee_name: string | null
           client_email: string | null
           client_name: string
@@ -687,11 +699,13 @@ export type Database = {
           priority: string
           progress: number
           revenue: number | null
+          space_id: string | null
           tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          assignee_id?: string | null
           assignee_name?: string | null
           client_email?: string | null
           client_name: string
@@ -708,11 +722,13 @@ export type Database = {
           priority?: string
           progress?: number
           revenue?: number | null
+          space_id?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          assignee_id?: string | null
           assignee_name?: string | null
           client_email?: string | null
           client_name?: string
@@ -729,11 +745,20 @@ export type Database = {
           priority?: string
           progress?: number
           revenue?: number | null
+          space_id?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kanban_deals_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kanban_expenses: {
         Row: {
@@ -872,6 +897,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      kanban_spaces: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       kanban_task_checklist: {
         Row: {

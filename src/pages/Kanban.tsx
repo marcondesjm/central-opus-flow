@@ -6,6 +6,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle, ZoomIn, ZoomOut, Maximize2,
+  FolderOpen, Users, X,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -25,8 +26,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';
+import { useKanbanSpaces, useCreateSpace, useUpdateSpace, useDeleteSpace, useSystemUsers, KanbanSpace } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
@@ -192,6 +195,7 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 }) {
   const createDeal = useCreateDeal();
   const updateDeal = useUpdateDeal();
+  const { data: systemUsers } = useSystemUsers();
   const [form, setForm] = useState({
     company_name: editDeal?.company_name || '',
     client_name: editDeal?.client_name || '',
@@ -202,6 +206,7 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
     priority: editDeal?.priority || 'medium',
     due_date: editDeal?.due_date ? new Date(editDeal.due_date) : undefined as Date | undefined,
     assignee_name: editDeal?.assignee_name || '',
+    assignee_id: (editDeal as any)?.assignee_id || '',
     tags: editDeal?.tags?.join(', ') || '',
     client_email: editDeal?.client_email || '',
     client_whatsapp: editDeal?.client_whatsapp || '',
@@ -209,6 +214,7 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 
   const handleSubmit = () => {
     if (!form.company_name.trim() || !form.client_name.trim()) return;
+    const selectedUser = systemUsers?.find(u => u.user_id === form.assignee_id);
     const payload = {
       company_name: form.company_name,
       client_name: form.client_name,
@@ -218,7 +224,8 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
       revenue: form.revenue,
       priority: form.priority,
       due_date: form.due_date ? form.due_date.toISOString() : null,
-      assignee_name: form.assignee_name || null,
+      assignee_name: selectedUser ? (selectedUser.full_name || selectedUser.email) : (form.assignee_name || null),
+      assignee_id: form.assignee_id || null,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       client_email: form.client_email || null,
       client_whatsapp: form.client_whatsapp || null,
@@ -308,7 +315,37 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
             </div>
             <div>
               <Label>Responsável</Label>
-              <Input placeholder="Nome do responsável" value={form.assignee_name} onChange={e => setForm(f => ({ ...f, assignee_name: e.target.value }))} />
+              <Select value={form.assignee_id || '_none'} onValueChange={v => {
+                if (v === '_none') {
+                  setForm(f => ({ ...f, assignee_id: '', assignee_name: '' }));
+                } else {
+                  const u = systemUsers?.find(u => u.user_id === v);
+                  setForm(f => ({ ...f, assignee_id: v, assignee_name: u?.full_name || u?.email || '' }));
+                }
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Não atribuído" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">
+                    <span className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      Não atribuído
+                    </span>
+                  </SelectItem>
+                  {systemUsers?.map(u => (
+                    <SelectItem key={u.user_id} value={u.user_id}>
+                      <span className="flex items-center gap-2">
+                        <Avatar className="w-5 h-5">
+                          <AvatarImage src={u.avatar_url || undefined} />
+                          <AvatarFallback className="text-[10px]">{(u.full_name || u.email || '?').slice(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{u.full_name || u.email}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div>
@@ -853,12 +890,61 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
   );
 }
 
+// ─── Add Space Modal ──────────────────────────
+function AddSpaceModal({ open, onOpenChange, existingCount }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number }) {
+  const createSpace = useCreateSpace();
+  const [name, setName] = useState('');
+  const [color, setColor] = useState('#3b82f6');
+  const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader><DialogTitle>Novo Espaço</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Nome</Label>
+            <Input placeholder="Ex: Marketing, Vendas..." value={name} onChange={e => setName(e.target.value)} />
+          </div>
+          <div>
+            <Label>Cor</Label>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  className={cn('w-7 h-7 rounded-full border-2 transition-transform', color === c ? 'scale-110 border-foreground' : 'border-transparent hover:scale-105')}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={() => {
+            if (name.trim()) {
+              createSpace.mutate({ name: name.trim(), color, position: existingCount });
+              onOpenChange(false);
+            }
+          }} disabled={!name.trim()}>
+            Criar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
+  const { data: spaces } = useKanbanSpaces();
+  const { data: systemUsers } = useSystemUsers();
+  const deleteSpace = useDeleteSpace();
   const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();
   const deleteColumn = useDeleteColumn();
@@ -899,6 +985,10 @@ export default function KanbanPage() {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [filterAssignee, setFilterAssignee] = useState<string>('all');
+  const [filterTag, setFilterTag] = useState<string>('all');
+  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+  const [showAddSpace, setShowAddSpace] = useState(false);
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;
@@ -997,8 +1087,19 @@ export default function KanbanPage() {
     });
   }, [scheduledMessages, nowTs, autoDispatchEnabled, user, toast]);
 
+  // Collect all unique tags for filter
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    deals?.forEach(d => d.tags?.forEach(t => tagSet.add(t)));
+    return [...tagSet].sort();
+  }, [deals]);
+
   const filteredDeals = useMemo(() => {
     let result = deals || [];
+    // Filter by active space
+    if (activeSpaceId) {
+      result = result.filter(d => (d as any).space_id === activeSpaceId);
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(d =>
@@ -1011,8 +1112,18 @@ export default function KanbanPage() {
     if (filterPriority !== 'all') {
       result = result.filter(d => d.priority === filterPriority);
     }
+    if (filterAssignee !== 'all') {
+      if (filterAssignee === '_unassigned') {
+        result = result.filter(d => !d.assignee_name && !(d as any).assignee_id);
+      } else {
+        result = result.filter(d => (d as any).assignee_id === filterAssignee);
+      }
+    }
+    if (filterTag !== 'all') {
+      result = result.filter(d => d.tags?.includes(filterTag));
+    }
     return result;
-  }, [deals, searchQuery, filterPriority]);
+  }, [deals, searchQuery, filterPriority, filterAssignee, filterTag, activeSpaceId]);
 
   const dealsByColumn = useMemo(() => {
     const now = new Date();
@@ -1175,19 +1286,65 @@ export default function KanbanPage() {
     );
   }
 
+  const activeFiltersCount = [filterPriority !== 'all', filterAssignee !== 'all', filterTag !== 'all'].filter(Boolean).length;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        {/* Space selector bar */}
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 border-b bg-muted/20 max-w-[1800px] mx-auto overflow-x-auto">
+          <FolderOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+          <button
+            onClick={() => setActiveSpaceId(null)}
+            className={cn(
+              'px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
+              !activeSpaceId ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+            )}
+          >
+            Todos
+          </button>
+          {spaces?.map(space => (
+            <div key={space.id} className="flex items-center gap-0.5 group">
+              <button
+                onClick={() => setActiveSpaceId(space.id)}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5',
+                  activeSpaceId === space.id ? 'text-primary-foreground' : 'hover:opacity-80 text-foreground'
+                )}
+                style={{ backgroundColor: activeSpaceId === space.id ? space.color : `${space.color}20` }}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: space.color }} />
+                {space.name}
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); deleteSpace.mutate(space.id); if (activeSpaceId === space.id) setActiveSpaceId(null); }}
+                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 text-destructive transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() => setShowAddSpace(true)}
+            className="px-2.5 py-1 rounded-full text-xs text-muted-foreground border border-dashed border-muted-foreground/30 hover:bg-muted/50 transition-colors whitespace-nowrap flex items-center gap-1"
+          >
+            <Plus className="w-3 h-3" />
+            Espaço
+          </button>
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1800px] mx-auto gap-2">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold truncate">Tarefas & Projetos</h1>
+              <h1 className="text-base sm:text-lg font-bold truncate">
+                {activeSpaceId ? spaces?.find(s => s.id === activeSpaceId)?.name || 'Tarefas & Projetos' : 'Tarefas & Projetos'}
+              </h1>
               <p className="text-xs text-muted-foreground">
-                {deals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {filteredDeals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -1242,16 +1399,51 @@ export default function KanbanPage() {
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
             <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
-              <Filter className="w-3.5 h-3.5 mr-1" />
+              <Flag className="w-3.5 h-3.5 mr-1" />
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="all">Todas prioridades</SelectItem>
               {PRIORITY_OPTIONS.map(p => (
                 <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
+          <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+            <SelectTrigger className="w-28 sm:w-40 h-8 text-xs">
+              <Users className="w-3.5 h-3.5 mr-1" />
+              <SelectValue placeholder="Responsável" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos responsáveis</SelectItem>
+              <SelectItem value="_unassigned">Não atribuído</SelectItem>
+              {systemUsers?.map(u => (
+                <SelectItem key={u.user_id} value={u.user_id}>
+                  <span className="flex items-center gap-1.5">
+                    <Avatar className="w-4 h-4">
+                      <AvatarImage src={u.avatar_url || undefined} />
+                      <AvatarFallback className="text-[8px]">{(u.full_name || u.email || '?').slice(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    {u.full_name || u.email}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {allTags.length > 0 && (
+            <Select value={filterTag} onValueChange={setFilterTag}>
+              <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
+                <Tag className="w-3.5 h-3.5 mr-1" />
+                <SelectValue placeholder="Tag" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas tags</SelectItem>
+                {allTags.map(t => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select value={sortMode} onValueChange={v => setSortMode(v as any)}>
             <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
               <SelectValue placeholder="Ordenar" />
@@ -1263,6 +1455,17 @@ export default function KanbanPage() {
               <SelectItem value="name">Nome</SelectItem>
             </SelectContent>
           </Select>
+          {activeFiltersCount > 0 && (
+            <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground" onClick={() => {
+              setFilterPriority('all');
+              setFilterAssignee('all');
+              setFilterTag('all');
+            }}>
+              <X className="w-3.5 h-3.5 mr-1" />
+              Limpar filtros
+              <Badge variant="secondary" className="ml-1 text-[10px] px-1.5">{activeFiltersCount}</Badge>
+            </Button>
+          )}
           {viewMode === 'kanban' && (
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowAddColumn(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" />
@@ -1492,6 +1695,14 @@ export default function KanbanPage() {
           open={showAddColumn}
           onOpenChange={setShowAddColumn}
           existingCount={columns?.length || 0}
+        />
+      )}
+
+      {showAddSpace && (
+        <AddSpaceModal
+          open={showAddSpace}
+          onOpenChange={setShowAddSpace}
+          existingCount={spaces?.length || 0}
         />
       )}
 

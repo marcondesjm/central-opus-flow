@@ -510,9 +510,9 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
           </div>
 
           {/* Right column - info panel */}
-          <div className="w-full md:w-[320px] lg:w-[340px] flex-shrink-0 border-t md:border-t-0 md:border-l bg-background overflow-y-auto">
+          <div className="w-full md:w-[280px] lg:w-[340px] flex-shrink-0 border-t md:border-t-0 md:border-l bg-background overflow-y-auto">
             {/* Phase / Status + Priority selector */}
-            <div className="p-4 border-b flex items-center gap-2 flex-wrap">
+            <div className="p-3 sm:p-4 border-b flex items-center gap-2 flex-wrap">
               <Select value={deal.phase} onValueChange={handlePhaseChange}>
                 <SelectTrigger className="w-[130px] h-8 text-xs font-medium">
                   <SelectValue />

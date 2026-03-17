@@ -1620,7 +1620,7 @@ export default function KanbanPage() {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setViewMode(tab.id as 'kanban' | 'list' | 'calendar')}
+              onClick={() => setViewMode(tab.id as 'kanban' | 'list' | 'calendar' | 'timeline')}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
                 viewMode === tab.id

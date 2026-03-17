@@ -599,7 +599,7 @@ export default function Dashboard() {
               </div>
 
               {/* Zoom Controls */}
-              <div className="flex items-center gap-0.5 border rounded-md px-1">
+              <div className="hidden sm:flex items-center gap-0.5 border rounded-md px-1">
                 <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.1))} disabled={zoomLevel <= 0.4}>
                   <ZoomOut className="w-3.5 h-3.5" />
                 </Button>

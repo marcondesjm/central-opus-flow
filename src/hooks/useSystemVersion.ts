@@ -39,7 +39,7 @@ export function useSystemVersion() {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') refresh();
       });
 
-    const pollInterval = window.setInterval(refresh, 15000);
+    const pollInterval = window.setInterval(refresh, 60000); // 60s instead of 15s
 
     return () => {
       clearInterval(pollInterval);
@@ -79,7 +79,7 @@ export function useSystemVersion() {
     },
     staleTime: 0,
     gcTime: 30 * 1000,
-    refetchInterval: 15 * 1000,
+    refetchInterval: 60 * 1000, // 60s instead of 15s
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
   });

@@ -81,11 +81,13 @@ export function ClippyAssistant() {
 
   // Cycle through random idle animations
   useEffect(() => {
+    if (isHidden) return; // Don't run timers when hidden
+    
     const animations: ClippyAnimation[] = ['wave', 'jump', 'lean', 'bounce', 'peek'];
     const moods: ClippyMood[] = ['happy', 'thinking', 'wink', 'normal'];
 
     const doRandomAction = () => {
-      if (isOpen || isHidden) return;
+      if (isOpen) return;
 
       const anim = animations[Math.floor(Math.random() * animations.length)];
       const randomMood = moods[Math.floor(Math.random() * moods.length)];
@@ -94,14 +96,13 @@ export function ClippyAssistant() {
       setMood(randomMood);
       sounds.playTap();
 
-      // Reset after animation
       setTimeout(() => {
         setAnimation('idle');
         setMood('normal');
       }, 2000);
     };
 
-    const interval = setInterval(doRandomAction, 8000 + Math.random() * 12000);
+    const interval = setInterval(doRandomAction, 15000 + Math.random() * 20000); // Less frequent
     return () => clearInterval(interval);
   }, [isOpen, isHidden, sounds]);
 
@@ -179,6 +180,8 @@ export function ClippyAssistant() {
 
   // Periodically show tips
   useEffect(() => {
+    if (isHidden) return; // Don't run when hidden
+
     const tipInterval = setInterval(() => {
       if (!isOpen && !showGreeting && mood !== 'sleeping') {
         const text = greetings[Math.floor(Math.random() * greetings.length)];
@@ -197,10 +200,10 @@ export function ClippyAssistant() {
           }, 6000);
         }, 1000);
       }
-    }, 50000 + Math.random() * 30000);
+    }, 80000 + Math.random() * 40000); // Less frequent tips
 
     return () => clearInterval(tipInterval);
-  }, [isOpen, showGreeting, mood, sounds]);
+  }, [isOpen, isHidden, showGreeting, mood, sounds]);
 
   const filteredFaqs = faqs?.filter((faq) => {
     const matchesSearch =

@@ -679,24 +679,111 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
             {/* Desenvolvimento */}
             <Collapsible>
-              <CollapsibleTrigger className="w-full flex items-center gap-2 px-4 py-3 hover:bg-muted/30 transition-colors">
-                <ChevronRight className="w-4 h-4" />
+              <CollapsibleTrigger className="w-full flex items-center gap-2 px-4 py-3 hover:bg-muted/30 transition-colors [&[data-state=open]>svg.chevron]:rotate-90">
+                <ChevronRight className="w-4 h-4 chevron transition-transform" />
                 <span className="text-sm font-semibold text-foreground">Desenvolvimento</span>
+                <Settings2 className="w-4 h-4 text-muted-foreground ml-auto" />
               </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-4 pb-4 space-y-3">
+                  {/* Progresso automático baseado no checklist */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Progresso do checklist</span>
+                    <span className="font-medium">{checklistProgress}%</span>
+                  </div>
+                  <Progress value={checklistProgress} className="h-1.5" />
+
+                  {/* Auto-progress toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Auto progresso</p>
+                      <p className="text-[11px] text-muted-foreground">Atualizar progresso baseado no checklist</p>
+                    </div>
+                    <Switch
+                      checked={deal.progress === checklistProgress}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          updateDeal.mutate({ id: deal.id, progress: checklistProgress });
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Auto-complete toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Auto conclusão</p>
+                      <p className="text-[11px] text-muted-foreground">Mover para concluído ao completar checklist</p>
+                    </div>
+                    <Switch
+                      checked={false}
+                      onCheckedChange={() => {
+                        if (checklistProgress === 100) {
+                          const doneCol = columns.find(c => c.name.toLowerCase().includes('conclu') || c.name.toLowerCase().includes('done'));
+                          if (doneCol) {
+                            updateDeal.mutate({ id: deal.id, phase: doneCol.id, progress: 100, completed_at: new Date().toISOString() });
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </CollapsibleContent>
             </Collapsible>
 
             <Separator />
 
             {/* Automação */}
             <Collapsible>
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors">
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors [&[data-state=open]>div>svg.chevron]:rotate-90">
                 <div className="flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 chevron transition-transform" />
                   <span className="text-sm font-semibold text-foreground">Automação</span>
                   <Zap className="w-3.5 h-3.5 text-muted-foreground" />
                 </div>
                 <span className="text-xs text-muted-foreground">Execuções de regras</span>
               </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-4 pb-4 space-y-3">
+                  {/* Auto mover ao vencer */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Alerta de vencimento</p>
+                      <p className="text-[11px] text-muted-foreground">Destacar tarefa quando o prazo vencer</p>
+                    </div>
+                    <Badge variant={isOverdue ? 'destructive' : 'secondary'} className="text-[10px]">
+                      {isOverdue ? 'Vencido' : deal.due_date ? 'Ativo' : 'Sem prazo'}
+                    </Badge>
+                  </div>
+
+                  {/* Auto prioridade */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Auto prioridade</p>
+                      <p className="text-[11px] text-muted-foreground">Elevar prioridade quando prazo se aproximar</p>
+                    </div>
+                    <Switch
+                      checked={false}
+                      onCheckedChange={() => {
+                        if (deal.due_date && isBefore(new Date(deal.due_date), new Date())) {
+                          updateDeal.mutate({ id: deal.id, priority: 'urgent' });
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Notificação WhatsApp */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Notificar via WhatsApp</p>
+                      <p className="text-[11px] text-muted-foreground">Enviar lembrete ao responsável</p>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px]">
+                      {deal.client_whatsapp ? 'Disponível' : 'Sem contato'}
+                    </Badge>
+                  </div>
+                </div>
+              </CollapsibleContent>
             </Collapsible>
 
             {/* Timestamps */}

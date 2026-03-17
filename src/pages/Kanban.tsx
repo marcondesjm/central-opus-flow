@@ -1286,19 +1286,65 @@ export default function KanbanPage() {
     );
   }
 
+  const activeFiltersCount = [filterPriority !== 'all', filterAssignee !== 'all', filterTag !== 'all'].filter(Boolean).length;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        {/* Space selector bar */}
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 border-b bg-muted/20 max-w-[1800px] mx-auto overflow-x-auto">
+          <FolderOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+          <button
+            onClick={() => setActiveSpaceId(null)}
+            className={cn(
+              'px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
+              !activeSpaceId ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+            )}
+          >
+            Todos
+          </button>
+          {spaces?.map(space => (
+            <div key={space.id} className="flex items-center gap-0.5 group">
+              <button
+                onClick={() => setActiveSpaceId(space.id)}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5',
+                  activeSpaceId === space.id ? 'text-primary-foreground' : 'hover:opacity-80 text-foreground'
+                )}
+                style={{ backgroundColor: activeSpaceId === space.id ? space.color : `${space.color}20` }}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: space.color }} />
+                {space.name}
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); deleteSpace.mutate(space.id); if (activeSpaceId === space.id) setActiveSpaceId(null); }}
+                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 text-destructive transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() => setShowAddSpace(true)}
+            className="px-2.5 py-1 rounded-full text-xs text-muted-foreground border border-dashed border-muted-foreground/30 hover:bg-muted/50 transition-colors whitespace-nowrap flex items-center gap-1"
+          >
+            <Plus className="w-3 h-3" />
+            Espaço
+          </button>
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1800px] mx-auto gap-2">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold truncate">Tarefas & Projetos</h1>
+              <h1 className="text-base sm:text-lg font-bold truncate">
+                {activeSpaceId ? spaces?.find(s => s.id === activeSpaceId)?.name || 'Tarefas & Projetos' : 'Tarefas & Projetos'}
+              </h1>
               <p className="text-xs text-muted-foreground">
-                {deals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {filteredDeals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -1353,16 +1399,51 @@ export default function KanbanPage() {
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
             <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
-              <Filter className="w-3.5 h-3.5 mr-1" />
+              <Flag className="w-3.5 h-3.5 mr-1" />
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="all">Todas prioridades</SelectItem>
               {PRIORITY_OPTIONS.map(p => (
                 <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
+          <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+            <SelectTrigger className="w-28 sm:w-40 h-8 text-xs">
+              <Users className="w-3.5 h-3.5 mr-1" />
+              <SelectValue placeholder="Responsável" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos responsáveis</SelectItem>
+              <SelectItem value="_unassigned">Não atribuído</SelectItem>
+              {systemUsers?.map(u => (
+                <SelectItem key={u.user_id} value={u.user_id}>
+                  <span className="flex items-center gap-1.5">
+                    <Avatar className="w-4 h-4">
+                      <AvatarImage src={u.avatar_url || undefined} />
+                      <AvatarFallback className="text-[8px]">{(u.full_name || u.email || '?').slice(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    {u.full_name || u.email}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {allTags.length > 0 && (
+            <Select value={filterTag} onValueChange={setFilterTag}>
+              <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
+                <Tag className="w-3.5 h-3.5 mr-1" />
+                <SelectValue placeholder="Tag" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas tags</SelectItem>
+                {allTags.map(t => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select value={sortMode} onValueChange={v => setSortMode(v as any)}>
             <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
               <SelectValue placeholder="Ordenar" />
@@ -1374,6 +1455,17 @@ export default function KanbanPage() {
               <SelectItem value="name">Nome</SelectItem>
             </SelectContent>
           </Select>
+          {activeFiltersCount > 0 && (
+            <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground" onClick={() => {
+              setFilterPriority('all');
+              setFilterAssignee('all');
+              setFilterTag('all');
+            }}>
+              <X className="w-3.5 h-3.5 mr-1" />
+              Limpar filtros
+              <Badge variant="secondary" className="ml-1 text-[10px] px-1.5">{activeFiltersCount}</Badge>
+            </Button>
+          )}
           {viewMode === 'kanban' && (
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowAddColumn(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" />

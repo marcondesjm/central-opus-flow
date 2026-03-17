@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { KanbanDeal, PRIORITY_OPTIONS, useUpdateDeal } from '@/hooks/useKanban';
+import { KanbanDeal, PRIORITY_OPTIONS, useUpdateDeal, useCreateDeal, useDeleteDeal } from '@/hooks/useKanban';
 import { KanbanColumn } from '@/hooks/useKanbanColumns';
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem } from '@/hooks/useKanbanChecklist';
 import { useSystemUsers } from '@/hooks/useKanbanSpaces';

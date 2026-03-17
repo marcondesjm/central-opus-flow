@@ -1309,23 +1309,29 @@ export default function KanbanPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setShowAddSpace(true)}>
+                <DropdownMenuItem onSelect={() => setShowAddSpace(true)}>
                   <Plus className="w-4 h-4 mr-2" /> Novo espaço
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
+                <DropdownMenuItem onSelect={(e) => {
+                  e.preventDefault();
                   if (activeSpaceId) {
                     const space = spaces?.find(s => s.id === activeSpaceId);
                     if (space) {
-                      setEditingSpaceName(space.name);
+                      setTimeout(() => setEditingSpaceName(space.name), 100);
                     }
                   }
                 }} disabled={!activeSpaceId}>
                   <Pencil className="w-4 h-4 mr-2" /> Editar espaço
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
-                  if (activeSpaceId && confirm('Tem certeza que deseja excluir este espaço?')) {
-                    deleteSpace.mutate(activeSpaceId);
-                    setActiveSpaceId(null);
+                <DropdownMenuItem onSelect={(e) => {
+                  e.preventDefault();
+                  if (activeSpaceId) {
+                    setTimeout(() => {
+                      if (confirm('Tem certeza que deseja excluir este espaço?')) {
+                        deleteSpace.mutate(activeSpaceId);
+                        setActiveSpaceId(null);
+                      }
+                    }, 100);
                   }
                 }} disabled={!activeSpaceId} className="text-destructive focus:text-destructive">
                   <Trash2 className="w-4 h-4 mr-2" /> Excluir espaço

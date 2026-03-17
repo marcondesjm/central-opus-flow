@@ -6,7 +6,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  FolderOpen, Users, X,
+  Users, X,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -1293,96 +1293,111 @@ export default function KanbanPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        {/* Space selector bar */}
-        <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 border-b bg-muted/20 max-w-[1800px] mx-auto overflow-x-auto">
-          <FolderOpen className="w-4 h-4 text-muted-foreground shrink-0" />
-          <button
-            onClick={() => setActiveSpaceId(null)}
-            className={cn(
-              'px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
-              !activeSpaceId ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80 text-muted-foreground'
-            )}
-          >
-            Todos
-          </button>
-          {spaces?.map(space => (
-            <div key={space.id} className="flex items-center gap-0.5 group">
-              <button
-                onClick={() => setActiveSpaceId(space.id)}
-                className={cn(
-                  'px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5',
-                  activeSpaceId === space.id ? 'text-primary-foreground' : 'hover:opacity-80 text-foreground'
-                )}
-                style={{ backgroundColor: activeSpaceId === space.id ? space.color : `${space.color}20` }}
-              >
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: space.color }} />
-                {space.name}
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); deleteSpace.mutate(space.id); if (activeSpaceId === space.id) setActiveSpaceId(null); }}
-                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 text-destructive transition-opacity"
-              >
-                <X className="w-3 h-3" />
-              </button>
+        {/* Breadcrumb + Space name */}
+        <div className="px-3 sm:px-4 pt-2 pb-1 max-w-[1800px] mx-auto">
+          <p className="text-[11px] text-muted-foreground mb-0.5">Espaços</p>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7" onClick={() => navigate('/dashboard')}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h1 className="text-sm sm:text-base font-bold truncate flex items-center gap-2">
+              {activeSpaceId && spaces?.find(s => s.id === activeSpaceId) ? (
+                <>
+                  <span className="w-5 h-5 rounded flex items-center justify-center text-[10px]" style={{ backgroundColor: spaces.find(s => s.id === activeSpaceId)?.color }}>
+                    {spaces.find(s => s.id === activeSpaceId)?.icon || '📂'}
+                  </span>
+                  {spaces.find(s => s.id === activeSpaceId)?.name}
+                </>
+              ) : (
+                'Tarefas & Projetos'
+              )}
+            </h1>
+            <div className="flex items-center gap-1 ml-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <Users className="w-3.5 h-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setActiveSpaceId(null)} className={cn(!activeSpaceId && 'font-semibold')}>
+                    Todos os espaços
+                  </DropdownMenuItem>
+                  {spaces?.map(space => (
+                    <DropdownMenuItem key={space.id} onClick={() => setActiveSpaceId(space.id)} className={cn(activeSpaceId === space.id && 'font-semibold')}>
+                      <span className="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: space.color }} />
+                      {space.name}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuItem onClick={() => setShowAddSpace(true)}>
+                    <Plus className="w-3.5 h-3.5 mr-2" />
+                    Novo espaço
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <MoreHorizontal className="w-3.5 h-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => setShowChart(v => !v)}>
+                    <BarChart3 className="w-3.5 h-3.5 mr-2" />
+                    {showChart ? 'Ocultar gráfico' : 'Mostrar gráfico'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={async () => {
+                    setShowScheduledList(true);
+                    setLoadingScheduled(true);
+                    const { data } = await supabase
+                      .from('kanban_scheduled_messages')
+                      .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+                      .eq('user_id', user!.id)
+                      .order('scheduled_date', { ascending: true });
+                    setScheduledMessages(data || []);
+                    setLoadingScheduled(false);
+                  }}>
+                    <Clock className="w-3.5 h-3.5 mr-2" />
+                    Mensagens agendadas
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          ))}
-          <button
-            onClick={() => setShowAddSpace(true)}
-            className="px-2.5 py-1 rounded-full text-xs text-muted-foreground border border-dashed border-muted-foreground/30 hover:bg-muted/50 transition-colors whitespace-nowrap flex items-center gap-1"
-          >
-            <Plus className="w-3 h-3" />
-            Espaço
-          </button>
+            <p className="text-[11px] text-muted-foreground ml-auto hidden sm:block">
+              {filteredDeals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1800px] mx-auto gap-2">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold truncate">
-                {activeSpaceId ? spaces?.find(s => s.id === activeSpaceId)?.name || 'Tarefas & Projetos' : 'Tarefas & Projetos'}
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                {filteredDeals?.length || 0} tarefas · R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            {/* View mode tabs */}
-            <Tabs value={viewMode} onValueChange={v => setViewMode(v as 'kanban' | 'list' | 'calendar')}>
-              <TabsList className="h-8">
-                <TabsTrigger value="kanban" className="text-xs px-2 sm:px-3 h-7">Kanban</TabsTrigger>
-                <TabsTrigger value="list" className="text-xs px-2 sm:px-3 h-7">Lista</TabsTrigger>
-                <TabsTrigger value="calendar" className="text-xs px-2 sm:px-3 h-7">Calendário</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <Button variant="outline" size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={() => setShowChart(v => !v)}>
-              <BarChart3 className="w-4 h-4 sm:mr-1.5" />
-              <span className="hidden sm:inline">{showChart ? 'Ocultar' : 'Gráfico'}</span>
-            </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={async () => {
-              setShowScheduledList(true);
-              setLoadingScheduled(true);
-              const { data } = await supabase
-                .from('kanban_scheduled_messages')
-                .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
-                .eq('user_id', user!.id)
-                .order('scheduled_date', { ascending: true });
-              setScheduledMessages(data || []);
-              setLoadingScheduled(false);
-            }}>
-              <Clock className="w-4 h-4 sm:mr-1.5" />
-              <span className="hidden sm:inline">Agendadas</span>
-            </Button>
+        {/* View mode navigation tabs - ClickUp style */}
+        <div className="flex items-center gap-0 px-3 sm:px-4 max-w-[1800px] mx-auto overflow-x-auto border-t">
+          {[
+            { id: 'kanban', label: 'Quadro', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+            { id: 'list', label: 'Lista', icon: <CheckSquare className="w-3.5 h-3.5" /> },
+            { id: 'calendar', label: 'Calendário', icon: <Calendar className="w-3.5 h-3.5" /> },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setViewMode(tab.id as 'kanban' | 'list' | 'calendar')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
+                viewMode === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'
+              )}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+          <div className="flex-1" />
+          <div className="flex items-center gap-1.5 py-1">
             <div className="hidden sm:flex items-center gap-2">
               <ImportBackupButton />
               <ExportBackupButton />
             </div>
-            <Button size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
-              <Plus className="w-4 h-4 sm:mr-1.5" />
+            <Button size="sm" className="h-7 text-xs px-2 sm:px-3" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
+              <Plus className="w-3.5 h-3.5 sm:mr-1" />
               <span className="hidden xs:inline">Nova Tarefa</span>
             </Button>
           </div>

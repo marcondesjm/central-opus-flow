@@ -197,7 +197,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <Zap className="w-4 h-4 text-primary flex-shrink-0" />
             <span className="font-medium text-foreground truncate">{ticketId}</span>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5 flex-shrink-0">
             <Button
               variant="ghost" size="icon"
               className={cn("h-8 w-8", isLocked ? "text-primary" : "text-muted-foreground hover:text-foreground")}

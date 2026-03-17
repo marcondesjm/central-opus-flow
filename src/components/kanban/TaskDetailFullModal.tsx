@@ -400,12 +400,124 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
               {/* Action buttons */}
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <Plus className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-8 w-8">
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-52">
+                    <DropdownMenuItem onSelect={() => {
+                      const title = prompt('Nome do ticket filho:');
+                      if (title?.trim()) createItem.mutate({ deal_id: deal.id, title: title.trim(), position: totalCount });
+                    }}>
+                      <CheckSquare className="w-4 h-4 mr-2" /> Ticket filho
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => {
+                      if (!isEditingTags) setIsEditingTags(true);
+                    }}>
+                      <Tag className="w-4 h-4 mr-2" /> Adicionar tag
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => {
+                      setDescDraft(deal.description || '');
+                      setIsEditingDesc(true);
+                    }}>
+                      <FileText className="w-4 h-4 mr-2" /> Adicionar descrição
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e: any) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            const url = ev.target?.result as string;
+                            updateDeal.mutate({ id: deal.id, color: url });
+                            toast({ title: 'Capa adicionada!' });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      };
+                      input.click();
+                    }}>
+                      <Image className="w-4 h-4 mr-2" /> Adicionar capa
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-52">
+                    <DropdownMenuItem onSelect={() => { setTitleDraft(deal.company_name); setIsEditingTitle(true); }}>
+                      <Pencil className="w-4 h-4 mr-2" /> Renomear tarefa
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => {
+                      createDeal.mutate({
+                        company_name: deal.company_name + ' (cópia)',
+                        client_name: deal.client_name,
+                        description: deal.description || undefined,
+                        phase: deal.phase,
+                        priority: deal.priority,
+                        revenue: deal.revenue,
+                        tags: deal.tags || [],
+                        due_date: deal.due_date,
+                        color: deal.color,
+                        client_email: deal.client_email,
+                        client_whatsapp: deal.client_whatsapp,
+                        space_id: deal.space_id,
+                      } as any);
+                      toast({ title: 'Tarefa clonada!' });
+                    }}>
+                      <Copy className="w-4 h-4 mr-2" /> Duplicar
+                    </DropdownMenuItem>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <Move className="w-4 h-4 mr-2" /> Mover para
+                          <ChevronRight className="w-4 h-4 ml-auto" />
+                        </DropdownMenuItem>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent side="right" className="w-48">
+                        {columns.map(c => (
+                          <DropdownMenuItem key={c.id} onSelect={() => {
+                            updateDeal.mutate({ id: deal.id, phase: c.id });
+                            toast({ title: `Movido para ${c.name}` });
+                          }}>
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: c.color }} />
+                            {c.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => {
+                      const url = `${window.location.origin}/kanban?deal=${deal.id}`;
+                      navigator.clipboard.writeText(url);
+                      toast({ title: 'Link copiado!' });
+                    }}>
+                      <Share2 className="w-4 h-4 mr-2" /> Copiar link
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => {
+                      updateDeal.mutate({ id: deal.id, phase: 'archived' });
+                      toast({ title: 'Tarefa arquivada!' });
+                      onOpenChange(false);
+                    }}>
+                      <Archive className="w-4 h-4 mr-2" /> Arquivar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive" onSelect={() => {
+                      deleteDeal.mutate(deal.id);
+                      onOpenChange(false);
+                    }}>
+                      <Trash2 className="w-4 h-4 mr-2" /> Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Description - Rich Text */}

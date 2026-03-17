@@ -24,6 +24,7 @@ import Billing from "./pages/Billing";
 import Proposals from "./pages/Proposals";
 import ProposalPublic from "./pages/ProposalPublic";
 import Teams from "./pages/Teams";
+import Ideas from "./pages/Ideas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -215,6 +216,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Teams />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ideas"
+            element={
+              <ProtectedRoute>
+                <Ideas />
               </ProtectedRoute>
             }
           />

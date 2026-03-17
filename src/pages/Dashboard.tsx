@@ -26,7 +26,7 @@ import { TrialBanner } from '@/components/subscription/TrialBanner';
 import { SubscriptionExpirationBanner } from '@/components/subscription/SubscriptionExpirationBanner';
 import { WhatsAppRequiredBanner } from '@/components/subscription/WhatsAppRequiredBanner';
 import { TrialExpiredModal } from '@/components/subscription/TrialExpiredModal';
-import { VersionUpdateModal } from '@/components/version/VersionUpdateModal';
+
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';

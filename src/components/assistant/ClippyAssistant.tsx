@@ -592,7 +592,7 @@ export function ClippyAssistant() {
                 )}
 
                 {/* FAQ list */}
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                   {isLoading ? (
                     <div className="p-4 text-center text-xs text-muted-foreground">
                       <motion.div

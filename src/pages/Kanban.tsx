@@ -992,6 +992,7 @@ export default function KanbanPage() {
   const [filterTag, setFilterTag] = useState<string>('all');
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
   const [showAddSpace, setShowAddSpace] = useState(false);
+  const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;

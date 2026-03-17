@@ -2083,11 +2083,11 @@ export default function KanbanPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {paymentsDeal && (
+      {freshPaymentsDeal && (
         <DealPaymentsModal
-          open={!!paymentsDeal}
+          open={!!freshPaymentsDeal}
           onOpenChange={v => { if (!v) setPaymentsDeal(null); }}
-          deal={paymentsDeal}
+          deal={freshPaymentsDeal}
         />
       )}
 

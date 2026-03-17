@@ -134,6 +134,7 @@ export function Sidebar({
   const { data: subscription } = useSubscription();
   const { t } = useTranslation();
   const { data: spaces } = useKanbanSpaces();
+  const scheduledCount = useScheduledMessagesCount();
   const { data: systemVersion } = useSystemVersion();
 
   // Fetch profile data and subscribe to realtime updates

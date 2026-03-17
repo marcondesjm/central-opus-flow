@@ -210,6 +210,14 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/teams"
+            element={
+              <ProtectedRoute>
+                <Teams />
+              </ProtectedRoute>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

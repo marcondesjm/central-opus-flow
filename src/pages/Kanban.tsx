@@ -6,7 +6,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  Users, X,
+  Users, X, AlertTriangle,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -993,6 +993,7 @@ export default function KanbanPage() {
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
   const [showAddSpace, setShowAddSpace] = useState(false);
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
+  const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;
@@ -1325,14 +1326,7 @@ export default function KanbanPage() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={(e) => {
                   e.preventDefault();
-                  if (activeSpaceId) {
-                    setTimeout(() => {
-                      if (confirm('Tem certeza que deseja excluir este espaço?')) {
-                        deleteSpace.mutate(activeSpaceId);
-                        setActiveSpaceId(null);
-                      }
-                    }, 100);
-                  }
+                  if (activeSpaceId) setDeletingSpaceId(activeSpaceId);
                 }} disabled={!activeSpaceId} className="text-destructive focus:text-destructive">
                   <Trash2 className="w-4 h-4 mr-2" /> Excluir espaço
                 </DropdownMenuItem>
@@ -1379,12 +1373,7 @@ export default function KanbanPage() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={(e) => {
                     e.preventDefault();
-                    setTimeout(() => {
-                      if (confirm(`Excluir o espaço "${space.name}"?`)) {
-                        deleteSpace.mutate(space.id);
-                        if (activeSpaceId === space.id) setActiveSpaceId(null);
-                      }
-                    }, 100);
+                    setDeletingSpaceId(space.id);
                   }} className="text-destructive focus:text-destructive">
                     <Trash2 className="w-4 h-4 mr-2" /> Excluir
                   </DropdownMenuItem>
@@ -1935,6 +1924,40 @@ export default function KanbanPage() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={() => { if (deletingId) deleteDeal.mutate(deletingId); setDeletingId(null); }}>
               Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Space Dialog */}
+      <AlertDialog open={!!deletingSpaceId} onOpenChange={() => setDeletingSpaceId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Excluir espaço?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">Todas as tarefas vinculadas a este espaço serão perdidas permanentemente.</span>
+              <span className="block font-medium text-foreground">Recomendamos exportar um backup antes de continuar.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-center py-2">
+            <ExportBackupButton variant="outline" size="sm" className="w-full" />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (deletingSpaceId) {
+                  deleteSpace.mutate(deletingSpaceId);
+                  if (activeSpaceId === deletingSpaceId) setActiveSpaceId(null);
+                }
+                setDeletingSpaceId(null);
+              }}
+            >
+              Excluir mesmo assim
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

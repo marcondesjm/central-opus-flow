@@ -627,7 +627,6 @@ export default function BillingPage() {
               {metrics.dealCount} contratos · {metrics.paymentCount} pagamentos
             </p>
           </div>
-          </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <Button size="sm" variant="ghost" onClick={handleExportBilling} className="gap-1.5 h-8 text-xs px-2" title="Exportar dados">
               <Download className="w-4 h-4" />

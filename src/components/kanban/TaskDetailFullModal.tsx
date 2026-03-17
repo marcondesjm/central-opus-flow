@@ -672,13 +672,14 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     <span className="text-sm text-muted-foreground">Progresso</span>
                     <div className="flex items-center gap-2">
                       <Slider
-                        value={[deal.progress]}
+                        value={[progressDraft]}
+                        onValueChange={v => setProgressDraft(v[0])}
                         onValueCommit={handleProgressChange}
                         max={100}
                         step={5}
                         className="flex-1"
                       />
-                      <span className="text-xs text-muted-foreground w-8 text-right">{deal.progress}%</span>
+                      <span className="text-xs text-muted-foreground w-8 text-right">{progressDraft}%</span>
                     </div>
                   </div>
 

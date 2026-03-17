@@ -1274,6 +1274,51 @@ export default function KanbanPage() {
   };
 
   const kanbanRef = useRef<HTMLDivElement>(null);
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const isSyncing = useRef(false);
+
+  useEffect(() => {
+    const kanban = kanbanRef.current;
+    const topScroll = topScrollRef.current;
+    if (!kanban || !topScroll) return;
+
+    const syncFromKanban = () => {
+      if (isSyncing.current) return;
+      isSyncing.current = true;
+      topScroll.scrollLeft = kanban.scrollLeft;
+      isSyncing.current = false;
+    };
+    const syncFromTop = () => {
+      if (isSyncing.current) return;
+      isSyncing.current = true;
+      kanban.scrollLeft = topScroll.scrollLeft;
+      isSyncing.current = false;
+    };
+
+    kanban.addEventListener('scroll', syncFromKanban);
+    topScroll.addEventListener('scroll', syncFromTop);
+
+    // Sync spacer width
+    const inner = kanban.querySelector('.min-w-max') as HTMLElement;
+    const spacer = topScroll.querySelector('.top-scroll-spacer') as HTMLElement;
+    if (inner && spacer) {
+      const ro = new ResizeObserver(() => {
+        spacer.style.width = `${inner.scrollWidth}px`;
+      });
+      ro.observe(inner);
+      spacer.style.width = `${inner.scrollWidth}px`;
+      return () => {
+        ro.disconnect();
+        kanban.removeEventListener('scroll', syncFromKanban);
+        topScroll.removeEventListener('scroll', syncFromTop);
+      };
+    }
+
+    return () => {
+      kanban.removeEventListener('scroll', syncFromKanban);
+      topScroll.removeEventListener('scroll', syncFromTop);
+    };
+  });
 
   // Native wheel handler to prevent browser zoom on Ctrl+Scroll
   useEffect(() => {
@@ -1753,6 +1798,14 @@ export default function KanbanPage() {
       {/* Views */}
       {viewMode === 'kanban' ? (
         <DragDropContext onDragEnd={handleDragEnd}>
+          {/* Top scrollbar for accessibility */}
+          <div
+            ref={topScrollRef}
+            className="mx-auto px-4 scrollbar-visible"
+            style={{ overflowX: 'auto', overflowY: 'hidden' }}
+          >
+            <div className="top-scroll-spacer" style={{ height: '1px' }} />
+          </div>
           <div ref={kanbanRef} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto scrollbar-visible">
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (

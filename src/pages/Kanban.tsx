@@ -1377,7 +1377,7 @@ export default function KanbanPage() {
                 <DropdownMenuContent align="end" className="w-44">
                   <DropdownMenuItem onSelect={(e) => {
                     e.preventDefault();
-                    setActiveSpaceId(space.id);
+                    handleSetActiveSpace(space.id);
                     setTimeout(() => setEditingSpaceName(space.name), 100);
                   }}>
                     <Pencil className="w-4 h-4 mr-2" /> Renomear

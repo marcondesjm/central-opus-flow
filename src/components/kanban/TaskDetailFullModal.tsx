@@ -510,15 +510,34 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     )}
                   </div>
 
-                  {/* Categorias (tags display) */}
-                  <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Categorias</span>
-                    <div className="flex flex-wrap gap-1">
-                      {(deal.tags || []).length > 0 ? (
-                        deal.tags.map((t, i) => <Badge key={i} variant="secondary" className="text-[10px]">{t}</Badge>)
-                      ) : (
-                        <span className="text-sm text-muted-foreground">Nenhum</span>
-                      )}
+                  {/* Categorias (tags) - editable */}
+                  <div className="grid grid-cols-[100px_1fr] items-start gap-2">
+                    <span className="text-sm text-muted-foreground pt-1">Categorias</span>
+                    <div>
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {(deal.tags || []).length > 0 ? (
+                          deal.tags.map((t, i) => (
+                            <Badge key={i} variant="secondary" className="text-[10px] gap-0.5 pr-1">
+                              {t}
+                              <button onClick={() => handleRemoveTag(t)} className="ml-0.5 hover:text-destructive"><X className="w-2.5 h-2.5" /></button>
+                            </Badge>
+                          ))
+                        ) : null}
+                        <button
+                          onClick={() => {
+                            const tag = prompt('Nova categoria/tag:');
+                            if (tag?.trim()) {
+                              const currentTags = deal.tags || [];
+                              if (!currentTags.includes(tag.trim())) {
+                                updateDeal.mutate({ id: deal.id, tags: [...currentTags, tag.trim()] });
+                              }
+                            }
+                          }}
+                          className="text-[10px] text-primary hover:underline"
+                        >
+                          + Adicionar
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -527,6 +546,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     <span className="text-sm text-muted-foreground">Team</span>
                     <span className="text-sm text-muted-foreground">Nenhum</span>
                   </div>
+
+                  {/* Categorias - editable tags in sidebar */}
 
                   {/* Data limite - date picker */}
                   <div className="grid grid-cols-[100px_1fr] items-center gap-2">
@@ -553,6 +574,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                           selected={deal.due_date ? new Date(deal.due_date) : undefined}
                           onSelect={handleDueDateChange}
                           locale={ptBR}
+                          className={cn("p-3 pointer-events-auto")}
                         />
                         {deal.due_date && (
                           <div className="p-2 border-t">
@@ -565,10 +587,36 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     </Popover>
                   </div>
 
-                  {/* Start date */}
+                  {/* Start date - date picker */}
                   <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                     <span className="text-sm text-muted-foreground">Start date</span>
-                    <span className="text-sm text-muted-foreground">Nenhum</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="text-sm inline-flex items-center gap-1 px-2 py-0.5 rounded border border-border w-fit hover:bg-muted/50 transition-colors">
+                          {deal.start_date ? (
+                            format(new Date(deal.start_date), "d 'de' MMM. 'de' yyyy", { locale: ptBR })
+                          ) : (
+                            <span className="text-muted-foreground">Nenhum</span>
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={deal.start_date ? new Date(deal.start_date) : undefined}
+                          onSelect={(date) => updateDeal.mutate({ id: deal.id, start_date: date ? date.toISOString() : null })}
+                          locale={ptBR}
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                        {deal.start_date && (
+                          <div className="p-2 border-t">
+                            <Button size="sm" variant="ghost" className="w-full text-xs text-destructive" onClick={() => updateDeal.mutate({ id: deal.id, start_date: null })}>
+                              Remover data
+                            </Button>
+                          </div>
+                        )}
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Valor - editable */}

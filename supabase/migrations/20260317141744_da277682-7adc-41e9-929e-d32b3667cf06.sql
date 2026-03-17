@@ -1,0 +1,1 @@
+ALTER TABLE public.kanban_deals ADD COLUMN start_date timestamp with time zone DEFAULT NULL;

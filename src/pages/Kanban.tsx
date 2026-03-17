@@ -1519,7 +1519,7 @@ export default function KanbanPage() {
                     Todos os espaços
                   </DropdownMenuItem>
                   {spaces?.map(space => (
-                    <DropdownMenuItem key={space.id} onClick={() => setActiveSpaceId(space.id)} className={cn(activeSpaceId === space.id && 'font-semibold')}>
+                    <DropdownMenuItem key={space.id} onClick={() => handleSetActiveSpace(space.id)} className={cn(activeSpaceId === space.id && 'font-semibold')}>
                       <span className="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: space.color }} />
                       {space.name}
                     </DropdownMenuItem>

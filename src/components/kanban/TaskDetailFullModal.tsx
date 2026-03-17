@@ -510,15 +510,34 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     )}
                   </div>
 
-                  {/* Categorias (tags display) */}
-                  <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Categorias</span>
-                    <div className="flex flex-wrap gap-1">
-                      {(deal.tags || []).length > 0 ? (
-                        deal.tags.map((t, i) => <Badge key={i} variant="secondary" className="text-[10px]">{t}</Badge>)
-                      ) : (
-                        <span className="text-sm text-muted-foreground">Nenhum</span>
-                      )}
+                  {/* Categorias (tags) - editable */}
+                  <div className="grid grid-cols-[100px_1fr] items-start gap-2">
+                    <span className="text-sm text-muted-foreground pt-1">Categorias</span>
+                    <div>
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {(deal.tags || []).length > 0 ? (
+                          deal.tags.map((t, i) => (
+                            <Badge key={i} variant="secondary" className="text-[10px] gap-0.5 pr-1">
+                              {t}
+                              <button onClick={() => handleRemoveTag(t)} className="ml-0.5 hover:text-destructive"><X className="w-2.5 h-2.5" /></button>
+                            </Badge>
+                          ))
+                        ) : null}
+                        <button
+                          onClick={() => {
+                            const tag = prompt('Nova categoria/tag:');
+                            if (tag?.trim()) {
+                              const currentTags = deal.tags || [];
+                              if (!currentTags.includes(tag.trim())) {
+                                updateDeal.mutate({ id: deal.id, tags: [...currentTags, tag.trim()] });
+                              }
+                            }
+                          }}
+                          className="text-[10px] text-primary hover:underline"
+                        >
+                          + Adicionar
+                        </button>
+                      </div>
                     </div>
                   </div>
 

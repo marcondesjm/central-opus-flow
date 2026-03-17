@@ -244,7 +244,28 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-52">
+                {/* Selecionar capa */}
+                <DropdownMenuItem onSelect={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e: any) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const url = ev.target?.result as string;
+                        updateDeal.mutate({ id: deal.id, color: url });
+                        toast({ title: 'Capa atualizada!' });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  };
+                  input.click();
+                }}>
+                  <Image className="w-4 h-4 mr-2" /> Selecionar capa
+                </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => {
                   createDeal.mutate({
                     company_name: deal.company_name + ' (cópia)',
@@ -260,9 +281,33 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     client_whatsapp: deal.client_whatsapp,
                     space_id: deal.space_id,
                   } as any);
+                  toast({ title: 'Tarefa clonada!' });
                 }}>
-                  <Copy className="w-4 h-4 mr-2" /> Duplicar tarefa
+                  <Copy className="w-4 h-4 mr-2" /> Clonar
                 </DropdownMenuItem>
+                {/* Mover para outro espaço */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Move className="w-4 h-4 mr-2" /> Mover
+                      <ChevronRight className="w-4 h-4 ml-auto" />
+                    </DropdownMenuItem>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="right" className="w-44">
+                    {columns.map(c => (
+                      <DropdownMenuItem
+                        key={c.id}
+                        onSelect={() => {
+                          updateDeal.mutate({ id: deal.id, phase: c.id });
+                          toast({ title: `Movido para ${c.name}` });
+                        }}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: c.color }} />
+                        {c.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <DropdownMenuItem onSelect={() => {
                   updateDeal.mutate({ id: deal.id, phase: 'archived' });
                   toast({ title: 'Tarefa arquivada!' });
@@ -270,7 +315,6 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 }}>
                   <Archive className="w-4 h-4 mr-2" /> Arquivar
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
                   onSelect={() => {
@@ -280,7 +324,42 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     }
                   }}
                 >
-                  <Trash2 className="w-4 h-4 mr-2" /> Excluir tarefa
+                  <Trash2 className="w-4 h-4 mr-2" /> Excluir
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {/* Impressão e Exportação */}
+                <DropdownMenuItem onSelect={() => window.print()}>
+                  <Printer className="w-4 h-4 mr-2" /> Imprimir
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  const csvContent = [
+                    ['Tarefa', 'Cliente', 'Fase', 'Prioridade', 'Receita', 'Data limite', 'Progresso'],
+                    [deal.company_name, deal.client_name, columns.find(c => c.id === deal.phase)?.name || deal.phase, deal.priority, String(deal.revenue || 0), deal.due_date || '', `${deal.progress}%`]
+                  ].map(r => r.join(';')).join('\n');
+                  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.csv`; a.click();
+                  toast({ title: 'Exportado para Excel (CSV)!' });
+                }}>
+                  <FileSpreadsheet className="w-4 h-4 mr-2" /> Exportar para Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  const content = `Tarefa: ${deal.company_name}\nCliente: ${deal.client_name}\nFase: ${columns.find(c => c.id === deal.phase)?.name || deal.phase}\nPrioridade: ${deal.priority}\nReceita: R$ ${Number(deal.revenue || 0).toFixed(2)}\nData limite: ${deal.due_date || 'Sem data'}\nProgresso: ${deal.progress}%\nDescrição: ${deal.description || 'Sem descrição'}`;
+                  const blob = new Blob([content], { type: 'application/msword' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.doc`; a.click();
+                  toast({ title: 'Exportado como Word!' });
+                }}>
+                  <FileType className="w-4 h-4 mr-2" /> Exportar Word
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<task>\n  <name>${deal.company_name}</name>\n  <client>${deal.client_name}</client>\n  <phase>${deal.phase}</phase>\n  <priority>${deal.priority}</priority>\n  <revenue>${deal.revenue || 0}</revenue>\n  <due_date>${deal.due_date || ''}</due_date>\n  <progress>${deal.progress}</progress>\n  <description><![CDATA[${deal.description || ''}]]></description>\n</task>`;
+                  const blob = new Blob([xml], { type: 'application/xml' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.xml`; a.click();
+                  toast({ title: 'Exportado como XML!' });
+                }}>
+                  <FileText className="w-4 h-4 mr-2" /> Exportar XML
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

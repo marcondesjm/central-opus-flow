@@ -4,6 +4,9 @@ import { Trash2, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { clearServiceWorkerCache } from '@/lib/serviceWorker';
+import { supabase } from '@/integrations/supabase/client';
+
+const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
 import {
   AlertDialog,
   AlertDialogAction,

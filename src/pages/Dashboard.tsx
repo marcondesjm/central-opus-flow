@@ -547,9 +547,6 @@ export default function Dashboard() {
       {/* Trial Expired Modal */}
       <TrialExpiredModal />
       
-      {/* Version Update Modal */}
-      <VersionUpdateModal />
-      
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">

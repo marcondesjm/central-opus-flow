@@ -71,6 +71,12 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [progressDraft, setProgressDraft] = useState(deal.progress);
   const [isLocked, setIsLocked] = useState(false);
 
+  const TASK_COLORS = [
+    '#8B5CF6', '#3B82F6', '#10B981', '#06B6D4', '#22D3EE',
+    '#EAB308', '#F43F5E', '#6B7280',
+    '#6D28D9', '#1D4ED8', '#047857', '#0E7490', '#D97706', '#DC2626', '#4B5563',
+  ];
+
   // Automation states persisted in localStorage per deal
   const storageKey = `automations_${deal.id}`;
   const loadAutomations = () => {

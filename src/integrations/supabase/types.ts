@@ -639,6 +639,77 @@ export type Database = {
           },
         ]
       }
+      ideas: {
+        Row: {
+          created_at: string
+          decision: string | null
+          description: string | null
+          effort: number
+          hypothesis: string | null
+          id: string
+          impact: number
+          insights_count: number
+          position: number
+          progress: number
+          roadmap: string
+          space_id: string | null
+          theme: string
+          theme_color: string
+          title: string
+          updated_at: string
+          user_id: string
+          validation: string | null
+        }
+        Insert: {
+          created_at?: string
+          decision?: string | null
+          description?: string | null
+          effort?: number
+          hypothesis?: string | null
+          id?: string
+          impact?: number
+          insights_count?: number
+          position?: number
+          progress?: number
+          roadmap?: string
+          space_id?: string | null
+          theme?: string
+          theme_color?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          validation?: string | null
+        }
+        Update: {
+          created_at?: string
+          decision?: string | null
+          description?: string | null
+          effort?: number
+          hypothesis?: string | null
+          id?: string
+          impact?: number
+          insights_count?: number
+          position?: number
+          progress?: number
+          roadmap?: string
+          space_id?: string | null
+          theme?: string
+          theme_color?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          validation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ideas_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kanban_columns: {
         Row: {
           color: string

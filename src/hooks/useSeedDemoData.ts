@@ -777,6 +777,14 @@ export function useSeedDemoData() {
         .eq('user_id', user.id)
         .in('name', demoTagNames);
 
+      // Delete demo ideas
+      const demoIdeaTitles = demoIdeas.map(i => i.title);
+      await supabase
+        .from('ideas')
+        .delete()
+        .eq('user_id', user.id)
+        .in('title', demoIdeaTitles);
+
       console.log('Demo data cleared successfully');
       toast.success('Dados de demonstração removidos');
       setClearing(false);

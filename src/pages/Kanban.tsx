@@ -1655,6 +1655,12 @@ export default function KanbanPage() {
             </Droppable>
           </div>
         </DragDropContext>
+      ) : viewMode === 'calendar' ? (
+        <CalendarView
+          deals={filteredDeals}
+          columns={columns || []}
+          onDetail={d => setDetailDeal(d)}
+        />
       ) : (
         <ListView
           deals={filteredDeals}

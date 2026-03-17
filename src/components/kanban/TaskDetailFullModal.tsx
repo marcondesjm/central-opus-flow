@@ -4,7 +4,7 @@ import {
   X, Maximize2, Share2, MoreHorizontal, AlertTriangle, Clock,
   FileText, Users, Mail, Phone, Pencil, Eye, Lock, Unlock, ChevronDown, ChevronRight,
   Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy, Archive,
-  Image, Move, Printer, FileSpreadsheet, FileType,
+  Image, Move, Printer, FileSpreadsheet, FileType, FileDown,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -317,26 +317,97 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                   <Trash2 className="w-4 h-4 mr-2" /> Excluir
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => window.print()}>
+                <DropdownMenuItem onSelect={async () => {
+                  const printWindow = window.open('', '_blank');
+                  if (!printWindow) return;
+                  const phaseName = columns.find(c => c.id === deal.phase)?.name || deal.phase;
+                  printWindow.document.write(`<!DOCTYPE html><html><head><title>${deal.company_name}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222}h1{font-size:22px;margin-bottom:4px}h2{font-size:16px;color:#555;margin-bottom:16px}.info{display:flex;gap:8px;margin:4px 0}.label{font-weight:bold;min-width:120px}.desc{margin-top:16px;padding:12px;background:#f9f9f9;border-radius:8px}</style></head><body>`);
+                  printWindow.document.write(`<h1>${deal.company_name}</h1>`);
+                  printWindow.document.write(`<h2>Cliente: ${deal.client_name}</h2>`);
+                  printWindow.document.write(`<div class="info"><span class="label">Fase:</span><span>${phaseName}</span></div>`);
+                  printWindow.document.write(`<div class="info"><span class="label">Prioridade:</span><span>${priority?.label || deal.priority}</span></div>`);
+                  printWindow.document.write(`<div class="info"><span class="label">Valor:</span><span>R$ ${Number(deal.revenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`);
+                  printWindow.document.write(`<div class="info"><span class="label">Progresso:</span><span>${deal.progress}%</span></div>`);
+                  printWindow.document.write(`<div class="info"><span class="label">Data limite:</span><span>${deal.due_date ? format(new Date(deal.due_date), 'dd/MM/yyyy') : 'Sem data'}</span></div>`);
+                  if (deal.client_email) printWindow.document.write(`<div class="info"><span class="label">Email:</span><span>${deal.client_email}</span></div>`);
+                  if (deal.client_whatsapp) printWindow.document.write(`<div class="info"><span class="label">WhatsApp:</span><span>${deal.client_whatsapp}</span></div>`);
+                  if (deal.tags?.length) printWindow.document.write(`<div class="info"><span class="label">Tags:</span><span>${deal.tags.join(', ')}</span></div>`);
+                  if (deal.description) printWindow.document.write(`<div class="desc"><strong>Descrição:</strong><br/>${deal.description}</div>`);
+                  printWindow.document.write('</body></html>');
+                  printWindow.document.close();
+                  printWindow.focus();
+                  setTimeout(() => printWindow.print(), 300);
+                }}>
                   <Printer className="w-4 h-4 mr-2" /> Imprimir
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => {
-                  const csv = `Tarefa,Cliente,Fase,Prioridade,Receita,Data Limite,Progresso\n"${deal.company_name}","${deal.client_name}","${columns.find(c => c.id === deal.phase)?.name || deal.phase}","${deal.priority}","${deal.revenue || 0}","${deal.due_date || ''}","${deal.progress}%"`;
-                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const BOM = '\uFEFF';
+                  const phaseName = columns.find(c => c.id === deal.phase)?.name || deal.phase;
+                  const csv = BOM + `Tarefa;Cliente;Fase;Prioridade;Receita;Data Limite;Progresso;Email;WhatsApp;Tags;Descrição\n"${deal.company_name}";"${deal.client_name}";"${phaseName}";"${priority?.label || deal.priority}";"R$ ${Number(deal.revenue || 0).toFixed(2)}";"${deal.due_date ? format(new Date(deal.due_date), 'dd/MM/yyyy') : ''}";"${deal.progress}%";"${deal.client_email || ''}";"${deal.client_whatsapp || ''}";"${(deal.tags || []).join(', ')}";"${(deal.description || '').replace(/<[^>]*>/g, '').replace(/"/g, '""')}"`;
+                  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.csv`; a.click();
+                  URL.revokeObjectURL(url);
                   toast({ title: 'Exportado para Excel (CSV)!' });
                 }}>
                   <FileSpreadsheet className="w-4 h-4 mr-2" /> Exportar Excel
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => {
-                  const content = `Tarefa: ${deal.company_name}\nCliente: ${deal.client_name}\nFase: ${columns.find(c => c.id === deal.phase)?.name || deal.phase}\nPrioridade: ${deal.priority}\nReceita: R$ ${Number(deal.revenue || 0).toFixed(2)}\nData limite: ${deal.due_date || 'Sem data'}\nProgresso: ${deal.progress}%\nDescrição: ${deal.description || 'Sem descrição'}`;
-                  const blob = new Blob([content], { type: 'application/msword' });
+                  const phaseName = columns.find(c => c.id === deal.phase)?.name || deal.phase;
+                  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><style>body{font-family:Calibri,Arial,sans-serif;padding:20px}h1{color:#333}table{border-collapse:collapse;width:100%;margin:16px 0}td{padding:8px;border:1px solid #ddd}td:first-child{font-weight:bold;width:140px;background:#f5f5f5}.desc{margin-top:16px;padding:12px;background:#f9f9f9;border-radius:4px}</style></head><body><h1>${deal.company_name}</h1><table><tr><td>Cliente</td><td>${deal.client_name}</td></tr><tr><td>Fase</td><td>${phaseName}</td></tr><tr><td>Prioridade</td><td>${priority?.label || deal.priority}</td></tr><tr><td>Valor</td><td>R$ ${Number(deal.revenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr><tr><td>Progresso</td><td>${deal.progress}%</td></tr><tr><td>Data limite</td><td>${deal.due_date ? format(new Date(deal.due_date), 'dd/MM/yyyy') : 'Sem data'}</td></tr>${deal.client_email ? `<tr><td>Email</td><td>${deal.client_email}</td></tr>` : ''}${deal.client_whatsapp ? `<tr><td>WhatsApp</td><td>${deal.client_whatsapp}</td></tr>` : ''}${deal.tags?.length ? `<tr><td>Tags</td><td>${deal.tags.join(', ')}</td></tr>` : ''}</table>${deal.description ? `<div class="desc"><strong>Descrição:</strong><br/>${deal.description}</div>` : ''}</body></html>`;
+                  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.doc`; a.click();
+                  URL.revokeObjectURL(url);
                   toast({ title: 'Exportado como Word!' });
                 }}>
                   <FileType className="w-4 h-4 mr-2" /> Exportar Word
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={async () => {
+                  try {
+                    const { default: jsPDF } = await import('jspdf');
+                    const doc = new jsPDF();
+                    const phaseName = columns.find(c => c.id === deal.phase)?.name || deal.phase;
+                    let y = 20;
+                    doc.setFontSize(20);
+                    doc.text(deal.company_name, 14, y); y += 10;
+                    doc.setFontSize(12);
+                    doc.setTextColor(100);
+                    doc.text(`Cliente: ${deal.client_name}`, 14, y); y += 12;
+                    doc.setTextColor(0);
+                    const fields = [
+                      ['Fase', phaseName],
+                      ['Prioridade', priority?.label || deal.priority],
+                      ['Valor', `R$ ${Number(deal.revenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+                      ['Progresso', `${deal.progress}%`],
+                      ['Data limite', deal.due_date ? format(new Date(deal.due_date), 'dd/MM/yyyy') : 'Sem data'],
+                      ...(deal.client_email ? [['Email', deal.client_email]] : []),
+                      ...(deal.client_whatsapp ? [['WhatsApp', deal.client_whatsapp]] : []),
+                      ...(deal.tags?.length ? [['Tags', deal.tags.join(', ')]] : []),
+                    ];
+                    fields.forEach(([label, value]) => {
+                      doc.setFont('helvetica', 'bold');
+                      doc.text(`${label}:`, 14, y);
+                      doc.setFont('helvetica', 'normal');
+                      doc.text(String(value), 60, y);
+                      y += 8;
+                    });
+                    if (deal.description) {
+                      y += 6;
+                      doc.setFont('helvetica', 'bold');
+                      doc.text('Descrição:', 14, y); y += 8;
+                      doc.setFont('helvetica', 'normal');
+                      const plainDesc = deal.description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+                      const lines = doc.splitTextToSize(plainDesc, 180);
+                      doc.text(lines, 14, y);
+                    }
+                    doc.save(`${deal.company_name}.pdf`);
+                    toast({ title: 'Exportado como PDF!' });
+                  } catch {
+                    toast({ title: 'Erro ao gerar PDF', variant: 'destructive' });
+                  }
+                }}>
+                  <FileDown className="w-4 h-4 mr-2" /> Exportar PDF
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

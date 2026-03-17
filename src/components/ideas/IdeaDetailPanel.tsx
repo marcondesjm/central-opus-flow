@@ -238,6 +238,31 @@ export function IdeaDetailPanel({ idea, onClose }: IdeaDetailPanelProps) {
               content={idea.description}
             />
 
+            {/* Timeline dates */}
+            <div className="space-y-3 pt-4 border-t">
+              <label className="text-xs font-medium text-muted-foreground">Cronograma</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-muted-foreground">Data de início</label>
+                  <Input
+                    type="date"
+                    className="h-8 text-xs"
+                    defaultValue={idea.start_date || ''}
+                    onChange={(e) => handleFieldUpdate('start_date', e.target.value || null)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-muted-foreground">Data de fim</label>
+                  <Input
+                    type="date"
+                    className="h-8 text-xs"
+                    defaultValue={idea.end_date || ''}
+                    onChange={(e) => handleFieldUpdate('end_date', e.target.value || null)}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="text-xs text-muted-foreground space-y-1 pt-4 border-t">
               <p>Criada em: {new Date(idea.created_at).toLocaleDateString('pt-BR')}</p>
               <p>Atualizada em: {new Date(idea.updated_at).toLocaleDateString('pt-BR')}</p>

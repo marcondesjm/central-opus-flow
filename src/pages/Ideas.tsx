@@ -1,18 +1,22 @@
-import { useState } from 'react';
-import { useIdeas, useCreateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
+import { useState, useMemo } from 'react';
+import { useIdeas, useCreateIdea, useUpdateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
+import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
+import { IdeasTimelineView } from '@/components/ideas/IdeasTimelineView';
 import { DotRating } from '@/components/ideas/DotRating';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, SortAsc } from 'lucide-react';
+import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { subMonths, addMonths } from 'date-fns';
+
+type ViewMode = 'table' | 'board' | 'timeline';
 
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
@@ -23,24 +27,34 @@ export default function Ideas() {
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [search, setSearch] = useState('');
   const [filterRoadmap, setFilterRoadmap] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
-  const filtered = (ideas || []).filter(idea => {
+  const filtered = useMemo(() => (ideas || []).filter(idea => {
     const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());
     const matchesRoadmap = filterRoadmap === 'all' || idea.roadmap === filterRoadmap;
     return matchesSearch && matchesRoadmap;
-  });
+  }), [ideas, search, filterRoadmap]);
 
-  const handleCreate = () => {
+  const handleCreate = (roadmap?: string) => {
     createIdea.mutate({
       title: 'Nova ideia',
       theme: 'geral',
       theme_color: '#6b7280',
+      roadmap: roadmap || 'now',
       position: (ideas?.length || 0),
     });
   };
 
-  // Update selected idea from fresh data
   const currentIdea = selectedIdea ? (ideas || []).find(i => i.id === selectedIdea.id) || selectedIdea : null;
+
+  const timelineStart = subMonths(new Date(), 6);
+  const timelineEnd = addMonths(new Date(), 6);
+
+  const viewButtons: { mode: ViewMode; icon: typeof List; label: string }[] = [
+    { mode: 'table', icon: List, label: 'Lista' },
+    { mode: 'board', icon: LayoutGrid, label: 'Roteiro' },
+    { mode: 'timeline', icon: Calendar, label: 'Cronograma' },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -56,12 +70,31 @@ export default function Ideas() {
               </Button>
               <div className="flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-amber-500" />
-                <h1 className="text-base md:text-lg font-semibold">Ideias</h1>
+                <h1 className="text-base md:text-lg font-semibold">
+                  {viewMode === 'table' ? 'Todas as ideias' : viewMode === 'board' ? 'Roteiro do produto' : 'Cronograma do produto'}
+                </h1>
                 <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
               </div>
             </div>
 
             <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
+              {/* View switcher */}
+              <div className="flex items-center border rounded-md bg-muted/30">
+                {viewButtons.map(({ mode, icon: Icon, label }) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={cn(
+                      'flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors rounded-md',
+                      viewMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                ))}
+              </div>
+
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <Input
@@ -72,20 +105,22 @@ export default function Ideas() {
                 />
               </div>
 
-              <Select value={filterRoadmap} onValueChange={setFilterRoadmap}>
-                <SelectTrigger className="h-8 w-auto min-w-[120px] text-xs">
-                  <Filter className="w-3 h-3 mr-1" />
-                  <SelectValue placeholder="Roteiro" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-xs">Todos</SelectItem>
-                  {ROADMAP_OPTIONS.map(r => (
-                    <SelectItem key={r.id} value={r.id} className="text-xs">{r.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {viewMode !== 'board' && (
+                <Select value={filterRoadmap} onValueChange={setFilterRoadmap}>
+                  <SelectTrigger className="h-8 w-auto min-w-[120px] text-xs">
+                    <Filter className="w-3 h-3 mr-1" />
+                    <SelectValue placeholder="Roteiro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">Todos</SelectItem>
+                    {ROADMAP_OPTIONS.map(r => (
+                      <SelectItem key={r.id} value={r.id} className="text-xs">{r.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
-              <Button size="sm" className="h-8 text-xs gap-1.5" onClick={handleCreate}>
+              <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => handleCreate()}>
                 <Plus className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Criar</span>
               </Button>
@@ -95,10 +130,10 @@ export default function Ideas() {
 
         {/* Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Table */}
+          {/* Main area */}
           <div className={cn(
-            'flex-1 overflow-auto',
-            currentIdea && !isMobile && 'max-w-[60%]'
+            'flex-1 overflow-auto flex flex-col',
+            currentIdea && !isMobile && viewMode === 'table' && 'max-w-[60%]'
           )}>
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
@@ -108,10 +143,25 @@ export default function Ideas() {
               <div className="flex flex-col items-center justify-center h-40 gap-3">
                 <Lightbulb className="w-10 h-10 text-muted-foreground/30" />
                 <p className="text-sm text-muted-foreground">Nenhuma ideia encontrada</p>
-                <Button size="sm" variant="outline" onClick={handleCreate}>
+                <Button size="sm" variant="outline" onClick={() => handleCreate()}>
                   <Plus className="w-3.5 h-3.5 mr-1" /> Criar primeira ideia
                 </Button>
               </div>
+            ) : viewMode === 'board' ? (
+              <IdeasBoardView
+                ideas={filtered}
+                onSelectIdea={setSelectedIdea}
+                selectedIdeaId={currentIdea?.id}
+                onCreateInRoadmap={(r) => handleCreate(r)}
+              />
+            ) : viewMode === 'timeline' ? (
+              <IdeasTimelineView
+                ideas={filtered}
+                onSelectIdea={setSelectedIdea}
+                selectedIdeaId={currentIdea?.id}
+                rangeStart={timelineStart}
+                rangeEnd={timelineEnd}
+              />
             ) : (
               <>
                 {/* Desktop table */}
@@ -143,9 +193,7 @@ export default function Ideas() {
                             )}
                             onClick={() => setSelectedIdea(idea)}
                           >
-                            <td className="px-4 py-2.5">
-                              <Checkbox className="h-4 w-4" />
-                            </td>
+                            <td className="px-4 py-2.5"><Checkbox className="h-4 w-4" /></td>
                             <td className="px-3 py-2.5">
                               <span className="font-medium text-sm truncate block max-w-[220px]">{idea.title}</span>
                             </td>
@@ -230,24 +278,27 @@ export default function Ideas() {
                     );
                   })}
                 </div>
-              </>
-            )}
 
-            {/* Create row */}
-            {!isLoading && (
-              <div
-                className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b"
-                onClick={handleCreate}
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Criar
-              </div>
+                {/* Create row */}
+                {!isLoading && (
+                  <div
+                    className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b"
+                    onClick={() => handleCreate()}
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Criar
+                  </div>
+                )}
+              </>
             )}
           </div>
 
           {/* Detail Panel - Desktop */}
           {currentIdea && !isMobile && (
-            <div className="w-[40%] min-w-[320px] border-l">
+            <div className={cn(
+              'border-l',
+              viewMode === 'table' ? 'w-[40%] min-w-[320px]' : 'w-[380px] min-w-[320px]'
+            )}>
               <IdeaDetailPanel idea={currentIdea} onClose={() => setSelectedIdea(null)} />
             </div>
           )}

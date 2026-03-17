@@ -1087,8 +1087,19 @@ export default function KanbanPage() {
     });
   }, [scheduledMessages, nowTs, autoDispatchEnabled, user, toast]);
 
+  // Collect all unique tags for filter
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    deals?.forEach(d => d.tags?.forEach(t => tagSet.add(t)));
+    return [...tagSet].sort();
+  }, [deals]);
+
   const filteredDeals = useMemo(() => {
     let result = deals || [];
+    // Filter by active space
+    if (activeSpaceId) {
+      result = result.filter(d => (d as any).space_id === activeSpaceId);
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(d =>
@@ -1101,8 +1112,18 @@ export default function KanbanPage() {
     if (filterPriority !== 'all') {
       result = result.filter(d => d.priority === filterPriority);
     }
+    if (filterAssignee !== 'all') {
+      if (filterAssignee === '_unassigned') {
+        result = result.filter(d => !d.assignee_name && !(d as any).assignee_id);
+      } else {
+        result = result.filter(d => (d as any).assignee_id === filterAssignee);
+      }
+    }
+    if (filterTag !== 'all') {
+      result = result.filter(d => d.tags?.includes(filterTag));
+    }
     return result;
-  }, [deals, searchQuery, filterPriority]);
+  }, [deals, searchQuery, filterPriority, filterAssignee, filterTag, activeSpaceId]);
 
   const dealsByColumn = useMemo(() => {
     const now = new Date();

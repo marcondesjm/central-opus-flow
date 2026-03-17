@@ -2141,6 +2141,7 @@ export default function KanbanPage() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

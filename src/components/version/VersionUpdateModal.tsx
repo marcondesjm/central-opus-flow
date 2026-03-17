@@ -12,6 +12,7 @@ import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 
 const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
+const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
 
 export function VersionUpdateModal() {
   const { data: systemVersion } = useSystemVersion();
@@ -20,28 +21,37 @@ export function VersionUpdateModal() {
   useEffect(() => {
     if (!systemVersion?.version) return;
 
-    const storedVersion = localStorage.getItem(LOCAL_VERSION_KEY);
+    const lastSeenVersion = localStorage.getItem(LAST_SEEN_KEY);
 
-    if (!storedVersion) {
-      // First time - store current version
-      localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+    // Always update the current version reference
+    localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+
+    // If user has never dismissed/updated, don't show on very first visit
+    if (!lastSeenVersion) {
+      // Store current version as "seen" only on very first app usage
+      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
       return;
     }
 
-    if (storedVersion !== systemVersion.version) {
+    // If the DB version is different from the last version user explicitly acknowledged
+    if (lastSeenVersion !== systemVersion.version) {
       setShowModal(true);
     }
   }, [systemVersion?.version]);
 
   const handleUpdate = () => {
     if (systemVersion?.version) {
+      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
       localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
     }
-    // Force reload to get latest version
     window.location.reload();
   };
 
   const handleDismiss = () => {
+    // Mark as seen so it doesn't keep showing
+    if (systemVersion?.version) {
+      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
+    }
     setShowModal(false);
   };
 
@@ -56,6 +66,11 @@ export function VersionUpdateModal() {
           <AlertDialogDescription className="text-center text-base">
             Uma nova versão do sistema está disponível{' '}
             <span className="font-semibold text-foreground">v{systemVersion?.version}</span>.
+            {systemVersion?.releaseName && (
+              <span className="block mt-1 text-sm text-muted-foreground">
+                {systemVersion.releaseName}
+              </span>
+            )}
             Recomendamos atualizar para ter acesso às últimas melhorias.
           </AlertDialogDescription>
         </AlertDialogHeader>

@@ -517,7 +517,7 @@ export function ClippyAssistant() {
 
             {/* Content */}
             {selectedFaq ? (
-              <div className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div className="px-3 py-2 border-b border-border">
                   <Button
                     variant="ghost"
@@ -544,7 +544,7 @@ export function ClippyAssistant() {
                 </ScrollArea>
               </div>
             ) : (
-              <div className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 {/* Search */}
                 <div className="px-3 py-2 border-b border-border">
                   <div className="relative">
@@ -592,7 +592,7 @@ export function ClippyAssistant() {
                 )}
 
                 {/* FAQ list */}
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                   {isLoading ? (
                     <div className="p-4 text-center text-xs text-muted-foreground">
                       <motion.div

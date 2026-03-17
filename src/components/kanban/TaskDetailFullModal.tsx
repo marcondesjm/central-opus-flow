@@ -963,7 +963,12 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 <p>Criado há {createdAgo}</p>
                 <p>Atualizado há {updatedAgo}</p>
               </div>
-              <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-muted-foreground gap-1"
+                onClick={() => { setAutoOpen(true); setDevOpen(true); }}
+              >
                 <Settings2 className="w-3.5 h-3.5" />
                 Configurar
               </Button>

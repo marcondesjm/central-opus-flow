@@ -192,9 +192,9 @@ export function Sidebar({
   ];
 
   const bottomNavItems = [
-    { id: 'favorites', label: t('sidebar.favorites'), icon: Star },
-    { id: 'archived', label: t('sidebar.archived'), icon: Archive },
-    { id: 'tags', label: t('sidebar.tags'), icon: Tag },
+    ...(sidebarVisibility.favorites ? [{ id: 'favorites', label: t('sidebar.favorites'), icon: Star }] : []),
+    ...(sidebarVisibility.archived ? [{ id: 'archived', label: t('sidebar.archived'), icon: Archive }] : []),
+    ...(sidebarVisibility.tags ? [{ id: 'tags', label: t('sidebar.tags'), icon: Tag }] : []),
   ];
 
   const handleSignOut = async () => {

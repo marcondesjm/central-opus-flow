@@ -39,6 +39,7 @@ interface TaskDetailFullModalProps {
 
 export default function TaskDetailFullModal({ deal, columns, open, onOpenChange }: TaskDetailFullModalProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const updateDeal = useUpdateDeal();
   const { data: checklist } = useTaskChecklist(deal.id);
   const createItem = useCreateChecklistItem();

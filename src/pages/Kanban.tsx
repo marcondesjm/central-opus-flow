@@ -954,7 +954,7 @@ export default function KanbanPage() {
   const updateColumn = useUpdateColumn();
   const [editingColumn, setEditingColumn] = useState<KanbanColumn | null>(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editDeal, setEditDeal] = useState<KanbanDeal | null>(null);
@@ -990,10 +990,21 @@ export default function KanbanPage() {
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');
   const [filterTag, setFilterTag] = useState<string>('all');
-  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(searchParams.get('space') || null);
   const [showAddSpace, setShowAddSpace] = useState(false);
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);
+
+  // Sync URL when space changes
+  const handleSetActiveSpace = (spaceId: string | null) => {
+    setActiveSpaceId(spaceId);
+    if (spaceId) {
+      setSearchParams(prev => { prev.set('space', spaceId); return prev; }, { replace: true });
+    } else {
+      setSearchParams(prev => { prev.delete('space'); return prev; }, { replace: true });
+    }
+  };
+
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;
@@ -1336,7 +1347,7 @@ export default function KanbanPage() {
         </div>
         <div className="flex-1 overflow-y-auto px-1.5 space-y-0.5">
           <button
-            onClick={() => setActiveSpaceId(null)}
+            onClick={() => handleSetActiveSpace(null)}
             className={cn(
               'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
               !activeSpaceId ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -1348,7 +1359,7 @@ export default function KanbanPage() {
           {spaces?.map(space => (
             <div key={space.id} className="relative group">
               <button
-                onClick={() => setActiveSpaceId(space.id)}
+                onClick={() => handleSetActiveSpace(space.id)}
                 className={cn(
                   'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
                   activeSpaceId === space.id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -1366,7 +1377,7 @@ export default function KanbanPage() {
                 <DropdownMenuContent align="end" className="w-44">
                   <DropdownMenuItem onSelect={(e) => {
                     e.preventDefault();
-                    setActiveSpaceId(space.id);
+                    handleSetActiveSpace(space.id);
                     setTimeout(() => setEditingSpaceName(space.name), 100);
                   }}>
                     <Pencil className="w-4 h-4 mr-2" /> Renomear
@@ -1504,11 +1515,11 @@ export default function KanbanPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={() => setActiveSpaceId(null)} className={cn(!activeSpaceId && 'font-semibold')}>
+                  <DropdownMenuItem onClick={() => handleSetActiveSpace(null)} className={cn(!activeSpaceId && 'font-semibold')}>
                     Todos os espaços
                   </DropdownMenuItem>
                   {spaces?.map(space => (
-                    <DropdownMenuItem key={space.id} onClick={() => setActiveSpaceId(space.id)} className={cn(activeSpaceId === space.id && 'font-semibold')}>
+                    <DropdownMenuItem key={space.id} onClick={() => handleSetActiveSpace(space.id)} className={cn(activeSpaceId === space.id && 'font-semibold')}>
                       <span className="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: space.color }} />
                       {space.name}
                     </DropdownMenuItem>
@@ -1952,7 +1963,7 @@ export default function KanbanPage() {
               onClick={() => {
                 if (deletingSpaceId) {
                   deleteSpace.mutate(deletingSpaceId);
-                  if (activeSpaceId === deletingSpaceId) setActiveSpaceId(null);
+                  if (activeSpaceId === deletingSpaceId) handleSetActiveSpace(null);
                 }
                 setDeletingSpaceId(null);
               }}

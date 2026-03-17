@@ -278,7 +278,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex"
               title="Tela cheia"
               onClick={() => {
                 const el = document.querySelector('[role="dialog"]') as HTMLElement;

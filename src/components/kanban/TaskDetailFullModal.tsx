@@ -43,6 +43,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const { user } = useAuth();
   const { toast } = useToast();
   const updateDeal = useUpdateDeal();
+  const createDeal = useCreateDeal();
+  const deleteDeal = useDeleteDeal();
   const { data: checklist } = useTaskChecklist(deal.id);
   const createItem = useCreateChecklistItem();
   const updateItem = useUpdateChecklistItem();

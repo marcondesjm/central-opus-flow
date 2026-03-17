@@ -32,6 +32,7 @@ import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, Ka
 import { useKanbanSpaces, useCreateSpace, useUpdateSpace, useDeleteSpace, useSystemUsers, KanbanSpace } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem, KanbanChecklistItem } from '@/hooks/useKanbanChecklist';

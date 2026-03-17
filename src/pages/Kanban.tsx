@@ -1091,19 +1091,6 @@ export default function KanbanPage() {
     checkScheduled();
   }, [user, autoDispatchEnabled, toast]);
 
-  // Fetch scheduled messages count
-  useEffect(() => {
-    if (!user) return;
-    const fetchCount = async () => {
-      const { count } = await supabase
-        .from('kanban_scheduled_messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('sent', false);
-      setScheduledCount(count || 0);
-    };
-    fetchCount();
-  }, [user, scheduledMessages]);
 
   useEffect(() => {
     if (!showScheduledList) return;

@@ -1380,12 +1380,7 @@ export default function KanbanPage() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={(e) => {
                     e.preventDefault();
-                    setTimeout(() => {
-                      if (confirm(`Excluir o espaço "${space.name}"?`)) {
-                        deleteSpace.mutate(space.id);
-                        if (activeSpaceId === space.id) setActiveSpaceId(null);
-                      }
-                    }, 100);
+                    setDeletingSpaceId(space.id);
                   }} className="text-destructive focus:text-destructive">
                     <Trash2 className="w-4 h-4 mr-2" /> Excluir
                   </DropdownMenuItem>

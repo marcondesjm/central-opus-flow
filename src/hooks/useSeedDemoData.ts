@@ -867,6 +867,7 @@ export function useSeedDemoData() {
       await supabase.from('kanban_columns').delete().eq('user_id', user.id);
       await supabase.from('tags').delete().eq('user_id', user.id);
       await supabase.from('kanban_expenses').delete().eq('user_id', user.id);
+      await supabase.from('ideas').delete().eq('user_id', user.id);
 
       console.log('All demo user data cleared, re-seeding...');
       

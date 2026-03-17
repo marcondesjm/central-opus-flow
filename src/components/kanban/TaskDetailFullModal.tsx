@@ -190,14 +190,14 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[96vw] max-h-[92vh] p-0 gap-0 overflow-hidden rounded-lg">
+      <DialogContent className="max-w-5xl w-[98vw] sm:w-[96vw] max-h-[95vh] sm:max-h-[92vh] p-0 gap-0 overflow-hidden rounded-lg">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-4 py-2 border-b bg-background flex-shrink-0">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="font-medium text-foreground">{ticketId}</span>
+        <div className="flex items-center justify-between px-2 sm:px-4 py-2 border-b bg-background flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-sm text-muted-foreground min-w-0">
+            <Zap className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="font-medium text-foreground truncate">{ticketId}</span>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5 flex-shrink-0">
             <Button
               variant="ghost" size="icon"
               className={cn("h-8 w-8", isLocked ? "text-primary" : "text-muted-foreground hover:text-foreground")}
@@ -210,7 +210,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>
             <Button
-              variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground"
+              variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground hidden sm:flex"
               title="Visualizações"
               onClick={() => toast({ title: '1 visualização registrada' })}
             >
@@ -218,7 +218,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               <span className="text-xs">1</span>
             </Button>
             <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex"
               title="Compartilhar"
               onClick={() => {
                 const url = `${window.location.origin}/kanban?deal=${deal.id}`;
@@ -278,7 +278,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex"
               title="Tela cheia"
               onClick={() => {
                 const el = document.querySelector('[role="dialog"]') as HTMLElement;
@@ -300,10 +300,10 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
         </div>
 
         {/* Two-column layout */}
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden" style={{ maxHeight: 'calc(92vh - 44px)' }}>
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden" style={{ maxHeight: 'calc(95vh - 44px)' }}>
           {/* Left column */}
           <div className="flex-1 overflow-y-auto min-w-0">
-            <div className="p-6 space-y-6">
+            <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
               {/* Title - editable */}
               <div className="flex items-start gap-3">
                 {col && <span className="w-5 h-5 rounded mt-0.5 flex-shrink-0" style={{ backgroundColor: col.color }} />}
@@ -510,9 +510,9 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
           </div>
 
           {/* Right column - info panel */}
-          <div className="w-full md:w-[320px] lg:w-[340px] flex-shrink-0 border-t md:border-t-0 md:border-l bg-background overflow-y-auto">
+          <div className="w-full md:w-[280px] lg:w-[340px] flex-shrink-0 border-t md:border-t-0 md:border-l bg-background overflow-y-auto">
             {/* Phase / Status + Priority selector */}
-            <div className="p-4 border-b flex items-center gap-2 flex-wrap">
+            <div className="p-3 sm:p-4 border-b flex items-center gap-2 flex-wrap">
               <Select value={deal.phase} onValueChange={handlePhaseChange}>
                 <SelectTrigger className="w-[130px] h-8 text-xs font-medium">
                   <SelectValue />

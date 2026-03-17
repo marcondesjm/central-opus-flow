@@ -392,12 +392,13 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
               {/* Title - editable */}
               <div className="flex items-start gap-3">
-                <Popover>
+                <Popover modal={true}>
                   <PopoverTrigger asChild>
                     <button
                       className="w-5 h-5 rounded mt-0.5 flex-shrink-0 ring-offset-background transition-all hover:ring-2 hover:ring-primary hover:ring-offset-1 cursor-pointer"
                       style={{ backgroundColor: deal.color || col?.color || '#3B82F6' }}
                       title="Trocar cor"
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3 z-[9999]" align="start" sideOffset={8}>

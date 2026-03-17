@@ -1404,9 +1404,7 @@ export default function KanbanPage() {
                 if (editingSpaceName !== null) {
                   return (
                     <div className="flex items-center gap-1.5">
-                      <span className="w-6 h-6 rounded flex-shrink-0" style={{ backgroundColor: activeSpace.color }}>
-                      </span>
-                      </span>
+                      <span className="w-6 h-6 rounded flex-shrink-0" style={{ backgroundColor: activeSpace.color }} />
                       <Input
                         value={editingSpaceName}
                         onChange={e => setEditingSpaceName(e.target.value)}

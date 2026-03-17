@@ -36,6 +36,7 @@ import {
   FileText,
   Settings2,
   UsersRound,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Idea, ROADMAP_OPTIONS, THEME_PRESETS, useUpdateIdea, useDeleteIdea } from '@/hooks/useIdeas';
 import { DotRating } from './DotRating';
+import { RichTextEditor, RichTextDisplay } from '@/components/kanban/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { X, Trash2, Lightbulb, FlaskConical, CheckCircle2, Paperclip, Link2 } from 'lucide-react';
+import { X, Trash2, Lightbulb, FlaskConical, CheckCircle2, Pencil } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
@@ -17,10 +17,13 @@ interface IdeaDetailPanelProps {
   onClose: () => void;
 }
 
+type EditingField = 'hypothesis' | 'validation' | 'decision' | 'description' | null;
+
 export function IdeaDetailPanel({ idea, onClose }: IdeaDetailPanelProps) {
   const updateIdea = useUpdateIdea();
   const deleteIdea = useDeleteIdea();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editingField, setEditingField] = useState<EditingField>(null);
 
   const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
   const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
@@ -29,8 +32,73 @@ export function IdeaDetailPanel({ idea, onClose }: IdeaDetailPanelProps) {
     updateIdea.mutate({ id: idea.id, [field]: value } as any);
   };
 
+  const handleRichSave = (field: string, html: string) => {
+    handleFieldUpdate(field, html);
+    setEditingField(null);
+  };
+
+  const RichField = ({
+    field,
+    label,
+    icon,
+    iconColor,
+    content,
+  }: {
+    field: EditingField;
+    label: string;
+    icon: React.ReactNode;
+    iconColor: string;
+    content: string | null;
+  }) => {
+    const isEditing = editingField === field;
+
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {icon}
+            <span className="text-sm font-semibold">{label}</span>
+          </div>
+          {!isEditing && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setEditingField(field)}
+            >
+              <Pencil className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+
+        {isEditing ? (
+          <RichTextEditor
+            content={content || ''}
+            onSave={(html) => handleRichSave(field!, html)}
+            onCancel={() => setEditingField(null)}
+            placeholder={`Escreva sobre ${label.toLowerCase()}...`}
+          />
+        ) : content ? (
+          <div
+            className="cursor-pointer rounded-lg border border-transparent hover:border-border p-2 -mx-2 transition-colors"
+            onClick={() => setEditingField(field)}
+          >
+            <RichTextDisplay content={content} />
+          </div>
+        ) : (
+          <div
+            className="cursor-pointer rounded-lg border border-dashed border-border hover:border-primary/50 p-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setEditingField(field)}
+          >
+            Clique para adicionar {label.toLowerCase()}...
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="h-full flex flex-col bg-card border-l overflow-hidden">
+    <div className="h-full flex flex-col bg-card overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-3 md:p-4 border-b flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -135,60 +203,42 @@ export function IdeaDetailPanel({ idea, onClose }: IdeaDetailPanelProps) {
               />
             </div>
 
-            {/* Hypothesis */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-semibold">Hipótese</span>
-              </div>
-              <Textarea
-                defaultValue={idea.hypothesis || ''}
-                placeholder="Descreva a hipótese da ideia..."
-                className="min-h-[80px] text-sm resize-none"
-                onBlur={(e) => handleFieldUpdate('hypothesis', e.target.value)}
-              />
-            </div>
+            {/* Rich text fields */}
+            <RichField
+              field="hypothesis"
+              label="Hipótese"
+              icon={<Lightbulb className="w-4 h-4 text-amber-500" />}
+              iconColor="text-amber-500"
+              content={idea.hypothesis}
+            />
 
-            {/* Validation */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <FlaskConical className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-semibold">Validação</span>
-              </div>
-              <Textarea
-                defaultValue={idea.validation || ''}
-                placeholder="Resultados da validação..."
-                className="min-h-[80px] text-sm resize-none"
-                onBlur={(e) => handleFieldUpdate('validation', e.target.value)}
-              />
-            </div>
+            <RichField
+              field="validation"
+              label="Validação"
+              icon={<FlaskConical className="w-4 h-4 text-emerald-500" />}
+              iconColor="text-emerald-500"
+              content={idea.validation}
+            />
 
-            {/* Decision */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">Decisão</span>
-              </div>
-              <Textarea
-                defaultValue={idea.decision || ''}
-                placeholder="Qual a decisão tomada..."
-                className="min-h-[80px] text-sm resize-none"
-                onBlur={(e) => handleFieldUpdate('decision', e.target.value)}
-              />
-            </div>
+            <RichField
+              field="decision"
+              label="Decisão"
+              icon={<CheckCircle2 className="w-4 h-4 text-primary" />}
+              iconColor="text-primary"
+              content={idea.decision}
+            />
           </TabsContent>
 
           <TabsContent value="details" className="m-0 p-3 md:p-4 space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Descrição</label>
-              <Textarea
-                defaultValue={idea.description || ''}
-                placeholder="Detalhes adicionais..."
-                className="min-h-[120px] text-sm resize-none"
-                onBlur={(e) => handleFieldUpdate('description', e.target.value)}
-              />
-            </div>
-            <div className="text-xs text-muted-foreground space-y-1">
+            <RichField
+              field="description"
+              label="Descrição"
+              icon={<Pencil className="w-4 h-4 text-muted-foreground" />}
+              iconColor="text-muted-foreground"
+              content={idea.description}
+            />
+
+            <div className="text-xs text-muted-foreground space-y-1 pt-4 border-t">
               <p>Criada em: {new Date(idea.created_at).toLocaleDateString('pt-BR')}</p>
               <p>Atualizada em: {new Date(idea.updated_at).toLocaleDateString('pt-BR')}</p>
             </div>

@@ -1028,6 +1028,21 @@ export default function KanbanPage() {
     }
   }, [searchParams, user]);
 
+  const freshDetailDeal = useMemo(
+    () => (detailDeal ? deals?.find((deal) => deal.id === detailDeal.id) ?? detailDeal : null),
+    [deals, detailDeal]
+  );
+
+  const freshPaymentsDeal = useMemo(
+    () => (paymentsDeal ? deals?.find((deal) => deal.id === paymentsDeal.id) ?? paymentsDeal : null),
+    [deals, paymentsDeal]
+  );
+
+  const freshEditDeal = useMemo(
+    () => (editDeal ? deals?.find((deal) => deal.id === editDeal.id) ?? editDeal : null),
+    [deals, editDeal]
+  );
+
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;
@@ -1981,7 +1996,7 @@ export default function KanbanPage() {
         <AddDealModal
           open={showAddModal}
           onOpenChange={v => { setShowAddModal(v); if (!v) setEditDeal(null); }}
-          editDeal={editDeal}
+          editDeal={freshEditDeal}
           columns={columns}
         />
       )}
@@ -1994,11 +2009,11 @@ export default function KanbanPage() {
         />
       )}
 
-      {detailDeal && (
+      {freshDetailDeal && (
         <TaskDetailFullModal
-          deal={detailDeal}
+          deal={freshDetailDeal}
           columns={columns || []}
-          open={!!detailDeal}
+          open={!!freshDetailDeal}
           onOpenChange={v => { if (!v) setDetailDeal(null); }}
         />
       )}
@@ -2068,11 +2083,11 @@ export default function KanbanPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {paymentsDeal && (
+      {freshPaymentsDeal && (
         <DealPaymentsModal
-          open={!!paymentsDeal}
+          open={!!freshPaymentsDeal}
           onOpenChange={v => { if (!v) setPaymentsDeal(null); }}
-          deal={paymentsDeal}
+          deal={freshPaymentsDeal}
         />
       )}
 

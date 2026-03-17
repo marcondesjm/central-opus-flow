@@ -1929,7 +1929,40 @@ export default function KanbanPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {paymentsDeal && (
+      {/* Delete Space Dialog */}
+      <AlertDialog open={!!deletingSpaceId} onOpenChange={() => setDeletingSpaceId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Excluir espaço?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">Todas as tarefas vinculadas a este espaço serão perdidas permanentemente.</span>
+              <span className="block font-medium text-foreground">Recomendamos exportar um backup antes de continuar.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-center py-2">
+            <ExportBackupButton variant="outline" size="sm" className="w-full" />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (deletingSpaceId) {
+                  deleteSpace.mutate(deletingSpaceId);
+                  if (activeSpaceId === deletingSpaceId) setActiveSpaceId(null);
+                }
+                setDeletingSpaceId(null);
+              }}
+            >
+              Excluir mesmo assim
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
         <DealPaymentsModal
           open={!!paymentsDeal}
           onOpenChange={v => { if (!v) setPaymentsDeal(null); }}

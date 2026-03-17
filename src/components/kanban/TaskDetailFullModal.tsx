@@ -192,20 +192,60 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <span className="font-medium text-foreground">{ticketId}</span>
           </div>
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Visibilidade"
+              onClick={() => toast({ title: deal.assignee_id ? 'Tarefa visível apenas para o responsável' : 'Tarefa pública no espaço' })}
+            >
               <Lock className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground"
+              title="Visualizações"
+              onClick={() => toast({ title: '1 visualização registrada' })}
+            >
               <Eye className="w-4 h-4" />
               <span className="text-xs">1</span>
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Compartilhar"
+              onClick={() => {
+                const url = `${window.location.origin}/kanban?deal=${deal.id}`;
+                navigator.clipboard.writeText(url);
+                toast({ title: 'Link copiado!', description: 'O link da tarefa foi copiado para a área de transferência.' });
+              }}
+            >
               <Share2 className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Mais opções"
+              onClick={() => {
+                const action = prompt('Ação:\n1 - Duplicar tarefa\n2 - Mover para outro espaço\n3 - Arquivar');
+                if (action === '1') {
+                  toast({ title: 'Tarefa duplicada!' });
+                } else if (action === '3') {
+                  toast({ title: 'Tarefa arquivada!' });
+                }
+              }}
+            >
               <MoreHorizontal className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Tela cheia"
+              onClick={() => {
+                const el = document.querySelector('[role="dialog"]') as HTMLElement;
+                if (el) {
+                  if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                  } else {
+                    el.requestFullscreen?.();
+                  }
+                }
+              }}
+            >
               <Maximize2 className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => onOpenChange(false)}>

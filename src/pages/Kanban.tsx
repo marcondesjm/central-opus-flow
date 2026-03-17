@@ -1515,7 +1515,7 @@ export default function KanbanPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={() => setActiveSpaceId(null)} className={cn(!activeSpaceId && 'font-semibold')}>
+                  <DropdownMenuItem onClick={() => handleSetActiveSpace(null)} className={cn(!activeSpaceId && 'font-semibold')}>
                     Todos os espaços
                   </DropdownMenuItem>
                   {spaces?.map(space => (

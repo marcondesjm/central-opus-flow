@@ -143,6 +143,8 @@ export function formatActivityAction(action: string, entityType: string, entityN
     account: 'conta',
     tag: 'tag',
     user: 'usuário',
+    deal: 'tarefa',
+    proposal: 'proposta',
   };
 
   const actionText = actions[action] || action;

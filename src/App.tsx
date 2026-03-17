@@ -25,6 +25,7 @@ import Proposals from "./pages/Proposals";
 import ProposalPublic from "./pages/ProposalPublic";
 import Teams from "./pages/Teams";
 import Ideas from "./pages/Ideas";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

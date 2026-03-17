@@ -1800,34 +1800,9 @@ export default function KanbanPage() {
         <DragDropContext onDragEnd={handleDragEnd}>
           {/* Top scrollbar for accessibility */}
           <div
+            ref={topScrollRef}
             className="mx-auto px-4 scrollbar-visible"
             style={{ overflowX: 'auto', overflowY: 'hidden' }}
-            onScroll={(e) => {
-              if (kanbanRef.current) {
-                kanbanRef.current.scrollLeft = (e.target as HTMLElement).scrollLeft;
-              }
-            }}
-            ref={(el) => {
-              if (el && kanbanRef.current) {
-                const syncScroll = () => {
-                  if (el && kanbanRef.current) {
-                    el.scrollLeft = kanbanRef.current.scrollLeft;
-                  }
-                };
-                kanbanRef.current.addEventListener('scroll', syncScroll);
-                // Match inner width
-                const inner = kanbanRef.current.querySelector('.min-w-max') as HTMLElement;
-                if (inner) {
-                  const spacer = el.querySelector('.top-scroll-spacer') as HTMLElement;
-                  if (spacer) {
-                    const ro = new ResizeObserver(() => {
-                      spacer.style.width = `${inner.scrollWidth}px`;
-                    });
-                    ro.observe(inner);
-                  }
-                }
-              }
-            }}
           >
             <div className="top-scroll-spacer" style={{ height: '1px' }} />
           </div>

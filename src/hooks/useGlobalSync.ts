@@ -26,28 +26,30 @@ export function useGlobalSync() {
     fullSync();
   }, [user, fullSync]);
 
-  // 2) Re-sync ao voltar para a aba ou reconectar
+  // 2) Re-sync ao voltar para a aba ou reconectar (debounced)
   useEffect(() => {
     if (!user) return;
 
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    const debouncedSync = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fullSync, 2000); // Wait 2s to avoid cascading
+    };
+
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fullSync();
+        debouncedSync();
       }
     };
 
-    const handleOnline = () => {
-      fullSync();
-    };
-
     document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('focus', fullSync);
+    window.addEventListener('online', debouncedSync);
 
     return () => {
+      clearTimeout(debounceTimer);
       document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('focus', fullSync);
+      window.removeEventListener('online', debouncedSync);
     };
   }, [user, fullSync]);
 

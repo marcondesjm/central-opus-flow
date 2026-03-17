@@ -947,6 +947,7 @@ export default function KanbanPage() {
   const { data: spaces } = useKanbanSpaces();
   const { data: systemUsers } = useSystemUsers();
   const deleteSpace = useDeleteSpace();
+  const updateSpace = useUpdateSpace();
   const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();
   const deleteColumn = useDeleteColumn();

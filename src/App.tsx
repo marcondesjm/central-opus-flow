@@ -23,6 +23,7 @@ import Kanban from "./pages/Kanban";
 import Billing from "./pages/Billing";
 import Proposals from "./pages/Proposals";
 import ProposalPublic from "./pages/ProposalPublic";
+import Teams from "./pages/Teams";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -206,6 +207,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Proposals />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teams"
+            element={
+              <ProtectedRoute>
+                <Teams />
               </ProtectedRoute>
             }
           />

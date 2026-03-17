@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
+import { SidebarCustomizeModal, getSidebarVisibility, type SidebarVisibility } from '@/components/layout/SidebarCustomizeModal';
 import { 
   LayoutDashboard, 
   FolderKanban, 
@@ -32,6 +33,8 @@ import {
   CheckCircle2,
   CreditCard,
   FileText,
+  Settings2,
+  UsersRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -117,6 +120,8 @@ export function Sidebar({
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { signOut, user } = useAuth();
@@ -187,9 +192,9 @@ export function Sidebar({
   ];
 
   const bottomNavItems = [
-    { id: 'favorites', label: t('sidebar.favorites'), icon: Star },
-    { id: 'archived', label: t('sidebar.archived'), icon: Archive },
-    { id: 'tags', label: t('sidebar.tags'), icon: Tag },
+    ...(sidebarVisibility.favorites ? [{ id: 'favorites', label: t('sidebar.favorites'), icon: Star }] : []),
+    ...(sidebarVisibility.archived ? [{ id: 'archived', label: t('sidebar.archived'), icon: Archive }] : []),
+    ...(sidebarVisibility.tags ? [{ id: 'tags', label: t('sidebar.tags'), icon: Tag }] : []),
   ];
 
   const handleSignOut = async () => {
@@ -421,6 +426,7 @@ export function Sidebar({
         </ul>
 
         {/* Kanban button */}
+        {sidebarVisibility.kanban && (
         <div className="pt-2">
           <button
             onClick={() => navigate('/kanban')}
@@ -431,8 +437,10 @@ export function Sidebar({
             {t('sidebar.kanban')}
           </button>
         </div>
+        )}
 
         {/* Propostas button */}
+        {sidebarVisibility.proposals && (
         <div className="pt-1">
           <button
             onClick={() => navigate('/proposals')}
@@ -443,8 +451,10 @@ export function Sidebar({
             {t('sidebar.proposals')}
           </button>
         </div>
+        )}
 
         {/* Faturamento with submenu */}
+        {sidebarVisibility.billing && (
         <div className="pt-1">
           <Collapsible open={billingOpen} onOpenChange={setBillingOpen}>
             <CollapsibleTrigger 
@@ -486,8 +496,10 @@ export function Sidebar({
             </CollapsibleContent>
           </Collapsible>
         </div>
+        )}
 
         {/* Collaborations button */}
+        {sidebarVisibility.collaborations && (
         <div className="pt-2">
           <button
             onClick={() => navigate('/collaborations')}
@@ -498,8 +510,24 @@ export function Sidebar({
             {t('sidebar.collaborations')}
           </button>
         </div>
+        )}
+
+        {/* Teams button */}
+        {sidebarVisibility.teams && (
+        <div className="pt-1">
+          <button
+            onClick={() => navigate('/teams')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label="Equipes"
+          >
+            <UsersRound className="w-4 h-4" aria-hidden="true" />
+            Equipes
+          </button>
+        </div>
+        )}
 
         {/* WordPress button */}
+        {sidebarVisibility.wordpress && (
         <div className="pt-1">
           <button
             onClick={() => onViewChange('wordpress')}
@@ -516,8 +544,10 @@ export function Sidebar({
             {t('sidebar.wordpress')}
           </button>
         </div>
+        )}
 
         {/* Blog button */}
+        {sidebarVisibility.blog && (
         <div className="pt-2">
           <button
             onClick={() => navigate('/blog')}
@@ -527,11 +557,27 @@ export function Sidebar({
             <BookOpen className="w-4 h-4" aria-hidden="true" />
             {t('common.blog')}
           </button>
-
-          {/* Blog Posts Preview */}
           <BlogSidebarPreview />
         </div>
+        )}
+
+        {/* Customize sidebar button */}
+        <div className="pt-3 mt-2 border-t border-sidebar-border">
+          <button
+            onClick={() => setCustomizeOpen(true)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
+          >
+            <Settings2 className="w-4 h-4" aria-hidden="true" />
+            Personalizar barra lateral
+          </button>
+        </div>
       </nav>
+
+      <SidebarCustomizeModal
+        open={customizeOpen}
+        onOpenChange={setCustomizeOpen}
+        onUpdate={setSidebarVisibility}
+      />
 
       {/* Footer */}
       <footer className="p-4 border-t border-sidebar-border space-y-1" role="contentinfo">

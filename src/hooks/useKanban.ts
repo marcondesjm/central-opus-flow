@@ -25,6 +25,7 @@ export interface KanbanDeal {
   client_email: string | null;
   client_whatsapp: string | null;
   space_id: string | null;
+  start_date: string | null;
 }
 
 export const PRIORITY_OPTIONS = [

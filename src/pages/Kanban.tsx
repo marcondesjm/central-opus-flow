@@ -1616,6 +1616,7 @@ export default function KanbanPage() {
             { id: 'kanban', label: 'Quadro', icon: <BarChart3 className="w-3.5 h-3.5" /> },
             { id: 'list', label: 'Lista', icon: <CheckSquare className="w-3.5 h-3.5" /> },
             { id: 'calendar', label: 'Calendário', icon: <Calendar className="w-3.5 h-3.5" /> },
+            { id: 'timeline', label: 'Cronograma', icon: <GripHorizontal className="w-3.5 h-3.5" /> },
           ].map(tab => (
             <button
               key={tab.id}

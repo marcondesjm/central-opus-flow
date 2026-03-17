@@ -1351,10 +1351,11 @@ export default function KanbanPage() {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {/* View mode tabs */}
-            <Tabs value={viewMode} onValueChange={v => setViewMode(v as 'kanban' | 'list')}>
+            <Tabs value={viewMode} onValueChange={v => setViewMode(v as 'kanban' | 'list' | 'calendar')}>
               <TabsList className="h-8">
                 <TabsTrigger value="kanban" className="text-xs px-2 sm:px-3 h-7">Kanban</TabsTrigger>
                 <TabsTrigger value="list" className="text-xs px-2 sm:px-3 h-7">Lista</TabsTrigger>
+                <TabsTrigger value="calendar" className="text-xs px-2 sm:px-3 h-7">Calendário</TabsTrigger>
               </TabsList>
             </Tabs>
 

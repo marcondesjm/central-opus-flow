@@ -699,53 +699,94 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <Separator />
 
             {/* Desenvolvimento */}
-            <Collapsible>
-              <CollapsibleTrigger className="w-full flex items-center gap-2 px-4 py-3 hover:bg-muted/30 transition-colors [&[data-state=open]>svg.chevron]:rotate-90">
-                <ChevronRight className="w-4 h-4 chevron transition-transform" />
+            <Collapsible open={devOpen} onOpenChange={setDevOpen}>
+              <CollapsibleTrigger className="w-full flex items-center gap-2 px-4 py-3 hover:bg-muted/30 transition-colors">
+                {devOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 <span className="text-sm font-semibold text-foreground">Desenvolvimento</span>
                 <Settings2 className="w-4 h-4 text-muted-foreground ml-auto" />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <div className="px-4 pb-4 space-y-3">
-                  {/* Progresso automático baseado no checklist */}
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Progresso do checklist</span>
-                    <span className="font-medium">{checklistProgress}%</span>
+                <div className="px-4 pb-4 space-y-3.5">
+                  {/* Progresso do checklist visual */}
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-1.5">
+                      <span className="text-muted-foreground text-xs">Progresso do checklist</span>
+                      <span className="text-xs font-semibold">{checklistProgress}%</span>
+                    </div>
+                    <Progress value={checklistProgress} className="h-1.5" />
                   </div>
-                  <Progress value={checklistProgress} className="h-1.5" />
 
-                  {/* Auto-progress toggle */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium">Auto progresso</p>
-                      <p className="text-[11px] text-muted-foreground">Atualizar progresso baseado no checklist</p>
+                  {/* Auto progresso */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                        Auto progresso
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Sincronizar progresso com checklist automaticamente</p>
                     </div>
                     <Switch
-                      checked={deal.progress === checklistProgress}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          updateDeal.mutate({ id: deal.id, progress: checklistProgress });
-                        }
-                      }}
+                      checked={!!automations.autoProgress}
+                      onCheckedChange={() => toggleAutomation('autoProgress', () => {
+                        updateDeal.mutate({ id: deal.id, progress: checklistProgress });
+                      })}
                     />
                   </div>
 
-                  {/* Auto-complete toggle */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium">Auto conclusão</p>
+                  {/* Auto conclusão */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <CheckSquare className="w-3.5 h-3.5 text-emerald-500" />
+                        Auto conclusão
+                      </p>
                       <p className="text-[11px] text-muted-foreground">Mover para concluído ao completar checklist</p>
                     </div>
                     <Switch
-                      checked={false}
-                      onCheckedChange={() => {
+                      checked={!!automations.autoComplete}
+                      onCheckedChange={() => toggleAutomation('autoComplete', () => {
                         if (checklistProgress === 100) {
                           const doneCol = columns.find(c => c.name.toLowerCase().includes('conclu') || c.name.toLowerCase().includes('done'));
                           if (doneCol) {
                             updateDeal.mutate({ id: deal.id, phase: doneCol.id, progress: 100, completed_at: new Date().toISOString() });
                           }
                         }
-                      }}
+                      })}
+                    />
+                  </div>
+
+                  {/* Auto atribuição */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-blue-500" />
+                        Auto atribuição
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Atribuir a mim ao mover para "em andamento"</p>
+                    </div>
+                    <Switch
+                      checked={!!automations.autoAssign}
+                      onCheckedChange={() => toggleAutomation('autoAssign', () => {
+                        if (!deal.assignee_id && user) {
+                          const profile = systemUsers?.find(u => u.user_id === user.id);
+                          updateDeal.mutate({ id: deal.id, assignee_name: profile?.full_name || user.email || '', assignee_id: user.id });
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {/* Duplicar tarefa */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                        Duplicar ao concluir
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Criar cópia recorrente ao finalizar tarefa</p>
+                    </div>
+                    <Switch
+                      checked={!!automations.duplicateOnComplete}
+                      onCheckedChange={() => toggleAutomation('duplicateOnComplete')}
                     />
                   </div>
                 </div>
@@ -755,21 +796,26 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <Separator />
 
             {/* Automação */}
-            <Collapsible>
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors [&[data-state=open]>div>svg.chevron]:rotate-90">
+            <Collapsible open={autoOpen} onOpenChange={setAutoOpen}>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4 chevron transition-transform" />
+                  {autoOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   <span className="text-sm font-semibold text-foreground">Automação</span>
                   <Zap className="w-3.5 h-3.5 text-muted-foreground" />
                 </div>
-                <span className="text-xs text-muted-foreground">Execuções de regras</span>
+                <span className="text-xs text-muted-foreground">
+                  {Object.values(automations).filter(Boolean).length} regras ativas
+                </span>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <div className="px-4 pb-4 space-y-3">
-                  {/* Auto mover ao vencer */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium">Alerta de vencimento</p>
+                <div className="px-4 pb-4 space-y-3.5">
+                  {/* Alerta de vencimento */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                        Alerta de vencimento
+                      </p>
                       <p className="text-[11px] text-muted-foreground">Destacar tarefa quando o prazo vencer</p>
                     </div>
                     <Badge variant={isOverdue ? 'destructive' : 'secondary'} className="text-[10px]">
@@ -778,30 +824,89 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                   </div>
 
                   {/* Auto prioridade */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium">Auto prioridade</p>
-                      <p className="text-[11px] text-muted-foreground">Elevar prioridade quando prazo se aproximar</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <Flag className="w-3.5 h-3.5 text-red-500" />
+                        Auto prioridade
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Elevar para urgente quando prazo vencer</p>
                     </div>
                     <Switch
-                      checked={false}
-                      onCheckedChange={() => {
-                        if (deal.due_date && isBefore(new Date(deal.due_date), new Date())) {
+                      checked={!!automations.autoPriority}
+                      onCheckedChange={() => toggleAutomation('autoPriority', () => {
+                        if (deal.due_date && isBefore(new Date(deal.due_date), new Date()) && deal.priority !== 'urgent') {
                           updateDeal.mutate({ id: deal.id, priority: 'urgent' });
                         }
-                      }}
+                      })}
+                    />
+                  </div>
+
+                  {/* Auto mover fase */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <ArrowRightLeft className="w-3.5 h-3.5 text-violet-500" />
+                        Auto avançar fase
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Avançar para próxima fase ao atingir 50% de progresso</p>
+                    </div>
+                    <Switch
+                      checked={!!automations.autoAdvancePhase}
+                      onCheckedChange={() => toggleAutomation('autoAdvancePhase', () => {
+                        if (deal.progress >= 50) {
+                          const currentColIndex = columns.findIndex(c => c.id === deal.phase);
+                          const nextCol = columns[currentColIndex + 1];
+                          if (nextCol) {
+                            updateDeal.mutate({ id: deal.id, phase: nextCol.id });
+                          }
+                        }
+                      })}
                     />
                   </div>
 
                   {/* Notificação WhatsApp */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium">Notificar via WhatsApp</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-emerald-500" />
+                        Notificar via WhatsApp
+                      </p>
                       <p className="text-[11px] text-muted-foreground">Enviar lembrete ao responsável</p>
                     </div>
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge variant={deal.client_whatsapp ? 'secondary' : 'outline'} className="text-[10px]">
                       {deal.client_whatsapp ? 'Disponível' : 'Sem contato'}
                     </Badge>
+                  </div>
+
+                  {/* Resetar progresso ao mudar fase */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
+                        Resetar ao retroceder
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Zerar progresso ao mover para fase anterior</p>
+                    </div>
+                    <Switch
+                      checked={!!automations.resetOnMoveBack}
+                      onCheckedChange={() => toggleAutomation('resetOnMoveBack')}
+                    />
+                  </div>
+
+                  {/* Lembrete de inatividade */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium flex items-center gap-1.5">
+                        <Bell className="w-3.5 h-3.5 text-amber-500" />
+                        Lembrete de inatividade
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">Alertar se tarefa ficar 3 dias sem atualização</p>
+                    </div>
+                    <Switch
+                      checked={!!automations.inactivityReminder}
+                      onCheckedChange={() => toggleAutomation('inactivityReminder')}
+                    />
                   </div>
                 </div>
               </CollapsibleContent>

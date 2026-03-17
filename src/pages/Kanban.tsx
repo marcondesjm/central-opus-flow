@@ -1706,8 +1706,9 @@ export default function KanbanPage() {
       )}
 
       {detailDeal && (
-        <TaskDetailModal
+        <TaskDetailFullModal
           deal={detailDeal}
+          columns={columns || []}
           open={!!detailDeal}
           onOpenChange={v => { if (!v) setDetailDeal(null); }}
         />

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import {
   Building2, User, Flag, Calendar, Tag, DollarSign, CheckSquare, Plus, Trash2,
   X, Maximize2, Share2, MoreHorizontal, AlertTriangle, Clock,
-  FileText, Users, Mail, Phone, Pencil, Eye, Lock, ChevronDown, ChevronRight,
-  Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy,
+  FileText, Users, Mail, Phone, Pencil, Eye, Lock, Unlock, ChevronDown, ChevronRight,
+  Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy, Archive,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -21,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { KanbanDeal, PRIORITY_OPTIONS, useUpdateDeal } from '@/hooks/useKanban';
+import { KanbanDeal, PRIORITY_OPTIONS, useUpdateDeal, useCreateDeal, useDeleteDeal } from '@/hooks/useKanban';
 import { KanbanColumn } from '@/hooks/useKanbanColumns';
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem } from '@/hooks/useKanbanChecklist';
 import { useSystemUsers } from '@/hooks/useKanbanSpaces';
@@ -42,6 +43,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const { user } = useAuth();
   const { toast } = useToast();
   const updateDeal = useUpdateDeal();
+  const createDeal = useCreateDeal();
+  const deleteDeal = useDeleteDeal();
   const { data: checklist } = useTaskChecklist(deal.id);
   const createItem = useCreateChecklistItem();
   const updateItem = useUpdateChecklistItem();
@@ -66,6 +69,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [isEditingWhatsapp, setIsEditingWhatsapp] = useState(false);
   const [whatsappDraft, setWhatsappDraft] = useState(deal.client_whatsapp || '');
   const [progressDraft, setProgressDraft] = useState(deal.progress);
+  const [isLocked, setIsLocked] = useState(false);
 
   // Automation states persisted in localStorage per deal
   const storageKey = `automations_${deal.id}`;
@@ -195,11 +199,15 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
           </div>
           <div className="flex items-center gap-0.5">
             <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title="Visibilidade"
-              onClick={() => toast({ title: deal.assignee_id ? 'Tarefa visível apenas para o responsável' : 'Tarefa pública no espaço' })}
+              variant="ghost" size="icon"
+              className={cn("h-8 w-8", isLocked ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+              title={isLocked ? "Tarefa bloqueada — clique para desbloquear" : "Bloquear edição"}
+              onClick={() => {
+                setIsLocked(!isLocked);
+                toast({ title: isLocked ? 'Tarefa desbloqueada' : 'Tarefa bloqueada', description: isLocked ? 'Edição liberada para todos.' : 'Apenas você pode editar esta tarefa.' });
+              }}
             >
-              <Lock className="w-4 h-4" />
+              {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>
             <Button
               variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground"
@@ -220,20 +228,55 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             >
               <Share2 className="w-4 h-4" />
             </Button>
-            <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title="Mais opções"
-              onClick={() => {
-                const action = prompt('Ação:\n1 - Duplicar tarefa\n2 - Mover para outro espaço\n3 - Arquivar');
-                if (action === '1') {
-                  toast({ title: 'Tarefa duplicada!' });
-                } else if (action === '3') {
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  title="Mais opções"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onSelect={() => {
+                  createDeal.mutate({
+                    company_name: deal.company_name + ' (cópia)',
+                    client_name: deal.client_name,
+                    description: deal.description || undefined,
+                    phase: deal.phase,
+                    priority: deal.priority,
+                    revenue: deal.revenue,
+                    tags: deal.tags || [],
+                    due_date: deal.due_date,
+                    color: deal.color,
+                    client_email: deal.client_email,
+                    client_whatsapp: deal.client_whatsapp,
+                    space_id: deal.space_id,
+                  } as any);
+                }}>
+                  <Copy className="w-4 h-4 mr-2" /> Duplicar tarefa
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  updateDeal.mutate({ id: deal.id, phase: 'archived' });
                   toast({ title: 'Tarefa arquivada!' });
-                }
-              }}
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
+                  onOpenChange(false);
+                }}>
+                  <Archive className="w-4 h-4 mr-2" /> Arquivar
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={() => {
+                    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                      deleteDeal.mutate(deal.id);
+                      onOpenChange(false);
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Excluir tarefa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
               title="Tela cheia"

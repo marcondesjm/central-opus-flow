@@ -248,6 +248,28 @@ export function Header({
         {/* Theme Toggle */}
         <ThemeToggle />
 
+        {/* Scheduled Messages Shortcut */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/kanban?panel=scheduled')}
+              className="text-muted-foreground hover:text-foreground relative"
+            >
+              <MessageCircle className="h-5 w-5" />
+              {scheduledMsgCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  {scheduledMsgCount > 99 ? '99+' : scheduledMsgCount}
+                </span>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Mensagens agendadas{scheduledMsgCount > 0 ? ` (${scheduledMsgCount})` : ''}</p>
+          </TooltipContent>
+        </Tooltip>
+
         {/* Collaborations Page Link */}
         <Tooltip>
           <TooltipTrigger asChild>

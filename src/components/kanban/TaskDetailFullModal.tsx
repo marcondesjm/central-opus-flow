@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import {
   Building2, User, Flag, Calendar, Tag, DollarSign, CheckSquare, Plus, Trash2,
   X, Maximize2, Share2, MoreHorizontal, AlertTriangle, Clock,
-  FileText, Users, Mail, Phone, Pencil, Eye, Lock, ChevronDown, ChevronRight,
-  Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy,
+  FileText, Users, Mail, Phone, Pencil, Eye, Lock, Unlock, ChevronDown, ChevronRight,
+  Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy, Archive,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';

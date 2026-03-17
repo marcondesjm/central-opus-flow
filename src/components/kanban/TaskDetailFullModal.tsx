@@ -400,7 +400,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                       title="Trocar cor"
                     />
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3" align="start">
+                  <PopoverContent className="w-auto p-3 z-[9999]" align="start" sideOffset={8}>
                     <div className="grid grid-cols-5 gap-2">
                       {TASK_COLORS.map(c => (
                         <button

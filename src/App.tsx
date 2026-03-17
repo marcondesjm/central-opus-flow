@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,28 +7,47 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-// PWAInstallPrompt removed from main screen - now in Header dropdown menu
 import { DataProtectionBanner } from "@/components/privacy/DataProtectionBanner";
 import { ServiceWorkerUpdatePrompt } from "@/components/pwa/ServiceWorkerUpdatePrompt";
-import Landing from "./pages/Landing";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
-import Demo from "./pages/Demo";
-import Pricing from "./pages/Pricing";
-import Collaborations from "./pages/Collaborations";
-import Blog from "./pages/Blog";
-import BlogPostPage from "./pages/BlogPost";
-import Kanban from "./pages/Kanban";
-import Billing from "./pages/Billing";
-import Proposals from "./pages/Proposals";
-import ProposalPublic from "./pages/ProposalPublic";
-import Teams from "./pages/Teams";
-import Ideas from "./pages/Ideas";
-import Reports from "./pages/Reports";
-import NotFound from "./pages/NotFound";
+import { Loader2 } from "lucide-react";
 
-const queryClient = new QueryClient();
+// Lazy load all pages
+const Landing = lazy(() => import("./pages/Landing"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Demo = lazy(() => import("./pages/Demo"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Collaborations = lazy(() => import("./pages/Collaborations"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPostPage = lazy(() => import("./pages/BlogPost"));
+const Kanban = lazy(() => import("./pages/Kanban"));
+const Billing = lazy(() => import("./pages/Billing"));
+const Proposals = lazy(() => import("./pages/Proposals"));
+const ProposalPublic = lazy(() => import("./pages/ProposalPublic"));
+const Teams = lazy(() => import("./pages/Teams"));
+const Ideas = lazy(() => import("./pages/Ideas"));
+const Reports = lazy(() => import("./pages/Reports"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      gcTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false, // avoid cascading refetches
+      retry: 1,
+    },
+  },
+});
 
 // Hook para desabilitar inspeção de código
 function useDisableDevTools() {

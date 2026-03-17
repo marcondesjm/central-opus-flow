@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { AppNavBar } from '@/components/layout/AppNavBar';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';

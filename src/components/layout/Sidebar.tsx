@@ -460,9 +460,20 @@ export function Sidebar({
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-0.5 mt-1">
-              {spaces && spaces.length > 0 ? (
-                <ul role="list" className="space-y-0.5">
-                  {spaces.map((space) => (
+              <ul role="list" className="space-y-0.5">
+                {/* Todos */}
+                <li>
+                  <button
+                    onClick={() => navigate('/kanban')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
+                  >
+                    <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] bg-muted">📋</span>
+                    <span className="flex-1 text-left truncate">Todos</span>
+                  </button>
+                </li>
+                {/* Individual spaces */}
+                {spaces && spaces.length > 0 ? (
+                  spaces.map((space) => (
                     <li key={space.id}>
                       <button
                         onClick={() => navigate(`/kanban?space=${space.id}`)}
@@ -478,11 +489,13 @@ export function Sidebar({
                         <UsersRound className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-xs text-muted-foreground px-3 py-2">Nenhum espaço criado</p>
-              )}
+                  ))
+                ) : (
+                  <li>
+                    <p className="text-xs text-muted-foreground px-3 py-2">Nenhum espaço criado</p>
+                  </li>
+                )}
+              </ul>
             </CollapsibleContent>
           </Collapsible>
         </div>

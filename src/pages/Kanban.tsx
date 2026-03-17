@@ -1007,6 +1007,24 @@ export default function KanbanPage() {
     }
   };
 
+  // Handle ?panel=scheduled URL param to auto-open scheduled messages
+  useEffect(() => {
+    if (searchParams.get('panel') === 'scheduled' && user) {
+      setShowScheduledList(true);
+      setLoadingScheduled(true);
+      supabase
+        .from('kanban_scheduled_messages')
+        .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+        .eq('user_id', user.id)
+        .order('scheduled_date', { ascending: true })
+        .then(({ data }) => {
+          setScheduledMessages(data || []);
+          setLoadingScheduled(false);
+        });
+      setSearchParams(prev => { prev.delete('panel'); return prev; }, { replace: true });
+    }
+  }, [searchParams, user]);
+
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;

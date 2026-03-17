@@ -210,7 +210,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>
             <Button
-              variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground"
+              variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground hidden sm:flex"
               title="Visualizações"
               onClick={() => toast({ title: '1 visualização registrada' })}
             >

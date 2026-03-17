@@ -528,6 +528,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     <span className="text-sm text-muted-foreground">Nenhum</span>
                   </div>
 
+                  {/* Categorias - editable tags in sidebar */}
+
                   {/* Data limite - date picker */}
                   <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                     <span className="text-sm text-muted-foreground">Data limite</span>

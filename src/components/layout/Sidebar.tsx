@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { SidebarCustomizeModal, getSidebarVisibility, type SidebarVisibility } from '@/components/layout/SidebarCustomizeModal';
+import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 import { 
   LayoutDashboard, 
   FolderKanban, 
@@ -35,6 +36,7 @@ import {
   FileText,
   Settings2,
   UsersRound,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -132,6 +134,7 @@ export function Sidebar({
   const { data: subscription } = useSubscription();
   const { t } = useTranslation();
   const { data: spaces } = useKanbanSpaces();
+  const scheduledCount = useScheduledMessagesCount();
   const { data: systemVersion } = useSystemVersion();
 
   // Fetch profile data and subscribe to realtime updates
@@ -485,7 +488,23 @@ export function Sidebar({
         </div>
         )}
 
-        {/* Propostas button */}
+        {/* Mensagens Agendadas */}
+        <div className="pt-1">
+          <button
+            onClick={() => navigate('/kanban?panel=scheduled')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label="Mensagens agendadas"
+          >
+            <MessageCircle className="w-4 h-4" aria-hidden="true" />
+            <span className="flex-1 text-left">Mensagens</span>
+            {scheduledCount > 0 && (
+              <Badge variant="default" className="text-[10px] px-1.5 py-0 h-5 min-w-[20px] flex items-center justify-center">
+                {scheduledCount > 99 ? '99+' : scheduledCount}
+              </Badge>
+            )}
+          </button>
+        </div>
+
         {sidebarVisibility.proposals && (
         <div className="pt-1">
           <button

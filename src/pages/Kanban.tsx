@@ -32,6 +32,7 @@ import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, Ka
 import { useKanbanSpaces, useCreateSpace, useUpdateSpace, useDeleteSpace, useSystemUsers, KanbanSpace } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem, KanbanChecklistItem } from '@/hooks/useKanbanChecklist';
@@ -942,6 +943,7 @@ function AddSpaceModal({ open, onOpenChange, existingCount }: { open: boolean; o
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
   const { user } = useAuth();
+  const scheduledCount = useScheduledMessagesCount();
   const { toast } = useToast();
   const { data: deals, isLoading: dealsLoading } = useKanbanDeals();
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
@@ -975,7 +977,7 @@ export default function KanbanPage() {
   const [showScheduledList, setShowScheduledList] = useState(false);
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
-  const [scheduledCount, setScheduledCount] = useState(0);
+  
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
     try {
       const stored = localStorage.getItem('kanban-auto-dispatch-enabled');
@@ -1006,6 +1008,24 @@ export default function KanbanPage() {
       setSearchParams(prev => { prev.delete('space'); return prev; }, { replace: true });
     }
   };
+
+  // Handle ?panel=scheduled URL param to auto-open scheduled messages
+  useEffect(() => {
+    if (searchParams.get('panel') === 'scheduled' && user) {
+      setShowScheduledList(true);
+      setLoadingScheduled(true);
+      supabase
+        .from('kanban_scheduled_messages')
+        .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+        .eq('user_id', user.id)
+        .order('scheduled_date', { ascending: true })
+        .then(({ data }) => {
+          setScheduledMessages(data || []);
+          setLoadingScheduled(false);
+        });
+      setSearchParams(prev => { prev.delete('panel'); return prev; }, { replace: true });
+    }
+  }, [searchParams, user]);
 
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
@@ -1071,19 +1091,6 @@ export default function KanbanPage() {
     checkScheduled();
   }, [user, autoDispatchEnabled, toast]);
 
-  // Fetch scheduled messages count
-  useEffect(() => {
-    if (!user) return;
-    const fetchCount = async () => {
-      const { count } = await supabase
-        .from('kanban_scheduled_messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('sent', false);
-      setScheduledCount(count || 0);
-    };
-    fetchCount();
-  }, [user, scheduledMessages]);
 
   useEffect(() => {
     if (!showScheduledList) return;

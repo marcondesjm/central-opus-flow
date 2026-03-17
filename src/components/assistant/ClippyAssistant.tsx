@@ -486,7 +486,7 @@ export function ClippyAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] max-h-[60vh] sm:max-h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed z-[60] w-[calc(100vw-1.5rem)] sm:w-[340px] max-w-[340px] h-[70vh] sm:h-[480px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
             style={{
               bottom: 'auto',
               right: 'auto',

@@ -41,6 +41,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
+import { CalendarView } from '@/components/kanban/CalendarView';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
 function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open: boolean; onOpenChange: (v: boolean) => void }) {

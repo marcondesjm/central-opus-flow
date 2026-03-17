@@ -54,7 +54,7 @@ export function StatsCards({ totalProjects, favorites, published, archived, over
             key={stat.label}
             className={cn(
               'bg-card rounded-xl border border-border p-3 sm:p-4 shadow-card hover:shadow-card-hover transition-all duration-300',
-              stat.highlight && 'border-destructive/50 animate-pulse'
+              stat.highlight && 'border-destructive/50 shadow-[0_0_12px_-3px_hsl(var(--destructive)/0.4)]'
             )}
           >
             <div className="flex items-center gap-2 sm:gap-3">

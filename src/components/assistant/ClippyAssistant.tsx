@@ -81,11 +81,13 @@ export function ClippyAssistant() {
 
   // Cycle through random idle animations
   useEffect(() => {
+    if (isHidden) return; // Don't run timers when hidden
+    
     const animations: ClippyAnimation[] = ['wave', 'jump', 'lean', 'bounce', 'peek'];
     const moods: ClippyMood[] = ['happy', 'thinking', 'wink', 'normal'];
 
     const doRandomAction = () => {
-      if (isOpen || isHidden) return;
+      if (isOpen) return;
 
       const anim = animations[Math.floor(Math.random() * animations.length)];
       const randomMood = moods[Math.floor(Math.random() * moods.length)];
@@ -94,14 +96,13 @@ export function ClippyAssistant() {
       setMood(randomMood);
       sounds.playTap();
 
-      // Reset after animation
       setTimeout(() => {
         setAnimation('idle');
         setMood('normal');
       }, 2000);
     };
 
-    const interval = setInterval(doRandomAction, 8000 + Math.random() * 12000);
+    const interval = setInterval(doRandomAction, 15000 + Math.random() * 20000); // Less frequent
     return () => clearInterval(interval);
   }, [isOpen, isHidden, sounds]);
 

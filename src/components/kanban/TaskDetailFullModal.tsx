@@ -27,6 +27,7 @@ import { useSystemUsers } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { format, isBefore, isToday, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { RichTextEditor, RichTextDisplay } from '@/components/kanban/RichTextEditor';
 
 interface TaskDetailFullModalProps {
   deal: KanbanDeal;
@@ -228,32 +229,29 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 </Button>
               </div>
 
-              {/* Description */}
+              {/* Description - Rich Text */}
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-3">Descrição</h3>
                 {isEditingDesc ? (
-                  <div className="space-y-3">
-                    <div className="border rounded-lg overflow-hidden">
-                      <Textarea
-                        value={descDraft}
-                        onChange={e => setDescDraft(e.target.value)}
-                        placeholder="Digite /ai para perguntar ao Rovo ou @ para mencionar e notificar alguém."
-                        rows={5}
-                        className="text-sm border-0 focus-visible:ring-0 resize-none"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" onClick={handleSaveDesc}>Salvar</Button>
-                      <Button size="sm" variant="ghost" onClick={() => { setIsEditingDesc(false); setDescDraft(deal.description || ''); }}>Cancelar</Button>
-                    </div>
-                  </div>
+                  <RichTextEditor
+                    content={descDraft}
+                    onSave={(html) => {
+                      updateDeal.mutate({ id: deal.id, description: html });
+                      setIsEditingDesc(false);
+                    }}
+                    onCancel={() => { setIsEditingDesc(false); setDescDraft(deal.description || ''); }}
+                    placeholder="Digite /ai para perguntar ao Rovo ou @ para mencionar e notificar alguém."
+                  />
                 ) : (
                   <button
                     onClick={() => { setDescDraft(deal.description || ''); setIsEditingDesc(true); }}
-                    className="w-full text-left text-sm text-muted-foreground hover:bg-muted/50 rounded-lg p-3 border border-dashed border-border transition-colors min-h-[80px]"
+                    className="w-full text-left hover:bg-muted/50 rounded-lg p-3 border border-dashed border-border transition-colors min-h-[80px]"
                   >
-                    {deal.description || 'Clique para adicionar descrição...'}
+                    {deal.description ? (
+                      <RichTextDisplay content={deal.description} />
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Clique para adicionar descrição...</span>
+                    )}
                   </button>
                 )}
               </div>

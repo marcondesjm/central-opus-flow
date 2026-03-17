@@ -120,6 +120,8 @@ export function Sidebar({
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
   const { signOut, user } = useAuth();

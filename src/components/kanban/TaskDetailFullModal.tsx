@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Building2, User, Flag, Calendar, Tag, DollarSign, CheckSquare, Plus, Trash2,
   X, Maximize2, Share2, MoreHorizontal, AlertTriangle, Clock,
   FileText, Users, Mail, Phone, Pencil, Eye, Lock, Unlock, ChevronDown, ChevronRight,
   Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy, Archive,
-  Image, Move, Printer, FileSpreadsheet, FileType,
+  Image, Move, Printer, FileSpreadsheet, FileType, FileDown,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';

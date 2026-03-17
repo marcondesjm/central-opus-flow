@@ -425,16 +425,24 @@ export function Sidebar({
           })}
         </ul>
 
-        {/* Kanban button */}
+        {/* Espaços button */}
         {sidebarVisibility.kanban && (
         <div className="pt-2">
           <button
             onClick={() => navigate('/kanban')}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
-            aria-label={t('sidebar.kanban')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar group"
+            aria-label="Espaços"
           >
-            <Kanban className="w-4 h-4" aria-hidden="true" />
-            {t('sidebar.kanban')}
+            <FolderKanban className="w-4 h-4" aria-hidden="true" />
+            <span className="flex-1 text-left">Espaços</span>
+            <span className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+              <span
+                onClick={() => navigate('/kanban')}
+                className="p-0.5 rounded hover:bg-sidebar-accent"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </span>
+            </span>
           </button>
         </div>
         )}

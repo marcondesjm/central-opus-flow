@@ -1359,7 +1359,7 @@ export default function KanbanPage() {
           {spaces?.map(space => (
             <div key={space.id} className="relative group">
               <button
-                onClick={() => setActiveSpaceId(space.id)}
+                onClick={() => handleSetActiveSpace(space.id)}
                 className={cn(
                   'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
                   activeSpaceId === space.id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'

@@ -1364,17 +1364,21 @@ export default function KanbanPage() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => {
+                  <DropdownMenuItem onSelect={(e) => {
+                    e.preventDefault();
                     setActiveSpaceId(space.id);
-                    setTimeout(() => setEditingSpaceName(space.name), 50);
+                    setTimeout(() => setEditingSpaceName(space.name), 100);
                   }}>
                     <Pencil className="w-4 h-4 mr-2" /> Renomear
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    if (confirm(`Excluir o espaço "${space.name}"?`)) {
-                      deleteSpace.mutate(space.id);
-                      if (activeSpaceId === space.id) setActiveSpaceId(null);
-                    }
+                  <DropdownMenuItem onSelect={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => {
+                      if (confirm(`Excluir o espaço "${space.name}"?`)) {
+                        deleteSpace.mutate(space.id);
+                        if (activeSpaceId === space.id) setActiveSpaceId(null);
+                      }
+                    }, 100);
                   }} className="text-destructive focus:text-destructive">
                     <Trash2 className="w-4 h-4 mr-2" /> Excluir
                   </DropdownMenuItem>

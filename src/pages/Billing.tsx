@@ -614,22 +614,19 @@ export default function BillingPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavBar />
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1400px] mx-auto gap-2">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-primary" />
-                Faturamento
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                {metrics.dealCount} contratos · {metrics.paymentCount} pagamentos
-              </p>
-            </div>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-lg font-bold flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
+              Faturamento
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {metrics.dealCount} contratos · {metrics.paymentCount} pagamentos
+            </p>
+          </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <Button size="sm" variant="ghost" onClick={handleExportBilling} className="gap-1.5 h-8 text-xs px-2" title="Exportar dados">

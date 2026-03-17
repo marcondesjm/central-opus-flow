@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
-  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, MessageCircle, ZoomIn, ZoomOut, Maximize2,
+  MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, GripHorizontal, MessageCircle, ZoomIn, ZoomOut, Maximize2,
   Users, X, AlertTriangle,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
 import { CalendarView } from '@/components/kanban/CalendarView';
+import { TimelineView } from '@/components/kanban/TimelineView';
 import TaskDetailFullModal from '@/components/kanban/TaskDetailFullModal';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
@@ -985,7 +986,7 @@ export default function KanbanPage() {
   });
   const [nowTs, setNowTs] = useState(Date.now());
   const autoDispatchingIdsRef = useRef<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'calendar'>('kanban');
+  const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'calendar' | 'timeline'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');
@@ -1615,10 +1616,11 @@ export default function KanbanPage() {
             { id: 'kanban', label: 'Quadro', icon: <BarChart3 className="w-3.5 h-3.5" /> },
             { id: 'list', label: 'Lista', icon: <CheckSquare className="w-3.5 h-3.5" /> },
             { id: 'calendar', label: 'Calendário', icon: <Calendar className="w-3.5 h-3.5" /> },
+            { id: 'timeline', label: 'Cronograma', icon: <GripHorizontal className="w-3.5 h-3.5" /> },
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setViewMode(tab.id as 'kanban' | 'list' | 'calendar')}
+              onClick={() => setViewMode(tab.id as 'kanban' | 'list' | 'calendar' | 'timeline')}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
                 viewMode === tab.id
@@ -1920,6 +1922,12 @@ export default function KanbanPage() {
         </DragDropContext>
       ) : viewMode === 'calendar' ? (
         <CalendarView
+          deals={filteredDeals}
+          columns={columns || []}
+          onDetail={d => setDetailDeal(d)}
+        />
+      ) : viewMode === 'timeline' ? (
+        <TimelineView
           deals={filteredDeals}
           columns={columns || []}
           onDetail={d => setDetailDeal(d)}

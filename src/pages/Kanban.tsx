@@ -195,6 +195,7 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 }) {
   const createDeal = useCreateDeal();
   const updateDeal = useUpdateDeal();
+  const { data: systemUsers } = useSystemUsers();
   const [form, setForm] = useState({
     company_name: editDeal?.company_name || '',
     client_name: editDeal?.client_name || '',
@@ -205,6 +206,7 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
     priority: editDeal?.priority || 'medium',
     due_date: editDeal?.due_date ? new Date(editDeal.due_date) : undefined as Date | undefined,
     assignee_name: editDeal?.assignee_name || '',
+    assignee_id: (editDeal as any)?.assignee_id || '',
     tags: editDeal?.tags?.join(', ') || '',
     client_email: editDeal?.client_email || '',
     client_whatsapp: editDeal?.client_whatsapp || '',
@@ -212,6 +214,7 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 
   const handleSubmit = () => {
     if (!form.company_name.trim() || !form.client_name.trim()) return;
+    const selectedUser = systemUsers?.find(u => u.user_id === form.assignee_id);
     const payload = {
       company_name: form.company_name,
       client_name: form.client_name,
@@ -221,7 +224,8 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
       revenue: form.revenue,
       priority: form.priority,
       due_date: form.due_date ? form.due_date.toISOString() : null,
-      assignee_name: form.assignee_name || null,
+      assignee_name: selectedUser ? (selectedUser.full_name || selectedUser.email) : (form.assignee_name || null),
+      assignee_id: form.assignee_id || null,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       client_email: form.client_email || null,
       client_whatsapp: form.client_whatsapp || null,
@@ -311,7 +315,37 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
             </div>
             <div>
               <Label>Responsável</Label>
-              <Input placeholder="Nome do responsável" value={form.assignee_name} onChange={e => setForm(f => ({ ...f, assignee_name: e.target.value }))} />
+              <Select value={form.assignee_id || '_none'} onValueChange={v => {
+                if (v === '_none') {
+                  setForm(f => ({ ...f, assignee_id: '', assignee_name: '' }));
+                } else {
+                  const u = systemUsers?.find(u => u.user_id === v);
+                  setForm(f => ({ ...f, assignee_id: v, assignee_name: u?.full_name || u?.email || '' }));
+                }
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Não atribuído" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">
+                    <span className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      Não atribuído
+                    </span>
+                  </SelectItem>
+                  {systemUsers?.map(u => (
+                    <SelectItem key={u.user_id} value={u.user_id}>
+                      <span className="flex items-center gap-2">
+                        <Avatar className="w-5 h-5">
+                          <AvatarImage src={u.avatar_url || undefined} />
+                          <AvatarFallback className="text-[10px]">{(u.full_name || u.email || '?').slice(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{u.full_name || u.email}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div>

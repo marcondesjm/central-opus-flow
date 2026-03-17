@@ -44,6 +44,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useAuth } from '@/hooks/useAuth';
+import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
 
 import { LovableAccount } from '@/hooks/useProjects';
 import { useSubscription } from '@/hooks/useSubscription';

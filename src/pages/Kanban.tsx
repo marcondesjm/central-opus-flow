@@ -35,6 +35,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 
 import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDeleteChecklistItem, KanbanChecklistItem } from '@/hooks/useKanbanChecklist';
+import { lazy } from 'react';
+const RechartsComponents = lazy(() => import('recharts').then(mod => ({ default: () => null })));
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
 import { format, isAfter, isBefore, addDays, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

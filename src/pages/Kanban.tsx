@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { AppNavBar } from '@/components/layout/AppNavBar';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -1373,7 +1374,9 @@ export default function KanbanPage() {
   const activeFiltersCount = [filterPriority !== 'all', filterAssignee !== 'all', filterTag !== 'all'].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col">
+      <AppNavBar />
+      <div className="flex flex-1">
       {/* Spaces sidebar */}
       <aside className="hidden lg:flex flex-col w-[200px] flex-shrink-0 border-r bg-card/30 h-screen sticky top-0">
         <div className="flex items-center justify-between px-3 pt-3 pb-2">
@@ -1471,9 +1474,6 @@ export default function KanbanPage() {
         <div className="px-3 sm:px-4 pt-2 pb-1 max-w-[1800px] mx-auto">
           <p className="text-[11px] text-muted-foreground mb-0.5 lg:hidden">Espaços</p>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
             {(() => {
               const activeSpace = activeSpaceId ? spaces?.find(s => s.id === activeSpaceId) : null;
               if (activeSpace) {
@@ -2324,6 +2324,7 @@ export default function KanbanPage() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { AppNavBar } from '@/components/layout/AppNavBar';
 import { useIdeas, useCreateIdea, useUpdateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
@@ -58,16 +59,13 @@ export default function Ideas() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="h-1 bg-primary/10" />
+      <AppNavBar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
         <div className="border-b bg-card px-3 md:px-6 py-3">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/kanban')}>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
               <div className="flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-amber-500" />
                 <h1 className="text-base md:text-lg font-semibold">

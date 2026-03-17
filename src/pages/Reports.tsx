@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { AppNavBar } from '@/components/layout/AppNavBar';
 import { useKanbanDeals, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns } from '@/hooks/useKanbanColumns';
 import { useNavigate } from 'react-router-dom';
@@ -190,13 +191,11 @@ export default function Reports() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavBar />
       {/* Header */}
       <div className="border-b bg-card px-3 md:px-6 py-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/kanban')}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
             <BarChart3 className="w-5 h-5 text-primary" />
             <h1 className="text-base md:text-lg font-semibold">Relatórios</h1>
           </div>

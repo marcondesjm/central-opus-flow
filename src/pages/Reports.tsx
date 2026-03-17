@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { AppNavBar } from '@/components/layout/AppNavBar';
 import { useKanbanDeals, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns } from '@/hooks/useKanbanColumns';
 import { useNavigate } from 'react-router-dom';

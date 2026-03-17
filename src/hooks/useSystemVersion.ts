@@ -39,7 +39,7 @@ export function useSystemVersion() {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') refresh();
       });
 
-    const pollInterval = window.setInterval(refresh, 15000);
+    const pollInterval = window.setInterval(refresh, 60000); // 60s instead of 15s
 
     return () => {
       clearInterval(pollInterval);

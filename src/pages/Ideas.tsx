@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Header } from '@/components/layout/Header';
 import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, SortAsc } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';

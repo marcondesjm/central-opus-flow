@@ -994,6 +994,17 @@ export default function KanbanPage() {
   const [showAddSpace, setShowAddSpace] = useState(false);
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);
+
+  // Sync URL when space changes
+  const handleSetActiveSpace = (spaceId: string | null) => {
+    setActiveSpaceId(spaceId);
+    if (spaceId) {
+      setSearchParams(prev => { prev.set('space', spaceId); return prev; }, { replace: true });
+    } else {
+      setSearchParams(prev => { prev.delete('space'); return prev; }, { replace: true });
+    }
+  };
+
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;

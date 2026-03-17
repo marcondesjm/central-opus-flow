@@ -121,13 +121,11 @@ export function RichTextEditor({ content, onSave, onCancel, placeholder }: RichT
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({ title: 'Apenas imagens são suportadas', variant: 'destructive' });
       return;
     }
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: 'Imagem muito grande (máx. 5MB)', variant: 'destructive' });
       return;
@@ -135,24 +133,25 @@ export function RichTextEditor({ content, onSave, onCancel, placeholder }: RichT
 
     setIsUploading(true);
     try {
-      // Convert to base64 for simplicity
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        editor.chain().focus().setImage({ src: base64 }).run();
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
-        toast({ title: 'Erro ao carregar imagem', variant: 'destructive' });
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      const ext = file.name.split('.').pop() || 'png';
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id || 'anonymous';
+      const fileName = `${userId}/${Date.now()}_${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('kanban-images')
+        .upload(fileName, file, { contentType: file.type, cacheControl: '3600' });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from('kanban-images').getPublicUrl(fileName);
+      editor.chain().focus().setImage({ src: urlData.publicUrl }).run();
     } catch {
       toast({ title: 'Erro ao carregar imagem', variant: 'destructive' });
+    } finally {
       setIsUploading(false);
     }
 
-    // Reset input
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 

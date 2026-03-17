@@ -41,6 +41,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
+import { CalendarView } from '@/components/kanban/CalendarView';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
 function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -982,7 +983,7 @@ export default function KanbanPage() {
   });
   const [nowTs, setNowTs] = useState(Date.now());
   const autoDispatchingIdsRef = useRef<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
+  const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'calendar'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');
@@ -1350,10 +1351,11 @@ export default function KanbanPage() {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {/* View mode tabs */}
-            <Tabs value={viewMode} onValueChange={v => setViewMode(v as 'kanban' | 'list')}>
+            <Tabs value={viewMode} onValueChange={v => setViewMode(v as 'kanban' | 'list' | 'calendar')}>
               <TabsList className="h-8">
                 <TabsTrigger value="kanban" className="text-xs px-2 sm:px-3 h-7">Kanban</TabsTrigger>
                 <TabsTrigger value="list" className="text-xs px-2 sm:px-3 h-7">Lista</TabsTrigger>
+                <TabsTrigger value="calendar" className="text-xs px-2 sm:px-3 h-7">Calendário</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -1653,6 +1655,12 @@ export default function KanbanPage() {
             </Droppable>
           </div>
         </DragDropContext>
+      ) : viewMode === 'calendar' ? (
+        <CalendarView
+          deals={filteredDeals}
+          columns={columns || []}
+          onDetail={d => setDetailDeal(d)}
+        />
       ) : (
         <ListView
           deals={filteredDeals}

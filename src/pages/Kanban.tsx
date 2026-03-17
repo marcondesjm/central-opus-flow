@@ -1963,7 +1963,7 @@ export default function KanbanPage() {
               onClick={() => {
                 if (deletingSpaceId) {
                   deleteSpace.mutate(deletingSpaceId);
-                  if (activeSpaceId === deletingSpaceId) setActiveSpaceId(null);
+                  if (activeSpaceId === deletingSpaceId) handleSetActiveSpace(null);
                 }
                 setDeletingSpaceId(null);
               }}

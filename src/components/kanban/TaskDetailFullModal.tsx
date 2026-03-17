@@ -340,8 +340,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => onOpenChange(false)}>
-              <X className="w-4 h-4" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors" onClick={() => onOpenChange(false)}>
+              <X className="w-4 h-4" strokeWidth={3} />
             </Button>
           </div>
         </div>

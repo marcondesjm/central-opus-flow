@@ -300,10 +300,10 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
         </div>
 
         {/* Two-column layout */}
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden" style={{ maxHeight: 'calc(92vh - 44px)' }}>
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden" style={{ maxHeight: 'calc(95vh - 44px)' }}>
           {/* Left column */}
           <div className="flex-1 overflow-y-auto min-w-0">
-            <div className="p-6 space-y-6">
+            <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
               {/* Title - editable */}
               <div className="flex items-start gap-3">
                 {col && <span className="w-5 h-5 rounded mt-0.5 flex-shrink-0" style={{ backgroundColor: col.color }} />}

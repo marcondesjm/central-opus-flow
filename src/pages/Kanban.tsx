@@ -992,6 +992,7 @@ export default function KanbanPage() {
   const [filterTag, setFilterTag] = useState<string>('all');
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
   const [showAddSpace, setShowAddSpace] = useState(false);
+  const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;
@@ -1305,15 +1306,55 @@ export default function KanbanPage() {
             {(() => {
               const activeSpace = activeSpaceId ? spaces?.find(s => s.id === activeSpaceId) : null;
               if (activeSpace) {
+                if (editingSpaceName !== null) {
+                  return (
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-6 h-6 rounded flex items-center justify-center text-xs" style={{ backgroundColor: activeSpace.color }}>
+                        {activeSpace.icon || '📂'}
+                      </span>
+                      <Input
+                        value={editingSpaceName}
+                        onChange={e => setEditingSpaceName(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            if (editingSpaceName.trim() && editingSpaceName.trim() !== activeSpace.name) {
+                              updateSpace.mutate({ id: activeSpace.id, name: editingSpaceName.trim() });
+                            }
+                            setEditingSpaceName(null);
+                          }
+                          if (e.key === 'Escape') setEditingSpaceName(null);
+                        }}
+                        className="h-8 text-sm font-bold w-[220px] border-primary"
+                        autoFocus
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-primary hover:text-primary"
+                        onClick={() => {
+                          if (editingSpaceName.trim() && editingSpaceName.trim() !== activeSpace.name) {
+                            updateSpace.mutate({ id: activeSpace.id, name: editingSpaceName.trim() });
+                          }
+                          setEditingSpaceName(null);
+                        }}
+                      >
+                        <CheckSquare className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground"
+                        onClick={() => setEditingSpaceName(null)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  );
+                }
                 return (
                   <h1
                     className="text-sm sm:text-base font-bold truncate flex items-center gap-2 cursor-pointer hover:bg-muted/50 rounded px-1.5 py-0.5 transition-colors group"
-                    onClick={() => {
-                      const newName = prompt('Renomear espaço:', activeSpace.name);
-                      if (newName?.trim() && newName.trim() !== activeSpace.name) {
-                        updateSpace.mutate({ id: activeSpace.id, name: newName.trim() });
-                      }
-                    }}
+                    onClick={() => setEditingSpaceName(activeSpace.name)}
                     title="Clique para renomear"
                   >
                     <span className="w-5 h-5 rounded flex items-center justify-center text-[10px]" style={{ backgroundColor: activeSpace.color }}>

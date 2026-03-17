@@ -700,6 +700,7 @@ export type Database = {
           progress: number
           revenue: number | null
           space_id: string | null
+          start_date: string | null
           tags: string[] | null
           updated_at: string
           user_id: string
@@ -723,6 +724,7 @@ export type Database = {
           progress?: number
           revenue?: number | null
           space_id?: string | null
+          start_date?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
@@ -746,6 +748,7 @@ export type Database = {
           progress?: number
           revenue?: number | null
           space_id?: string | null
+          start_date?: string | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string

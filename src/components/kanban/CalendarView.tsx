@@ -262,11 +262,7 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
   const maxChips = isMobile ? 2 : 3;
 
   const handleDealClick = (deal: KanbanDeal) => {
-    if (openSidePanel) {
-      setSelectedDeal(deal);
-    } else {
-      onDetail(deal);
-    }
+    onDetail(deal);
   };
 
   const priorityColorMap: Record<string, string> = {

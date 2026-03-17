@@ -205,36 +205,6 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
             <span className="font-medium text-foreground truncate">{ticketId}</span>
           </div>
           <div className="flex items-center gap-0.5 flex-shrink-0">
-            <Button
-              variant="ghost" size="icon"
-              className={cn("h-8 w-8", isLocked ? "text-primary" : "text-muted-foreground hover:text-foreground")}
-              title={isLocked ? "Tarefa bloqueada — clique para desbloquear" : "Bloquear edição"}
-              onClick={() => {
-                setIsLocked(!isLocked);
-                toast({ title: isLocked ? 'Tarefa desbloqueada' : 'Tarefa bloqueada', description: isLocked ? 'Edição liberada para todos.' : 'Apenas você pode editar esta tarefa.' });
-              }}
-            >
-              {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-            </Button>
-            <Button
-              variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground hidden sm:flex"
-              title="Visualizações"
-              onClick={() => toast({ title: '1 visualização registrada' })}
-            >
-              <Eye className="w-4 h-4" />
-              <span className="text-xs">1</span>
-            </Button>
-            <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex"
-              title="Compartilhar"
-              onClick={() => {
-                const url = `${window.location.origin}/kanban?deal=${deal.id}`;
-                navigator.clipboard.writeText(url);
-                toast({ title: 'Link copiado!', description: 'O link da tarefa foi copiado para a área de transferência.' });
-              }}
-            >
-              <Share2 className="w-4 h-4" />
-            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -293,21 +263,46 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                       <ChevronRight className="w-4 h-4 ml-auto" />
                     </DropdownMenuItem>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent side="right" className="w-44">
+                  <DropdownMenuContent side="right" className="w-48">
                     {columns.map(c => (
-                      <DropdownMenuItem
-                        key={c.id}
-                        onSelect={() => {
-                          updateDeal.mutate({ id: deal.id, phase: c.id });
-                          toast({ title: `Movido para ${c.name}` });
-                        }}
-                      >
-                        <span className="w-2.5 h-2.5 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: c.color }} />
+                      <DropdownMenuItem key={c.id} onSelect={() => {
+                        updateDeal.mutate({ id: deal.id, phase: c.id });
+                        toast({ title: `Movido para ${c.name}` });
+                      }}>
+                        <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: c.color }} />
                         {c.name}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => {
+                  setIsLocked(!isLocked);
+                  toast({ title: isLocked ? 'Tarefa desbloqueada' : 'Tarefa bloqueada' });
+                }}>
+                  {isLocked ? <Unlock className="w-4 h-4 mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
+                  {isLocked ? 'Desbloquear' : 'Bloquear edição'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  const url = `${window.location.origin}/kanban?deal=${deal.id}`;
+                  navigator.clipboard.writeText(url);
+                  toast({ title: 'Link copiado!' });
+                }}>
+                  <Share2 className="w-4 h-4 mr-2" /> Compartilhar link
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
+                  const el = document.querySelector('[role="dialog"]') as HTMLElement;
+                  if (el) {
+                    if (document.fullscreenElement) {
+                      document.exitFullscreen();
+                    } else {
+                      el.requestFullscreen?.();
+                    }
+                  }
+                }}>
+                  <Maximize2 className="w-4 h-4 mr-2" /> Tela cheia
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => {
                   updateDeal.mutate({ id: deal.id, phase: 'archived' });
                   toast({ title: 'Tarefa arquivada!' });
@@ -315,33 +310,24 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 }}>
                   <Archive className="w-4 h-4 mr-2" /> Arquivar
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onSelect={() => {
-                    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-                      deleteDeal.mutate(deal.id);
-                      onOpenChange(false);
-                    }
-                  }}
-                >
+                <DropdownMenuItem className="text-destructive" onSelect={() => {
+                  deleteDeal.mutate(deal.id);
+                  onOpenChange(false);
+                }}>
                   <Trash2 className="w-4 h-4 mr-2" /> Excluir
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {/* Impressão e Exportação */}
                 <DropdownMenuItem onSelect={() => window.print()}>
                   <Printer className="w-4 h-4 mr-2" /> Imprimir
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => {
-                  const csvContent = [
-                    ['Tarefa', 'Cliente', 'Fase', 'Prioridade', 'Receita', 'Data limite', 'Progresso'],
-                    [deal.company_name, deal.client_name, columns.find(c => c.id === deal.phase)?.name || deal.phase, deal.priority, String(deal.revenue || 0), deal.due_date || '', `${deal.progress}%`]
-                  ].map(r => r.join(';')).join('\n');
-                  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                  const csv = `Tarefa,Cliente,Fase,Prioridade,Receita,Data Limite,Progresso\n"${deal.company_name}","${deal.client_name}","${columns.find(c => c.id === deal.phase)?.name || deal.phase}","${deal.priority}","${deal.revenue || 0}","${deal.due_date || ''}","${deal.progress}%"`;
+                  const blob = new Blob([csv], { type: 'text/csv' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.csv`; a.click();
                   toast({ title: 'Exportado para Excel (CSV)!' });
                 }}>
-                  <FileSpreadsheet className="w-4 h-4 mr-2" /> Exportar para Excel
+                  <FileSpreadsheet className="w-4 h-4 mr-2" /> Exportar Excel
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => {
                   const content = `Tarefa: ${deal.company_name}\nCliente: ${deal.client_name}\nFase: ${columns.find(c => c.id === deal.phase)?.name || deal.phase}\nPrioridade: ${deal.priority}\nReceita: R$ ${Number(deal.revenue || 0).toFixed(2)}\nData limite: ${deal.due_date || 'Sem data'}\nProgresso: ${deal.progress}%\nDescrição: ${deal.description || 'Sem descrição'}`;
@@ -352,33 +338,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 }}>
                   <FileType className="w-4 h-4 mr-2" /> Exportar Word
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => {
-                  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<task>\n  <name>${deal.company_name}</name>\n  <client>${deal.client_name}</client>\n  <phase>${deal.phase}</phase>\n  <priority>${deal.priority}</priority>\n  <revenue>${deal.revenue || 0}</revenue>\n  <due_date>${deal.due_date || ''}</due_date>\n  <progress>${deal.progress}</progress>\n  <description><![CDATA[${deal.description || ''}]]></description>\n</task>`;
-                  const blob = new Blob([xml], { type: 'application/xml' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a'); a.href = url; a.download = `${deal.company_name}.xml`; a.click();
-                  toast({ title: 'Exportado como XML!' });
-                }}>
-                  <FileText className="w-4 h-4 mr-2" /> Exportar XML
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex"
-              title="Tela cheia"
-              onClick={() => {
-                const el = document.querySelector('[role="dialog"]') as HTMLElement;
-                if (el) {
-                  if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                  } else {
-                    el.requestFullscreen?.();
-                  }
-                }
-              }}
-            >
-              <Maximize2 className="w-4 h-4" />
-            </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => onOpenChange(false)}>
               <X className="w-4 h-4" />
             </Button>

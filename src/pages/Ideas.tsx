@@ -44,7 +44,7 @@ export default function Ideas() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+      <div className="h-1 bg-primary/10" />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}

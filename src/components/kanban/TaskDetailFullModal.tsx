@@ -4,6 +4,7 @@ import {
   X, Maximize2, Share2, MoreHorizontal, AlertTriangle, Clock,
   FileText, Users, Mail, Phone, Pencil, Eye, Lock, Unlock, ChevronDown, ChevronRight,
   Zap, Settings2, MessageSquare, ArrowRightLeft, Bell, TrendingUp, RotateCcw, Copy, Archive,
+  Image, Move, Printer, FileSpreadsheet, FileType,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';

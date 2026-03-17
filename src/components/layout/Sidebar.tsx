@@ -131,6 +131,7 @@ export function Sidebar({
   const navigate = useNavigate();
   const { data: subscription } = useSubscription();
   const { t } = useTranslation();
+  const { data: spaces } = useKanbanSpaces();
   const { data: systemVersion } = useSystemVersion();
 
   // Fetch profile data and subscribe to realtime updates

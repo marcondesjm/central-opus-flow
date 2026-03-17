@@ -49,6 +49,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState(deal.description || '');
   const [infoOpen, setInfoOpen] = useState(true);
+  const [devOpen, setDevOpen] = useState(false);
+  const [autoOpen, setAutoOpen] = useState(false);
   const [isEditingRevenue, setIsEditingRevenue] = useState(false);
   const [revenueDraft, setRevenueDraft] = useState(String(Number(deal.revenue) || 0));
   const [isEditingTags, setIsEditingTags] = useState(false);
@@ -62,6 +64,24 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [isEditingWhatsapp, setIsEditingWhatsapp] = useState(false);
   const [whatsappDraft, setWhatsappDraft] = useState(deal.client_whatsapp || '');
 
+  // Automation states persisted in localStorage per deal
+  const storageKey = `automations_${deal.id}`;
+  const loadAutomations = () => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  };
+  const [automations, setAutomations] = useState<Record<string, boolean>>(loadAutomations);
+
+  const toggleAutomation = (key: string, callback?: () => void) => {
+    setAutomations(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      if (!prev[key] && callback) callback();
+      return next;
+    });
+  };
   // Sync drafts when deal changes
   useEffect(() => {
     setDescDraft(deal.description || '');

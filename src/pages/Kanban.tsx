@@ -990,7 +990,7 @@ export default function KanbanPage() {
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');
   const [filterTag, setFilterTag] = useState<string>('all');
-  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(searchParams.get('space') || null);
   const [showAddSpace, setShowAddSpace] = useState(false);
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);

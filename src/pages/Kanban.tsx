@@ -1316,16 +1316,16 @@ export default function KanbanPage() {
                   if (activeSpaceId) {
                     const space = spaces?.find(s => s.id === activeSpaceId);
                     if (space) {
-                      setEditingSpace(space);
-                      setShowEditSpace(true);
+                      setEditingSpaceName(space.name);
                     }
                   }
                 }} disabled={!activeSpaceId}>
                   <Pencil className="w-4 h-4 mr-2" /> Editar espaço
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
-                  if (activeSpaceId) {
-                    setDeletingSpaceId(activeSpaceId);
+                  if (activeSpaceId && confirm('Tem certeza que deseja excluir este espaço?')) {
+                    deleteSpace.mutate(activeSpaceId);
+                    setActiveSpaceId(null);
                   }
                 }} disabled={!activeSpaceId} className="text-destructive focus:text-destructive">
                   <Trash2 className="w-4 h-4 mr-2" /> Excluir espaço

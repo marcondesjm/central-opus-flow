@@ -199,11 +199,15 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
           </div>
           <div className="flex items-center gap-0.5">
             <Button
-              variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title="Visibilidade"
-              onClick={() => toast({ title: deal.assignee_id ? 'Tarefa visível apenas para o responsável' : 'Tarefa pública no espaço' })}
+              variant="ghost" size="icon"
+              className={cn("h-8 w-8", isLocked ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+              title={isLocked ? "Tarefa bloqueada — clique para desbloquear" : "Bloquear edição"}
+              onClick={() => {
+                setIsLocked(!isLocked);
+                toast({ title: isLocked ? 'Tarefa desbloqueada' : 'Tarefa bloqueada', description: isLocked ? 'Edição liberada para todos.' : 'Apenas você pode editar esta tarefa.' });
+              }}
             >
-              <Lock className="w-4 h-4" />
+              {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             </Button>
             <Button
               variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-foreground"

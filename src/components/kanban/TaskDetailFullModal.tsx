@@ -69,6 +69,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [isEditingWhatsapp, setIsEditingWhatsapp] = useState(false);
   const [whatsappDraft, setWhatsappDraft] = useState(deal.client_whatsapp || '');
   const [progressDraft, setProgressDraft] = useState(deal.progress);
+  const [isLocked, setIsLocked] = useState(false);
 
   // Automation states persisted in localStorage per deal
   const storageKey = `automations_${deal.id}`;

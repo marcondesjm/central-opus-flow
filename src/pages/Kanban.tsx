@@ -985,6 +985,10 @@ export default function KanbanPage() {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [filterAssignee, setFilterAssignee] = useState<string>('all');
+  const [filterTag, setFilterTag] = useState<string>('all');
+  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+  const [showAddSpace, setShowAddSpace] = useState(false);
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
   const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
     dealId: string;

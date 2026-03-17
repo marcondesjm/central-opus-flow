@@ -1373,7 +1373,9 @@ export default function KanbanPage() {
   const activeFiltersCount = [filterPriority !== 'all', filterAssignee !== 'all', filterTag !== 'all'].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col">
+      <AppNavBar />
+      <div className="flex flex-1">
       {/* Spaces sidebar */}
       <aside className="hidden lg:flex flex-col w-[200px] flex-shrink-0 border-r bg-card/30 h-screen sticky top-0">
         <div className="flex items-center justify-between px-3 pt-3 pb-2">

@@ -63,6 +63,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const [emailDraft, setEmailDraft] = useState(deal.client_email || '');
   const [isEditingWhatsapp, setIsEditingWhatsapp] = useState(false);
   const [whatsappDraft, setWhatsappDraft] = useState(deal.client_whatsapp || '');
+  const [progressDraft, setProgressDraft] = useState(deal.progress);
 
   // Automation states persisted in localStorage per deal
   const storageKey = `automations_${deal.id}`;
@@ -90,6 +91,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
     setTitleDraft(deal.company_name || '');
     setEmailDraft(deal.client_email || '');
     setWhatsappDraft(deal.client_whatsapp || '');
+    setProgressDraft(deal.progress);
   }, [deal.id, deal.description, deal.revenue, deal.client_name, deal.company_name, deal.client_email, deal.client_whatsapp]);
 
   const col = columns.find(c => c.id === deal.phase);
@@ -670,13 +672,14 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                     <span className="text-sm text-muted-foreground">Progresso</span>
                     <div className="flex items-center gap-2">
                       <Slider
-                        value={[deal.progress]}
+                        value={[progressDraft]}
+                        onValueChange={v => setProgressDraft(v[0])}
                         onValueCommit={handleProgressChange}
                         max={100}
                         step={5}
                         className="flex-1"
                       />
-                      <span className="text-xs text-muted-foreground w-8 text-right">{deal.progress}%</span>
+                      <span className="text-xs text-muted-foreground w-8 text-right">{progressDraft}%</span>
                     </div>
                   </div>
 

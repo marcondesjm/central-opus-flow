@@ -944,6 +944,7 @@ function AddSpaceModal({ open, onOpenChange, existingCount }: { open: boolean; o
 
 // ─── Main Page ──────────────────────────
 export default function KanbanPage() {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const scheduledCount = useScheduledMessagesCount();
   const { toast } = useToast();

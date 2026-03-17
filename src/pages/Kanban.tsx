@@ -1592,36 +1592,30 @@ export default function KanbanPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
               {/* Scheduled Messages Shortcut */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 relative"
-                    onClick={async () => {
-                      setShowScheduledList(true);
-                      setLoadingScheduled(true);
-                      const { data } = await supabase
-                        .from('kanban_scheduled_messages')
-                        .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
-                        .eq('user_id', user!.id)
-                        .order('scheduled_date', { ascending: true });
-                      setScheduledMessages(data || []);
-                      setLoadingScheduled(false);
-                    }}
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    {scheduledCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 text-[10px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                        {scheduledCount > 99 ? '99+' : scheduledCount}
-                      </span>
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Mensagens agendadas{scheduledCount > 0 ? ` (${scheduledCount})` : ''}</p>
-                </TooltipContent>
-              </Tooltip>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 relative"
+                title={`Mensagens agendadas${scheduledCount > 0 ? ` (${scheduledCount})` : ''}`}
+                onClick={async () => {
+                  setShowScheduledList(true);
+                  setLoadingScheduled(true);
+                  const { data } = await supabase
+                    .from('kanban_scheduled_messages')
+                    .select('*, kanban_deals(company_name, client_name, client_whatsapp)')
+                    .eq('user_id', user!.id)
+                    .order('scheduled_date', { ascending: true });
+                  setScheduledMessages(data || []);
+                  setLoadingScheduled(false);
+                }}
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                {scheduledCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 text-[10px] font-bold rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                    {scheduledCount > 99 ? '99+' : scheduledCount}
+                  </span>
+                )}
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-7 w-7">

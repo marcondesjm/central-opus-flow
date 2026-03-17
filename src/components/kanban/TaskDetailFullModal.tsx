@@ -574,6 +574,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                           selected={deal.due_date ? new Date(deal.due_date) : undefined}
                           onSelect={handleDueDateChange}
                           locale={ptBR}
+                          className={cn("p-3 pointer-events-auto")}
                         />
                         {deal.due_date && (
                           <div className="p-2 border-t">

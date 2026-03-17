@@ -91,6 +91,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
     setTitleDraft(deal.company_name || '');
     setEmailDraft(deal.client_email || '');
     setWhatsappDraft(deal.client_whatsapp || '');
+    setProgressDraft(deal.progress);
   }, [deal.id, deal.description, deal.revenue, deal.client_name, deal.company_name, deal.client_email, deal.client_whatsapp]);
 
   const col = columns.find(c => c.id === deal.phase);

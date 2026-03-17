@@ -544,7 +544,7 @@ export function ClippyAssistant() {
                 </ScrollArea>
               </div>
             ) : (
-              <div className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 {/* Search */}
                 <div className="px-3 py-2 border-b border-border">
                   <div className="relative">

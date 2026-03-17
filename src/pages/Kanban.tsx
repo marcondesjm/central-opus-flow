@@ -1963,6 +1963,7 @@ export default function KanbanPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {paymentsDeal && (
         <DealPaymentsModal
           open={!!paymentsDeal}
           onOpenChange={v => { if (!v) setPaymentsDeal(null); }}

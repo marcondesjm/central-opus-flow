@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Grid3X3, List, Plus, Users, Loader2, LogOut, UserPen, Crown, Clock, Settings, Key, MessageCircle, Shield, CalendarDays, FileText, Download } from 'lucide-react';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
+import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

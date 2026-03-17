@@ -1365,9 +1365,45 @@ export default function KanbanPage() {
                   </h1>
                 );
               }
+              if (editingSpaceName !== null) {
+                return (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      value={editingSpaceName}
+                      onChange={e => setEditingSpaceName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          if (editingSpaceName.trim()) {
+                            localStorage.setItem('kanban_default_title', editingSpaceName.trim());
+                          }
+                          setEditingSpaceName(null);
+                        }
+                        if (e.key === 'Escape') setEditingSpaceName(null);
+                      }}
+                      className="h-8 text-sm font-bold w-[220px] border-primary"
+                      autoFocus
+                    />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:text-primary" onClick={() => {
+                      if (editingSpaceName.trim()) localStorage.setItem('kanban_default_title', editingSpaceName.trim());
+                      setEditingSpaceName(null);
+                    }}>
+                      <CheckSquare className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => setEditingSpaceName(null)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                );
+              }
+              const defaultTitle = localStorage.getItem('kanban_default_title') || 'Tarefas & Projetos';
               return (
-                <h1 className="text-sm sm:text-base font-bold truncate flex items-center gap-2">
-                  Tarefas &amp; Projetos
+                <h1
+                  className="text-sm sm:text-base font-bold truncate flex items-center gap-2 cursor-pointer hover:bg-muted/50 rounded px-1.5 py-0.5 transition-colors group"
+                  onClick={() => setEditingSpaceName(defaultTitle)}
+                  title="Clique para renomear"
+                >
+                  {defaultTitle}
+                  <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h1>
               );
             })()}

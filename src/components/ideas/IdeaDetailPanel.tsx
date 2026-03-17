@@ -195,7 +195,8 @@ export function IdeaDetailPanel({ idea, onClose }: IdeaDetailPanelProps) {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Progresso da entrega ({idea.progress}%)</label>
               <Slider
-                value={[idea.progress]}
+                key={idea.id + '-' + idea.progress}
+                defaultValue={[idea.progress]}
                 max={100}
                 step={5}
                 onValueCommit={(v) => handleFieldUpdate('progress', v[0])}

@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
 import { CalendarView } from '@/components/kanban/CalendarView';
+import { TimelineView } from '@/components/kanban/TimelineView';
 import TaskDetailFullModal from '@/components/kanban/TaskDetailFullModal';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────

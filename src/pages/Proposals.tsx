@@ -363,7 +363,6 @@ export default function Proposals() {
             <h1 className="text-xl sm:text-2xl font-bold">Propostas Comerciais</h1>
             <p className="text-sm text-muted-foreground">Crie e gerencie suas propostas com identidade visual</p>
           </div>
-          </div>
           <Button onClick={() => setMode('create')}>
             <Plus className="w-4 h-4 mr-2" />
             Nova Proposta

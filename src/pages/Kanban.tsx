@@ -975,7 +975,7 @@ export default function KanbanPage() {
   const [showScheduledList, setShowScheduledList] = useState(false);
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
-  const [scheduledCount, setScheduledCount] = useState(0);
+  
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
     try {
       const stored = localStorage.getItem('kanban-auto-dispatch-enabled');

@@ -27,6 +27,7 @@ import { useTaskChecklist, useCreateChecklistItem, useUpdateChecklistItem, useDe
 import { useSystemUsers } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { format, isBefore, isToday, formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 import { ptBR } from 'date-fns/locale';
 import { RichTextEditor, RichTextDisplay } from '@/components/kanban/RichTextEditor';
 

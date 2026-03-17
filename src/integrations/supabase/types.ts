@@ -645,6 +645,7 @@ export type Database = {
           decision: string | null
           description: string | null
           effort: number
+          end_date: string | null
           hypothesis: string | null
           id: string
           impact: number
@@ -653,6 +654,7 @@ export type Database = {
           progress: number
           roadmap: string
           space_id: string | null
+          start_date: string | null
           theme: string
           theme_color: string
           title: string
@@ -665,6 +667,7 @@ export type Database = {
           decision?: string | null
           description?: string | null
           effort?: number
+          end_date?: string | null
           hypothesis?: string | null
           id?: string
           impact?: number
@@ -673,6 +676,7 @@ export type Database = {
           progress?: number
           roadmap?: string
           space_id?: string | null
+          start_date?: string | null
           theme?: string
           theme_color?: string
           title: string
@@ -685,6 +689,7 @@ export type Database = {
           decision?: string | null
           description?: string | null
           effort?: number
+          end_date?: string | null
           hypothesis?: string | null
           id?: string
           impact?: number
@@ -693,6 +698,7 @@ export type Database = {
           progress?: number
           roadmap?: string
           space_id?: string | null
+          start_date?: string | null
           theme?: string
           theme_color?: string
           title?: string

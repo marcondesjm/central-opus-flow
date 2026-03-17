@@ -210,11 +210,19 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: 'hsl(var(--popover-foreground))',
+                      color: 'hsl(var(--card-foreground))',
                       fontSize: '12px',
+                      padding: '8px 12px',
+                    }}
+                    itemStyle={{
+                      color: 'hsl(var(--card-foreground))',
+                    }}
+                    labelStyle={{
+                      color: 'hsl(var(--card-foreground))',
+                      fontWeight: 600,
                     }}
                   />
                   <Legend

@@ -986,7 +986,7 @@ export default function KanbanPage() {
   });
   const [nowTs, setNowTs] = useState(Date.now());
   const autoDispatchingIdsRef = useRef<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'calendar'>('kanban');
+  const [viewMode, setViewMode] = useState<'kanban' | 'list' | 'calendar' | 'timeline'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');

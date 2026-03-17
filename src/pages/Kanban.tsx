@@ -1474,9 +1474,6 @@ export default function KanbanPage() {
         <div className="px-3 sm:px-4 pt-2 pb-1 max-w-[1800px] mx-auto">
           <p className="text-[11px] text-muted-foreground mb-0.5 lg:hidden">Espaços</p>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
             {(() => {
               const activeSpace = activeSpaceId ? spaces?.find(s => s.id === activeSpaceId) : null;
               if (activeSpace) {

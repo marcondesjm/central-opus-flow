@@ -44,6 +44,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useAuth } from '@/hooks/useAuth';
+import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
 
 import { LovableAccount } from '@/hooks/useProjects';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -119,6 +120,7 @@ export function Sidebar({
   onEditAccount,
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
+  const [spacesOpen, setSpacesOpen] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
@@ -129,6 +131,7 @@ export function Sidebar({
   const navigate = useNavigate();
   const { data: subscription } = useSubscription();
   const { t } = useTranslation();
+  const { data: spaces } = useKanbanSpaces();
   const { data: systemVersion } = useSystemVersion();
 
   // Fetch profile data and subscribe to realtime updates
@@ -428,22 +431,57 @@ export function Sidebar({
         {/* Espaços button */}
         {sidebarVisibility.kanban && (
         <div className="pt-2">
-          <button
-            onClick={() => navigate('/kanban')}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar group"
-            aria-label="Espaços"
-          >
-            <FolderKanban className="w-4 h-4" aria-hidden="true" />
-            <span className="flex-1 text-left">Espaços</span>
-            <span className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-              <span
-                onClick={() => navigate('/kanban')}
-                className="p-0.5 rounded hover:bg-sidebar-accent"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </span>
-            </span>
-          </button>
+          <Collapsible open={spacesOpen} onOpenChange={setSpacesOpen}>
+            <CollapsibleTrigger
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-sidebar-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+              aria-expanded={spacesOpen}
+            >
+              <div className="flex items-center gap-2">
+                <FolderKanban className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Espaços</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span
+                  className="p-0.5 rounded hover:bg-sidebar-accent"
+                  onClick={(e) => { e.stopPropagation(); navigate('/kanban'); }}
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </span>
+                <ChevronDown
+                  className={cn(
+                    'w-3.5 h-3.5 transition-transform duration-200',
+                    spacesOpen ? 'rotate-0' : '-rotate-90'
+                  )}
+                  aria-hidden="true"
+                />
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-0.5 mt-1">
+              {spaces && spaces.length > 0 ? (
+                <ul role="list" className="space-y-0.5">
+                  {spaces.map((space) => (
+                    <li key={space.id}>
+                      <button
+                        onClick={() => navigate(`/kanban?space=${space.id}`)}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 group"
+                      >
+                        <span
+                          className="w-5 h-5 rounded flex items-center justify-center text-xs flex-shrink-0"
+                          style={{ backgroundColor: space.color + '20', color: space.color }}
+                        >
+                          🗂
+                        </span>
+                        <span className="flex-1 text-left truncate">{space.name}</span>
+                        <UsersRound className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted-foreground px-3 py-2">Nenhum espaço criado</p>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
         )}
 

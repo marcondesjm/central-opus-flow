@@ -1926,6 +1926,12 @@ export default function KanbanPage() {
           columns={columns || []}
           onDetail={d => setDetailDeal(d)}
         />
+      ) : viewMode === 'timeline' ? (
+        <TimelineView
+          deals={filteredDeals}
+          columns={columns || []}
+          onDetail={d => setDetailDeal(d)}
+        />
       ) : (
         <ListView
           deals={filteredDeals}

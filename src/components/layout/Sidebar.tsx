@@ -120,6 +120,7 @@ export function Sidebar({
   onEditAccount,
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
+  const [spacesOpen, setSpacesOpen] = useState(true);
   const [billingOpen, setBillingOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);

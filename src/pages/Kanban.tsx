@@ -1293,7 +1293,52 @@ export default function KanbanPage() {
   const activeFiltersCount = [filterPriority !== 'all', filterAssignee !== 'all', filterTag !== 'all'].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex">
+      {/* Spaces sidebar */}
+      <aside className="hidden lg:flex flex-col w-[200px] flex-shrink-0 border-r bg-card/30 h-screen sticky top-0">
+        <div className="flex items-center justify-between px-3 pt-3 pb-2">
+          <span className="text-[11px] font-semibold text-muted-foreground tracking-wider uppercase">Espaços</span>
+          <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowAddSpace(true)}>
+              <Plus className="w-3.5 h-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6">
+              <MoreHorizontal className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-1.5 space-y-0.5">
+          <button
+            onClick={() => setActiveSpaceId(null)}
+            className={cn(
+              'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
+              !activeSpaceId ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+            )}
+          >
+            <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] bg-muted">📋</span>
+            <span className="truncate">Todos</span>
+          </button>
+          {spaces?.map(space => (
+            <button
+              key={space.id}
+              onClick={() => setActiveSpaceId(space.id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left group',
+                activeSpaceId === space.id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+              )}
+            >
+              <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] flex-shrink-0" style={{ backgroundColor: space.color }}>
+                {space.icon || '📂'}
+              </span>
+              <span className="truncate flex-1">{space.name}</span>
+              <Users className="w-3.5 h-3.5 opacity-0 group-hover:opacity-50 flex-shrink-0" />
+            </button>
+          ))}
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 min-w-0">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         {/* Breadcrumb + Space name */}
@@ -2096,6 +2141,7 @@ export default function KanbanPage() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

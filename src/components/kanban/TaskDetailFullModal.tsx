@@ -27,6 +27,7 @@ import { useSystemUsers } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { format, isBefore, isToday, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { RichTextEditor, RichTextDisplay } from '@/components/kanban/RichTextEditor';
 
 interface TaskDetailFullModalProps {
   deal: KanbanDeal;

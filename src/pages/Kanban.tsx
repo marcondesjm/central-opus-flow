@@ -1753,7 +1753,7 @@ export default function KanbanPage() {
       {/* Views */}
       {viewMode === 'kanban' ? (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div ref={kanbanRef} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto">
+          <div ref={kanbanRef} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto scrollbar-visible">
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
                 <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4" style={{ zoom: zoomLevel }}>

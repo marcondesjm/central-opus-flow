@@ -52,7 +52,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           {col && <span className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: col.color }} />}
@@ -63,7 +62,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
         </Button>
       </div>
 
-      {/* Badges */}
       <div className="px-4 pt-3 pb-2 flex flex-wrap items-center gap-2 flex-shrink-0">
         {col && (
           <Badge variant="outline" className="text-xs" style={{ borderColor: col.color, color: col.color }}>
@@ -78,13 +76,10 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
         )}
       </div>
 
-      {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-        {/* Description */}
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5" />
-            Descrição
+            <FileText className="w-3.5 h-3.5" /> Descrição
           </h4>
           <p className="text-sm text-foreground whitespace-pre-wrap">
             {deal.description || <span className="text-muted-foreground italic">Sem descrição</span>}
@@ -93,7 +88,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
 
         <Separator />
 
-        {/* Info */}
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Informações</h4>
           <div className="space-y-2.5">
@@ -122,14 +116,12 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
           </div>
         </div>
 
-        {/* Tags */}
         {deal.tags && deal.tags.length > 0 && (
           <>
             <Separator />
             <div>
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5" />
-                Tags
+                <Tag className="w-3.5 h-3.5" /> Tags
               </h4>
               <div className="flex flex-wrap gap-1">
                 {deal.tags.map((tag, i) => (
@@ -142,7 +134,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
 
         <Separator />
 
-        {/* Progress */}
         <div>
           <div className="flex justify-between text-xs text-muted-foreground mb-1">
             <span>Progresso</span>
@@ -153,7 +144,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
 
         <Separator />
 
-        {/* Checklist */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
@@ -163,7 +153,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
             </h4>
           </div>
           {totalCount > 0 && <Progress value={checklistProgress} className="h-1.5 mb-2" />}
-
           <div className="space-y-1">
             {checklist?.map(item => (
               <div key={item.id} className="flex items-center gap-2 group py-1">
@@ -184,7 +173,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
               </div>
             ))}
           </div>
-
           <div className="flex gap-2 mt-2">
             <Input
               placeholder="Novo item..."
@@ -199,7 +187,6 @@ function DealPanelContent({ deal, columns, onClose }: { deal: KanbanDeal; column
           </div>
         </div>
 
-        {/* Timestamps */}
         <Separator />
         <div className="text-[11px] text-muted-foreground space-y-0.5 pb-2">
           <p>Criado {format(new Date(deal.created_at), "dd/MM/yyyy 'às' HH:mm")}</p>
@@ -224,15 +211,25 @@ function InfoRow({ icon, label, value, muted }: { icon: React.ReactNode; label: 
 export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDeal, setSelectedDeal] = useState<KanbanDeal | null>(null);
+  const [showWeekends, setShowWeekends] = useState(true);
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(1);
+  const [colorBy, setColorBy] = useState<'status' | 'priority'>('status');
+  const [openSidePanel, setOpenSidePanel] = useState(true);
   const isMobile = useIsMobile();
+
+  const gridCols = showWeekends ? 7 : 5;
 
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
-    const start = startOfWeek(monthStart, { weekStartsOn: 1 });
-    const end = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end });
-  }, [currentMonth]);
+    const start = startOfWeek(monthStart, { weekStartsOn });
+    const end = endOfWeek(monthEnd, { weekStartsOn });
+    let days = eachDayOfInterval({ start, end });
+    if (!showWeekends) {
+      days = days.filter(d => d.getDay() !== 0 && d.getDay() !== 6);
+    }
+    return days;
+  }, [currentMonth, weekStartsOn, showWeekends]);
 
   const dealsByDate = useMemo(() => {
     const map = new Map<string, KanbanDeal[]>();
@@ -245,17 +242,42 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
     return map;
   }, [deals]);
 
-  // Mobile: show short day names; Desktop: full
-  const weekDaysFull = ['Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.', 'Dom.'];
-  const weekDaysMobile = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
-  const weekDays = isMobile ? weekDaysMobile : weekDaysFull;
+  const allWeekDaysFull = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
+  const allWeekDaysMobile = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+
+  const weekDays = useMemo(() => {
+    const full = isMobile ? allWeekDaysMobile : allWeekDaysFull;
+    const rotated = [...full.slice(weekStartsOn), ...full.slice(0, weekStartsOn)];
+    if (!showWeekends) {
+      const indices = Array.from({ length: 7 }, (_, i) => (weekStartsOn + i) % 7);
+      return rotated.filter((_, idx) => {
+        const dayOfWeek = indices[idx];
+        return dayOfWeek !== 0 && dayOfWeek !== 6;
+      });
+    }
+    return rotated;
+  }, [isMobile, weekStartsOn, showWeekends]);
 
   const getColumn = (id: string) => columns.find(c => c.id === id);
   const maxChips = isMobile ? 2 : 3;
 
+  const handleDealClick = (deal: KanbanDeal) => {
+    if (openSidePanel) {
+      setSelectedDeal(deal);
+    } else {
+      onDetail(deal);
+    }
+  };
+
+  const priorityColorMap: Record<string, string> = {
+    urgent: '#ef4444',
+    high: '#f97316',
+    medium: '#eab308',
+    low: '#22c55e',
+  };
+
   return (
     <div className="max-w-[1800px] mx-auto px-2 sm:px-4 py-3 sm:py-4 flex gap-0">
-      {/* Calendar area */}
       <div className="flex-1 min-w-0">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 sm:mb-4 flex-wrap gap-2">
@@ -274,13 +296,73 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
+            <Badge variant="outline" className="text-xs hidden sm:flex">Mês</Badge>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setCurrentMonth(new Date())}>
+              <CalendarDays className="w-4 h-4" />
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon" className="h-8 w-8">
+                  <Settings2 className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 p-0">
+                <div className="p-3 space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Configurações</p>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-normal">Tickets abertos na barra lateral</Label>
+                      <Switch checked={openSidePanel} onCheckedChange={setOpenSidePanel} />
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Opções de visualização</p>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-normal">Colorir por</Label>
+                      <Select value={colorBy} onValueChange={v => setColorBy(v as 'status' | 'priority')}>
+                        <SelectTrigger className="w-[110px] h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="status">Status</SelectItem>
+                          <SelectItem value="priority">Prioridade</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Configurações da semana</p>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-normal">Mostrar fins de semana</Label>
+                      <Switch checked={showWeekends} onCheckedChange={setShowWeekends} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-normal">Semana inicia em</Label>
+                      <Select value={String(weekStartsOn)} onValueChange={v => setWeekStartsOn(Number(v) as 0 | 1)}>
+                        <SelectTrigger className="w-[110px] h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">Domingo</SelectItem>
+                          <SelectItem value="1">Segunda</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         {/* Grid */}
         <div className="bg-card rounded-lg border overflow-hidden">
-          {/* Week headers */}
-          <div className="grid grid-cols-7 border-b bg-muted/40">
+          <div className={cn('grid border-b bg-muted/40', gridCols === 5 ? 'grid-cols-5' : 'grid-cols-7')}>
             {weekDays.map((day, idx) => (
               <div key={idx} className="px-1 sm:px-2 py-2 text-[10px] sm:text-xs font-semibold text-muted-foreground text-center border-r last:border-r-0 uppercase tracking-wide">
                 {day}
@@ -288,8 +370,7 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
             ))}
           </div>
 
-          {/* Day cells */}
-          <div className="grid grid-cols-7">
+          <div className={cn('grid', gridCols === 5 ? 'grid-cols-5' : 'grid-cols-7')}>
             {calendarDays.map((day, i) => {
               const dateKey = format(day, 'yyyy-MM-dd');
               const dayDeals = dealsByDate.get(dateKey) || [];
@@ -305,7 +386,6 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
                     isCurrentMonth && 'bg-card'
                   )}
                 >
-                  {/* Day number */}
                   <div className="flex items-center justify-between mb-0.5 sm:mb-1">
                     <span
                       className={cn(
@@ -324,18 +404,20 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
                     )}
                   </div>
 
-                  {/* Deal chips */}
                   <div className="space-y-0.5 overflow-hidden">
                     {dayDeals.slice(0, maxChips).map(deal => {
                       const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
                       const col = getColumn(deal.phase);
                       const isOverdue = isBefore(new Date(deal.due_date!), new Date()) && !isToday(new Date(deal.due_date!));
                       const isSelected = selectedDeal?.id === deal.id;
+                      const chipColor = colorBy === 'priority'
+                        ? priorityColorMap[deal.priority] || undefined
+                        : col?.color || undefined;
 
                       return (
                         <button
                           key={deal.id}
-                          onClick={() => setSelectedDeal(deal)}
+                          onClick={() => handleDealClick(deal)}
                           className={cn(
                             'w-full text-left px-1 sm:px-1.5 py-0.5 sm:py-1 rounded text-[9px] sm:text-[11px] font-medium truncate block transition-all',
                             'hover:opacity-80 min-h-[22px] sm:min-h-[24px]',
@@ -345,7 +427,7 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
                                 ? 'bg-destructive/10 text-destructive border border-destructive/20'
                                 : 'bg-primary/8 text-primary border border-primary/15'
                           )}
-                          style={!isSelected && col?.color ? { borderLeftColor: col.color, borderLeftWidth: 3 } : undefined}
+                          style={!isSelected && chipColor ? { borderLeftColor: chipColor, borderLeftWidth: 3 } : undefined}
                           title={`${deal.company_name} - ${deal.client_name}`}
                         >
                           <span className="flex items-center gap-0.5 sm:gap-1">
@@ -370,7 +452,7 @@ export function CalendarView({ deals, columns, onDetail }: CalendarViewProps) {
       </div>
 
       {/* Desktop side panel */}
-      {!isMobile && selectedDeal && (
+      {!isMobile && openSidePanel && selectedDeal && (
         <div className="w-[360px] xl:w-[400px] flex-shrink-0 border-l bg-card overflow-hidden animate-fade-in hidden md:flex flex-col">
           <DealPanelContent deal={selectedDeal} columns={columns} onClose={() => setSelectedDeal(null)} />
         </div>

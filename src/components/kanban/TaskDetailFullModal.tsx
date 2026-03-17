@@ -318,8 +318,6 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={async () => {
-                  const printContent = printRef.current;
-                  if (!printContent) return;
                   const printWindow = window.open('', '_blank');
                   if (!printWindow) return;
                   const phaseName = columns.find(c => c.id === deal.phase)?.name || deal.phase;

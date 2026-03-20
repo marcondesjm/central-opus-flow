@@ -1,4 +1,5 @@
 import { ReactNode, useState, useCallback } from 'react';
+import { UrgentAdminMessageModal } from '@/components/notifications/UrgentAdminMessageModal';
 import { Sidebar } from './Sidebar';
 import { MobileSidebar } from './MobileSidebar';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -135,6 +136,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           account={editingAccount}
         />
       )}
+      <UrgentAdminMessageModal />
     </div>
   );
 }

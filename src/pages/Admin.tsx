@@ -89,6 +89,8 @@ import { WordPressManager } from '@/components/admin/WordPressManager';
 import { CouponManager } from '@/components/admin/CouponManager';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
 import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
+import { RssFeedManager } from '@/components/admin/RssFeedManager';
+import { Rss } from 'lucide-react';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -841,6 +843,10 @@ export default function Admin() {
                 <MessageCircleQuestion className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Assistente
               </TabsTrigger>
+              <TabsTrigger value="rss" className="gap-1.5 text-xs sm:text-sm">
+                <Rss className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Feeds RSS
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -1328,6 +1334,23 @@ export default function Admin() {
 
           <TabsContent value="assistant">
             <AssistantFaqManager />
+          </TabsContent>
+
+          <TabsContent value="rss">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Rss className="w-5 h-5" />
+                  Gerenciar Feeds RSS
+                </CardTitle>
+                <CardDescription>
+                  Configure URLs de feeds RSS para exibir notícias no dashboard dos usuários.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RssFeedManager />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

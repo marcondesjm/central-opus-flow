@@ -34,6 +34,7 @@ import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
 import { DashboardActivitySection } from '@/components/dashboard/DashboardActivitySection';
+import { NewsFeedWidget } from '@/components/dashboard/NewsFeedWidget';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
 import { useCollaboration } from '@/hooks/useCollaboration';
@@ -848,8 +849,11 @@ export default function Dashboard() {
           {/* Charts */}
           <ProjectCharts projects={projects} />
 
-          {/* Activity Section */}
-          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
+          {/* Activity + News Feed */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
+            <NewsFeedWidget />
+          </div>
 
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />

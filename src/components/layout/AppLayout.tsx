@@ -24,6 +24,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     try { return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'; } catch { return false; }
   });
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleCollapsed = () => {
     const next = !collapsed;
@@ -44,9 +45,17 @@ export function AppLayout({ children }: AppLayoutProps) {
     return activeView;
   };
 
+  const handleViewChange = useCallback((view: string) => {
+    setActiveView(view);
+    // Always navigate to dashboard when selecting a sidebar view
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+    }
+  }, [location.pathname, navigate]);
+
   const sidebarProps = {
     activeView: getActiveViewFromRoute(),
-    onViewChange: setActiveView,
+    onViewChange: handleViewChange,
     selectedAccount,
     onAccountChange: setSelectedAccount,
     accounts,

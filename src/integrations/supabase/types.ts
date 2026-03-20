@@ -650,6 +650,7 @@ export type Database = {
           id: string
           impact: number
           insights_count: number
+          last_modified_by: string | null
           position: number
           progress: number
           roadmap: string
@@ -672,6 +673,7 @@ export type Database = {
           id?: string
           impact?: number
           insights_count?: number
+          last_modified_by?: string | null
           position?: number
           progress?: number
           roadmap?: string
@@ -694,6 +696,7 @@ export type Database = {
           id?: string
           impact?: number
           insights_count?: number
+          last_modified_by?: string | null
           position?: number
           progress?: number
           roadmap?: string

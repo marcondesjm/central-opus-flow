@@ -503,6 +503,7 @@ export type Database = {
           entity_type: string
           id: string
           message: string
+          metadata: Json | null
           read_at: string | null
           title: string
           type: string
@@ -516,6 +517,7 @@ export type Database = {
           entity_type: string
           id?: string
           message: string
+          metadata?: Json | null
           read_at?: string | null
           title: string
           type: string
@@ -529,6 +531,7 @@ export type Database = {
           entity_type?: string
           id?: string
           message?: string
+          metadata?: Json | null
           read_at?: string | null
           title?: string
           type?: string

@@ -1239,7 +1239,7 @@ export default function KanbanPage() {
     // Handle column reordering
     if (type === 'COLUMN') {
       if (source.index === destination.index) return;
-      const sortedCols = [...(columns || [])];
+      const sortedCols = [...(visibleColumns || [])];
       
       const movedCol = sortedCols[source.index];
       const isFinalizadoCol = movedCol?.name?.toLowerCase().includes('finalizado') || movedCol?.name?.toLowerCase().includes('conclu');

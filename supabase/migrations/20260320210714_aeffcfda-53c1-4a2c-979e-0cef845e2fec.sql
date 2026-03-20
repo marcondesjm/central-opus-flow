@@ -1,0 +1,1 @@
+ALTER TABLE public.admin_scheduled_messages ADD COLUMN IF NOT EXISTS display_duration integer NOT NULL DEFAULT 30;

@@ -266,6 +266,14 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/manual"
+              element={
+                <ProtectedRoute>
+                  <Manual />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

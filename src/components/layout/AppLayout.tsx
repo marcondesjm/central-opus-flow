@@ -109,7 +109,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </main>
         </div>
       </div>
-      <MobileBottomNav activeView={getActiveViewFromRoute()} onViewChange={setActiveView} onNewProject={() => {}} />
+      <MobileBottomNav activeView={getActiveViewFromRoute()} onViewChange={handleViewChange} onNewProject={() => {}} />
     </div>
   );
 }

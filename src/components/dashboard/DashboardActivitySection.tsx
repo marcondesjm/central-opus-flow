@@ -2,17 +2,23 @@ import { ActivityFeed } from '@/components/activity/ActivityFeed';
 import { Button } from '@/components/ui/button';
 import { Plus, FolderKanban, Globe, Smartphone, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import type { ProjectTemplate } from '@/components/projects/AddProjectModal';
 
 interface DashboardActivitySectionProps {
   hasProjects: boolean;
-  onNewProject: () => void;
+  onNewProject: (template?: ProjectTemplate) => void;
 }
 
-const exampleProjects = [
+const exampleProjects: (ProjectTemplate & {
+  icon: typeof Globe;
+  progress: number;
+  status: string;
+  statusColor: string;
+})[] = [
   {
     name: 'Site Institucional',
     description: 'Landing page para empresa com formulário de contato e blog integrado.',
-    type: 'Website',
+    type: 'website',
     icon: Globe,
     progress: 72,
     status: 'Em progresso',
@@ -21,7 +27,7 @@ const exampleProjects = [
   {
     name: 'App de Delivery',
     description: 'Aplicativo mobile para restaurante com cardápio digital e pedidos online.',
-    type: 'Mobile',
+    type: 'app',
     icon: Smartphone,
     progress: 45,
     status: 'Em progresso',
@@ -30,7 +36,7 @@ const exampleProjects = [
   {
     name: 'Loja Virtual',
     description: 'E-commerce completo com catálogo de produtos, carrinho e checkout.',
-    type: 'E-commerce',
+    type: 'other',
     icon: ShoppingCart,
     progress: 90,
     status: 'Quase pronto',
@@ -52,7 +58,7 @@ export function DashboardActivitySection({ hasProjects, onNewProject }: Dashboar
           <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
             Organize seus projetos, acompanhe o progresso e colabore com sua equipe em um só lugar.
           </p>
-          <Button onClick={onNewProject} className="rounded-xl gap-2 px-6">
+          <Button onClick={() => onNewProject()} className="rounded-xl gap-2 px-6">
             <Plus className="w-4 h-4" />
             Novo Projeto
           </Button>
@@ -62,7 +68,7 @@ export function DashboardActivitySection({ hasProjects, onNewProject }: Dashboar
         <div>
           <p className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
             <ArrowRight className="w-4 h-4" />
-            Exemplos de projetos para se inspirar
+            Clique para criar um projeto baseado nestes exemplos
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {exampleProjects.map((project) => {
@@ -70,7 +76,7 @@ export function DashboardActivitySection({ hasProjects, onNewProject }: Dashboar
               return (
                 <button
                   key={project.name}
-                  onClick={onNewProject}
+                  onClick={() => onNewProject({ name: project.name, description: project.description, type: project.type })}
                   className="group rounded-xl border border-border/60 bg-card p-5 text-left transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3 mb-3">

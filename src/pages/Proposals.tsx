@@ -546,6 +546,6 @@ export default function Proposals() {
           <ProposalPreview ref={previewRef} proposal={currentProposal} />
         </DialogContent>
       </Dialog>
-    </div>
+    </AppLayout>
   );
 }

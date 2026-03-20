@@ -308,6 +308,6 @@ export default function Ideas() {
           <IdeaDetailPanel idea={currentIdea} onClose={() => setSelectedIdea(null)} />
         </div>
       )}
-    </div>
+    </AppLayout>
   );
 }

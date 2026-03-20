@@ -1155,6 +1155,6 @@ export default function BillingPage() {
           deals={deals}
         />
       )}
-    </div>
+    </AppLayout>
   );
 }

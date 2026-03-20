@@ -2349,6 +2349,6 @@ export default function KanbanPage() {
       </Dialog>
       </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -19,8 +19,31 @@ input, textarea, [contenteditable="true"] {
 }
 
 @media print {
-  body {
+  /* Hide non-content elements during print */
+  nav, header, footer, .sidebar, [data-sidebar], 
+  [data-mobile-bottom-nav], .no-print,
+  button:not(.print-include) {
     display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  main, .main-content, [role="main"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    overflow: visible !important;
+  }
+
+  * {
+    overflow: visible !important;
+    max-height: none !important;
   }
 }
 

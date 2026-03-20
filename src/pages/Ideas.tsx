@@ -259,6 +259,7 @@ export default function Ideas() {
                         <th className="text-center px-3 py-2.5 font-medium text-xs text-muted-foreground">Esforço</th>
                         <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Roteiro</th>
                         <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground w-32">Progresso</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Modificado por</th>
                       </tr>
                     </thead>
                     <tbody>

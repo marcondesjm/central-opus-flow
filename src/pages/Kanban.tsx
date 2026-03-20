@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
@@ -392,13 +392,14 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 }
 
 // ─── Task Card ──────────────────────────
-function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg }: {
+function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg, modifierProfile }: {
   deal: KanbanDeal;
   onEdit: () => void;
   onDelete: () => void;
   onPayments: () => void;
   onDetail: () => void;
   onWhatsAppMsg: (msg: string) => void;
+  modifierProfile?: { full_name: string | null; avatar_url: string | null } | null;
 }) {
   const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
   const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
@@ -526,6 +527,23 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg 
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
             {deal.client_email && <span className="flex items-center gap-0.5"><Mail className="w-2.5 h-2.5" /> Email</span>}
             {deal.client_whatsapp && <span className="flex items-center gap-0.5"><Phone className="w-2.5 h-2.5" /> WhatsApp</span>}
+          </div>
+        )}
+
+        {modifierProfile && (
+          <div className="flex items-center gap-1.5 pt-1 border-t border-border/50">
+            <Avatar className="w-5 h-5">
+              <AvatarImage src={modifierProfile.avatar_url || undefined} />
+              <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
+                {(modifierProfile.full_name || '?').slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-[10px] text-muted-foreground truncate flex-1">
+              {modifierProfile.full_name || 'Usuário'}
+            </span>
+            <span className="text-[9px] text-muted-foreground/60">
+              {format(new Date(deal.updated_at), 'dd/MM HH:mm')}
+            </span>
           </div>
         )}
       </CardContent>
@@ -952,6 +970,32 @@ export default function KanbanPage() {
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
   const { data: spaces } = useKanbanSpaces();
   const { data: systemUsers } = useSystemUsers();
+
+  // Fetch profiles for last_modified_by users
+  const modifierUserIds = useMemo(() => {
+    if (!deals) return [];
+    const ids = new Set<string>();
+    deals.forEach(d => { if (d.last_modified_by) ids.add(d.last_modified_by); });
+    // Also add current user
+    if (user?.id) ids.add(user.id);
+    return Array.from(ids);
+  }, [deals, user?.id]);
+
+  const { data: modifierProfiles } = useQuery({
+    queryKey: ['modifier-profiles', modifierUserIds],
+    queryFn: async () => {
+      if (modifierUserIds.length === 0) return {};
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', modifierUserIds);
+      const map: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      data?.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+      return map;
+    },
+    enabled: modifierUserIds.length > 0,
+  });
+
   const deleteSpace = useDeleteSpace();
   const updateSpace = useUpdateSpace();
   const updateDeal = useUpdateDeal();
@@ -1977,6 +2021,7 @@ export default function KanbanPage() {
                                       >
                                         <TaskCard
                                           deal={deal}
+                                          modifierProfile={modifierProfiles?.[deal.last_modified_by || ''] || (deal.user_id === user?.id ? modifierProfiles?.[user.id] : null)}
                                           onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
                                           onDelete={() => setDeletingId(deal.id)}
                                           onPayments={() => setPaymentsDeal(deal)}

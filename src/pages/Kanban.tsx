@@ -1986,7 +1986,7 @@ export default function KanbanPage() {
       ) : viewMode === 'calendar' ? (
         <CalendarView
           deals={filteredDeals}
-          columns={columns || []}
+          columns={visibleColumns}
           onDetail={d => setDetailDeal(d)}
         />
       ) : viewMode === 'timeline' ? (

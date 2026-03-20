@@ -1906,7 +1906,14 @@ export default function KanbanPage() {
                           className={cn('flex-shrink-0', colDragSnapshot.isDragging && 'opacity-80')}
                           style={{ width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px' }}
                         >
-                          <div className="flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium" style={{ backgroundColor: column.color }}>
+                          <div
+                            className={cn(
+                              'flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium transition-all duration-200',
+                              !isFinalizadoColumn && 'cursor-grab active:cursor-grabbing hover:brightness-125 hover:shadow-lg',
+                              colDragSnapshot.isDragging && 'brightness-125 shadow-xl ring-2 ring-white/30'
+                            )}
+                            style={{ backgroundColor: column.color }}
+                          >
                             {!isFinalizadoColumn ? (
                               <span {...colDragProvided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-white/20">
                                 <GripVertical className="w-4 h-4" />

@@ -8,6 +8,7 @@ import {
   BarChart3,
   Receipt,
   UsersRound,
+  FolderOpen,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { path: '/ideas', label: 'Ideias', icon: Sparkles },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/billing', label: 'Faturamento', icon: Receipt },
+  { path: '/files', label: 'Arquivos', icon: FolderOpen },
   { path: '/teams', label: 'Equipes', icon: UsersRound },
 ];
 

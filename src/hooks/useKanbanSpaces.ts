@@ -106,11 +106,11 @@ export function useSystemUsers() {
     queryKey: ['system-users-profiles', user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, email, avatar_url');
+        .from('profiles_safe' as any)
+        .select('user_id, full_name, avatar_url');
 
       if (error) throw error;
-      return data as { user_id: string; full_name: string | null; email: string; avatar_url: string | null }[];
+      return data as { user_id: string; full_name: string | null; avatar_url: string | null }[];
     },
     enabled: !!user,
   });

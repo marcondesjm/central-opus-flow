@@ -25,9 +25,16 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { CoverUpload } from './CoverUpload';
 
+export interface ProjectTemplate {
+  name: string;
+  description: string;
+  type: 'website' | 'landing' | 'app' | 'funnel' | 'other';
+}
+
 interface AddProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  template?: ProjectTemplate | null;
 }
 
 const projectTypes = [

@@ -816,7 +816,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
               {/* Comment / Activity */}
               <Separator />
-              <div className="space-y-3 pt-2">
+              <div className="flex flex-col gap-3 pt-2">
                 {/* Existing comments */}
                 {(comments || []).length > 0 && (
                   <div className="max-h-[250px] overflow-y-auto">
@@ -856,7 +856,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 )}
 
                 {/* Comment input */}
-                <div className="flex items-start gap-2.5">
+                <div className="flex items-start gap-2.5 sticky bottom-0 bg-background pt-1">
                   <Avatar className="w-8 h-8 flex-shrink-0">
                     <AvatarImage src={commentProfiles?.[user?.id || '']?.avatar_url || undefined} />
                     <AvatarFallback className="text-xs bg-primary/20 text-primary">

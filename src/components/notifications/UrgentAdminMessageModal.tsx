@@ -142,8 +142,10 @@ export function UrgentAdminMessageModal() {
     }
 
     if (currentIndex < messages.length - 1) {
+      const nextMsg = messages[currentIndex + 1];
+      const nextDuration = nextMsg?.metadata?.display_duration || 30;
       setCurrentIndex((i) => i + 1);
-      startCountdown();
+      startCountdown(nextDuration);
     } else {
       setOpen(false);
       setMessages([]);

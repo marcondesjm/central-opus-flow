@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppNavBar } from '@/components/layout/AppNavBar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import exampleCompanyLogo from '@/assets/example-company-logo.png';
 import exampleClientLogo from '@/assets/example-client-logo.png';

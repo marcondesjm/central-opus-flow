@@ -13,6 +13,9 @@ export interface AdminUser {
   avatar_url: string | null;
   created_at: string;
   onboarding_completed: boolean;
+  last_sign_in_at: string | null;
+  last_active_at: string | null;
+  total_session_minutes: number;
   plan: 'free' | 'pro' | 'business';
   max_accounts: number;
   max_projects: number;

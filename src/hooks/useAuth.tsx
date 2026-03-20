@@ -19,12 +19,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const sessionStartRef = { current: Date.now() };
+
     // Set up auth state listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        if (event === 'SIGNED_IN' && session?.user) {
+          sessionStartRef.current = Date.now();
+          // Update last_sign_in_at
+          setTimeout(() => {
+            supabase
+              .from('profiles')
+              .update({ 
+                last_sign_in_at: new Date().toISOString(),
+                last_active_at: new Date().toISOString()
+              })
+              .eq('user_id', session.user.id)
+              .then(() => {});
+          }, 0);
+        }
+
+        if (event === 'SIGNED_OUT') {
+          // Calculate session duration and update
+          const sessionMinutes = Math.round((Date.now() - sessionStartRef.current) / 60000);
+          if (sessionMinutes > 0) {
+            // We can't update after sign out since RLS blocks it, so it's handled by the heartbeat
+          }
+        }
       }
     );
 
@@ -33,9 +58,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session?.user) {
+        sessionStartRef.current = Date.now();
+      }
     });
 
-    return () => subscription.unsubscribe();
+    // Heartbeat: update last_active_at every 5 minutes and accumulate session time
+    const heartbeat = setInterval(async () => {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (currentSession?.user) {
+        await supabase.rpc('update_session_activity' as any, {
+          _user_id: currentSession.user.id,
+          _minutes: 5
+        }).then(() => {});
+      }
+    }, 5 * 60 * 1000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(heartbeat);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {

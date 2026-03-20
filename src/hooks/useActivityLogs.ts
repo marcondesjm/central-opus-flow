@@ -145,6 +145,7 @@ export function formatActivityAction(action: string, entityType: string, entityN
     user: 'usuário',
     deal: 'tarefa',
     proposal: 'proposta',
+    idea: 'ideia',
   };
 
   const actionText = actions[action] || action;

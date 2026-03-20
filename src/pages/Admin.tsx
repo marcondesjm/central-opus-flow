@@ -841,6 +841,10 @@ export default function Admin() {
                 <MessageCircleQuestion className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Assistente
               </TabsTrigger>
+              <TabsTrigger value="rss" className="gap-1.5 text-xs sm:text-sm">
+                <Rss className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Feeds RSS
+              </TabsTrigger>
             </TabsList>
           </div>
 

@@ -305,9 +305,8 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
                 <Input
                   type="number"
                   min={5}
-                  max={300}
                   value={displayDuration}
-                  onChange={(e) => setDisplayDuration(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
+                  onChange={(e) => setDisplayDuration(Math.max(5, parseInt(e.target.value) || 30))}
                   className="w-24 text-center font-mono"
                 />
                 <span className="text-xs text-muted-foreground">
@@ -388,6 +387,10 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
                             <CountdownTimer scheduledAt={sm.scheduled_at} />
                             <Badge variant="outline" className="text-xs">
                               {sm.send_to === 'all' ? 'Todos' : 'Individual'}
+                            </Badge>
+                            <Badge variant="secondary" className="text-xs gap-1">
+                              <Timer className="w-3 h-3" />
+                              {sm.display_duration || 30}s
                             </Badge>
                           </div>
                         </div>

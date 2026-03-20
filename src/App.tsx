@@ -28,6 +28,7 @@ const ProposalPublic = lazy(() => import("./pages/ProposalPublic"));
 const Teams = lazy(() => import("./pages/Teams"));
 const Ideas = lazy(() => import("./pages/Ideas"));
 const Reports = lazy(() => import("./pages/Reports"));
+const Files = lazy(() => import("./pages/Files"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {

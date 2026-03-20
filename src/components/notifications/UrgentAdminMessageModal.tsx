@@ -9,7 +9,7 @@ interface UrgentMessage {
   title: string;
   message: string;
   created_at: string;
-  metadata?: { display_duration?: number } | null;
+  metadata?: any;
 }
 
 export function UrgentAdminMessageModal() {

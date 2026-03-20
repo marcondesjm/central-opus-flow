@@ -1998,7 +1998,7 @@ export default function KanbanPage() {
       ) : (
         <ListView
           deals={filteredDeals}
-          columns={columns || []}
+          columns={visibleColumns}
           onEdit={d => { setEditDeal(d); setShowAddModal(true); }}
           onDelete={id => setDeletingId(id)}
           onDetail={d => setDetailDeal(d)}

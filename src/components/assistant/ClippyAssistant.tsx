@@ -19,6 +19,7 @@ const categoryLabels: Record<string, string> = {
   conta: 'Conta',
   configuracoes: 'Configurações',
   cobrancas: 'Cobranças',
+  ideias: 'Ideias',
 };
 
 const categoryColors: Record<string, string> = {

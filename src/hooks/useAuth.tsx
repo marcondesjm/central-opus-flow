@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .update({ 
                 last_sign_in_at: new Date().toISOString(),
                 last_active_at: new Date().toISOString()
-              })
+              } as any)
               .eq('user_id', session.user.id)
               .then(() => {});
           }, 0);
@@ -53,26 +53,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Check for existing session
+    // Check for existing session and immediately mark active
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
         sessionStartRef.current = Date.now();
+        // Immediately update last_active_at on page load
+        supabase
+          .from('profiles')
+          .update({ 
+            last_active_at: new Date().toISOString() 
+          } as any)
+          .eq('user_id', session.user.id)
+          .then(() => {});
       }
     });
 
-    // Heartbeat: update last_active_at every 5 minutes and accumulate session time
+    // Heartbeat: update last_active_at every 1 minute
     const heartbeat = setInterval(async () => {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       if (currentSession?.user) {
+        await supabase
+          .from('profiles')
+          .update({ 
+            last_active_at: new Date().toISOString()
+          } as any)
+          .eq('user_id', currentSession.user.id)
+          .then(() => {});
+        // Also accumulate session time
         await supabase.rpc('update_session_activity' as any, {
           _user_id: currentSession.user.id,
-          _minutes: 5
+          _minutes: 1
         }).then(() => {});
       }
-    }, 5 * 60 * 1000);
+    }, 60 * 1000);
 
     return () => {
       subscription.unsubscribe();

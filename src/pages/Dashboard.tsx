@@ -14,7 +14,7 @@ import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectList } from '@/components/projects/ProjectList';
 import { AddAccountModal } from '@/components/accounts/AddAccountModal';
 import { EditAccountModal } from '@/components/accounts/EditAccountModal';
-import { AddProjectModal } from '@/components/projects/AddProjectModal';
+import { AddProjectModal, type ProjectTemplate } from '@/components/projects/AddProjectModal';
 import { EditProjectModal } from '@/components/projects/EditProjectModal';
 import { ProjectHistoryModal } from '@/components/projects/ProjectHistoryModal';
 import { TagsManager } from '@/components/tags/TagsManager';
@@ -125,6 +125,7 @@ export default function Dashboard() {
   const [editAccountOpen, setEditAccountOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<LovableAccount | null>(null);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
+  const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate | null>(null);
   const [tagsManagerOpen, setTagsManagerOpen] = useState(false);
   const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -631,7 +632,7 @@ export default function Dashboard() {
           <ProjectCharts projects={projects} />
 
           {/* Activity Section */}
-          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={() => setAddProjectOpen(true)} />
+          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
 
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />
@@ -767,7 +768,8 @@ export default function Dashboard() {
       
       <AddProjectModal 
         open={addProjectOpen} 
-        onOpenChange={setAddProjectOpen} 
+        onOpenChange={(open) => { setAddProjectOpen(open); if (!open) setProjectTemplate(null); }}
+        template={projectTemplate}
       />
       
       <EditProjectModal

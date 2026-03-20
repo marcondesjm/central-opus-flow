@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -25,9 +25,16 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { CoverUpload } from './CoverUpload';
 
+export interface ProjectTemplate {
+  name: string;
+  description: string;
+  type: 'website' | 'landing' | 'app' | 'funnel' | 'other';
+}
+
 interface AddProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  template?: ProjectTemplate | null;
 }
 
 const projectTypes = [
@@ -55,7 +62,7 @@ const tagColors: Record<string, string> = {
   cyan: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400',
 };
 
-export function AddProjectModal({ open, onOpenChange }: AddProjectModalProps) {
+export function AddProjectModal({ open, onOpenChange, template }: AddProjectModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -69,6 +76,15 @@ export function AddProjectModal({ open, onOpenChange }: AddProjectModalProps) {
   const { data: tags = [] } = useTags();
   const createProject = useCreateProject();
   const { toast } = useToast();
+
+  // Pre-fill from template
+  useEffect(() => {
+    if (template && open) {
+      setName(template.name);
+      setDescription(template.description);
+      setType(template.type);
+    }
+  }, [template, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -344,6 +344,9 @@ export default function Dashboard() {
             },
           ]);
 
+        // Mark as seeded so it won't run again
+        localStorage.setItem(seedKey, 'true');
+
         if (!cancelled) {
           await queryClient.invalidateQueries();
         }

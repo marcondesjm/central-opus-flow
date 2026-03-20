@@ -190,8 +190,7 @@ export default function Reports() {
   const chartHeight = isMobile ? 220 : 280;
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppNavBar />
+    <AppLayout>
       {/* Header */}
       <div className="border-b bg-card px-3 md:px-6 py-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">

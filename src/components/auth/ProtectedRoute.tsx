@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Clock, Mail, AlertTriangle, MessageCircle } from 'lucide-react';
 import { addDays } from 'date-fns';
@@ -34,9 +34,17 @@ interface ProfileCompletion {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading, signOut } = useAuth();
+  const queryClient = useQueryClient();
   
   // Sincronização global em tempo real
   useGlobalSync();
+
+  // Forçar atualização de todos os dados ao abrir o sistema
+  useEffect(() => {
+    if (user) {
+      queryClient.invalidateQueries();
+    }
+  }, [user, queryClient]);
 
   const { data: subStatus, isLoading: statusLoading } = useQuery({
     queryKey: ['user-status', user?.id],

@@ -2007,12 +2007,12 @@ export default function KanbanPage() {
       )}
 
       {/* Modals */}
-      {showAddModal && columns && (
+      {showAddModal && visibleColumns.length > 0 && (
         <AddDealModal
           open={showAddModal}
           onOpenChange={v => { setShowAddModal(v); if (!v) setEditDeal(null); }}
           editDeal={freshEditDeal}
-          columns={columns}
+          columns={visibleColumns}
         />
       )}
 

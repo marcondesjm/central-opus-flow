@@ -169,9 +169,9 @@ export default function Dashboard() {
     showTour,
   } = useOnboarding();
 
-  const { seedDemoData, resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
+  const { resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
-  const [demoSeeded, setDemoSeeded] = useState(false);
+  const [_demoSeeded, _setDemoSeeded] = useState(false);
   const [demoResetDone, setDemoResetDone] = useState(() => {
     // Only reset once per browser session (sessionStorage clears on tab close)
     return sessionStorage.getItem('demo_data_reset') === 'true';
@@ -225,14 +225,8 @@ export default function Dashboard() {
     };
   }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
-  // Seed demo data for new users (non-demo accounts)
-  useEffect(() => {
-    if (!isDemoAccount && showTour && !demoSeeded && !accountsLoading && accounts.length === 0) {
-      seedDemoData().then((seeded) => {
-        if (seeded) setDemoSeeded(true);
-      });
-    }
-  }, [isDemoAccount, showTour, demoSeeded, accountsLoading, accounts.length, seedDemoData]);
+  // Demo data is exclusively for the demo account (usercentral@gmail.com)
+  // Do NOT seed demo data for admin or regular user accounts
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

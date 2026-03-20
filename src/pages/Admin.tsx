@@ -992,15 +992,25 @@ export default function Admin() {
                             <TableRow key={user.id} className={cn(isFrozen && "opacity-60", isPending && "bg-amber-500/5")}>
                               <TableCell>
                                 <div className="flex items-center gap-3">
-                                  <Avatar className="w-8 h-8">
-                                    <AvatarImage src={user.avatar_url || undefined} />
-                                    <AvatarFallback>
-                                      {user.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  <div className="relative">
+                                    <Avatar className="w-8 h-8">
+                                      <AvatarImage src={user.avatar_url || undefined} />
+                                      <AvatarFallback>
+                                        {user.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    {user.last_active_at && (Date.now() - new Date(user.last_active_at).getTime()) < 6 * 60 * 1000 && (
+                                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background animate-pulse" title="Online agora" />
+                                    )}
+                                  </div>
                                   <div>
-                                    <p className="font-medium text-sm">
+                                    <p className="font-medium text-sm flex items-center gap-1.5">
                                       {user.full_name || 'Sem nome'}
+                                      {user.last_active_at && (Date.now() - new Date(user.last_active_at).getTime()) < 6 * 60 * 1000 && (
+                                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 border-emerald-500 text-emerald-600 font-normal">
+                                          online
+                                        </Badge>
+                                      )}
                                     </p>
                                     <p className="text-xs text-muted-foreground">{user.email}</p>
                                   </div>

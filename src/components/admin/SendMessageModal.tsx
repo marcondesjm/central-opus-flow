@@ -388,6 +388,10 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
                             <Badge variant="outline" className="text-xs">
                               {sm.send_to === 'all' ? 'Todos' : 'Individual'}
                             </Badge>
+                            <Badge variant="secondary" className="text-xs gap-1">
+                              <Timer className="w-3 h-3" />
+                              {sm.display_duration || 30}s
+                            </Badge>
                           </div>
                         </div>
                         <div className="flex flex-col gap-1 shrink-0">

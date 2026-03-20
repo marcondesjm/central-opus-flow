@@ -4,6 +4,8 @@ import { MobileSidebar } from './MobileSidebar';
 import { MobileBottomNav } from './MobileBottomNav';
 import { AppFooter } from './AppFooter';
 import { useAccounts, LovableAccount } from '@/hooks/useProjects';
+import { AddAccountModal } from '@/components/accounts/AddAccountModal';
+import { EditAccountModal } from '@/components/accounts/EditAccountModal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
   const [activeView, setActiveView] = useState('all');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [addAccountOpen, setAddAccountOpen] = useState(false);
+  const [editAccountOpen, setEditAccountOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<LovableAccount | null>(null);
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'; } catch { return false; }
   });
@@ -66,6 +71,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     onAccountChange: handleAccountChange,
     accounts,
     isLoading: accountsLoading,
+    onAddAccount: () => setAddAccountOpen(true),
+    onEditAccount: (account: LovableAccount) => {
+      setEditingAccount(account);
+      setEditAccountOpen(true);
+    },
   };
 
   return (

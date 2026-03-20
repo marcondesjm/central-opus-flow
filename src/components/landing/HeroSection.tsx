@@ -1,77 +1,92 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Rocket, Play, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export function HeroSection() {
   return (
-    <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 px-4 overflow-hidden">
-      {/* Subtle background glow */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/[0.04] rounded-full blur-[120px] -z-10" />
+    <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 px-4 overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/[0.07] rounded-full blur-[150px] pointer-events-none" />
 
-      <div className="container mx-auto text-center max-w-[640px] relative">
+      <div className="container mx-auto max-w-4xl relative">
+        {/* Eyebrow */}
+        <motion.div
+          className="flex justify-center mb-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Link to="/demo" className="group">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-card/50 backdrop-blur text-xs text-muted-foreground hover:border-primary/40 transition-colors">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Novo: Pipeline Kanban com automações
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+        </motion.div>
+
+        {/* Headline */}
         <motion.h1
-          className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.08] text-foreground"
+          className="text-center text-[clamp(2rem,5.5vw,4.25rem)] font-bold leading-[1.08] tracking-[-0.03em] text-foreground mb-6"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7, delay: 0.05 }}
         >
-          Controle todas as suas contas e projetos{' '}
-          <span className="text-primary">em segundos</span>
+          Gerencie projetos, clientes e
+          <br className="hidden sm:block" />
+          finanças em um só lugar
         </motion.h1>
 
+        {/* Subheadline */}
         <motion.p
-          className="text-base md:text-lg text-muted-foreground mb-10 max-w-[520px] mx-auto leading-relaxed"
+          className="text-center text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          transition={{ duration: 0.7, delay: 0.12 }}
         >
-          Encontre qualquer projeto com um comando, centralize tudo e ganhe até{' '}
-          <strong className="text-foreground">2h por semana</strong> automaticamente.
+          Central Opus Flow é a plataforma que centraliza contas, projetos,
+          kanban, propostas e cobranças — para freelancers e agências que
+          querem escalar sem caos.
         </motion.p>
 
+        {/* CTAs */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
         >
           <Link to="/auth">
             <Button
               size="lg"
-              className="text-base px-8 h-14 rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 group active:scale-[0.97]"
+              className="h-12 px-7 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.97]"
             >
-              <Rocket className="w-5 h-5 mr-2" />
-              Criar minha conta grátis
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              Começar grátis
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
           <Link to="/demo">
             <Button
-              variant="ghost"
+              variant="outline"
               size="lg"
-              className="text-base px-6 h-14 rounded-full font-semibold text-muted-foreground hover:text-foreground transition-colors active:scale-[0.97]"
+              className="h-12 px-7 rounded-xl text-sm font-semibold border-border/60 hover:bg-muted/50 active:scale-[0.97]"
             >
-              <Play className="w-4 h-4 mr-2" />
-              Ver como funciona (30s)
+              <Play className="w-3.5 h-3.5 mr-2 fill-current" />
+              Ver demonstração
             </Button>
           </Link>
         </motion.div>
 
-        {/* Trust signals */}
-        <motion.div
-          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground"
+        {/* Trust line */}
+        <motion.p
+          className="text-center text-xs text-muted-foreground/60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
+          transition={{ duration: 0.7, delay: 0.35 }}
         >
-          {['7 dias grátis', 'Sem cartão de crédito', 'Cancele quando quiser'].map((text) => (
-            <span key={text} className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-              {text}
-            </span>
-          ))}
-        </motion.div>
+          Grátis por 7 dias · Sem cartão de crédito · Cancele quando quiser
+        </motion.p>
       </div>
     </section>
   );

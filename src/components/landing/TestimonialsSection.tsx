@@ -1,78 +1,63 @@
 import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Carlos Silva',
-    role: 'Freelancer de Web',
     content: 'Economizei 3 horas por semana. Eu tinha 3 contas e perdia tempo só procurando projetos. Agora encontro tudo em segundos.',
+    name: 'Carlos S.',
+    role: 'Freelancer',
     initials: 'CS',
   },
   {
-    name: 'Ana Rodrigues',
-    role: 'Dona de Agência',
     content: 'Gerencio 8 contas de clientes diferentes. O Central Opus Flow salvou minha sanidade mental. Recomendo para qualquer agência.',
+    name: 'Ana R.',
+    role: 'Dona de Agência',
     initials: 'AR',
   },
   {
-    name: 'Pedro Santos',
-    role: 'Desenvolvedor Full-Stack',
-    content: 'A busca com Ctrl+K é viciante. Nunca mais precisei lembrar em qual conta estava cada projeto. Vale cada centavo.',
+    content: 'A busca com Ctrl+K é viciante. Nunca mais precisei lembrar em qual conta estava cada projeto. O kanban com financeiro é um diferencial.',
+    name: 'Pedro S.',
+    role: 'Dev Full-Stack',
     initials: 'PS',
   },
 ];
 
 export function TestimonialsSection() {
   return (
-    <section className="py-20 md:py-28 px-4 bg-muted/30">
+    <section className="py-24 md:py-32 px-4">
       <div className="container mx-auto max-w-5xl">
         <motion.div
-          className="text-center mb-14"
+          className="mb-16"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Depoimentos
-          </span>
-          <h2 className="text-2xl md:text-4xl font-extrabold mt-3 mb-4 tracking-tight">
-            Quem usa, recomenda
+          <p className="text-xs font-medium uppercase tracking-widest text-primary/80 mb-3">Depoimentos</p>
+          <h2 className="text-2xl md:text-[2.5rem] font-bold tracking-[-0.02em]">
+            Quem usa, recomenda.
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            Veja o que desenvolvedores e agências dizem sobre o Central Opus Flow.
-          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {testimonials.map((t, i) => (
             <motion.div
-              key={index}
-              className="bg-card border border-border rounded-2xl p-6 relative hover:border-primary/30 transition-colors duration-300"
-              initial={{ opacity: 0, y: 16 }}
+              key={i}
+              className="bg-card border border-border/40 rounded-xl p-6 hover:border-border/80 transition-colors duration-300"
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
+              transition={{ duration: 0.4, delay: i * 0.06 }}
             >
-              <Quote className="absolute top-5 right-5 w-7 h-7 text-primary/10" />
-
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                ))}
-              </div>
-
-              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                 "{t.content}"
               </p>
-
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xs">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
                   {t.initials}
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                  <p className="text-sm font-medium">{t.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{t.role}</p>
                 </div>
               </div>
             </motion.div>

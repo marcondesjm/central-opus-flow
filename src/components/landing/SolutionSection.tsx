@@ -1,100 +1,76 @@
 import { motion } from 'framer-motion';
-import { Zap, Target, Sparkles } from 'lucide-react';
+import { Zap, Target, Sparkles, BarChart3, FileText, MessageSquare } from 'lucide-react';
 
 const solutions = [
   {
     icon: Zap,
-    title: 'Encontre qualquer projeto em segundos',
-    description: 'Pressione Ctrl+K e busque em todas as contas instantaneamente.',
+    title: 'Busca global instantânea',
+    description: 'Ctrl+K e encontre qualquer projeto, deal ou proposta em todas as contas.',
   },
   {
     icon: Target,
-    title: 'Tudo organizado em um painel visual',
-    description: 'Todos os projetos, status e métricas em uma única tela limpa.',
+    title: 'Pipeline visual de vendas',
+    description: 'Kanban com drag & drop, checklists, prioridades e acompanhamento de progresso.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Financeiro integrado',
+    description: 'Receitas, despesas, lucro líquido e margens por deal — tudo automático.',
+  },
+  {
+    icon: FileText,
+    title: 'Propostas profissionais',
+    description: 'Crie, envie e acompanhe propostas comerciais com assinatura digital.',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Cobranças automáticas',
+    description: 'Agende lembretes de pagamento via WhatsApp na data programada.',
   },
   {
     icon: Sparkles,
-    title: 'Visão completa sem alternar contas',
-    description: 'Conecte múltiplas contas e veja tudo centralizado, sem login extra.',
+    title: 'Multi-contas unificadas',
+    description: 'Conecte todas as suas contas e veja tudo em um único painel.',
   },
 ];
 
 export function SolutionSection() {
   return (
-    <section className="py-20 md:py-28 px-4">
+    <section className="py-24 md:py-32 px-4 bg-muted/20">
       <div className="container mx-auto max-w-5xl">
         <motion.div
-          className="text-center mb-14"
+          className="mb-16 max-w-2xl"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-            A solução
-          </span>
-          <h2 className="text-2xl md:text-4xl font-extrabold mt-3 mb-4 tracking-tight">
-            Um único painel para{' '}
-            <span className="text-primary">todos os seus projetos</span>
+          <p className="text-xs font-medium uppercase tracking-widest text-primary/80 mb-3">A solução</p>
+          <h2 className="text-2xl md:text-[2.5rem] font-bold leading-tight tracking-[-0.02em]">
+            Um sistema completo para
+            <span className="text-primary"> gerenciar tudo.</span>
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            O Central Opus Flow centraliza todas as suas contas e integrações em um dashboard inteligente.
+          <p className="text-muted-foreground mt-4 text-base">
+            Pare de alternar entre 5 ferramentas. O Central Opus Flow reúne projetos,
+            vendas, finanças e cobranças em uma única plataforma.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          {/* Left – benefits */}
-          <motion.div
-            className="space-y-7"
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-          >
-            {solutions.map((item) => (
-              <div key={item.title} className="flex gap-4">
-                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <item.icon className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base mb-1">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Right – mini-UI mockup */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="relative bg-card border border-border rounded-2xl p-6 shadow-xl">
-              {/* Search bar */}
-              <div className="bg-muted rounded-lg px-4 py-3 flex items-center gap-3 mb-4">
-                <span className="text-muted-foreground text-sm">🔍 Buscar projetos...</span>
-                <span className="ml-auto text-xs bg-background px-2 py-1 rounded border border-border">⌘K</span>
-              </div>
-
-              {/* Account rows */}
-              {[
-                { color: 'bg-blue-500', name: 'Conta Trabalho', projects: 18 },
-                { color: 'bg-emerald-500', name: 'Conta Freelance', projects: 12 },
-                { color: 'bg-amber-500', name: 'Conta Pessoal', projects: 7 },
-              ].map((account, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg mb-2 last:mb-0">
-                  <div className={`w-2.5 h-2.5 rounded-full ${account.color}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{account.name}</p>
-                    <p className="text-xs text-muted-foreground">{account.projects} projetos</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border/40 rounded-2xl overflow-hidden border border-border/40">
+          {solutions.map((item, i) => (
+            <motion.div
+              key={item.title}
+              className="bg-card p-6 md:p-8 hover:bg-muted/30 transition-colors duration-300"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+            >
+              <item.icon className="w-5 h-5 text-primary mb-4" />
+              <h3 className="font-semibold text-sm mb-2">{item.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

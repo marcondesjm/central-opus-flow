@@ -1,10 +1,10 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useCallback } from 'react';
 import { Sidebar } from './Sidebar';
 import { MobileSidebar } from './MobileSidebar';
 import { MobileBottomNav } from './MobileBottomNav';
 import { AppFooter } from './AppFooter';
 import { useAccounts, LovableAccount } from '@/hooks/useProjects';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     try { return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'; } catch { return false; }
   });
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleCollapsed = () => {
     const next = !collapsed;
@@ -44,9 +45,17 @@ export function AppLayout({ children }: AppLayoutProps) {
     return activeView;
   };
 
+  const handleViewChange = useCallback((view: string) => {
+    setActiveView(view);
+    // Always navigate to dashboard when selecting a sidebar view
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+    }
+  }, [location.pathname, navigate]);
+
   const sidebarProps = {
     activeView: getActiveViewFromRoute(),
-    onViewChange: setActiveView,
+    onViewChange: handleViewChange,
     selectedAccount,
     onAccountChange: setSelectedAccount,
     accounts,
@@ -100,7 +109,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </main>
         </div>
       </div>
-      <MobileBottomNav activeView={getActiveViewFromRoute()} onViewChange={setActiveView} onNewProject={() => {}} />
+      <MobileBottomNav activeView={getActiveViewFromRoute()} onViewChange={handleViewChange} onNewProject={() => {}} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { AppNavBar } from '@/components/layout/AppNavBar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { useIdeas, useCreateIdea, useUpdateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';

@@ -1189,7 +1189,10 @@ export default function KanbanPage() {
     return columns.filter(c => (c as any).space_id === activeSpaceId || (c as any).space_id === null);
   }, [columns, activeSpaceId]);
 
-  const dealsByColumn = useMemo(() => {
+  // Optimistic local state for drag-and-drop
+  const [localDealOverrides, setLocalDealOverrides] = useState<Record<string, KanbanDeal[]> | null>(null);
+
+  const computedDealsByColumn = useMemo(() => {
     const now = new Date();
     const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
     
@@ -1226,6 +1229,14 @@ export default function KanbanPage() {
     Object.keys(map).forEach(key => { map[key] = sortDeals(map[key]); });
     return map;
   }, [filteredDeals, visibleColumns, sortMode]);
+
+  // Use local overrides when dragging, otherwise use computed
+  const dealsByColumn = localDealOverrides || computedDealsByColumn;
+
+  // Clear local overrides when query data changes (after DB sync)
+  useEffect(() => {
+    setLocalDealOverrides(null);
+  }, [filteredDeals]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
@@ -1266,66 +1277,68 @@ export default function KanbanPage() {
     // Handle deal dragging
     const sourcePhase = source.droppableId;
     const destinationPhase = destination.droppableId;
-    const sourceDeals = [...(dealsByColumn[sourcePhase] || [])];
+    
+    // Build optimistic state from current dealsByColumn
+    const newDealsByColumn = { ...dealsByColumn };
+    const sourceDeals = [...(newDealsByColumn[sourcePhase] || [])];
     const sourceDealIndex = sourceDeals.findIndex(d => d.id === draggableId);
     if (sourceDealIndex === -1) return;
 
     const [movedDeal] = sourceDeals.splice(sourceDealIndex, 1);
 
-    // Reorder inside the same column
     if (sourcePhase === destinationPhase) {
+      // Reorder inside the same column
       sourceDeals.splice(destination.index, 0, movedDeal);
+      newDealsByColumn[sourcePhase] = sourceDeals;
+    } else {
+      // Move between columns
+      const destinationDeals = [...(newDealsByColumn[destinationPhase] || [])];
+      destinationDeals.splice(destination.index, 0, { ...movedDeal, phase: destinationPhase });
+      newDealsByColumn[sourcePhase] = sourceDeals;
+      newDealsByColumn[destinationPhase] = destinationDeals;
+    }
 
+    // Apply optimistic update IMMEDIATELY
+    setLocalDealOverrides(newDealsByColumn);
+
+    // Persist to DB in background
+    if (sourcePhase === destinationPhase) {
       await Promise.all(
         sourceDeals.map((deal, index) =>
-          supabase
-            .from('kanban_deals')
-            .update({ position: index })
-            .eq('id', deal.id)
+          supabase.from('kanban_deals').update({ position: index }).eq('id', deal.id)
         )
       );
-      queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
-      return;
-    }
-
-    // Move between columns
-    const destinationDeals = [...(dealsByColumn[destinationPhase] || [])];
-    destinationDeals.splice(destination.index, 0, { ...movedDeal, phase: destinationPhase });
-
-    await Promise.all([
-      ...sourceDeals.map((deal, index) =>
-        supabase
-          .from('kanban_deals')
-          .update({ position: index })
-          .eq('id', deal.id)
-      ),
-      ...destinationDeals.map((deal, index) =>
-        supabase
-          .from('kanban_deals')
-          .update({
+    } else {
+      const destDeals = newDealsByColumn[destinationPhase] || [];
+      await Promise.all([
+        ...sourceDeals.map((deal, index) =>
+          supabase.from('kanban_deals').update({ position: index }).eq('id', deal.id)
+        ),
+        ...destDeals.map((deal, index) =>
+          supabase.from('kanban_deals').update({
             position: index,
             ...(deal.id === movedDeal.id ? { phase: destinationPhase } : {}),
-          })
-          .eq('id', deal.id)
-      ),
-    ]);
+          }).eq('id', deal.id)
+        ),
+      ]);
+
+      const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
+      const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
+
+      if (movedDeal.client_email || movedDeal.client_whatsapp) {
+        setPhaseChangeNotification({
+          dealId: movedDeal.id,
+          clientName: movedDeal.client_name,
+          clientEmail: movedDeal.client_email,
+          clientWhatsapp: movedDeal.client_whatsapp,
+          companyName: movedDeal.company_name,
+          oldPhaseName: oldColumn?.name || 'Anterior',
+          newPhaseName: newColumn?.name || 'Nova',
+        });
+      }
+    }
 
     queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
-
-    const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
-    const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
-
-    if (movedDeal.client_email || movedDeal.client_whatsapp) {
-      setPhaseChangeNotification({
-        dealId: movedDeal.id,
-        clientName: movedDeal.client_name,
-        clientEmail: movedDeal.client_email,
-        clientWhatsapp: movedDeal.client_whatsapp,
-        companyName: movedDeal.company_name,
-        oldPhaseName: oldColumn?.name || 'Anterior',
-        newPhaseName: newColumn?.name || 'Nova',
-      });
-    }
   };
 
   const kanbanRef = useRef<HTMLDivElement>(null);
@@ -1938,7 +1951,18 @@ export default function KanbanPage() {
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
-                                        className={snapshot.isDragging ? 'opacity-90 rotate-1' : ''}
+                                        className={cn(
+                                          'transition-shadow duration-200',
+                                          snapshot.isDragging 
+                                            ? 'shadow-xl shadow-primary/20 scale-[1.02] rotate-1 z-50' 
+                                            : 'hover:shadow-md'
+                                        )}
+                                        style={{
+                                          ...provided.draggableProps.style,
+                                          transition: snapshot.isDragging
+                                            ? provided.draggableProps.style?.transition
+                                            : 'transform 0.2s cubic-bezier(0.2,1,0.3,1), box-shadow 0.2s ease-out',
+                                        }}
                                       >
                                         <TaskCard
                                           deal={deal}

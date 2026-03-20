@@ -79,12 +79,17 @@ export function useAccounts() {
     queryKey: ['accounts', user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('lovable_accounts')
+        .from('lovable_accounts_safe')
         .select('*')
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      return data as LovableAccount[];
+      return (data || []).map(acc => ({
+        ...acc,
+        // Map safe fields back to legacy interface for compatibility
+        anon_key: acc.anon_key_masked || null,
+        service_role_key: acc.service_role_key_masked || null,
+      })) as unknown as LovableAccount[];
     },
     enabled: !!user,
   });

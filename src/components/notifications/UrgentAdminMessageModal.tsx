@@ -88,7 +88,11 @@ export function UrgentAdminMessageModal() {
     const fetchUrgent = async () => {
       const { data } = await supabase
         .from('collaboration_notifications')
-        .select('id, title, message, created_at')
+        .select('id, title, message, created_at, metadata')
+        .eq('user_id', user.id)
+        .eq('type', 'admin_message')
+        .is('read_at', null)
+        .order('created_at', { ascending: false });
         .eq('user_id', user.id)
         .eq('type', 'admin_message')
         .is('read_at', null)

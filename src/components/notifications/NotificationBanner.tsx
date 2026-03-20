@@ -83,7 +83,7 @@ export function NotificationBanner({ notifications, onMarkAsRead }: Notification
   const hiddenCount = visibleNotifications.length - shown.length;
 
   return (
-    <div className="fixed top-20 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div className="fixed top-20 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       <AnimatePresence>
         {shown.map((notification) => {
           const isScheduledMsg = notification.notificationType === 'scheduled_message';

@@ -61,10 +61,10 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
-    await queryClient.invalidateQueries({ queryKey: ['changelog'] });
-    await queryClient.invalidateQueries({ queryKey: ['latest-version'] });
-    await queryClient.invalidateQueries({ queryKey: ['system-version'] });
+    await queryClient.refetchQueries({ queryKey: ['changelog-by-version'] });
+    await queryClient.refetchQueries({ queryKey: ['changelog'] });
+    await queryClient.refetchQueries({ queryKey: ['latest-version'] });
+    await queryClient.refetchQueries({ queryKey: ['system-version'] });
     toast.success('Histórico atualizado!');
     setIsRefreshing(false);
   };

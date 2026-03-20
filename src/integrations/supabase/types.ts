@@ -101,6 +101,48 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_scheduled_messages: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          message: string
+          scheduled_at: string
+          send_to: string
+          sent: boolean
+          sent_at: string | null
+          target_user_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          message: string
+          scheduled_at: string
+          send_to?: string
+          sent?: boolean
+          sent_at?: string | null
+          target_user_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          message?: string
+          scheduled_at?: string
+          send_to?: string
+          sent?: boolean
+          sent_at?: string | null
+          target_user_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       api_tokens: {
         Row: {
           created_at: string

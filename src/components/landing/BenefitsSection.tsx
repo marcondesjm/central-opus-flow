@@ -1,68 +1,46 @@
 import { motion } from 'framer-motion';
-import { Clock, Target, Eye, TrendingUp } from 'lucide-react';
+import { Clock, Zap, Eye, TrendingUp } from 'lucide-react';
 
 const benefits = [
-  {
-    icon: Clock,
-    value: '2h',
-    label: 'por semana',
-    description: 'Economize tempo eliminando a troca entre contas',
-  },
-  {
-    icon: Target,
-    value: '10x',
-    label: 'mais rápido',
-    description: 'Encontre projetos com busca instantânea',
-  },
-  {
-    icon: Eye,
-    value: '100%',
-    label: 'visibilidade',
-    description: 'Veja todos os projetos em um único lugar',
-  },
-  {
-    icon: TrendingUp,
-    value: '+40%',
-    label: 'produtividade',
-    description: 'Foque no que importa, não em organização',
-  },
+  { icon: Clock, value: '2h', label: 'por semana', description: 'Economize eliminando troca entre contas' },
+  { icon: Zap, value: '10x', label: 'mais rápido', description: 'Encontre projetos com busca global' },
+  { icon: Eye, value: '100%', label: 'visibilidade', description: 'Todos os projetos num único lugar' },
+  { icon: TrendingUp, value: '+40%', label: 'produtividade', description: 'Foque no que importa' },
 ];
 
 export function BenefitsSection() {
   return (
-    <section className="py-16 md:py-24 px-4 bg-primary text-primary-foreground">
-      <div className="container mx-auto max-w-5xl">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
+    <section className="py-20 md:py-28 px-4 bg-primary text-primary-foreground">
+      <div className="container mx-auto max-w-4xl">
+        <motion.div
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className="text-2xl md:text-4xl font-bold mb-4">
+          <h2 className="text-2xl md:text-4xl font-extrabold mb-4 tracking-tight">
             Resultados reais para o seu dia a dia
           </h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto text-lg">
-            Nossos usuários relatam ganhos significativos de produtividade 
-            logo na primeira semana de uso.
+          <p className="text-primary-foreground/70 max-w-lg mx-auto">
+            Nossos usuários relatam ganhos significativos de produtividade logo na primeira semana.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {benefits.map((benefit, index) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {benefits.map((b, i) => (
             <motion.div
-              key={benefit.label}
+              key={b.label}
               className="text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
             >
-              <div className="w-16 h-16 rounded-full bg-primary-foreground/10 flex items-center justify-center mx-auto mb-4">
-                <benefit.icon className="w-8 h-8" />
-              </div>
-              <div className="text-3xl md:text-4xl font-bold mb-1">{benefit.value}</div>
-              <div className="text-sm font-medium mb-2 opacity-90">{benefit.label}</div>
-              <p className="text-xs opacity-70">{benefit.description}</p>
+              <b.icon className="w-7 h-7 mx-auto mb-3 opacity-80" />
+              <div className="text-3xl md:text-4xl font-extrabold tabular-nums">{b.value}</div>
+              <div className="text-sm font-medium opacity-90 mb-1">{b.label}</div>
+              <p className="text-xs opacity-60">{b.description}</p>
             </motion.div>
           ))}
         </div>

@@ -1,123 +1,48 @@
 import { Button } from '@/components/ui/button';
-import { FolderKanban, Play, ArrowRight, Menu } from 'lucide-react';
+import { FolderKanban, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 
 export function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
-  const { t } = useTranslation();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <header 
+    <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-        scrolled 
-          ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm' 
+        scrolled
+          ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
           : 'bg-transparent'
       )}
     >
-      <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-            <FolderKanban className="w-5 h-5 text-primary-foreground" />
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+            <FolderKanban className="w-4.5 h-4.5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-xl tracking-tight">Central Opus Flow</span>
+          <span className="font-bold text-lg tracking-tight">Central Opus Flow</span>
         </Link>
-        
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {t('common.features')}
-          </a>
-          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {t('common.pricing')}
-          </a>
-          <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {t('common.blog')}
-          </Link>
-          <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {t('common.faq')}
-          </a>
-        </nav>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Actions */}
+        <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
-          <Link to="/demo">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Play className="w-4 h-4 mr-2" />
-              Demo
-            </Button>
-          </Link>
           <Link to="/auth">
-            <Button size="sm" className="shadow-md hover:shadow-lg transition-shadow">
-              {t('common.startFree')}
-              <ArrowRight className="w-4 h-4 ml-2" />
+            <Button size="sm" className="hidden sm:inline-flex shadow-sm">
+              Começar grátis
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Button>
           </Link>
-        </div>
-
-        {/* Mobile Nav */}
-        <div className="flex md:hidden items-center gap-2">
-          <LanguageSwitcher />
-          <ThemeToggle />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-80">
-              <div className="flex flex-col gap-6 mt-8">
-                <nav className="flex flex-col gap-4">
-                  <a href="#features" className="text-lg font-medium hover:text-primary transition-colors">
-                    {t('common.features')}
-                  </a>
-                  <a href="#pricing" className="text-lg font-medium hover:text-primary transition-colors">
-                    {t('common.pricing')}
-                  </a>
-                  <Link to="/blog" className="text-lg font-medium hover:text-primary transition-colors">
-                    {t('common.blog')}
-                  </Link>
-                  <a href="#faq" className="text-lg font-medium hover:text-primary transition-colors">
-                    {t('common.faq')}
-                  </a>
-                </nav>
-                <div className="h-px bg-border" />
-                <Link to="/demo">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Play className="w-4 h-4 mr-2" />
-                    {t('common.viewDemo')}
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button className="w-full">
-                    {t('common.startFree')}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
     </header>

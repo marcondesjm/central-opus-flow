@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
+import { SocialProofBar } from '@/components/landing/SocialProofBar';
 import { DashboardPreview } from '@/components/landing/DashboardPreview';
 import { ProblemSection } from '@/components/landing/ProblemSection';
 import { SolutionSection } from '@/components/landing/SolutionSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
-import { TargetAudienceSection } from '@/components/landing/TargetAudienceSection';
-import { BenefitsSection } from '@/components/landing/BenefitsSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
+import { BenefitsSection } from '@/components/landing/BenefitsSection';
 import { PricingSection } from '@/components/landing/PricingSection';
 import { LaunchPromoSection } from '@/components/landing/LaunchPromoSection';
 import { TrustSection } from '@/components/landing/TrustSection';
@@ -28,54 +28,50 @@ export default function Landing() {
       navigate('/dashboard', { replace: true });
     }
   }, [user, loading, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Social Proof Notifications */}
       <SocialProofNotification />
-      
-      {/* WhatsApp Support Button */}
       <WhatsAppSupportButton />
-      
-      {/* Header */}
       <LandingHeader />
 
-      {/* Hero Section */}
+      {/* 1. Hero — valor direto */}
       <HeroSection />
 
-      {/* Dashboard Preview */}
+      {/* 2. Prova social */}
+      <SocialProofBar />
+
+      {/* 3. Preview do dashboard */}
       <DashboardPreview />
 
-      {/* Problem Section */}
+      {/* 4. Problema */}
       <ProblemSection />
 
-      {/* Solution Section */}
+      {/* 5. Solução */}
       <SolutionSection />
 
-      {/* Features Section */}
+      {/* 6. Features */}
       <FeaturesSection />
 
-      {/* Target Audience */}
-      <TargetAudienceSection />
-
-      {/* Benefits / Results */}
+      {/* 7. Resultados */}
       <BenefitsSection />
 
-      {/* Testimonials */}
+      {/* 8. Depoimentos */}
       <TestimonialsSection />
 
-      {/* Pricing */}
+      {/* 9. Pricing */}
       <PricingSection />
 
-      {/* Launch Promo */}
+      {/* 10. Promo */}
       <LaunchPromoSection />
 
-      {/* Trust Signals */}
+      {/* 11. Trust */}
       <TrustSection />
 
-      {/* FAQ */}
+      {/* 12. FAQ */}
       <FAQSection />
 
-      {/* Final CTA */}
+      {/* 13. CTA final */}
       <FinalCTASection />
 
       {/* Footer */}

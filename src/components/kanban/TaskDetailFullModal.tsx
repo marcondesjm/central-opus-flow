@@ -33,6 +33,8 @@ import { format, isBefore, isToday, formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { ptBR } from 'date-fns/locale';
 import { RichTextEditor, RichTextDisplay } from '@/components/kanban/RichTextEditor';
+import { supabase } from '@/integrations/supabase/client';
+import { AvatarImage } from '@/components/ui/avatar';
 
 interface TaskDetailFullModalProps {
   deal: KanbanDeal;

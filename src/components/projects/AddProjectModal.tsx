@@ -62,7 +62,7 @@ const tagColors: Record<string, string> = {
   cyan: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400',
 };
 
-export function AddProjectModal({ open, onOpenChange }: AddProjectModalProps) {
+export function AddProjectModal({ open, onOpenChange, template }: AddProjectModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');

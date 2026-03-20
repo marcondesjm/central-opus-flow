@@ -62,11 +62,14 @@ Deno.serve(async (req) => {
         adminClient.from("kanban_expenses").delete().eq("user_id", demoUserId),
         adminClient.from("kanban_task_checklist").delete().eq("user_id", demoUserId),
         adminClient.from("kanban_scheduled_messages").delete().eq("user_id", demoUserId),
+        adminClient.from("kanban_spaces").delete().eq("user_id", demoUserId),
         adminClient.from("tags").delete().eq("user_id", demoUserId),
         adminClient.from("pix_keys").delete().eq("user_id", demoUserId),
         adminClient.from("wordpress_connections").delete().eq("user_id", demoUserId),
         adminClient.from("activity_logs").delete().eq("user_id", demoUserId),
         adminClient.from("deadline_notification_settings").delete().eq("user_id", demoUserId),
+        adminClient.from("ideas").delete().eq("user_id", demoUserId),
+        adminClient.from("proposals").delete().eq("user_id", demoUserId),
       ]);
     } else {
       // Create demo user
@@ -169,310 +172,292 @@ Deno.serve(async (req) => {
         .insert({ user_id: demoUserId, role: "viewer" });
     }
 
-    // 5. Clone accounts
-    const { data: adminAccounts } = await adminClient
-      .from("lovable_accounts")
-      .select("*")
-      .eq("user_id", adminUserId);
+    // 5. Create demo accounts (NOT cloned from admin)
+    const demoAccounts = [
+      { name: "Agência Digital Pro", email: "contato@agenciapro.com", color: "emerald", credits: 2500, notes: "Conta principal da agência" },
+      { name: "Startup Tech", email: "admin@startuptech.io", color: "blue", credits: 1200, notes: "Projetos de tecnologia" },
+      { name: "Freelancer Design", email: "designer@outlook.com", color: "amber", credits: 800, notes: "Trabalhos freelance" },
+    ];
 
     const accountIdMap: Record<string, string> = {};
+    const accountIds: string[] = [];
 
-    if (adminAccounts && adminAccounts.length > 0) {
-      for (const acc of adminAccounts) {
-        const newId = crypto.randomUUID();
-        accountIdMap[acc.id] = newId;
-        await adminClient.from("lovable_accounts").insert({
-          id: newId,
-          user_id: demoUserId,
-          name: acc.name,
-          email: acc.email,
-          color: acc.color,
-          credits: acc.credits,
-          admin_email: acc.admin_email,
-          supabase_project_id: acc.supabase_project_id,
-          supabase_url: acc.supabase_url,
-          anon_key: acc.anon_key,
-          service_role_key: acc.service_role_key,
-          notes: acc.notes,
-        });
-      }
+    for (const acc of demoAccounts) {
+      const newId = crypto.randomUUID();
+      accountIds.push(newId);
+      await adminClient.from("lovable_accounts").insert({
+        id: newId,
+        user_id: demoUserId,
+        name: acc.name,
+        email: acc.email,
+        color: acc.color,
+        credits: acc.credits,
+        notes: acc.notes,
+      });
     }
 
-    // 6. Clone tags
-    const { data: adminTags } = await adminClient
-      .from("tags")
-      .select("*")
-      .eq("user_id", adminUserId);
+    // 6. Create demo tags
+    const demoTags = [
+      { name: "E-commerce", color: "blue" },
+      { name: "Landing Page", color: "emerald" },
+      { name: "SaaS", color: "violet" },
+      { name: "Dashboard", color: "amber" },
+      { name: "Mobile", color: "rose" },
+    ];
 
-    const tagIdMap: Record<string, string> = {};
-
-    if (adminTags && adminTags.length > 0) {
-      for (const tag of adminTags) {
-        const newId = crypto.randomUUID();
-        tagIdMap[tag.id] = newId;
-        await adminClient.from("tags").insert({
-          id: newId,
-          user_id: demoUserId,
-          name: tag.name,
-          color: tag.color,
-        });
-      }
+    const tagIds: string[] = [];
+    for (const tag of demoTags) {
+      const newId = crypto.randomUUID();
+      tagIds.push(newId);
+      await adminClient.from("tags").insert({
+        id: newId,
+        user_id: demoUserId,
+        name: tag.name,
+        color: tag.color,
+      });
     }
 
-    // 7. Clone projects
-    const { data: adminProjects } = await adminClient
-      .from("projects")
-      .select("*")
-      .eq("user_id", adminUserId);
+    // 7. Create demo projects (examples, NOT real projects)
+    const demoProjects = [
+      {
+        name: "Loja Virtual ModaExpress",
+        description: "E-commerce completo com carrinho, checkout integrado ao Stripe e painel admin para gestão de produtos e pedidos.",
+        url: "https://modaexpress-demo.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+        status: "published",
+        type: "website",
+        progress: 100,
+        is_favorite: true,
+        notes: "Projeto finalizado e em produção. Cliente satisfeito.",
+        account_idx: 0,
+        tag_idxs: [0],
+      },
+      {
+        name: "App Gestão Financeira",
+        description: "Aplicação SaaS para controle financeiro pessoal com gráficos, categorias e exportação de relatórios.",
+        url: "https://fincontrol-demo.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+        status: "published",
+        type: "app",
+        progress: 95,
+        is_favorite: true,
+        notes: "Último ajuste pendente: notificações push.",
+        account_idx: 1,
+        tag_idxs: [2, 3],
+      },
+      {
+        name: "Landing Page FitLife Academy",
+        description: "Página de captura com VSL, depoimentos e integração com email marketing para curso de fitness online.",
+        url: "https://fitlife-landing.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
+        status: "published",
+        type: "landing",
+        progress: 100,
+        is_favorite: false,
+        account_idx: 0,
+        tag_idxs: [1],
+      },
+      {
+        name: "Dashboard Imobiliária",
+        description: "Painel administrativo para imobiliária com listagem de imóveis, agendamento de visitas e CRM integrado.",
+        url: "https://imotech-dash.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
+        status: "draft",
+        type: "app",
+        progress: 60,
+        is_favorite: false,
+        notes: "Em desenvolvimento - falta integrar mapa e filtros avançados.",
+        account_idx: 1,
+        tag_idxs: [3],
+      },
+      {
+        name: "Portfolio Criativo",
+        description: "Site portfolio responsivo com animações, galeria de trabalhos e formulário de contato.",
+        url: "https://portfolio-criativo.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&q=80",
+        status: "draft",
+        type: "website",
+        progress: 35,
+        is_favorite: false,
+        notes: "Cliente pediu revisão nas cores e tipografia.",
+        account_idx: 2,
+        tag_idxs: [1],
+      },
+      {
+        name: "App Delivery PetShop",
+        description: "Aplicativo mobile-first para delivery de produtos pet com rastreamento e avaliações.",
+        url: null,
+        screenshot: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80",
+        status: "draft",
+        type: "app",
+        progress: 20,
+        is_favorite: false,
+        notes: "Fase inicial - definindo wireframes.",
+        account_idx: 2,
+        tag_idxs: [4, 0],
+      },
+    ];
 
     const projectIdMap: Record<string, string> = {};
+    const demoProjectChecklists = [
+      [
+        { title: "Configurar catálogo de produtos", is_completed: true },
+        { title: "Integrar Stripe", is_completed: true },
+        { title: "Implementar carrinho", is_completed: true },
+        { title: "Deploy em produção", is_completed: true },
+      ],
+      [
+        { title: "Criar dashboard com gráficos", is_completed: true },
+        { title: "Sistema de categorias", is_completed: true },
+        { title: "Exportação PDF", is_completed: true },
+        { title: "Notificações push", is_completed: false },
+      ],
+      [
+        { title: "Gravar VSL", is_completed: true },
+        { title: "Implementar formulário", is_completed: true },
+        { title: "Integrar email marketing", is_completed: true },
+      ],
+      [
+        { title: "Listagem de imóveis", is_completed: true },
+        { title: "Filtros avançados", is_completed: false },
+        { title: "Mapa interativo", is_completed: false },
+        { title: "Agendamento de visitas", is_completed: false },
+      ],
+      [
+        { title: "Layout responsivo", is_completed: true },
+        { title: "Galeria de trabalhos", is_completed: false },
+        { title: "Formulário de contato", is_completed: false },
+      ],
+      [
+        { title: "Wireframes", is_completed: false },
+        { title: "Design UI", is_completed: false },
+        { title: "Desenvolvimento frontend", is_completed: false },
+      ],
+    ];
 
-    if (adminProjects && adminProjects.length > 0) {
-      for (const proj of adminProjects) {
-        const newId = crypto.randomUUID();
-        projectIdMap[proj.id] = newId;
-        await adminClient.from("projects").insert({
-          id: newId,
-          user_id: demoUserId,
-          account_id: accountIdMap[proj.account_id] || proj.account_id,
-          name: proj.name,
-          description: proj.description,
-          url: proj.url,
-          status: proj.status,
-          type: proj.type,
-          progress: proj.progress,
-          is_favorite: proj.is_favorite,
-          notes: proj.notes,
-          screenshot: proj.screenshot,
-          deadline: proj.deadline,
-          repository_url: proj.repository_url,
-        });
-      }
+    for (let i = 0; i < demoProjects.length; i++) {
+      const proj = demoProjects[i];
+      const newId = crypto.randomUUID();
+      projectIdMap[`proj_${i}`] = newId;
 
-      // Clone project tags
-      const { data: adminProjectTags } = await adminClient
-        .from("project_tags")
-        .select("*")
-        .in("project_id", Object.keys(projectIdMap));
+      const deadlineOffset = i === 3 ? -2 : i === 5 ? 10 : null;
+      const deadline = deadlineOffset !== null
+        ? new Date(Date.now() + deadlineOffset * 86400000).toISOString()
+        : null;
 
-      if (adminProjectTags && adminProjectTags.length > 0) {
-        for (const pt of adminProjectTags) {
-          if (projectIdMap[pt.project_id] && tagIdMap[pt.tag_id]) {
-            await adminClient.from("project_tags").insert({
-              project_id: projectIdMap[pt.project_id],
-              tag_id: tagIdMap[pt.tag_id],
-            });
-          }
+      await adminClient.from("projects").insert({
+        id: newId,
+        user_id: demoUserId,
+        account_id: accountIds[proj.account_idx],
+        name: proj.name,
+        description: proj.description,
+        url: proj.url,
+        status: proj.status,
+        type: proj.type,
+        progress: proj.progress,
+        is_favorite: proj.is_favorite,
+        notes: proj.notes || null,
+        screenshot: proj.screenshot,
+        deadline,
+      });
+
+      // Insert tags
+      for (const tagIdx of proj.tag_idxs) {
+        if (tagIds[tagIdx]) {
+          await adminClient.from("project_tags").insert({
+            project_id: newId,
+            tag_id: tagIds[tagIdx],
+          });
         }
       }
 
-      // Clone project checklists
-      const { data: adminChecklists } = await adminClient
-        .from("project_checklists")
-        .select("*")
-        .in("project_id", Object.keys(projectIdMap));
-
-      if (adminChecklists && adminChecklists.length > 0) {
-        for (const cl of adminChecklists) {
-          if (projectIdMap[cl.project_id]) {
-            await adminClient.from("project_checklists").insert({
-              project_id: projectIdMap[cl.project_id],
-              user_id: demoUserId,
-              title: cl.title,
-              is_completed: cl.is_completed,
-              completed_at: cl.completed_at,
-              position: cl.position,
-            });
-          }
+      // Insert checklist
+      if (demoProjectChecklists[i]) {
+        for (let ci = 0; ci < demoProjectChecklists[i].length; ci++) {
+          const cl = demoProjectChecklists[i][ci];
+          await adminClient.from("project_checklists").insert({
+            project_id: newId,
+            user_id: demoUserId,
+            title: cl.title,
+            is_completed: cl.is_completed,
+            completed_at: cl.is_completed ? new Date().toISOString() : null,
+            position: ci,
+          });
         }
       }
     }
 
-    // 8. Clone kanban columns
-    const { data: adminColumns } = await adminClient
-      .from("kanban_columns")
-      .select("*")
-      .eq("user_id", adminUserId)
-      .order("position");
+    // 8. Create demo kanban columns
+    const demoColumns = [
+      { name: "Prospecção", color: "#8b5cf6", position: 0 },
+      { name: "Negociação", color: "#3b82f6", position: 1 },
+      { name: "Proposta Enviada", color: "#f59e0b", position: 2 },
+      { name: "Fechamento", color: "#10b981", position: 3 },
+      { name: "Finalizado", color: "#6b7280", position: 4 },
+    ];
 
-    if (adminColumns && adminColumns.length > 0) {
-      for (const col of adminColumns) {
-        await adminClient.from("kanban_columns").insert({
-          user_id: demoUserId,
-          name: col.name,
-          color: col.color,
-          position: col.position,
-        });
-      }
+    for (const col of demoColumns) {
+      await adminClient.from("kanban_columns").insert({
+        user_id: demoUserId,
+        name: col.name,
+        color: col.color,
+        position: col.position,
+      });
     }
 
-    // 9. Clone kanban deals
-    const { data: adminDeals } = await adminClient
-      .from("kanban_deals")
-      .select("*")
-      .eq("user_id", adminUserId)
-      .order("position");
+    // 9. Create demo kanban deals
+    const demoDeals = [
+      { company_name: "TechNova Solutions", client_name: "Carlos Mendes", description: "Desenvolvimento de landing page para lançamento de produto SaaS", phase: "prospeccao", priority: "high", progress: 0, revenue: 3500, tags: ["Landing Page", "SaaS"], client_email: "carlos@technova.com", client_whatsapp: "11999887766" },
+      { company_name: "Petshop Amigão", client_name: "Ricardo Gomes", description: "Loja virtual com delivery e programa de fidelidade", phase: "prospeccao", priority: "low", progress: 10, revenue: 3800, tags: ["E-commerce", "Pet"], client_whatsapp: "21988776655" },
+      { company_name: "FitLife Academy", client_name: "Ana Beatriz", description: "Funil de vendas para curso de personal trainer online", phase: "negociacao", priority: "medium", progress: 20, revenue: 5500, tags: ["Landing Page"], client_email: "ana@fitlife.com" },
+      { company_name: "Moda Express", client_name: "Juliana Santos", description: "E-commerce completo com integração de pagamentos e gestão de estoque", phase: "fechamento", priority: "urgent", progress: 45, revenue: 12000, tags: ["E-commerce", "Urgente"], client_email: "juliana@modaexpress.com", client_whatsapp: "31977665544", due_date: new Date(Date.now() + 3 * 86400000).toISOString() },
+      { company_name: "Serralheria JG", client_name: "José Garcia", description: "Site institucional com catálogo de serviços e orçamento online", phase: "proposta_enviada", priority: "medium", progress: 30, revenue: 2200, tags: [], client_whatsapp: "47966554433" },
+    ];
 
     const dealIdMap: Record<string, string> = {};
 
-    if (adminDeals && adminDeals.length > 0) {
-      for (const deal of adminDeals) {
-        const newId = crypto.randomUUID();
-        dealIdMap[deal.id] = newId;
-        await adminClient.from("kanban_deals").insert({
-          id: newId,
-          user_id: demoUserId,
-          client_name: deal.client_name,
-          company_name: deal.company_name,
-          description: deal.description,
-          phase: deal.phase,
-          position: deal.position,
-          priority: deal.priority,
-          progress: deal.progress,
-          revenue: deal.revenue,
-          tags: deal.tags,
-          assignee_name: deal.assignee_name,
-          color: deal.color,
-          client_email: deal.client_email,
-          client_whatsapp: deal.client_whatsapp,
-          due_date: deal.due_date,
-          completed_at: deal.completed_at,
-        });
-      }
-
-      // Clone payments
-      const { data: adminPayments } = await adminClient
-        .from("kanban_payments")
-        .select("*")
-        .eq("user_id", adminUserId);
-
-      if (adminPayments && adminPayments.length > 0) {
-        for (const pay of adminPayments) {
-          if (dealIdMap[pay.deal_id]) {
-            await adminClient.from("kanban_payments").insert({
-              user_id: demoUserId,
-              deal_id: dealIdMap[pay.deal_id],
-              amount: pay.amount,
-              payment_date: pay.payment_date,
-              description: pay.description,
-              payment_method: pay.payment_method,
-              category: pay.category,
-              status: pay.status,
-            });
-          }
-        }
-      }
-
-      // Clone expenses
-      const { data: adminExpenses } = await adminClient
-        .from("kanban_expenses")
-        .select("*")
-        .eq("user_id", adminUserId);
-
-      if (adminExpenses && adminExpenses.length > 0) {
-        for (const exp of adminExpenses) {
-          if (exp.deal_id && dealIdMap[exp.deal_id]) {
-            await adminClient.from("kanban_expenses").insert({
-              user_id: demoUserId,
-              deal_id: dealIdMap[exp.deal_id],
-              amount: exp.amount,
-              expense_date: exp.expense_date,
-              description: exp.description,
-              category: exp.category,
-            });
-          }
-        }
-      }
-
-      // Clone task checklists
-      const { data: adminTaskChecklist } = await adminClient
-        .from("kanban_task_checklist")
-        .select("*")
-        .eq("user_id", adminUserId);
-
-      if (adminTaskChecklist && adminTaskChecklist.length > 0) {
-        for (const tc of adminTaskChecklist) {
-          if (dealIdMap[tc.deal_id]) {
-            await adminClient.from("kanban_task_checklist").insert({
-              user_id: demoUserId,
-              deal_id: dealIdMap[tc.deal_id],
-              title: tc.title,
-              is_completed: tc.is_completed,
-              position: tc.position,
-            });
-          }
-        }
-      }
-
-      // Clone scheduled messages
-      const { data: adminMessages } = await adminClient
-        .from("kanban_scheduled_messages")
-        .select("*")
-        .eq("user_id", adminUserId);
-
-      if (adminMessages && adminMessages.length > 0) {
-        for (const msg of adminMessages) {
-          if (dealIdMap[msg.deal_id]) {
-            await adminClient.from("kanban_scheduled_messages").insert({
-              user_id: demoUserId,
-              deal_id: dealIdMap[msg.deal_id],
-              message: msg.message,
-              scheduled_date: msg.scheduled_date,
-              scheduled_time: msg.scheduled_time,
-              sent: msg.sent,
-            });
-          }
-        }
-      }
+    for (let i = 0; i < demoDeals.length; i++) {
+      const deal = demoDeals[i];
+      const newId = crypto.randomUUID();
+      dealIdMap[`deal_${i}`] = newId;
+      await adminClient.from("kanban_deals").insert({
+        id: newId,
+        user_id: demoUserId,
+        client_name: deal.client_name,
+        company_name: deal.company_name,
+        description: deal.description,
+        phase: deal.phase,
+        position: i,
+        priority: deal.priority,
+        progress: deal.progress,
+        revenue: deal.revenue,
+        tags: deal.tags,
+        client_email: deal.client_email || null,
+        client_whatsapp: deal.client_whatsapp || null,
+        due_date: deal.due_date || null,
+      });
     }
 
-    // 10. Clone PIX keys
-    const { data: adminPixKeys } = await adminClient
-      .from("pix_keys")
-      .select("*")
-      .eq("user_id", adminUserId);
-
-    if (adminPixKeys && adminPixKeys.length > 0) {
-      for (const pix of adminPixKeys) {
-        await adminClient.from("pix_keys").insert({
-          user_id: demoUserId,
-          key_type: pix.key_type,
-          key_value: pix.key_value,
-          holder_name: pix.holder_name,
-          holder_city: pix.holder_city,
-          is_default: pix.is_default,
-        });
-      }
-    }
-
-    // 11. Clone WordPress connections
-    const { data: adminWp } = await adminClient
-      .from("wordpress_connections")
-      .select("*")
-      .eq("user_id", adminUserId);
-
-    if (adminWp && adminWp.length > 0) {
-      for (const wp of adminWp) {
-        await adminClient.from("wordpress_connections").insert({
-          user_id: demoUserId,
-          site_url: wp.site_url,
-          username: wp.username,
-          app_password: wp.app_password,
-          site_name: wp.site_name,
-        });
-      }
-    }
+    // 10. Create demo PIX keys
+    await adminClient.from("pix_keys").insert({
+      user_id: demoUserId,
+      key_type: "phone",
+      key_value: "48999999999",
+      holder_name: "Usuário Central",
+      holder_city: "FLORIANOPOLIS",
+      is_default: true,
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
         message: `Conta demo criada/atualizada com sucesso! Email: ${DEMO_EMAIL}`,
         demoUserId,
-        cloned: {
-          accounts: Object.keys(accountIdMap).length,
-          projects: Object.keys(projectIdMap).length,
-          tags: Object.keys(tagIdMap).length,
-          deals: Object.keys(dealIdMap).length,
+        created: {
+          accounts: demoAccounts.length,
+          projects: demoProjects.length,
+          tags: demoTags.length,
+          deals: demoDeals.length,
         },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

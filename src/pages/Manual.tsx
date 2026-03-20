@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   BookOpen, Search, LayoutDashboard, Kanban, FileText, Sparkles,
@@ -10,6 +11,7 @@ import {
   CreditCard, Bot, Building2, Shield, Download, Upload, Bell,
   Star, Filter, Plus, Trash2, Pencil, Eye, MessageCircle,
   Globe, Crown, CheckSquare, Palette, Moon, Sun, Smartphone,
+  Printer, FileDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

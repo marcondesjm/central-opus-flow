@@ -1875,7 +1875,7 @@ export default function KanbanPage() {
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
                 <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4" style={{ zoom: zoomLevel }}>
-                  {columns?.map((column, colIndex) => {
+                  {visibleColumns.map((column, colIndex) => {
                     const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
                     return (
                     <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex} isDragDisabled={isFinalizadoColumn}>

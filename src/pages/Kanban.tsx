@@ -534,7 +534,7 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg 
 }
 
 // ─── Add Column Modal ──────────────────────────
-function AddColumnModal({ open, onOpenChange, existingCount }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number }) {
+function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number; spaceId?: string | null }) {
   const createColumn = useCreateColumn();
   const [name, setName] = useState('');
   const [color, setColor] = useState('#3b82f6');

@@ -47,9 +47,15 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const handleViewChange = useCallback((view: string) => {
     setActiveView(view);
-    // Always navigate to dashboard when selecting a sidebar view
     if (location.pathname !== '/dashboard') {
-      navigate('/dashboard');
+      navigate(`/dashboard?view=${view}${selectedAccount ? `&account=${selectedAccount}` : ''}`);
+    }
+  }, [location.pathname, navigate, selectedAccount]);
+
+  const handleAccountChange = useCallback((accountId: string | null) => {
+    setSelectedAccount(accountId);
+    if (location.pathname !== '/dashboard') {
+      navigate(`/dashboard?view=all${accountId ? `&account=${accountId}` : ''}`);
     }
   }, [location.pathname, navigate]);
 
@@ -57,7 +63,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     activeView: getActiveViewFromRoute(),
     onViewChange: handleViewChange,
     selectedAccount,
-    onAccountChange: setSelectedAccount,
+    onAccountChange: handleAccountChange,
     accounts,
     isLoading: accountsLoading,
   };

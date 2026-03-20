@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Building2, User, Flag, Calendar, Tag, DollarSign, CheckSquare, Plus, Trash2,
   X, Maximize2, Share2, MoreHorizontal, AlertTriangle, Clock,
@@ -32,6 +33,8 @@ import { format, isBefore, isToday, formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { ptBR } from 'date-fns/locale';
 import { RichTextEditor, RichTextDisplay } from '@/components/kanban/RichTextEditor';
+import { supabase } from '@/integrations/supabase/client';
+import { AvatarImage } from '@/components/ui/avatar';
 
 interface TaskDetailFullModalProps {
   deal: KanbanDeal;
@@ -51,6 +54,73 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const updateItem = useUpdateChecklistItem();
   const deleteItem = useDeleteChecklistItem();
   const { data: systemUsers } = useSystemUsers();
+  const queryClient = useQueryClient();
+  const commentInputRef = useRef<HTMLInputElement>(null);
+  const [commentText, setCommentText] = useState('');
+
+  // Comments query
+  const { data: comments } = useQuery({
+    queryKey: ['kanban-comments', deal.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('kanban_comments' as any)
+        .select('*')
+        .eq('deal_id', deal.id)
+        .order('created_at', { ascending: true });
+      return (data || []) as any[];
+    },
+    enabled: open,
+  });
+
+  // Comment profiles
+  const commentUserIds = (comments || []).map((c: any) => c.user_id as string).filter(Boolean);
+  const uniqueCommentUserIds = [...new Set([...commentUserIds, user?.id || ''])].filter(Boolean);
+  
+  const { data: commentProfiles } = useQuery({
+    queryKey: ['comment-profiles', uniqueCommentUserIds],
+    queryFn: async () => {
+      if (uniqueCommentUserIds.length === 0) return {};
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', uniqueCommentUserIds);
+      const map: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      data?.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+      return map;
+    },
+    enabled: uniqueCommentUserIds.length > 0 && open,
+  });
+
+  const addComment = useMutation({
+    mutationFn: async (content: string) => {
+      const { error } = await supabase
+        .from('kanban_comments' as any)
+        .insert({ deal_id: deal.id, user_id: user!.id, content } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanban-comments', deal.id] });
+      setCommentText('');
+    },
+  });
+
+  const deleteComment = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('kanban_comments' as any)
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanban-comments', deal.id] });
+    },
+  });
+
+  const handleSubmitComment = () => {
+    if (!commentText.trim() || !user) return;
+    addComment.mutate(commentText.trim());
+  };
 
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState(deal.description || '');
@@ -745,18 +815,79 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
               {/* Comment / Activity */}
               <Separator />
-              <div className="flex items-start gap-3 pt-2">
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback className="text-xs bg-primary/20 text-primary">
-                    {(user?.email || 'U').slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Input placeholder="Adicionar comentário..." className="h-10 text-sm bg-muted/30 border-muted" readOnly />
-                  <div className="flex gap-1.5 mt-2 overflow-x-auto">
-                    <Badge variant="outline" className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50">Quem está trabalhando nisso...?</Badge>
-                    <Badge variant="outline" className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50">Posso conseguir mais informações...?</Badge>
-                    <Badge variant="outline" className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50">Atualização de status</Badge>
+              <div className="space-y-3 pt-2">
+                {/* Existing comments */}
+                {(comments || []).length > 0 && (
+                  <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                    {(comments || []).map((comment: any) => {
+                      const profile = commentProfiles?.[comment.user_id];
+                      return (
+                        <div key={comment.id} className="flex items-start gap-2.5 group/comment">
+                          <Avatar className="w-7 h-7 flex-shrink-0">
+                            <AvatarImage src={profile?.avatar_url || undefined} />
+                            <AvatarFallback className="text-[9px] bg-primary/20 text-primary">
+                              {(profile?.full_name || 'U').slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium">{profile?.full_name || 'Usuário'}</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: ptBR })}
+                              </span>
+                              {comment.user_id === user?.id && (
+                                <button
+                                  onClick={() => deleteComment.mutate(comment.id)}
+                                  className="opacity-0 group-hover/comment:opacity-100 transition-opacity ml-auto"
+                                >
+                                  <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                                </button>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground/90 mt-0.5 whitespace-pre-wrap">{comment.content}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Comment input */}
+                <div className="flex items-start gap-2.5">
+                  <Avatar className="w-8 h-8 flex-shrink-0">
+                    <AvatarImage src={commentProfiles?.[user?.id || '']?.avatar_url || undefined} />
+                    <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                      {(commentProfiles?.[user?.id || '']?.full_name || user?.email || 'U').slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSubmitComment(); }} className="flex gap-2">
+                      <Input
+                        ref={commentInputRef}
+                        placeholder="Adicionar comentário..."
+                        className="h-10 text-sm bg-muted/30 border-muted"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitComment(); } }}
+                      />
+                      {commentText.trim() && (
+                        <Button type="submit" size="sm" className="h-10 px-3" disabled={addComment.isPending}>
+                          Enviar
+                        </Button>
+                      )}
+                    </form>
+                    <div className="flex gap-1.5 mt-2 overflow-x-auto">
+                      {['Quem está trabalhando nisso...?', 'Posso conseguir mais informações...?', 'Atualização de status'].map((quick) => (
+                        <Badge
+                          key={quick}
+                          variant="outline"
+                          className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50"
+                          onClick={() => { setCommentText(quick); commentInputRef.current?.focus(); }}
+                        >
+                          {quick}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

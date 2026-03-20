@@ -2229,6 +2229,10 @@ export type Database = {
         }
         Returns: string
       }
+      update_session_activity: {
+        Args: { _minutes: number; _user_id: string }
+        Returns: undefined
+      }
       update_system_version: {
         Args: {
           new_changelog?: string

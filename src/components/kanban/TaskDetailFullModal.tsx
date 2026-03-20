@@ -815,18 +815,79 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
               {/* Comment / Activity */}
               <Separator />
-              <div className="flex items-start gap-3 pt-2">
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback className="text-xs bg-primary/20 text-primary">
-                    {(user?.email || 'U').slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Input placeholder="Adicionar comentário..." className="h-10 text-sm bg-muted/30 border-muted" readOnly />
-                  <div className="flex gap-1.5 mt-2 overflow-x-auto">
-                    <Badge variant="outline" className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50">Quem está trabalhando nisso...?</Badge>
-                    <Badge variant="outline" className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50">Posso conseguir mais informações...?</Badge>
-                    <Badge variant="outline" className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50">Atualização de status</Badge>
+              <div className="space-y-3 pt-2">
+                {/* Existing comments */}
+                {(comments || []).length > 0 && (
+                  <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                    {(comments || []).map((comment: any) => {
+                      const profile = commentProfiles?.[comment.user_id];
+                      return (
+                        <div key={comment.id} className="flex items-start gap-2.5 group/comment">
+                          <Avatar className="w-7 h-7 flex-shrink-0">
+                            <AvatarImage src={profile?.avatar_url || undefined} />
+                            <AvatarFallback className="text-[9px] bg-primary/20 text-primary">
+                              {(profile?.full_name || 'U').slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium">{profile?.full_name || 'Usuário'}</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: ptBR })}
+                              </span>
+                              {comment.user_id === user?.id && (
+                                <button
+                                  onClick={() => deleteComment.mutate(comment.id)}
+                                  className="opacity-0 group-hover/comment:opacity-100 transition-opacity ml-auto"
+                                >
+                                  <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                                </button>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground/90 mt-0.5 whitespace-pre-wrap">{comment.content}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Comment input */}
+                <div className="flex items-start gap-2.5">
+                  <Avatar className="w-8 h-8 flex-shrink-0">
+                    <AvatarImage src={commentProfiles?.[user?.id || '']?.avatar_url || undefined} />
+                    <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                      {(commentProfiles?.[user?.id || '']?.full_name || user?.email || 'U').slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSubmitComment(); }} className="flex gap-2">
+                      <Input
+                        ref={commentInputRef}
+                        placeholder="Adicionar comentário..."
+                        className="h-10 text-sm bg-muted/30 border-muted"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitComment(); } }}
+                      />
+                      {commentText.trim() && (
+                        <Button type="submit" size="sm" className="h-10 px-3" disabled={addComment.isPending}>
+                          Enviar
+                        </Button>
+                      )}
+                    </form>
+                    <div className="flex gap-1.5 mt-2 overflow-x-auto">
+                      {['Quem está trabalhando nisso...?', 'Posso conseguir mais informações...?', 'Atualização de status'].map((quick) => (
+                        <Badge
+                          key={quick}
+                          variant="outline"
+                          className="text-[11px] whitespace-nowrap cursor-pointer hover:bg-muted/50"
+                          onClick={() => { setCommentText(quick); commentInputRef.current?.focus(); }}
+                        >
+                          {quick}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

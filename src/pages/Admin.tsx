@@ -976,6 +976,8 @@ export default function Admin() {
                               <SortIcon field="created_at" />
                             </Button>
                           </TableHead>
+                          <TableHead>Último Acesso</TableHead>
+                          <TableHead>Tempo Online</TableHead>
                           <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                       </TableHeader>

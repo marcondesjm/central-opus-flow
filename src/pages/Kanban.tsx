@@ -1098,14 +1098,18 @@ export default function KanbanPage() {
           variant: overdueCount > 0 ? 'destructive' : undefined,
         });
 
-          if (!autoDispatchEnabled || !deal?.client_whatsapp) return;
-
-          const phone = deal.client_whatsapp.replace(/\D/g, '');
-          setTimeout(() => {
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-            supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id).then(() => {});
-          }, 1500 + idx * 2000);
-        });
+        // Auto-dispatch if enabled
+        if (autoDispatchEnabled) {
+          data.forEach((msg: any, idx: number) => {
+            const deal = msg.kanban_deals;
+            if (!deal?.client_whatsapp) return;
+            const phone = deal.client_whatsapp.replace(/\D/g, '');
+            setTimeout(() => {
+              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+              supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id).then(() => {});
+            }, 1500 + idx * 2000);
+          });
+        }
       }
     };
 

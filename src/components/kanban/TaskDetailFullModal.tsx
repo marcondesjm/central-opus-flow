@@ -819,7 +819,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               <div className="space-y-3 pt-2">
                 {/* Existing comments */}
                 {(comments || []).length > 0 && (
-                  <ScrollArea className="max-h-[250px]">
+                  <div className="max-h-[250px] overflow-y-auto">
                     <div className="space-y-3 pr-3">
                     {(comments || []).map((comment: any) => {
                       const profile = commentProfiles?.[comment.user_id];
@@ -852,7 +852,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                       );
                     })}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
 
                 {/* Comment input */}

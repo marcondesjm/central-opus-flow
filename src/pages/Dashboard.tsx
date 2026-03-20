@@ -632,7 +632,7 @@ export default function Dashboard() {
           <ProjectCharts projects={projects} />
 
           {/* Activity Section */}
-          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={() => setAddProjectOpen(true)} />
+          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
 
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />

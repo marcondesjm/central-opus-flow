@@ -588,10 +588,25 @@ export default function Dashboard() {
         
         <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
           <div className="flex-1 p-3 sm:p-6 pb-20 lg:pb-6">
+          
+          {/* Dashboard Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t('dashboardPage.subtitle', 'Visão geral dos seus projetos e atividades')}</p>
+          </div>
+
           {/* Daily Scheduled Messages Report */}
           <div className="mb-4">
             <DailyScheduledMessagesReport />
           </div>
+
+          {/* Overdue Alert Banner */}
+          {overdueProjects.length > 0 && (
+            <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm font-medium">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{overdueProjects.length} {overdueProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}</span>
+            </div>
+          )}
 
           {/* Stats */}
           <StatsCards {...stats} />

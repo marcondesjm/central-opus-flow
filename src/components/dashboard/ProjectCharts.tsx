@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import {
+  PieChart, Pie, Cell, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+} from 'recharts';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, BarChart3 } from 'lucide-react';
+import { ChevronDown, ChevronUp, BarChart3, TrendingUp, PieChart as PieIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Project {
@@ -18,17 +21,9 @@ interface ProjectChartsProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  published: 'hsl(var(--chart-1))',
-  draft: 'hsl(var(--chart-2))',
-  archived: 'hsl(var(--chart-3))',
-};
-
-const TYPE_COLORS: Record<string, string> = {
-  website: 'hsl(var(--chart-1))',
-  landing: 'hsl(var(--chart-2))',
-  app: 'hsl(var(--chart-3))',
-  funnel: 'hsl(var(--chart-4))',
-  other: 'hsl(var(--chart-5))',
+  published: 'hsl(160, 84%, 39%)',
+  draft: 'hsl(38, 92%, 50%)',
+  archived: 'hsl(220, 9%, 46%)',
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -37,12 +32,14 @@ const STATUS_LABELS: Record<string, string> = {
   archived: 'Arquivado',
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  website: 'Website',
-  landing: 'Landing Page',
-  app: 'Aplicativo',
-  funnel: 'Funil',
-  other: 'Outro',
+const CustomTooltipStyle = {
+  backgroundColor: 'hsl(var(--card))',
+  border: '1px solid hsl(var(--border))',
+  borderRadius: '12px',
+  color: 'hsl(var(--card-foreground))',
+  fontSize: '12px',
+  padding: '10px 14px',
+  boxShadow: '0 8px 24px hsl(var(--foreground) / 0.1)',
 };
 
 export function ProjectCharts({ projects }: ProjectChartsProps) {
@@ -52,12 +49,10 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
   const statusData = useMemo(() => {
     const counts: Record<string, number> = { published: 0, draft: 0, archived: 0 };
     projects.forEach(p => {
-      if (counts[p.status] !== undefined) {
-        counts[p.status]++;
-      }
+      if (counts[p.status] !== undefined) counts[p.status]++;
     });
     return Object.entries(counts)
-      .filter(([_, value]) => value > 0)
+      .filter(([_, v]) => v > 0)
       .map(([name, value]) => ({
         name: STATUS_LABELS[name] || name,
         value,
@@ -65,48 +60,29 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
       }));
   }, [projects]);
 
-  const typeData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    projects.forEach(p => {
-      counts[p.type] = (counts[p.type] || 0) + 1;
-    });
-    return Object.entries(counts)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({
-        name: TYPE_LABELS[name] || name,
-        value,
-        fill: TYPE_COLORS[name] || 'hsl(var(--muted))',
-      }));
-  }, [projects]);
-
   const monthlyData = useMemo(() => {
     const months: Record<string, number> = {};
     const now = new Date();
-    
-    // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+      const key = date.toLocaleDateString('pt-BR', { month: 'short' });
       months[key] = 0;
     }
-    
     projects.forEach(p => {
       const date = new Date(p.created_at);
-      const key = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-      if (months[key] !== undefined) {
-        months[key]++;
-      }
+      const key = date.toLocaleDateString('pt-BR', { month: 'short' });
+      if (months[key] !== undefined) months[key]++;
     });
-    
-    return Object.entries(months).map(([name, projetos]) => ({
-      name,
-      projetos,
-    }));
+    let acc = 0;
+    return Object.entries(months).map(([name, count]) => {
+      acc += count;
+      return { name, novos: count, total: acc };
+    });
   }, [projects]);
 
-  if (projects.length === 0) {
-    return null;
-  }
+  const totalByStatus = statusData.reduce((s, d) => s + d.value, 0);
+
+  if (projects.length === 0) return null;
 
   return (
     <div className="mb-6">
@@ -116,7 +92,7 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
           variant="outline"
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full justify-between"
+          className="w-full justify-between rounded-xl"
         >
           <span className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
@@ -126,166 +102,100 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
         </Button>
       </div>
 
-      {/* Charts grid - collapsible on mobile */}
-      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 ${!isExpanded && isMobile ? 'hidden' : ''}`}>
-        {/* Status Chart */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
-          <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Por Status
+      <div className={`grid grid-cols-1 lg:grid-cols-5 gap-4 ${!isExpanded && isMobile ? 'hidden' : ''}`}>
+        {/* Line / Area Chart — 3 cols */}
+        <Card className="lg:col-span-3 border-border/50 bg-card/80 backdrop-blur-sm rounded-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300">
+          <CardHeader className="pb-2 flex-row items-center justify-between">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              Crescimento Mensal
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
-            <div className="h-[150px] sm:h-[180px]">
+          <CardContent>
+            <div className="h-[220px] sm:h-[260px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyData}>
+                  <defs>
+                    <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                    allowDecimals={false}
+                    width={28}
+                  />
+                  <Tooltip contentStyle={CustomTooltipStyle} />
+                  <Area
+                    type="monotone"
+                    dataKey="total"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2.5}
+                    fill="url(#gradientArea)"
+                    dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                    activeDot={{ r: 6, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Donut Chart — 2 cols */}
+        <Card className="lg:col-span-2 border-border/50 bg-card/80 backdrop-blur-sm rounded-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300">
+          <CardHeader className="pb-2 flex-row items-center justify-between">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <PieIcon className="w-4 h-4 text-accent" />
+              Distribuição por Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[180px] sm:h-[200px] relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={statusData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={isMobile ? 30 : 40}
-                    outerRadius={isMobile ? 55 : 70}
-                    paddingAngle={2}
+                    innerRadius={isMobile ? 45 : 58}
+                    outerRadius={isMobile ? 68 : 82}
+                    paddingAngle={3}
                     dataKey="value"
-                    stroke="none"
+                    stroke="hsl(var(--card))"
+                    strokeWidth={3}
                   >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    {statusData.map((entry, i) => (
+                      <Cell key={i} fill={entry.fill} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      color: 'hsl(var(--card-foreground))',
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                    }}
-                    itemStyle={{
-                      color: 'hsl(var(--card-foreground))',
-                    }}
-                    labelStyle={{
-                      color: 'hsl(var(--card-foreground))',
-                      fontWeight: 600,
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={30}
-                    formatter={(value) => (
-                      <span className="text-[10px] sm:text-xs text-muted-foreground">{value}</span>
-                    )}
-                  />
+                  <Tooltip contentStyle={CustomTooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
+              {/* Center label */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-2xl sm:text-3xl font-bold text-foreground tabular-nums">{totalByStatus}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">projetos</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Type Chart */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
-          <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Por Tipo
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
-            <div className="h-[150px] sm:h-[180px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={typeData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={isMobile ? 30 : 40}
-                    outerRadius={isMobile ? 55 : 70}
-                    paddingAngle={2}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {typeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      color: 'hsl(var(--card-foreground))',
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                    }}
-                    itemStyle={{
-                      color: 'hsl(var(--card-foreground))',
-                    }}
-                    labelStyle={{
-                      color: 'hsl(var(--card-foreground))',
-                      fontWeight: 600,
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={30}
-                    formatter={(value) => (
-                      <span className="text-[10px] sm:text-xs text-muted-foreground">{value}</span>
-                    )}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Monthly Chart */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border sm:col-span-2 lg:col-span-1">
-          <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-              Projetos por Mês
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
-            <div className="h-[150px] sm:h-[180px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: isMobile ? 8 : 10, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: isMobile ? 8 : 10, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={false}
-                    width={isMobile ? 20 : 30}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      color: 'hsl(var(--card-foreground))',
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                    }}
-                    itemStyle={{
-                      color: 'hsl(var(--card-foreground))',
-                    }}
-                    labelStyle={{
-                      color: 'hsl(var(--card-foreground))',
-                      fontWeight: 600,
-                    }}
-                  />
-                  <Bar
-                    dataKey="projetos"
-                    fill="hsl(var(--primary))"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+            {/* Legend */}
+            <div className="flex items-center justify-center gap-4 mt-2">
+              {statusData.map((item) => (
+                <div key={item.name} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
+                  <span className="text-xs text-muted-foreground">{item.name}</span>
+                  <span className="text-xs font-semibold text-foreground">{item.value}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

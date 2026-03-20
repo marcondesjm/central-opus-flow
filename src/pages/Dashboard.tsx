@@ -270,6 +270,34 @@ export default function Dashboard() {
             notes: 'Este é um projeto de exemplo. Explore as funcionalidades e personalize como quiser!',
           });
 
+        // Create 3 example activity logs
+        const now = new Date();
+        await supabase
+          .from('activity_logs')
+          .insert([
+            {
+              user_id: user.id,
+              action: 'create',
+              entity_type: 'account',
+              entity_name: 'Minha Empresa',
+              created_at: new Date(now.getTime() - 2 * 60000).toISOString(),
+            },
+            {
+              user_id: user.id,
+              action: 'create',
+              entity_type: 'project',
+              entity_name: 'Meu Primeiro Projeto',
+              created_at: new Date(now.getTime() - 1 * 60000).toISOString(),
+            },
+            {
+              user_id: user.id,
+              action: 'update',
+              entity_type: 'project',
+              entity_name: 'Meu Primeiro Projeto',
+              created_at: now.toISOString(),
+            },
+          ]);
+
         if (!cancelled) {
           await queryClient.invalidateQueries();
         }

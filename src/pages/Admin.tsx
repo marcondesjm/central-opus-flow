@@ -630,7 +630,10 @@ export default function Admin() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => { setPlanFilter('all'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
@@ -644,7 +647,10 @@ export default function Admin() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-amber-500/50 transition-colors"
+            onClick={() => { setPlanFilter('all'); setStatusFilter('all'); setActiveAdminTab('payments'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-amber-500/10">
@@ -658,7 +664,10 @@ export default function Admin() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-emerald-500/50 transition-colors"
+            onClick={() => { setPlanFilter('all'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-emerald-500/10">
@@ -672,7 +681,10 @@ export default function Admin() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-violet-500/50 transition-colors"
+            onClick={() => { setPlanFilter('all'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-violet-500/10">
@@ -708,7 +720,10 @@ export default function Admin() {
 
         {/* Plan Distribution */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card className="border-l-4 border-l-muted-foreground">
+          <Card 
+            className="border-l-4 border-l-muted-foreground cursor-pointer hover:bg-muted/30 transition-colors active:scale-[0.97]"
+            onClick={() => { setPlanFilter('free'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -720,7 +735,10 @@ export default function Admin() {
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-primary">
+          <Card 
+            className="border-l-4 border-l-primary cursor-pointer hover:bg-muted/30 transition-colors active:scale-[0.97]"
+            onClick={() => { setPlanFilter('pro'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -732,7 +750,10 @@ export default function Admin() {
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-amber-500">
+          <Card 
+            className="border-l-4 border-l-amber-500 cursor-pointer hover:bg-muted/30 transition-colors active:scale-[0.97]"
+            onClick={() => { setPlanFilter('business'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -744,7 +765,10 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-blue-500">
+          <Card 
+            className="border-l-4 border-l-blue-500 cursor-pointer hover:bg-muted/30 transition-colors active:scale-[0.97]"
+            onClick={() => { setPlanFilter('all'); setStatusFilter('all'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -759,7 +783,10 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-cyan-500">
+          <Card 
+            className="border-l-4 border-l-cyan-500 cursor-pointer hover:bg-muted/30 transition-colors active:scale-[0.97]"
+            onClick={() => { setPlanFilter('all'); setStatusFilter('frozen'); setActiveAdminTab('users'); }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>

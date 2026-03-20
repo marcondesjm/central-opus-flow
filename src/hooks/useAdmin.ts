@@ -122,7 +122,10 @@ export function useDeleteUser() {
 }
 
 export function useAdminStats() {
-  const { data: users = [] } = useAdminUsers();
+  const { data: allUsers = [] } = useAdminUsers();
+  
+  // Exclude demo account from stats
+  const users = allUsers.filter(u => u.email !== 'usercentral@gmail.com');
   
   const stats = {
     totalUsers: users.length,

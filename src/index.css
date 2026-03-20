@@ -121,30 +121,30 @@ input, textarea, [contenteditable="true"] {
   }
 
   .dark {
-    /* Base - Deep rich dark */
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
+    /* Base - Premium deep dark */
+    --background: 222 47% 5%;
+    --foreground: 220 13% 91%;
 
-    --card: 224 71% 6%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 41% 8%;
+    --card-foreground: 220 13% 91%;
 
-    --popover: 224 71% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 41% 8%;
+    --popover-foreground: 220 13% 91%;
 
-    /* Primary - Vibrant Indigo (brighter in dark mode) */
-    --primary: 243 75% 65%;
+    /* Primary - Rich Purple */
+    --primary: 263 70% 58%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary */
-    --secondary: 217 33% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 217 33% 12%;
+    --secondary-foreground: 220 13% 91%;
 
     /* Muted */
-    --muted: 217 33% 14%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 217 33% 12%;
+    --muted-foreground: 220 13% 60%;
 
-    /* Accent - Teal */
-    --accent: 172 66% 50%;
+    /* Accent - Blue */
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive */
@@ -152,46 +152,48 @@ input, textarea, [contenteditable="true"] {
     --destructive-foreground: 0 0% 100%;
 
     /* Borders */
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 243 75% 65%;
+    --border: 217 33% 15%;
+    --input: 217 33% 15%;
+    --ring: 263 70% 58%;
 
     /* Chart colors */
-    --chart-1: 243 75% 65%;
-    --chart-2: 172 66% 55%;
-    --chart-3: 38 92% 55%;
-    --chart-4: 326 78% 65%;
-    --chart-5: 280 65% 65%;
+    --chart-1: 263 70% 58%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 217 91% 60%;
+    --chart-5: 280 65% 60%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(243, 75%, 65%) 0%, hsl(280, 65%, 60%) 50%, hsl(326, 78%, 65%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(224, 71%, 4%) 0%, hsl(224, 71%, 6%) 100%);
-    --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(243, 75%, 65%, 0.2), transparent);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(243, 75%, 65%, 0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(172, 66%, 50%, 0.1) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(326, 78%, 60%, 0.08) 0px, transparent 50%);
+    --gradient-primary: linear-gradient(135deg, hsl(263, 70%, 58%) 0%, hsl(217, 91%, 60%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(222, 47%, 5%) 0%, hsl(222, 41%, 8%) 100%);
+    --gradient-glow: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(263, 70%, 58%, 0.15), transparent);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(263, 70%, 58%, 0.08) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(217, 91%, 60%, 0.06) 0px, transparent 50%);
     
     /* Shadows */
-    --shadow-card: 0 1px 3px hsl(224 71% 2% / 0.3), 0 4px 12px hsl(224 71% 2% / 0.4);
-    --shadow-card-hover: 0 4px 12px hsl(224 71% 2% / 0.4), 0 12px 28px hsl(243 75% 65% / 0.15);
-    --shadow-glow: 0 0 60px hsl(243, 75%, 65%, 0.35);
-    --shadow-glow-accent: 0 0 60px hsl(172, 66%, 50%, 0.3);
+    --shadow-card: 0 1px 3px hsl(222 47% 2% / 0.4), 0 4px 12px hsl(222 47% 2% / 0.3);
+    --shadow-card-hover: 0 4px 16px hsl(222 47% 2% / 0.4), 0 0 24px hsl(263 70% 58% / 0.12);
+    --shadow-glow: 0 0 40px hsl(263, 70%, 58%, 0.2);
+    --shadow-glow-accent: 0 0 40px hsl(217, 91%, 60%, 0.2);
 
     /* Status */
-    --status-published: 160 84% 45%;
+    --status-published: 160 84% 39%;
+    --status-draft: 38 92% 50%;
+    --status-archived: 220 13% 45%;
 
     /* Sidebar */
-    --sidebar-background: 224 71% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 243 75% 65%;
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 220 13% 91%;
+    --sidebar-primary: 263 70% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 243 75% 65%;
+    --sidebar-accent: 217 33% 12%;
+    --sidebar-accent-foreground: 220 13% 91%;
+    --sidebar-border: 217 33% 15%;
+    --sidebar-ring: 263 70% 58%;
 
     /* Success/Warning/Info */
-    --success: 160 84% 45%;
-    --warning: 38 92% 55%;
-    --info: 199 89% 55%;
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
   }
 }
 
@@ -203,6 +205,15 @@ input, textarea, [contenteditable="true"] {
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .dark body,
+  .dark {
+    background-image: radial-gradient(
+      circle at 85% 5%,
+      hsl(263 70% 58% / 0.06),
+      transparent 40%
+    );
   }
 }
 

@@ -29,7 +29,7 @@ export function AppNavBar() {
   const isMobile = useIsMobile();
 
   return (
-    <nav className="bg-card border-b border-border sticky top-0 z-40">
+    <nav className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-2 sm:px-6">
         <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto scrollbar-none py-1">
           {NAV_ITEMS.map((item) => {

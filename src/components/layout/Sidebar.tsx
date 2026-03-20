@@ -273,8 +273,8 @@ export function Sidebar({
                     'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar',
                     'active:scale-[0.97]',
                     isActive
-                      ? 'bg-gradient-to-r from-primary to-[hsl(280,65%,55%)] text-primary-foreground shadow-md shadow-primary/25'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      ? 'bg-primary/10 text-primary border-l-[3px] border-primary shadow-[inset_0_0_20px_hsl(263,70%,58%,0.08)]'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
                   )}
                 >
                   <Icon className="w-4 h-4" aria-hidden="true" />
@@ -421,8 +421,8 @@ export function Sidebar({
                     'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar',
                     'active:scale-[0.97]',
                     isActive
-                      ? 'bg-gradient-to-r from-primary to-[hsl(280,65%,55%)] text-primary-foreground shadow-md shadow-primary/25'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      ? 'bg-primary/10 text-primary border-l-[3px] border-primary shadow-[inset_0_0_20px_hsl(263,70%,58%,0.08)]'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
                   )}
                 >
                   <Icon className="w-4 h-4" aria-hidden="true" />

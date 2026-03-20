@@ -606,7 +606,7 @@ export default function Dashboard() {
 
           {/* Overdue Alert Banner */}
           {overdueProjects.length > 0 && (
-            <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm font-medium animate-fade-in">
+            <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/20 bg-destructive/[0.06] text-[hsl(0,86%,80%)] dark:text-[hsl(0,86%,80%)] text-sm font-medium animate-fade-in">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{overdueProjects.length} {overdueProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}</span>
             </div>

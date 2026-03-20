@@ -77,6 +77,15 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   const createProject = useCreateProject();
   const { toast } = useToast();
 
+  // Pre-fill from template
+  useEffect(() => {
+    if (template && open) {
+      setName(template.name);
+      setDescription(template.description);
+      setType(template.type);
+    }
+  }, [template, open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     

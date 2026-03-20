@@ -199,7 +199,7 @@ export default function Admin() {
         proposals: proposalsRes.data || [],
       });
     } catch {
-      setPreviewData({ accounts: [], projects: [], kanbanDeals: [] });
+      setPreviewData({ accounts: [], projects: [], kanbanDeals: [], kanbanColumns: [], ideas: [], proposals: [] });
     } finally {
       setLoadingPreview(false);
     }

@@ -1065,6 +1065,38 @@ export default function Admin() {
                               <TableCell className="text-sm text-muted-foreground">
                                 {format(new Date(user.created_at), 'dd/MM/yyyy', { locale: ptBR })}
                               </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {user.last_sign_in_at ? (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="w-3 h-3" />
+                                          {formatDistanceToNow(new Date(user.last_sign_in_at), { addSuffix: true, locale: ptBR })}
+                                        </div>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        {format(new Date(user.last_sign_in_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/50">Nunca</span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {(() => {
+                                  const mins = user.total_session_minutes || 0;
+                                  if (mins === 0) return <span className="text-xs text-muted-foreground/50">0min</span>;
+                                  const hours = Math.floor(mins / 60);
+                                  const remainMins = mins % 60;
+                                  return (
+                                    <span className="font-medium">
+                                      {hours > 0 ? `${hours}h ${remainMins}min` : `${remainMins}min`}
+                                    </span>
+                                  );
+                                })()}
+                              </TableCell>
                               <TableCell className="text-right">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>

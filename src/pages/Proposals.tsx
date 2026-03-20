@@ -39,6 +39,7 @@ import {
   Pencil,
   MessageCircle,
   Sparkles,
+  ExternalLink,
 } from 'lucide-react';
 
 import { ProposalForm } from '@/components/proposals/ProposalForm';

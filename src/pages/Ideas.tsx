@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useIdeas, useCreateIdea, useUpdateIdea, useBulkDeleteIdeas, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
+import { useAuth } from '@/hooks/useAuth';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
 import { IdeasTimelineView } from '@/components/ideas/IdeasTimelineView';

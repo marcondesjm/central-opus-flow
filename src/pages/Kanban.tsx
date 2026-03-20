@@ -1312,8 +1312,8 @@ export default function KanbanPage() {
 
     queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
 
-    const oldColumn = columns?.find(c => c.id === movedDeal.phase);
-    const newColumn = columns?.find(c => c.id === destinationPhase);
+    const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
+    const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
 
     if (movedDeal.client_email || movedDeal.client_whatsapp) {
       setPhaseChangeNotification({

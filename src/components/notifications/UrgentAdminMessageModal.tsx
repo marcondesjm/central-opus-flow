@@ -93,10 +93,6 @@ export function UrgentAdminMessageModal() {
         .eq('type', 'admin_message')
         .is('read_at', null)
         .order('created_at', { ascending: false });
-        .eq('user_id', user.id)
-        .eq('type', 'admin_message')
-        .is('read_at', null)
-        .order('created_at', { ascending: false });
 
       if (data && data.length > 0) {
         showModal(data);

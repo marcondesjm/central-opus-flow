@@ -253,7 +253,7 @@ export default function Dashboard() {
 
         if (accError || !account || cancelled) return;
 
-        // Create 1 example project
+        // Create 1 example project with a professional screenshot
         await supabase
           .from('projects')
           .insert({
@@ -264,8 +264,10 @@ export default function Dashboard() {
             progress: 25,
             user_id: user.id,
             account_id: account.id,
-            url: '',
+            url: 'https://exemplo.com',
+            screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
             view_count: 3,
+            notes: 'Este é um projeto de exemplo. Explore as funcionalidades e personalize como quiser!',
           });
 
         if (!cancelled) {

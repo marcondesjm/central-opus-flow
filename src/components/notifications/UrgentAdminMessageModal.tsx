@@ -47,15 +47,14 @@ export function UrgentAdminMessageModal() {
     } catch {}
   }, []);
 
-  const startCountdown = useCallback(() => {
-    // Clear any existing timers
+  const startCountdown = useCallback((duration: number = 30) => {
     if (countdownRef.current) clearInterval(countdownRef.current);
     if (flashRef.current) clearInterval(flashRef.current);
 
-    setCountdown(30);
+    setCountdown(duration);
     setCanClose(false);
 
-    let remaining = 30;
+    let remaining = duration;
     countdownRef.current = setInterval(() => {
       remaining -= 1;
       setCountdown(remaining);
@@ -67,7 +66,6 @@ export function UrgentAdminMessageModal() {
       }
     }, 1000);
 
-    // Flash effect
     flashRef.current = setInterval(() => {
       setShowFlash(true);
       setTimeout(() => setShowFlash(false), 200);

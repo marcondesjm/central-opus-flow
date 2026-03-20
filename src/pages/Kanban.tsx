@@ -1189,7 +1189,10 @@ export default function KanbanPage() {
     return columns.filter(c => (c as any).space_id === activeSpaceId || (c as any).space_id === null);
   }, [columns, activeSpaceId]);
 
-  const dealsByColumn = useMemo(() => {
+  // Optimistic local state for drag-and-drop
+  const [localDealOverrides, setLocalDealOverrides] = useState<Record<string, KanbanDeal[]> | null>(null);
+
+  const computedDealsByColumn = useMemo(() => {
     const now = new Date();
     const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
     
@@ -1226,6 +1229,14 @@ export default function KanbanPage() {
     Object.keys(map).forEach(key => { map[key] = sortDeals(map[key]); });
     return map;
   }, [filteredDeals, visibleColumns, sortMode]);
+
+  // Use local overrides when dragging, otherwise use computed
+  const dealsByColumn = localDealOverrides || computedDealsByColumn;
+
+  // Clear local overrides when query data changes (after DB sync)
+  useEffect(() => {
+    setLocalDealOverrides(null);
+  }, [filteredDeals]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 

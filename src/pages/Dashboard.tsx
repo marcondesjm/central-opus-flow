@@ -768,7 +768,8 @@ export default function Dashboard() {
       
       <AddProjectModal 
         open={addProjectOpen} 
-        onOpenChange={setAddProjectOpen} 
+        onOpenChange={(open) => { setAddProjectOpen(open); if (!open) setProjectTemplate(null); }}
+        template={projectTemplate}
       />
       
       <EditProjectModal

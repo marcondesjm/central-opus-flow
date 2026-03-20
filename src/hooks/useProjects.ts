@@ -385,9 +385,15 @@ export function useUpdateProject() {
 
 export function useDeleteProject() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   return useMutation({
     mutationFn: async (id: string) => {
+      // Block deletion in demo account - changes are temporary only
+      if (user?.email === 'usercentral@gmail.com') {
+        throw new Error('Na conta de demonstração, os projetos não podem ser excluídos.');
+      }
+
       const { error } = await supabase
         .from('projects')
         .delete()

@@ -225,14 +225,8 @@ export default function Dashboard() {
     };
   }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
-  // Seed demo data for new users (non-demo accounts)
-  useEffect(() => {
-    if (!isDemoAccount && showTour && !demoSeeded && !accountsLoading && accounts.length === 0) {
-      seedDemoData().then((seeded) => {
-        if (seeded) setDemoSeeded(true);
-      });
-    }
-  }, [isDemoAccount, showTour, demoSeeded, accountsLoading, accounts.length, seedDemoData]);
+  // Demo data is exclusively for the demo account (usercentral@gmail.com)
+  // Do NOT seed demo data for admin or regular user accounts
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

@@ -534,7 +534,7 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg 
 }
 
 // ─── Add Column Modal ──────────────────────────
-function AddColumnModal({ open, onOpenChange, existingCount }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number }) {
+function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number; spaceId?: string | null }) {
   const createColumn = useCreateColumn();
   const [name, setName] = useState('');
   const [color, setColor] = useState('#3b82f6');
@@ -566,7 +566,7 @@ function AddColumnModal({ open, onOpenChange, existingCount }: { open: boolean; 
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={() => { if (name.trim()) { createColumn.mutate({ name: name.trim(), color, position: existingCount }); onOpenChange(false); } }} disabled={!name.trim()}>
+          <Button onClick={() => { if (name.trim()) { createColumn.mutate({ name: name.trim(), color, position: existingCount, space_id: spaceId || null }); onOpenChange(false); } }} disabled={!name.trim()}>
             Criar
           </Button>
         </DialogFooter>
@@ -1182,6 +1182,13 @@ export default function KanbanPage() {
     return result;
   }, [deals, searchQuery, filterPriority, filterAssignee, filterTag, activeSpaceId]);
 
+  // Filter columns by active space
+  const visibleColumns = useMemo(() => {
+    if (!columns) return [];
+    if (!activeSpaceId) return columns;
+    return columns.filter(c => (c as any).space_id === activeSpaceId || (c as any).space_id === null);
+  }, [columns, activeSpaceId]);
+
   const dealsByColumn = useMemo(() => {
     const now = new Date();
     const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
@@ -1211,14 +1218,14 @@ export default function KanbanPage() {
     };
 
     const map: Record<string, KanbanDeal[]> = {};
-    columns?.forEach(c => { map[c.id] = []; });
+    visibleColumns.forEach(c => { map[c.id] = []; });
     filteredDeals.forEach(d => {
       if (map[d.phase]) map[d.phase].push(d);
-      else if (columns?.[0]) map[columns[0].id].push(d);
+      else if (visibleColumns[0]) map[visibleColumns[0].id].push(d);
     });
     Object.keys(map).forEach(key => { map[key] = sortDeals(map[key]); });
     return map;
-  }, [filteredDeals, columns, sortMode]);
+  }, [filteredDeals, visibleColumns, sortMode]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
@@ -1232,7 +1239,7 @@ export default function KanbanPage() {
     // Handle column reordering
     if (type === 'COLUMN') {
       if (source.index === destination.index) return;
-      const sortedCols = [...(columns || [])];
+      const sortedCols = [...(visibleColumns || [])];
       
       const movedCol = sortedCols[source.index];
       const isFinalizadoCol = movedCol?.name?.toLowerCase().includes('finalizado') || movedCol?.name?.toLowerCase().includes('conclu');
@@ -1305,8 +1312,8 @@ export default function KanbanPage() {
 
     queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
 
-    const oldColumn = columns?.find(c => c.id === movedDeal.phase);
-    const newColumn = columns?.find(c => c.id === destinationPhase);
+    const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
+    const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
 
     if (movedDeal.client_email || movedDeal.client_whatsapp) {
       setPhaseChangeNotification({
@@ -1868,7 +1875,7 @@ export default function KanbanPage() {
             <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
               {(colProvided) => (
                 <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4" style={{ zoom: zoomLevel }}>
-                  {columns?.map((column, colIndex) => {
+                  {visibleColumns.map((column, colIndex) => {
                     const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
                     return (
                     <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex} isDragDisabled={isFinalizadoColumn}>
@@ -1979,19 +1986,19 @@ export default function KanbanPage() {
       ) : viewMode === 'calendar' ? (
         <CalendarView
           deals={filteredDeals}
-          columns={columns || []}
+          columns={visibleColumns}
           onDetail={d => setDetailDeal(d)}
         />
       ) : viewMode === 'timeline' ? (
         <TimelineView
           deals={filteredDeals}
-          columns={columns || []}
+          columns={visibleColumns}
           onDetail={d => setDetailDeal(d)}
         />
       ) : (
         <ListView
           deals={filteredDeals}
-          columns={columns || []}
+          columns={visibleColumns}
           onEdit={d => { setEditDeal(d); setShowAddModal(true); }}
           onDelete={id => setDeletingId(id)}
           onDetail={d => setDetailDeal(d)}
@@ -2000,12 +2007,12 @@ export default function KanbanPage() {
       )}
 
       {/* Modals */}
-      {showAddModal && columns && (
+      {showAddModal && visibleColumns.length > 0 && (
         <AddDealModal
           open={showAddModal}
           onOpenChange={v => { setShowAddModal(v); if (!v) setEditDeal(null); }}
           editDeal={freshEditDeal}
-          columns={columns}
+          columns={visibleColumns}
         />
       )}
 
@@ -2020,7 +2027,7 @@ export default function KanbanPage() {
       {freshDetailDeal && (
         <TaskDetailFullModal
           deal={freshDetailDeal}
-          columns={columns || []}
+          columns={visibleColumns}
           open={!!freshDetailDeal}
           onOpenChange={v => { if (!v) setDetailDeal(null); }}
         />
@@ -2030,7 +2037,8 @@ export default function KanbanPage() {
         <AddColumnModal
           open={showAddColumn}
           onOpenChange={setShowAddColumn}
-          existingCount={columns?.length || 0}
+          existingCount={visibleColumns.length}
+          spaceId={activeSpaceId}
         />
       )}
 

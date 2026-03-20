@@ -11,6 +11,7 @@ export interface KanbanColumn {
   position: number;
   created_at: string;
   updated_at: string;
+  space_id: string | null;
 }
 
 const DEFAULT_COLUMNS = [
@@ -364,7 +365,7 @@ export function useCreateColumn() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (col: { name: string; color: string; position: number }) => {
+    mutationFn: async (col: { name: string; color: string; position: number; space_id?: string | null }) => {
       const { data, error } = await supabase
         .from('kanban_columns')
         .insert({ ...col, user_id: user!.id })

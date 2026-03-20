@@ -317,6 +317,25 @@ export default function Ideas() {
                                 <span className="text-[10px] text-muted-foreground w-7">{idea.progress}%</span>
                               </div>
                             </td>
+                            <td className="px-3 py-2.5">
+                              {(() => {
+                                const profile = modifierProfiles?.[idea.last_modified_by || ''] || (idea.user_id === user?.id ? modifierProfiles?.[user.id] : null);
+                                return profile ? (
+                                  <div className="flex items-center gap-1.5">
+                                    <Avatar className="w-5 h-5">
+                                      <AvatarImage src={profile.avatar_url || undefined} />
+                                      <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
+                                        {(profile.full_name || '?').slice(0, 2).toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0">
+                                      <span className="text-[10px] truncate block max-w-[80px]">{profile.full_name || 'Usuário'}</span>
+                                      <span className="text-[9px] text-muted-foreground">{format(new Date(idea.updated_at), 'dd/MM HH:mm')}</span>
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })()}
+                            </td>
                           </tr>
                         );
                       })}

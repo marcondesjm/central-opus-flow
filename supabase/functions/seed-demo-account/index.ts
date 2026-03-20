@@ -62,11 +62,14 @@ Deno.serve(async (req) => {
         adminClient.from("kanban_expenses").delete().eq("user_id", demoUserId),
         adminClient.from("kanban_task_checklist").delete().eq("user_id", demoUserId),
         adminClient.from("kanban_scheduled_messages").delete().eq("user_id", demoUserId),
+        adminClient.from("kanban_spaces").delete().eq("user_id", demoUserId),
         adminClient.from("tags").delete().eq("user_id", demoUserId),
         adminClient.from("pix_keys").delete().eq("user_id", demoUserId),
         adminClient.from("wordpress_connections").delete().eq("user_id", demoUserId),
         adminClient.from("activity_logs").delete().eq("user_id", demoUserId),
         adminClient.from("deadline_notification_settings").delete().eq("user_id", demoUserId),
+        adminClient.from("ideas").delete().eq("user_id", demoUserId),
+        adminClient.from("proposals").delete().eq("user_id", demoUserId),
       ]);
     } else {
       // Create demo user

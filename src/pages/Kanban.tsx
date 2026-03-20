@@ -1992,7 +1992,7 @@ export default function KanbanPage() {
       ) : viewMode === 'timeline' ? (
         <TimelineView
           deals={filteredDeals}
-          columns={columns || []}
+          columns={visibleColumns}
           onDetail={d => setDetailDeal(d)}
         />
       ) : (

@@ -37,6 +37,7 @@ import {
   Settings2,
   UsersRound,
   MessageCircle,
+  FileCode2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -566,6 +567,18 @@ export function Sidebar({
           >
             <BookOpen className="w-4 h-4" aria-hidden="true" />
             Manual
+          </button>
+        </div>
+
+        {/* Documentação button */}
+        <div className="pt-1">
+          <button
+            onClick={() => navigate('/documentation')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+            aria-label="Documentação"
+          >
+            <FileCode2 className="w-4 h-4" aria-hidden="true" />
+            Documentação
           </button>
         </div>
 

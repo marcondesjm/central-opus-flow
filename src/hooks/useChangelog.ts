@@ -99,8 +99,8 @@ export function useChangelogByVersion() {
         })
         .map(([version, entries]) => ({
           version,
-          entries,
-          date: entries[0]?.created_at,
+          entries: entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+          date: entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.created_at,
         }));
     },
     staleTime: 0,

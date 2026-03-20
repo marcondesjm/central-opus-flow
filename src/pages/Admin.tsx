@@ -182,15 +182,21 @@ export default function Admin() {
     setPreviewUser(user);
     setLoadingPreview(true);
     try {
-      const [accountsRes, projectsRes, kanbanRes] = await Promise.all([
+      const [accountsRes, projectsRes, kanbanRes, columnsRes, ideasRes, proposalsRes] = await Promise.all([
         supabase.from('lovable_accounts').select('id, name, email, color, created_at').eq('user_id', user.user_id),
         supabase.from('projects').select('id, name, description, status, url, progress, created_at, updated_at').eq('user_id', user.user_id),
         supabase.from('kanban_deals').select('*').eq('user_id', user.user_id).order('position', { ascending: true }),
+        supabase.from('kanban_columns').select('id, name, color, position, space_id').eq('user_id', user.user_id).order('position', { ascending: true }),
+        supabase.from('ideas').select('id, title, description, theme, theme_color, roadmap, impact, effort, progress, created_at').eq('user_id', user.user_id).order('created_at', { ascending: false }),
+        supabase.from('proposals').select('id, proposal_title, client_name, client_company, status, total_value, discount, created_at').eq('user_id', user.user_id).order('created_at', { ascending: false }),
       ]);
       setPreviewData({
         accounts: accountsRes.data || [],
         projects: projectsRes.data || [],
         kanbanDeals: kanbanRes.data || [],
+        kanbanColumns: columnsRes.data || [],
+        ideas: ideasRes.data || [],
+        proposals: proposalsRes.data || [],
       });
     } catch {
       setPreviewData({ accounts: [], projects: [], kanbanDeals: [] });

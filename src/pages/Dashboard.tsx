@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -64,10 +65,27 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export default function Dashboard() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeView, setActiveView] = useState('all');
-  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState(() => searchParams.get('view') || 'all');
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(() => searchParams.get('account') || null);
+
+  // Sync from URL params (when navigating from other pages via sidebar)
+  useEffect(() => {
+    const urlView = searchParams.get('view');
+    const urlAccount = searchParams.get('account');
+    if (urlView) {
+      setActiveView(urlView);
+      setSearchParams((prev) => { prev.delete('view'); return prev; }, { replace: true });
+    }
+    if (urlAccount) {
+      setSelectedAccount(urlAccount);
+      setSearchParams((prev) => { prev.delete('account'); return prev; }, { replace: true });
+    } else if (urlView === 'all') {
+      setSelectedAccount(null);
+    }
+  }, [searchParams, setSearchParams]);
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');
   const [tagFilter, setTagFilter] = useState<string | null>(null);

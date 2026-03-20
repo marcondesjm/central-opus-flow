@@ -5,76 +5,74 @@ const testimonials = [
   {
     name: 'Carlos Silva',
     role: 'Freelancer de Web',
-    content: 'Eu tinha 3 contas e perdia 30 minutos por dia só procurando projetos. Com o Central Opus Flow, encontro tudo em segundos.',
-    avatar: 'CS',
-    rating: 5,
+    content: 'Economizei 3 horas por semana. Eu tinha 3 contas e perdia tempo só procurando projetos. Agora encontro tudo em segundos.',
+    initials: 'CS',
   },
   {
     name: 'Ana Rodrigues',
     role: 'Dona de Agência',
     content: 'Gerencio 8 contas de clientes diferentes. O Central Opus Flow salvou minha sanidade mental. Recomendo para qualquer agência.',
-    avatar: 'AR',
-    rating: 5,
+    initials: 'AR',
   },
   {
     name: 'Pedro Santos',
     role: 'Desenvolvedor Full-Stack',
     content: 'A busca com Ctrl+K é viciante. Nunca mais precisei lembrar em qual conta estava cada projeto. Vale cada centavo.',
-    avatar: 'PS',
-    rating: 5,
+    initials: 'PS',
   },
 ];
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 md:py-24 px-4 bg-muted/30">
-      <div className="container mx-auto max-w-6xl">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
+    <section className="py-20 md:py-28 px-4 bg-muted/30">
+      <div className="container mx-auto max-w-5xl">
+        <motion.div
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
         >
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
             Depoimentos
           </span>
-          <h2 className="text-2xl md:text-4xl font-bold mt-3 mb-4">
+          <h2 className="text-2xl md:text-4xl font-extrabold mt-3 mb-4 tracking-tight">
             Quem usa, recomenda
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-lg mx-auto">
             Veja o que desenvolvedores e agências dizem sobre o Central Opus Flow.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
+          {testimonials.map((t, index) => (
             <motion.div
               key={index}
-              className="bg-card border border-border rounded-xl p-6 relative"
-              initial={{ opacity: 0, y: 20 }}
+              className="bg-card border border-border rounded-2xl p-6 relative hover:border-primary/30 transition-colors duration-300"
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
             >
-              <Quote className="absolute top-4 right-4 w-8 h-8 text-primary/10" />
-              
+              <Quote className="absolute top-5 right-5 w-7 h-7 text-primary/10" />
+
               <div className="flex items-center gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
-              
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                "{testimonial.content}"
+
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                "{t.content}"
               </p>
-              
+
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                  {testimonial.avatar}
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xs">
+                  {t.initials}
                 </div>
                 <div>
-                  <p className="font-medium">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <p className="font-semibold text-sm">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
                 </div>
               </div>
             </motion.div>

@@ -1,105 +1,98 @@
 import { motion } from 'framer-motion';
-import { CheckCircle2, Zap, Target, Sparkles } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Zap, Target, Sparkles } from 'lucide-react';
+
+const solutions = [
+  {
+    icon: Zap,
+    title: 'Encontre qualquer projeto em segundos',
+    description: 'Pressione Ctrl+K e busque em todas as contas instantaneamente.',
+  },
+  {
+    icon: Target,
+    title: 'Tudo organizado em um painel visual',
+    description: 'Todos os projetos, status e métricas em uma única tela limpa.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Visão completa sem alternar contas',
+    description: 'Conecte múltiplas contas e veja tudo centralizado, sem login extra.',
+  },
+];
 
 export function SolutionSection() {
-  const { t } = useTranslation();
-
   return (
-    <section className="py-16 md:py-24 px-4">
+    <section className="py-20 md:py-28 px-4">
       <div className="container mx-auto max-w-5xl">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
+        <motion.div
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
         >
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">
-            {t('landing.solutionLabel')}
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+            A solução
           </span>
-          <h2 className="text-2xl md:text-4xl font-bold mt-3 mb-4">
-            {t('landing.solutionTitle')}{' '}
-            <span className="text-primary">{t('landing.solutionTitleHighlight')}</span>
+          <h2 className="text-2xl md:text-4xl font-extrabold mt-3 mb-4 tracking-tight">
+            Um único painel para{' '}
+            <span className="text-primary">todos os seus projetos</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg" dangerouslySetInnerHTML={{ __html: t('landing.solutionSubtitle') }} />
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            O Central Opus Flow centraliza todas as suas contas e integrações em um dashboard inteligente.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* Left - Features list */}
-          <motion.div 
-            className="space-y-6"
-            initial={{ opacity: 0, x: -30 }}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Left – benefits */}
+          <motion.div
+            className="space-y-7"
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
           >
-            {[
-              {
-                icon: Zap,
-                title: t('landing.solutionInstantSearch'),
-                description: t('landing.solutionInstantSearchDesc'),
-              },
-              {
-                icon: Target,
-                title: t('landing.solutionVisualOrg'),
-                description: t('landing.solutionVisualOrgDesc'),
-              },
-              {
-                icon: Sparkles,
-                title: t('landing.solutionFullView'),
-                description: t('landing.solutionFullViewDesc'),
-              },
-            ].map((feature, index) => (
-              <div key={feature.title} className="flex gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <feature.icon className="w-6 h-6 text-primary" />
+            {solutions.map((item) => (
+              <div key={item.title} className="flex gap-4">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <item.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-1">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <h3 className="font-bold text-base mb-1">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                 </div>
               </div>
             ))}
           </motion.div>
 
-          {/* Right - Visual */}
+          {/* Right – mini-UI mockup */}
           <motion.div
             className="relative"
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
             <div className="relative bg-card border border-border rounded-2xl p-6 shadow-xl">
-              <div className="space-y-4">
-                {/* Search bar mockup */}
-                <div className="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">
-                  <span className="text-muted-foreground">🔍</span>
-                  <span className="text-muted-foreground">{t('dashboard.searchProjects')}</span>
-                  <span className="ml-auto text-xs bg-background px-2 py-1 rounded">⌘K</span>
-                </div>
-                
-                {/* Account cards */}
-                {[
-                  { color: 'bg-blue-500', name: 'Conta Trabalho', projects: 18, credits: 150 },
-                  { color: 'bg-emerald-500', name: 'Conta Freelance', projects: 12, credits: 85 },
-                  { color: 'bg-amber-500', name: 'Conta Pessoal', projects: 7, credits: 200 },
-                ].map((account, i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                    <div className={`w-3 h-3 rounded-full ${account.color}`} />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{account.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {account.projects} {t('common.projects').toLowerCase()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-sm text-primary">
-                        {account.credits} {t('dashboard.credits').toLowerCase()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              {/* Search bar */}
+              <div className="bg-muted rounded-lg px-4 py-3 flex items-center gap-3 mb-4">
+                <span className="text-muted-foreground text-sm">🔍 Buscar projetos...</span>
+                <span className="ml-auto text-xs bg-background px-2 py-1 rounded border border-border">⌘K</span>
               </div>
+
+              {/* Account rows */}
+              {[
+                { color: 'bg-blue-500', name: 'Conta Trabalho', projects: 18 },
+                { color: 'bg-emerald-500', name: 'Conta Freelance', projects: 12 },
+                { color: 'bg-amber-500', name: 'Conta Pessoal', projects: 7 },
+              ].map((account, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg mb-2 last:mb-0">
+                  <div className={`w-2.5 h-2.5 rounded-full ${account.color}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{account.name}</p>
+                    <p className="text-xs text-muted-foreground">{account.projects} projetos</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>

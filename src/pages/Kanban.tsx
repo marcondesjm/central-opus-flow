@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AppNavBar } from '@/components/layout/AppNavBar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';

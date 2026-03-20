@@ -529,6 +529,23 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg,
             {deal.client_whatsapp && <span className="flex items-center gap-0.5"><Phone className="w-2.5 h-2.5" /> WhatsApp</span>}
           </div>
         )}
+
+        {modifierProfile && (
+          <div className="flex items-center gap-1.5 pt-1 border-t border-border/50">
+            <Avatar className="w-5 h-5">
+              <AvatarImage src={modifierProfile.avatar_url || undefined} />
+              <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
+                {(modifierProfile.full_name || '?').slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-[10px] text-muted-foreground truncate flex-1">
+              {modifierProfile.full_name || 'Usuário'}
+            </span>
+            <span className="text-[9px] text-muted-foreground/60">
+              {format(new Date(deal.updated_at), 'dd/MM HH:mm')}
+            </span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

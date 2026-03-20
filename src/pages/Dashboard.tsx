@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileSidebar } from '@/components/layout/MobileSidebar';
@@ -177,6 +178,7 @@ export default function Dashboard() {
 
   // Auto-reset demo data for the demo account on each new session (login)
   const isDemoAccount = user?.email === 'usercentral@gmail.com';
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!isDemoAccount || accountsLoading || !user?.id || demoResetting) return;
 
@@ -191,7 +193,8 @@ export default function Dashboard() {
         sessionStorage.setItem('demo_data_reset', 'true');
         const result = await resetDemoData();
         if (!cancelled && result) {
-          window.location.reload();
+          // Invalidate all queries to refresh data instead of full page reload
+          await queryClient.invalidateQueries();
         }
       }
     };
@@ -201,7 +204,7 @@ export default function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData]);
+  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
   // Seed demo data for new users (non-demo accounts)
   useEffect(() => {

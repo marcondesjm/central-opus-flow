@@ -21,6 +21,27 @@ export interface LovableAccount {
   notes: string | null;
 }
 
+// Safe version without sensitive keys (for reads)
+export interface LovableAccountSafe {
+  id: string;
+  user_id: string;
+  email: string | null;
+  name: string | null;
+  color: string | null;
+  credits: number | null;
+  credits_updated_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  admin_email: string | null;
+  supabase_project_id: string | null;
+  supabase_url: string | null;
+  anon_key_masked: string | null;
+  service_role_key_masked: string | null;
+  has_anon_key: boolean | null;
+  has_service_role_key: boolean | null;
+  notes: string | null;
+}
+
 export interface Tag {
   id: string;
   user_id: string;

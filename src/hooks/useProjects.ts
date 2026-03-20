@@ -84,12 +84,18 @@ export function useAccounts() {
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      return (data || []).map(acc => ({
-        ...acc,
-        // Map safe fields back to legacy interface for compatibility
-        anon_key: acc.anon_key_masked || null,
-        service_role_key: acc.service_role_key_masked || null,
-      })) as unknown as LovableAccount[];
+      const isDemo = user?.email === 'usercentral@gmail.com';
+      return (data || [])
+        .filter(acc => {
+          // Hide demo account from non-demo users
+          if (!isDemo && acc.user_id !== user?.id) return false;
+          return true;
+        })
+        .map(acc => ({
+          ...acc,
+          anon_key: acc.anon_key_masked || null,
+          service_role_key: acc.service_role_key_masked || null,
+        })) as unknown as LovableAccount[];
     },
     enabled: !!user,
   });

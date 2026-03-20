@@ -566,7 +566,7 @@ function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: 
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={() => { if (name.trim()) { createColumn.mutate({ name: name.trim(), color, position: existingCount }); onOpenChange(false); } }} disabled={!name.trim()}>
+          <Button onClick={() => { if (name.trim()) { createColumn.mutate({ name: name.trim(), color, position: existingCount, space_id: spaceId || null }); onOpenChange(false); } }} disabled={!name.trim()}>
             Criar
           </Button>
         </DialogFooter>

@@ -116,6 +116,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
             send_to: sendTo,
             target_user_id: sendTo === 'single' && targetUser ? targetUser.user_id : null,
             scheduled_at: scheduledAt,
+            display_duration: displayDuration,
           } as any);
 
         if (error) throw error;

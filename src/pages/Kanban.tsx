@@ -2037,7 +2037,8 @@ export default function KanbanPage() {
         <AddColumnModal
           open={showAddColumn}
           onOpenChange={setShowAddColumn}
-          existingCount={columns?.length || 0}
+          existingCount={visibleColumns.length}
+          spaceId={activeSpaceId}
         />
       )}
 

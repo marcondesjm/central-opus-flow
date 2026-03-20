@@ -89,6 +89,8 @@ import { WordPressManager } from '@/components/admin/WordPressManager';
 import { CouponManager } from '@/components/admin/CouponManager';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
 import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
+import { RssFeedManager } from '@/components/admin/RssFeedManager';
+import { Rss } from 'lucide-react';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',

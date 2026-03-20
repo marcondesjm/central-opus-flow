@@ -305,7 +305,6 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
                 <Input
                   type="number"
                   min={5}
-                  max={300}
                   value={displayDuration}
                   onChange={(e) => setDisplayDuration(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
                   className="w-24 text-center font-mono"

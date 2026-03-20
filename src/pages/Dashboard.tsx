@@ -226,8 +226,60 @@ export default function Dashboard() {
     };
   }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
-  // Demo data is exclusively for the demo account (usercentral@gmail.com)
-  // Do NOT seed demo data for admin or regular user accounts
+  // Auto-seed example data for NEW regular users (not demo, not admin)
+  const isAdminUser = user?.email === 'marcondesgestaotrafego@gmail.com';
+  useEffect(() => {
+    if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
+    
+    // Only seed if user has zero accounts AND zero projects
+    if (accounts.length > 0 || projects.length > 0) return;
+
+    let cancelled = false;
+
+    const seedExampleData = async () => {
+      try {
+        // Create 1 example account
+        const { data: account, error: accError } = await supabase
+          .from('lovable_accounts')
+          .insert({
+            name: 'Minha Empresa',
+            email: user.email || 'contato@empresa.com',
+            color: 'blue',
+            credits: 50,
+            user_id: user.id,
+          })
+          .select()
+          .single();
+
+        if (accError || !account || cancelled) return;
+
+        // Create 1 example project
+        await supabase
+          .from('projects')
+          .insert({
+            name: 'Meu Primeiro Projeto',
+            description: 'Projeto de exemplo para você conhecer a plataforma. Edite ou exclua quando quiser!',
+            status: 'draft',
+            type: 'website',
+            progress: 25,
+            user_id: user.id,
+            account_id: account.id,
+            url: '',
+            view_count: 3,
+          });
+
+        if (!cancelled) {
+          await queryClient.invalidateQueries();
+        }
+      } catch (err) {
+        console.error('Error seeding example data:', err);
+      }
+    };
+
+    void seedExampleData();
+
+    return () => { cancelled = true; };
+  }, [user?.id, isDemoAccount, isAdminUser, accounts.length, projects.length, accountsLoading, projectsLoading, queryClient]);
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

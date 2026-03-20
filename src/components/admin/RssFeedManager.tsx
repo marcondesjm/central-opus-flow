@@ -96,6 +96,9 @@ export function RssFeedManager() {
             onChange={(e) => setFeedUrl(e.target.value)}
             className="h-9"
           />
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            Use a URL do feed RSS (ex: /rss/), não a URL do site
+          </p>
         </div>
         <Button
           size="sm"

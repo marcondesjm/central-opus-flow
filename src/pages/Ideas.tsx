@@ -58,8 +58,7 @@ export default function Ideas() {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <AppNavBar />
+    <AppLayout>
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}

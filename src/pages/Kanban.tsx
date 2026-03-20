@@ -1084,25 +1084,32 @@ export default function KanbanPage() {
         .eq('sent', false);
 
       if (data && data.length > 0) {
-        data.forEach((msg: any, idx: number) => {
-          const deal = msg.kanban_deals;
-          const isOverdue = msg.scheduled_date < today;
+        // Show a single summary toast instead of one per message
+        const overdueCount = data.filter((msg: any) => msg.scheduled_date < today).length;
+        const todayCount = data.length - overdueCount;
+        const parts: string[] = [];
+        if (todayCount > 0) parts.push(`${todayCount} para hoje`);
+        if (overdueCount > 0) parts.push(`${overdueCount} atrasada${overdueCount > 1 ? 's' : ''}`);
 
-          toast({
-            title: isOverdue ? `⚠️ Mensagem atrasada!` : `📅 Mensagem agendada para hoje!`,
-            description: `${deal?.company_name || 'Cliente'} - ${isOverdue ? 'Vencida em ' + format(new Date(msg.scheduled_date), 'dd/MM') : 'Pronta para envio'}`,
-            duration: 20000,
-            variant: isOverdue ? 'destructive' : undefined,
-          });
-
-          if (!autoDispatchEnabled || !deal?.client_whatsapp) return;
-
-          const phone = deal.client_whatsapp.replace(/\D/g, '');
-          setTimeout(() => {
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-            supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id).then(() => {});
-          }, 1500 + idx * 2000);
+        toast({
+          title: `📅 ${data.length} mensagem${data.length > 1 ? 'ns' : ''} agendada${data.length > 1 ? 's' : ''}`,
+          description: `${parts.join(' e ')}. Abra o menu Agendadas no Kanban.`,
+          duration: 5000,
+          variant: overdueCount > 0 ? 'destructive' : undefined,
         });
+
+        // Auto-dispatch if enabled
+        if (autoDispatchEnabled) {
+          data.forEach((msg: any, idx: number) => {
+            const deal = msg.kanban_deals;
+            if (!deal?.client_whatsapp) return;
+            const phone = deal.client_whatsapp.replace(/\D/g, '');
+            setTimeout(() => {
+              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+              supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id).then(() => {});
+            }, 1500 + idx * 2000);
+          });
+        }
       }
     };
 

@@ -32,6 +32,7 @@ import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
+import { DashboardActivitySection } from '@/components/dashboard/DashboardActivitySection';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
 import { useCollaboration } from '@/hooks/useCollaboration';

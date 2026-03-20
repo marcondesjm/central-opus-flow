@@ -970,6 +970,32 @@ export default function KanbanPage() {
   const { data: columns, isLoading: columnsLoading } = useKanbanColumns();
   const { data: spaces } = useKanbanSpaces();
   const { data: systemUsers } = useSystemUsers();
+
+  // Fetch profiles for last_modified_by users
+  const modifierUserIds = useMemo(() => {
+    if (!deals) return [];
+    const ids = new Set<string>();
+    deals.forEach(d => { if (d.last_modified_by) ids.add(d.last_modified_by); });
+    // Also add current user
+    if (user?.id) ids.add(user.id);
+    return Array.from(ids);
+  }, [deals, user?.id]);
+
+  const { data: modifierProfiles } = useQuery({
+    queryKey: ['modifier-profiles', modifierUserIds],
+    queryFn: async () => {
+      if (modifierUserIds.length === 0) return {};
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', modifierUserIds);
+      const map: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      data?.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+      return map;
+    },
+    enabled: modifierUserIds.length > 0,
+  });
+
   const deleteSpace = useDeleteSpace();
   const updateSpace = useUpdateSpace();
   const updateDeal = useUpdateDeal();

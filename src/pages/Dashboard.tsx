@@ -303,6 +303,48 @@ export default function Dashboard() {
             },
           ]);
 
+        // Create 3 example ideas
+        await supabase
+          .from('ideas')
+          .insert([
+            {
+              user_id: user.id,
+              title: 'Criar página de captura para lançamento',
+              description: 'Desenvolver uma landing page otimizada para capturar leads antes do lançamento do produto.',
+              theme: 'marketing',
+              theme_color: '#3b82f6',
+              impact: 4,
+              effort: 2,
+              roadmap: 'now',
+              progress: 30,
+              position: 0,
+            },
+            {
+              user_id: user.id,
+              title: 'Integrar sistema de pagamentos PIX',
+              description: 'Adicionar opção de pagamento via PIX automático para aumentar a conversão de vendas.',
+              theme: 'tecnologia',
+              theme_color: '#10b981',
+              impact: 5,
+              effort: 3,
+              roadmap: 'next',
+              progress: 0,
+              position: 1,
+            },
+            {
+              user_id: user.id,
+              title: 'Campanha de remarketing no Instagram',
+              description: 'Criar sequência de anúncios para reconquistar visitantes que não converteram.',
+              theme: 'marketing',
+              theme_color: '#f59e0b',
+              impact: 3,
+              effort: 2,
+              roadmap: 'later',
+              progress: 0,
+              position: 2,
+            },
+          ]);
+
         if (!cancelled) {
           await queryClient.invalidateQueries();
         }

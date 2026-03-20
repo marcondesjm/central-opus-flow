@@ -74,12 +74,12 @@ export function AppLayout({ children }: AppLayoutProps) {
                 variant="ghost"
                 size="icon"
                 onClick={toggleCollapsed}
-                className="h-8 w-8 rounded-lg border border-border bg-card hover:bg-accent text-muted-foreground hover:text-foreground shadow-sm"
+                className="h-9 w-9 rounded-xl border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary hover:border-primary/50 shadow-md hover:shadow-[0_0_16px_hsl(var(--primary)/0.25)] transition-all duration-200 active:scale-95"
               >
                 {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">
+            <TooltipContent side="right" className="font-medium">
               {collapsed ? 'Mostrar menu' : 'Esconder menu'}
             </TooltipContent>
           </Tooltip>

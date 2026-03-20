@@ -14,7 +14,7 @@ import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectList } from '@/components/projects/ProjectList';
 import { AddAccountModal } from '@/components/accounts/AddAccountModal';
 import { EditAccountModal } from '@/components/accounts/EditAccountModal';
-import { AddProjectModal } from '@/components/projects/AddProjectModal';
+import { AddProjectModal, type ProjectTemplate } from '@/components/projects/AddProjectModal';
 import { EditProjectModal } from '@/components/projects/EditProjectModal';
 import { ProjectHistoryModal } from '@/components/projects/ProjectHistoryModal';
 import { TagsManager } from '@/components/tags/TagsManager';

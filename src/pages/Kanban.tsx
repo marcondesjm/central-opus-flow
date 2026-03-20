@@ -392,13 +392,14 @@ function AddDealModal({ open, onOpenChange, editDeal, columns }: {
 }
 
 // ─── Task Card ──────────────────────────
-function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg }: {
+function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg, modifierProfile }: {
   deal: KanbanDeal;
   onEdit: () => void;
   onDelete: () => void;
   onPayments: () => void;
   onDetail: () => void;
   onWhatsAppMsg: (msg: string) => void;
+  modifierProfile?: { full_name: string | null; avatar_url: string | null } | null;
 }) {
   const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
   const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());

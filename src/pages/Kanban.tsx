@@ -1182,6 +1182,13 @@ export default function KanbanPage() {
     return result;
   }, [deals, searchQuery, filterPriority, filterAssignee, filterTag, activeSpaceId]);
 
+  // Filter columns by active space
+  const visibleColumns = useMemo(() => {
+    if (!columns) return [];
+    if (!activeSpaceId) return columns;
+    return columns.filter(c => (c as any).space_id === activeSpaceId || (c as any).space_id === null);
+  }, [columns, activeSpaceId]);
+
   const dealsByColumn = useMemo(() => {
     const now = new Date();
     const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
@@ -1211,14 +1218,14 @@ export default function KanbanPage() {
     };
 
     const map: Record<string, KanbanDeal[]> = {};
-    columns?.forEach(c => { map[c.id] = []; });
+    visibleColumns.forEach(c => { map[c.id] = []; });
     filteredDeals.forEach(d => {
       if (map[d.phase]) map[d.phase].push(d);
-      else if (columns?.[0]) map[columns[0].id].push(d);
+      else if (visibleColumns[0]) map[visibleColumns[0].id].push(d);
     });
     Object.keys(map).forEach(key => { map[key] = sortDeals(map[key]); });
     return map;
-  }, [filteredDeals, columns, sortMode]);
+  }, [filteredDeals, visibleColumns, sortMode]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 

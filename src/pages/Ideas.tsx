@@ -25,10 +25,35 @@ type ViewMode = 'table' | 'board' | 'timeline';
 
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
+  const { user } = useAuth();
   const createIdea = useCreateIdea();
   const bulkDelete = useBulkDeleteIdeas();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  // Fetch profiles for last_modified_by
+  const modifierUserIds = useMemo(() => {
+    if (!ideas) return [];
+    const ids = new Set<string>();
+    ideas.forEach(i => { if (i.last_modified_by) ids.add(i.last_modified_by); });
+    if (user?.id) ids.add(user.id);
+    return Array.from(ids);
+  }, [ideas, user?.id]);
+
+  const { data: modifierProfiles } = useQuery({
+    queryKey: ['idea-modifier-profiles', modifierUserIds],
+    queryFn: async () => {
+      if (modifierUserIds.length === 0) return {};
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', modifierUserIds);
+      const map: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      data?.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+      return map;
+    },
+    enabled: modifierUserIds.length > 0,
+  });
 
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [search, setSearch] = useState('');

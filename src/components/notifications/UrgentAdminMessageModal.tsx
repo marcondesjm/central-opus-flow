@@ -157,7 +157,8 @@ export function UrgentAdminMessageModal() {
   if (!current || !open) return null;
 
   const whatsappUrl = `https://wa.me/5548996029392?text=${encodeURIComponent('Olá! Gostaria de renovar meu plano.')}`;
-  const progressPercent = ((30 - countdown) / 30) * 100;
+  const totalDuration = current?.metadata?.display_duration || 30;
+  const progressPercent = ((totalDuration - countdown) / totalDuration) * 100;
 
   return (
     <div

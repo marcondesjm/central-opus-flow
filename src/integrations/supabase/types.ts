@@ -1247,8 +1247,11 @@ export type Database = {
           has_connected_account: boolean
           has_created_project: boolean
           id: string
+          last_active_at: string | null
+          last_sign_in_at: string | null
           onboarding_completed: boolean
           onboarding_step: number
+          total_session_minutes: number | null
           updated_at: string
           user_id: string
           whatsapp: string | null
@@ -1263,8 +1266,11 @@ export type Database = {
           has_connected_account?: boolean
           has_created_project?: boolean
           id?: string
+          last_active_at?: string | null
+          last_sign_in_at?: string | null
           onboarding_completed?: boolean
           onboarding_step?: number
+          total_session_minutes?: number | null
           updated_at?: string
           user_id: string
           whatsapp?: string | null
@@ -1279,8 +1285,11 @@ export type Database = {
           has_connected_account?: boolean
           has_created_project?: boolean
           id?: string
+          last_active_at?: string | null
+          last_sign_in_at?: string | null
           onboarding_completed?: boolean
           onboarding_step?: number
+          total_session_minutes?: number | null
           updated_at?: string
           user_id?: string
           whatsapp?: string | null
@@ -2072,6 +2081,8 @@ export type Database = {
           full_name: string | null
           id: string | null
           is_trial: boolean | null
+          last_active_at: string | null
+          last_sign_in_at: string | null
           max_accounts: number | null
           max_projects: number | null
           onboarding_completed: boolean | null
@@ -2081,6 +2092,7 @@ export type Database = {
           subscription_expires_at: string | null
           subscription_started_at: string | null
           subscription_type: string | null
+          total_session_minutes: number | null
           trial_ends_at: string | null
           user_id: string | null
           user_status: string | null

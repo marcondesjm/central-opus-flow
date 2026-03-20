@@ -125,6 +125,7 @@ export default function Dashboard() {
   const [editAccountOpen, setEditAccountOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<LovableAccount | null>(null);
   const [addProjectOpen, setAddProjectOpen] = useState(false);
+  const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate | null>(null);
   const [tagsManagerOpen, setTagsManagerOpen] = useState(false);
   const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);

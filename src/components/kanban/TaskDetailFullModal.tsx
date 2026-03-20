@@ -821,7 +821,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 {(comments || []).length > 0 && (
                   <div className="max-h-[250px] overflow-y-auto">
                     <div className="space-y-3 pr-3">
-                    {(comments || []).map((comment: any) => {
+                    {[...(comments || [])].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((comment: any) => {
                       const profile = commentProfiles?.[comment.user_id];
                       return (
                         <div key={comment.id} className="flex items-start gap-2.5 group/comment">

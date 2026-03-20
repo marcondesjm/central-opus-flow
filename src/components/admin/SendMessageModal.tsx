@@ -77,6 +77,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('09:00');
+  const [displayDuration, setDisplayDuration] = useState(30);
 
   const { data: scheduledMessages = [], isLoading: loadingScheduled } = useQuery({
     queryKey: ['admin-scheduled-messages'],
@@ -115,6 +116,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
             send_to: sendTo,
             target_user_id: sendTo === 'single' && targetUser ? targetUser.user_id : null,
             scheduled_at: scheduledAt,
+            display_duration: displayDuration,
           } as any);
 
         if (error) throw error;
@@ -145,6 +147,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
           entity_id: user.id,
           actor_id: user.id,
           actor_name: 'Administrador',
+          metadata: { display_duration: displayDuration },
         }));
 
         const { error } = await supabase
@@ -166,6 +169,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
       setScheduledDate('');
       setScheduledTime('09:00');
       setIsScheduled(false);
+      setDisplayDuration(30);
       onOpenChange(false);
     } catch (error: any) {
       toast({
@@ -212,6 +216,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
         entity_id: user.id,
         actor_id: user.id,
         actor_name: 'Administrador',
+        metadata: { display_duration: scheduled.display_duration || 30 },
       }));
 
       const { error: notifError } = await supabase
@@ -290,6 +295,26 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
               <p className="text-xs text-muted-foreground text-right">{message.length}/500</p>
             </div>
 
+            {/* Duration field */}
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-1.5">
+                <Timer className="w-4 h-4" />
+                Tempo de exibição (segundos)
+              </Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="number"
+                  min={5}
+                  max={300}
+                  value={displayDuration}
+                  onChange={(e) => setDisplayDuration(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
+                  className="w-24 text-center font-mono"
+                />
+                <span className="text-xs text-muted-foreground">
+                  A barra ficará visível por <strong>{displayDuration}s</strong> antes de liberar o botão de fechar
+                </span>
+              </div>
+            </div>
             {/* Schedule toggle */}
             <div className="flex items-center gap-3">
               <Button

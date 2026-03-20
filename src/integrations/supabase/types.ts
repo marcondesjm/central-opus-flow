@@ -105,6 +105,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          display_duration: number
           id: string
           message: string
           scheduled_at: string
@@ -118,6 +119,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by: string
+          display_duration?: number
           id?: string
           message: string
           scheduled_at: string
@@ -131,6 +133,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          display_duration?: number
           id?: string
           message?: string
           scheduled_at?: string
@@ -503,6 +506,7 @@ export type Database = {
           entity_type: string
           id: string
           message: string
+          metadata: Json | null
           read_at: string | null
           title: string
           type: string
@@ -516,6 +520,7 @@ export type Database = {
           entity_type: string
           id?: string
           message: string
+          metadata?: Json | null
           read_at?: string | null
           title: string
           type: string
@@ -529,6 +534,7 @@ export type Database = {
           entity_type?: string
           id?: string
           message?: string
+          metadata?: Json | null
           read_at?: string | null
           title?: string
           type?: string

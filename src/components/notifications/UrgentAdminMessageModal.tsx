@@ -9,6 +9,7 @@ interface UrgentMessage {
   title: string;
   message: string;
   created_at: string;
+  metadata?: any;
 }
 
 export function UrgentAdminMessageModal() {
@@ -46,15 +47,14 @@ export function UrgentAdminMessageModal() {
     } catch {}
   }, []);
 
-  const startCountdown = useCallback(() => {
-    // Clear any existing timers
+  const startCountdown = useCallback((duration: number = 30) => {
     if (countdownRef.current) clearInterval(countdownRef.current);
     if (flashRef.current) clearInterval(flashRef.current);
 
-    setCountdown(30);
+    setCountdown(duration);
     setCanClose(false);
 
-    let remaining = 30;
+    let remaining = duration;
     countdownRef.current = setInterval(() => {
       remaining -= 1;
       setCountdown(remaining);
@@ -66,7 +66,6 @@ export function UrgentAdminMessageModal() {
       }
     }, 1000);
 
-    // Flash effect
     flashRef.current = setInterval(() => {
       setShowFlash(true);
       setTimeout(() => setShowFlash(false), 200);
@@ -77,7 +76,8 @@ export function UrgentAdminMessageModal() {
     setMessages(msgs);
     setCurrentIndex(0);
     setOpen(true);
-    startCountdown();
+    const duration = msgs[0]?.metadata?.display_duration || 30;
+    startCountdown(duration);
     setTimeout(() => playAlertSound(), 300);
   }, [startCountdown, playAlertSound]);
 
@@ -88,7 +88,7 @@ export function UrgentAdminMessageModal() {
     const fetchUrgent = async () => {
       const { data } = await supabase
         .from('collaboration_notifications')
-        .select('id, title, message, created_at')
+        .select('id, title, message, created_at, metadata')
         .eq('user_id', user.id)
         .eq('type', 'admin_message')
         .is('read_at', null)
@@ -142,8 +142,10 @@ export function UrgentAdminMessageModal() {
     }
 
     if (currentIndex < messages.length - 1) {
+      const nextMsg = messages[currentIndex + 1];
+      const nextDuration = nextMsg?.metadata?.display_duration || 30;
       setCurrentIndex((i) => i + 1);
-      startCountdown();
+      startCountdown(nextDuration);
     } else {
       setOpen(false);
       setMessages([]);
@@ -155,7 +157,8 @@ export function UrgentAdminMessageModal() {
   if (!current || !open) return null;
 
   const whatsappUrl = `https://wa.me/5548996029392?text=${encodeURIComponent('Olá! Gostaria de renovar meu plano.')}`;
-  const progressPercent = ((30 - countdown) / 30) * 100;
+  const totalDuration = current?.metadata?.display_duration || 30;
+  const progressPercent = ((totalDuration - countdown) / totalDuration) * 100;
 
   return (
     <div

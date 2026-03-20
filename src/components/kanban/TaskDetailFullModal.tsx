@@ -856,7 +856,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                 )}
 
                 {/* Comment input */}
-                <div className="flex items-start gap-2.5">
+                <div className="flex items-start gap-2.5 sticky bottom-0 bg-background pt-1">
                   <Avatar className="w-8 h-8 flex-shrink-0">
                     <AvatarImage src={commentProfiles?.[user?.id || '']?.avatar_url || undefined} />
                     <AvatarFallback className="text-xs bg-primary/20 text-primary">

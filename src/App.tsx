@@ -29,6 +29,7 @@ const Teams = lazy(() => import("./pages/Teams"));
 const Ideas = lazy(() => import("./pages/Ideas"));
 const Reports = lazy(() => import("./pages/Reports"));
 const Files = lazy(() => import("./pages/Files"));
+const Manual = lazy(() => import("./pages/Manual"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -262,6 +263,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Files />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manual"
+              element={
+                <ProtectedRoute>
+                  <Manual />
                 </ProtectedRoute>
               }
             />

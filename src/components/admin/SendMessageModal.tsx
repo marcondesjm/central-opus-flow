@@ -306,7 +306,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
                   type="number"
                   min={5}
                   value={displayDuration}
-                  onChange={(e) => setDisplayDuration(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
+                  onChange={(e) => setDisplayDuration(Math.max(5, parseInt(e.target.value) || 30))}
                   className="w-24 text-center font-mono"
                 />
                 <span className="text-xs text-muted-foreground">

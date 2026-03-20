@@ -400,6 +400,62 @@ export default function Manual() {
 
   const currentSection = filteredSections.find(s => s.id === activeSection) || filteredSections[0];
 
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+
+  const handleDownloadPdf = useCallback(async () => {
+    const { default: jsPDF } = await import('jspdf');
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = 190;
+    let y = 20;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.text('Manual do Sistema - Central Opus Flow', 10, y);
+    y += 12;
+
+    for (const section of MANUAL_SECTIONS) {
+      if (y > 260) { doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(50, 50, 50);
+      doc.text(section.title, 10, y);
+      y += 8;
+
+      for (const item of section.items) {
+        if (y > 250) { doc.addPage(); y = 20; }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 30);
+        doc.text(item.title, 14, y);
+        y += 5;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        const lines = doc.splitTextToSize(item.description, pageWidth - 8);
+        doc.text(lines, 14, y);
+        y += lines.length * 4 + 3;
+
+        if (item.tips) {
+          for (const tip of item.tips) {
+            if (y > 260) { doc.addPage(); y = 20; }
+            doc.setFontSize(8);
+            doc.setTextColor(120, 100, 30);
+            const tipLines = doc.splitTextToSize(`💡 ${tip}`, pageWidth - 12);
+            doc.text(tipLines, 18, y);
+            y += tipLines.length * 3.5 + 2;
+          }
+        }
+        y += 2;
+      }
+      y += 4;
+    }
+
+    doc.save('Manual-Central-Opus-Flow.pdf');
+  }, []);
+
   return (
     <AppLayout>
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -409,7 +465,19 @@ export default function Manual() {
             <BookOpen className="w-5 h-5 text-primary" />
             <h1 className="text-base md:text-lg font-semibold">Manual do Sistema</h1>
             <Badge variant="secondary" className="text-xs">{MANUAL_SECTIONS.reduce((acc, s) => acc + s.items.length, 0)} tópicos</Badge>
-            <div className="relative flex-1 max-w-sm ml-auto">
+            
+            <div className="flex items-center gap-1.5 ml-auto">
+              <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={handlePrint}>
+                <Printer className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Imprimir</span>
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={handleDownloadPdf}>
+                <FileDown className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Baixar PDF</span>
+              </Button>
+            </div>
+
+            <div className="relative max-w-xs w-full sm:w-auto">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 placeholder="Buscar no manual..."

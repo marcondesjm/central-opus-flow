@@ -292,6 +292,26 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
               <p className="text-xs text-muted-foreground text-right">{message.length}/500</p>
             </div>
 
+            {/* Duration field */}
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-1.5">
+                <Timer className="w-4 h-4" />
+                Tempo de exibição (segundos)
+              </Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="number"
+                  min={5}
+                  max={300}
+                  value={displayDuration}
+                  onChange={(e) => setDisplayDuration(Math.max(5, Math.min(300, parseInt(e.target.value) || 30)))}
+                  className="w-24 text-center font-mono"
+                />
+                <span className="text-xs text-muted-foreground">
+                  A barra ficará visível por <strong>{displayDuration}s</strong> antes de liberar o botão de fechar
+                </span>
+              </div>
+            </div>
             {/* Schedule toggle */}
             <div className="flex items-center gap-3">
               <Button

@@ -125,3 +125,22 @@ export function useDeleteIdea() {
     },
   });
 }
+
+export function useBulkDeleteIdeas() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from('ideas').delete().in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: (_data, ids) => {
+      queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      toast({ title: `${ids.length} ideia(s) removida(s) com sucesso!` });
+    },
+    onError: () => {
+      toast({ title: 'Erro ao remover ideias', variant: 'destructive' });
+    },
+  });
+}

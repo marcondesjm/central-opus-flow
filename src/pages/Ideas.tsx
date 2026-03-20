@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { useIdeas, useCreateIdea, useUpdateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
+import { useIdeas, useCreateIdea, useUpdateIdea, useBulkDeleteIdeas, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
 import { IdeasTimelineView } from '@/components/ideas/IdeasTimelineView';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar } from 'lucide-react';
+import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,6 +22,7 @@ type ViewMode = 'table' | 'board' | 'timeline';
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
   const createIdea = useCreateIdea();
+  const bulkDelete = useBulkDeleteIdeas();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -29,6 +30,30 @@ export default function Ideas() {
   const [search, setSearch] = useState('');
   const [filterRoadmap, setFilterRoadmap] = useState<string>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map(i => i.id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    bulkDelete.mutate(Array.from(selectedIds), {
+      onSuccess: () => setSelectedIds(new Set()),
+    });
+  };
 
   const filtered = useMemo(() => (ideas || []).filter(idea => {
     const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());
@@ -161,12 +186,44 @@ export default function Ideas() {
               />
             ) : (
               <>
+                {/* Bulk action bar */}
+                {selectedIds.size > 0 && (
+                  <div className="flex items-center gap-3 px-4 py-2 bg-destructive/10 border-b">
+                    <span className="text-xs font-medium">{selectedIds.size} selecionada(s)</span>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="h-7 text-xs gap-1.5"
+                      onClick={handleBulkDelete}
+                      disabled={bulkDelete.isPending}
+                    >
+                      {bulkDelete.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                      Excluir
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs gap-1"
+                      onClick={() => setSelectedIds(new Set())}
+                    >
+                      <X className="w-3 h-3" />
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
+
                 {/* Desktop table */}
                 <div className="hidden md:block">
                   <table className="w-full text-sm">
                     <thead className="sticky top-0 bg-muted/50 z-10">
                       <tr className="border-b">
-                        <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground w-8"></th>
+                        <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground w-8">
+                          <Checkbox
+                            className="h-4 w-4"
+                            checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                            onCheckedChange={toggleAll}
+                          />
+                        </th>
                         <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Resumo</th>
                         <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Tema</th>
                         <th className="text-center px-3 py-2.5 font-medium text-xs text-muted-foreground">Impacto</th>
@@ -179,18 +236,26 @@ export default function Ideas() {
                       {filtered.map(idea => {
                         const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                         const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
-                        const isSelected = currentIdea?.id === idea.id;
+                        const isActive = currentIdea?.id === idea.id;
+                        const isChecked = selectedIds.has(idea.id);
 
                         return (
                           <tr
                             key={idea.id}
                             className={cn(
                               'border-b cursor-pointer transition-colors hover:bg-muted/30',
-                              isSelected && 'bg-primary/5'
+                              isActive && 'bg-primary/5',
+                              isChecked && 'bg-destructive/5'
                             )}
                             onClick={() => setSelectedIdea(idea)}
                           >
-                            <td className="px-4 py-2.5"><Checkbox className="h-4 w-4" /></td>
+                            <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                className="h-4 w-4"
+                                checked={isChecked}
+                                onCheckedChange={() => toggleSelect(idea.id)}
+                              />
+                            </td>
                             <td className="px-3 py-2.5">
                               <span className="font-medium text-sm truncate block max-w-[220px]">{idea.title}</span>
                             </td>

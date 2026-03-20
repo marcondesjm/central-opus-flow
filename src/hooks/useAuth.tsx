@@ -78,8 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await supabase
           .from('profiles')
           .update({ 
-            last_active_at: new Date().toISOString(),
-            total_session_minutes: undefined // will be handled by rpc
+            last_active_at: new Date().toISOString()
           } as any)
           .eq('user_id', currentSession.user.id)
           .then(() => {});

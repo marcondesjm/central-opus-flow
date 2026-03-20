@@ -11,22 +11,42 @@ import {
   CreditCard, Bot, Building2, Shield, Download, Upload, Bell,
   Star, Filter, Plus, Trash2, Pencil, Eye, MessageCircle,
   Globe, Crown, CheckSquare, Palette, Moon, Sun, Smartphone,
-  Printer, FileDown,
+  Printer, FileDown, MousePointer, ArrowRight, Info, Zap,
+  GripHorizontal, Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ManualSection {
-  id: string;
-  title: string;
+import dashboardImg from '@/assets/manual/dashboard-preview.jpg';
+import kanbanImg from '@/assets/manual/kanban-preview.jpg';
+import projectsImg from '@/assets/manual/projects-preview.jpg';
+import proposalsImg from '@/assets/manual/proposals-preview.jpg';
+import ideasImg from '@/assets/manual/ideas-preview.jpg';
+import billingImg from '@/assets/manual/billing-preview.jpg';
+import collaborationImg from '@/assets/manual/collaboration-preview.jpg';
+import settingsImg from '@/assets/manual/settings-preview.jpg';
+import reportsImg from '@/assets/manual/reports-preview.jpg';
+import accountsImg from '@/assets/manual/accounts-preview.jpg';
+
+interface ManualStep {
   icon: React.ElementType;
-  color: string;
-  items: ManualItem[];
+  text: string;
 }
 
 interface ManualItem {
   title: string;
   description: string;
   tips?: string[];
+  steps?: ManualStep[];
+}
+
+interface ManualSection {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  color: string;
+  image: string;
+  intro: string;
+  items: ManualItem[];
 }
 
 const MANUAL_SECTIONS: ManualSection[] = [
@@ -35,23 +55,30 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Dashboard',
     icon: LayoutDashboard,
     color: '#3b82f6',
+    image: dashboardImg,
+    intro: 'O Dashboard é sua central de comando. Assim que você faz login, esta é a primeira tela que aparece. Aqui você tem uma visão completa de todos os seus projetos, atividades e métricas importantes — tudo em um só lugar.',
     items: [
       {
-        title: 'Visão geral',
-        description: 'O Dashboard é a tela inicial após o login. Exibe estatísticas gerais dos seus projetos, atividades recentes em tempo real e gráficos de desempenho.',
-        tips: ['Use os filtros por conta para ver métricas segmentadas.', 'A atividade recente atualiza automaticamente em tempo real.'],
+        title: 'Cards de Estatísticas',
+        description: 'No topo da tela, você encontra cards coloridos mostrando os números mais importantes: quantos projetos você tem, quantos estão em andamento, sua taxa de conclusão e a receita total acumulada.',
+        steps: [
+          { icon: Eye, text: 'Os cards atualizam automaticamente conforme você adiciona ou edita projetos' },
+          { icon: Filter, text: 'Use o filtro por conta na sidebar para ver métricas de um cliente específico' },
+        ],
       },
       {
-        title: 'Cards de estatísticas',
-        description: 'No topo do Dashboard, cards mostram métricas-chave: total de projetos, projetos em andamento, taxa de conclusão e receita acumulada.',
+        title: 'Gráficos Interativos',
+        description: 'Abaixo dos cards, gráficos mostram a evolução dos seus projetos ao longo do tempo. Você pode ver a distribuição por status (publicado, rascunho, arquivado) e acompanhar o progresso geral.',
+        tips: ['Passe o mouse sobre os gráficos para ver valores detalhados.'],
       },
       {
-        title: 'Gráficos',
-        description: 'Gráficos interativos mostram a evolução dos projetos ao longo do tempo, distribuição por status e progresso geral.',
+        title: 'Atividade Recente',
+        description: 'O feed de atividades mostra em tempo real tudo que acontece: projetos criados, editados, tarefas movidas no Kanban e muito mais. É como um histórico vivo do seu trabalho.',
+        tips: ['A atividade atualiza automaticamente — não precisa recarregar a página.'],
       },
       {
-        title: 'Filtro por conta',
-        description: 'Na sidebar, clique em uma conta para filtrar o Dashboard apenas pelos projetos daquela conta. Clique em "Todos os Projetos" para ver tudo.',
+        title: 'Filtro por Conta',
+        description: 'Na barra lateral (sidebar), clique em qualquer conta para filtrar o Dashboard apenas pelos projetos daquela conta. Para voltar a ver tudo, clique em "Todos os Projetos".',
       },
     ],
   },
@@ -60,63 +87,83 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Projetos',
     icon: FolderOpen,
     color: '#8b5cf6',
+    image: projectsImg,
+    intro: 'A seção de Projetos é onde você organiza todo o seu trabalho. Cada projeto representa um site, app ou sistema que você está desenvolvendo para um cliente. Você pode acompanhar o progresso, adicionar notas, arquivos e muito mais.',
     items: [
       {
-        title: 'Criar projeto',
-        description: 'Clique no botão "+" ou "Novo Projeto" para criar. Preencha nome, descrição, URL, repositório e selecione a conta associada.',
-        tips: ['Adicione uma imagem de capa para identificar visualmente o projeto.', 'Defina um deadline para receber notificações automáticas.'],
+        title: 'Como Criar um Projeto',
+        description: 'É muito simples criar um novo projeto no sistema. Basta seguir os passos abaixo:',
+        steps: [
+          { icon: Plus, text: 'Clique no botão "+" ou "Novo Projeto" na tela de projetos' },
+          { icon: Pencil, text: 'Preencha o nome, descrição e URL do projeto' },
+          { icon: Building2, text: 'Selecione a conta (cliente) que esse projeto pertence' },
+          { icon: CheckSquare, text: 'Clique em "Salvar" e pronto! Seu projeto está criado' },
+        ],
+        tips: ['Adicione uma imagem de capa para identificar visualmente cada projeto.', 'Defina um deadline para receber alertas automáticos quando o prazo estiver chegando.'],
       },
       {
-        title: 'Editar e gerenciar',
-        description: 'Clique no card do projeto para ver detalhes. Use o menu de contexto (⋮) para editar, excluir ou compartilhar.',
+        title: 'Editar e Gerenciar',
+        description: 'Para editar um projeto, clique no card dele na lista. Um menu de opções (⋮) permite editar informações, excluir ou compartilhar com outros usuários. Todas as alterações são salvas automaticamente.',
       },
       {
-        title: 'Favoritar projetos',
-        description: 'Clique no ícone de estrela para marcar projetos favoritos. Eles aparecerão com destaque na listagem.',
+        title: 'Favoritar Projetos',
+        description: 'Viu um projeto que precisa de atenção especial? Clique no ícone de estrela ⭐ para marcá-lo como favorito. Projetos favoritos ganham destaque na listagem e ficam mais fáceis de encontrar.',
       },
       {
-        title: 'Checklist do projeto',
-        description: 'Cada projeto possui um checklist personalizável para acompanhar etapas. Adicione itens e marque como concluído.',
+        title: 'Checklist do Projeto',
+        description: 'Cada projeto tem um checklist onde você pode listar todas as etapas necessárias. Conforme vai completando, marque os itens como concluídos e acompanhe o progresso automaticamente.',
+        steps: [
+          { icon: Plus, text: 'Abra o projeto e vá na aba "Checklist"' },
+          { icon: Pencil, text: 'Digite o nome da etapa e pressione Enter' },
+          { icon: CheckSquare, text: 'Clique no checkbox para marcar como concluído' },
+        ],
       },
       {
-        title: 'Histórico de alterações',
-        description: 'O sistema registra automaticamente todas as alterações feitas no projeto, incluindo quem fez e quando.',
+        title: 'Histórico de Alterações',
+        description: 'O sistema registra automaticamente TUDO que é feito no projeto: quem editou, o que mudou e quando. Isso é ótimo para manter o controle e saber exatamente o que aconteceu.',
       },
       {
-        title: 'Snippets de código',
-        description: 'Armazene trechos de código relacionados ao projeto para acesso rápido. Suporta múltiplas linguagens com syntax highlighting.',
+        title: 'Snippets de Código',
+        description: 'Precisa guardar trechos de código relacionados ao projeto? Use a aba "Código" para salvar snippets com syntax highlighting em várias linguagens. Copie com um clique!',
       },
       {
-        title: 'Chaves e credenciais',
-        description: 'Gerencie chaves de API e credenciais associadas ao projeto de forma segura. Exporte e importe em formato JSON ou TXT.',
+        title: 'Chaves e Credenciais',
+        description: 'Guarde de forma segura as chaves de API, senhas e credenciais do projeto. Você pode exportar em JSON ou TXT para backup, e importar de volta quando necessário.',
       },
       {
-        title: 'Arquivos do projeto',
-        description: 'Faça upload de arquivos relacionados ao projeto. Suporta versionamento e notas para cada arquivo.',
+        title: 'Arquivos do Projeto',
+        description: 'Faça upload de qualquer arquivo relacionado ao projeto: logos, documentos, contratos, etc. O sistema suporta versionamento e você pode adicionar notas em cada arquivo.',
       },
     ],
   },
   {
     id: 'accounts',
-    title: 'Contas',
+    title: 'Contas (Clientes)',
     icon: Building2,
     color: '#10b981',
+    image: accountsImg,
+    intro: 'As Contas representam seus clientes ou organizações. Cada projeto é vinculado a uma conta, o que permite organizar tudo por cliente. Pense nas contas como "pastas" para agrupar projetos do mesmo cliente.',
     items: [
       {
-        title: 'O que são contas',
-        description: 'Contas representam clientes ou organizações. Cada projeto está vinculado a uma conta. Isso permite organizar e filtrar projetos por cliente.',
+        title: 'O que são Contas?',
+        description: 'Uma conta pode ser um cliente, uma empresa, ou até um grupo de projetos pessoais. Cada conta tem uma cor de identificação, e-mail associado e um contador de créditos e projetos.',
       },
       {
-        title: 'Criar conta',
-        description: 'Use o botão "Adicionar Conta" na sidebar. Preencha nome, e-mail, cor de identificação e informações opcionais como chaves de integração.',
+        title: 'Como Criar uma Conta',
+        description: 'Adicionar uma nova conta é rápido:',
+        steps: [
+          { icon: Plus, text: 'Clique em "Adicionar Conta" na barra lateral' },
+          { icon: Pencil, text: 'Preencha nome, e-mail e escolha uma cor de identificação' },
+          { icon: CheckSquare, text: 'Clique em salvar e a conta já aparece na sidebar' },
+        ],
       },
       {
         title: 'Créditos',
-        description: 'Cada conta possui um saldo de créditos. Visualize e gerencie créditos diretamente na sidebar ao lado do nome da conta.',
+        description: 'Cada conta tem um saldo de créditos que pode ser utilizado para diferentes funcionalidades. Visualize e gerencie créditos diretamente na sidebar, ao lado do nome de cada conta.',
       },
       {
-        title: 'Colaboradores de conta',
-        description: 'Convide outros usuários para colaborar na conta. Defina permissões como visualizador ou editor.',
+        title: 'Colaboradores',
+        description: 'Convide outros usuários para ter acesso aos projetos de uma conta. Defina se eles são "Visualizadores" (só veem) ou "Editores" (podem editar) para controlar as permissões.',
       },
     ],
   },
@@ -125,85 +172,90 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Kanban (CRM)',
     icon: Kanban,
     color: '#f59e0b',
+    image: kanbanImg,
+    intro: 'O Kanban é o coração do gerenciamento de tarefas e relacionamento com clientes. Funciona como um quadro visual onde você organiza negócios em colunas que representam etapas do seu processo (Prospecção → Negociação → Contrato → Finalizado).',
     items: [
       {
-        title: 'Quadro Kanban',
-        description: 'Organize tarefas e negócios em colunas personalizáveis. Arraste e solte cards entre colunas para atualizar o status.',
-        tips: ['Colunas com nome "Finalizado" ficam fixas no final.', 'Itens vencidos são destacados em vermelho no topo.'],
+        title: 'Como Funciona o Quadro',
+        description: 'O quadro Kanban mostra suas tarefas organizadas em colunas. Cada coluna representa uma fase do trabalho. Você arrasta os cards de uma coluna para outra conforme o trabalho avança.',
+        steps: [
+          { icon: Eye, text: 'Visualize todas as suas tarefas organizadas por fase' },
+          { icon: GripHorizontal, text: 'Clique e arraste um card para movê-lo entre colunas' },
+          { icon: Plus, text: 'Clique em "+" na coluna para adicionar um novo card' },
+        ],
+        tips: ['Cards com data vencida aparecem destacados em vermelho no topo.', 'A coluna "Finalizado" é fixa e fica sempre no final.'],
       },
       {
-        title: 'Espaços de trabalho',
-        description: 'Crie diferentes espaços para separar contextos (ex: "Vendas", "Suporte"). Use o menu "Espaços" na sidebar do Kanban.',
-        tips: ['O espaço "Todos" mostra tarefas de todos os espaços.', 'Cada espaço tem colunas independentes.'],
+        title: 'Espaços de Trabalho',
+        description: 'Crie diferentes espaços para separar contextos. Por exemplo: um espaço para "Vendas", outro para "Suporte", outro para "Marketing". Cada espaço tem suas próprias colunas e cards.',
+        steps: [
+          { icon: Layers, text: 'Clique em "Espaços" na sidebar do Kanban' },
+          { icon: Plus, text: 'Crie um novo espaço com nome, cor e ícone' },
+          { icon: ArrowRight, text: 'Alterne entre espaços clicando neles na sidebar' },
+        ],
       },
       {
-        title: 'Cards de tarefa',
-        description: 'Cada card exibe: nome do cliente, empresa, descrição, prioridade, tags, progresso, valor e dados de contato (e-mail, WhatsApp).',
+        title: 'Detalhes do Card',
+        description: 'Cada card de tarefa contém informações completas: nome do cliente, empresa, descrição detalhada, prioridade (baixa/média/alta/urgente), tags coloridas, barra de progresso, valor do negócio e dados de contato.',
       },
       {
-        title: 'Filtros avançados',
-        description: 'Filtre tarefas por prioridade, responsável, tags e texto. Combine múltiplos filtros para encontrar tarefas específicas.',
+        title: 'Filtros e Ordenação',
+        description: 'Use os filtros para encontrar tarefas específicas por prioridade, responsável, tag ou texto. Combine múltiplos filtros. Escolha ordenação por: Manual (arrastar), Prioridade, Atrasados primeiro ou Nome.',
       },
       {
-        title: 'Modos de ordenação',
-        description: 'Escolha entre Manual (arrastar), Prioridade, Atrasados primeiro ou Nome. O modo manual permite reordenação livre por drag-and-drop.',
+        title: 'Diferentes Visualizações',
+        description: 'Além do quadro, você pode ver suas tarefas de outras formas: Lista (formato tabela), Calendário (por datas) e Cronograma (timeline visual). Cada visão oferece uma perspectiva diferente.',
       },
       {
-        title: 'Visualizações',
-        description: 'Alterne entre Quadro, Lista, Calendário e Cronograma para diferentes perspectivas das suas tarefas.',
-      },
-      {
-        title: 'Checklist de tarefas',
-        description: 'Cada tarefa pode ter um checklist interno com subitens. O progresso é calculado automaticamente.',
+        title: 'Checklist de Tarefas',
+        description: 'Cada tarefa pode ter subitens (checklist interno). Adicione etapas menores e marque como concluídas. O progresso da tarefa é calculado automaticamente baseado no checklist.',
       },
       {
         title: 'Pagamentos',
-        description: 'Registre pagamentos por tarefa com valor, data, método e status. Visualize o histórico financeiro de cada negócio.',
+        description: 'Registre pagamentos vinculados a cada negócio: valor, data, método de pagamento e status. Tenha um histórico financeiro completo de cada cliente.',
       },
       {
-        title: 'Mensagens agendadas',
-        description: 'Programe mensagens para serem enviadas em datas específicas. O sistema notifica sobre mensagens pendentes ao acessar o Kanban.',
+        title: 'Mensagens Agendadas',
+        description: 'Programe lembretes e mensagens para datas futuras. O sistema vai notificá-lo quando chegar o dia de enviar aquela mensagem importante ao cliente.',
       },
       {
-        title: 'Notificações de fase',
-        description: 'Ao mover um card entre colunas, é possível enviar uma notificação automática por WhatsApp informando a mudança de status.',
-      },
-      {
-        title: 'Arrastar colunas',
-        description: 'Reordene as colunas do Kanban arrastando pelo cabeçalho. Passe o mouse sobre o header para ver o efeito visual.',
+        title: 'Mover Colunas',
+        description: 'Precisa reorganizar as etapas? Clique no cabeçalho colorido de qualquer coluna e arraste para a esquerda ou direita para mudar a ordem das fases.',
       },
     ],
   },
   {
     id: 'proposals',
-    title: 'Propostas',
+    title: 'Propostas Comerciais',
     icon: FileText,
     color: '#ec4899',
+    image: proposalsImg,
+    intro: 'Crie propostas comerciais profissionais para enviar aos seus clientes. O sistema gera documentos bonitos com seus serviços, valores, condições de pagamento e até assinatura digital — tudo integrado.',
     items: [
       {
-        title: 'Criar proposta',
-        description: 'Monte propostas comerciais profissionais com dados do cliente, serviços, valores, condições de pagamento e prazos.',
-        tips: ['Personalize as cores da marca na proposta.', 'Adicione logo da sua empresa e do cliente.'],
+        title: 'Como Criar uma Proposta',
+        description: 'Monte propostas completas em poucos minutos:',
+        steps: [
+          { icon: Plus, text: 'Clique em "Nova Proposta" na página de Propostas' },
+          { icon: Pencil, text: 'Preencha os dados do cliente: nome, empresa, e-mail, telefone' },
+          { icon: CreditCard, text: 'Adicione os serviços com descrição, quantidade e valor' },
+          { icon: Palette, text: 'Personalize as cores da marca e adicione logos' },
+          { icon: Eye, text: 'Pré-visualize como o cliente vai ver a proposta' },
+          { icon: Share2, text: 'Gere um link e envie ao cliente' },
+        ],
+        tips: ['O total é calculado automaticamente incluindo descontos.', 'Adicione o logo da sua empresa para deixar mais profissional.'],
       },
       {
-        title: 'Serviços e valores',
-        description: 'Adicione múltiplos serviços com descrição, quantidade e valor unitário. O total é calculado automaticamente com suporte a desconto.',
+        title: 'Compartilhar e Acompanhar',
+        description: 'Gere um link público único para enviar ao cliente por e-mail ou WhatsApp. O sistema registra quando o cliente visualizou a proposta e permite que ele aceite ou rejeite online.',
       },
       {
-        title: 'Compartilhar proposta',
-        description: 'Gere um link público para enviar ao cliente. O cliente pode visualizar, aceitar ou rejeitar a proposta online.',
+        title: 'Assinatura Digital',
+        description: 'Tanto você quanto o cliente podem assinar a proposta digitalmente. O sistema registra IP, data e hora de cada assinatura, dando validade jurídica ao documento.',
       },
       {
-        title: 'Assinatura digital',
-        description: 'Propostas suportam assinatura digital tanto da empresa quanto do cliente, com registro de IP e data/hora.',
-      },
-      {
-        title: 'Status da proposta',
-        description: 'Acompanhe o status: Rascunho, Enviada, Visualizada, Aceita ou Rejeitada. O sistema registra quando o cliente visualiza.',
-      },
-      {
-        title: 'Pré-visualização',
-        description: 'Antes de enviar, veja exatamente como a proposta será exibida para o cliente com a pré-visualização em tempo real.',
+        title: 'Status da Proposta',
+        description: 'Acompanhe cada proposta pelo status: Rascunho (ainda editando), Enviada (aguardando resposta), Visualizada (o cliente abriu), Aceita ✅ ou Rejeitada ❌.',
       },
     ],
   },
@@ -212,34 +264,35 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Ideias (Discovery)',
     icon: Sparkles,
     color: '#f97316',
+    image: ideasImg,
+    intro: 'A seção de Ideias é o seu espaço criativo para capturar, avaliar e priorizar novas ideias de produtos, funcionalidades ou melhorias. Use o sistema de pontuação para decidir quais ideias valem a pena investir.',
     items: [
       {
-        title: 'Capturar ideias',
-        description: 'Registre ideias com título, tema, descrição rica (suporta imagens, códigos e vídeos), hipótese de validação e decisão.',
+        title: 'Capturar uma Ideia',
+        description: 'Registre qualquer ideia que surgir com título, descrição rica (suporta imagens e vídeos), hipótese de validação e decisão final.',
+        steps: [
+          { icon: Plus, text: 'Clique em "Nova Ideia"' },
+          { icon: Pencil, text: 'Dê um título claro e escreva a descrição' },
+          { icon: Star, text: 'Avalie o Impacto (1-5) e o Esforço (1-5) usando os pontos' },
+          { icon: Tag, text: 'Escolha um tema e classifique no roteiro' },
+        ],
       },
       {
-        title: 'Classificação',
-        description: 'Avalie cada ideia por Impacto (1-5) e Esforço (1-5) usando o sistema de pontos visuais. O score é calculado como Impacto × (6 - Esforço).',
+        title: 'Sistema de Pontuação',
+        description: 'Cada ideia é avaliada por Impacto (quanto valor ela gera) e Esforço (quanto trabalho ela dá). O score é calculado como: Impacto × (6 - Esforço). Quanto maior o score, mais vale a pena implementar!',
+        tips: ['Impacto 5 + Esforço 1 = Score 25 (melhor caso)', 'Impacto 1 + Esforço 5 = Score 1 (pior caso)'],
       },
       {
         title: 'Roteiro (Roadmap)',
-        description: 'Classifique ideias em: Agora, Próximo, Mais tarde ou Não vai ser feito. Use a visão de Roteiro para ver o quadro completo.',
-      },
-      {
-        title: 'Visualizações',
-        description: 'Alterne entre Lista (tabela detalhada), Roteiro (quadro kanban por etapa) e Cronograma (timeline temporal por tema).',
-      },
-      {
-        title: 'Progresso',
-        description: 'Acompanhe o progresso de cada ideia com um slider de 0% a 100%. O progresso é exibido na lista e nos cards.',
-      },
-      {
-        title: 'Seleção em massa',
-        description: 'Marque múltiplas ideias usando os checkboxes na lista. Uma barra de ação aparece permitindo exclusão em massa.',
+        description: 'Organize suas ideias em categorias de tempo: "Agora" (fazer já), "Próximo" (em breve), "Mais tarde" (futuro) ou "Não vai ser feito". Use a visão de Roteiro para ver o quadro completo.',
       },
       {
         title: 'Temas',
-        description: 'Categorize ideias por tema: Aumentar receita, Conquistar clientes, Atrair usuários, Expandir horizontes, Melhorar produto ou Geral.',
+        description: 'Categorize por tema: Aumentar receita, Conquistar clientes, Atrair usuários, Expandir horizontes, Melhorar produto ou Geral. Cada tema tem uma cor para fácil identificação.',
+      },
+      {
+        title: 'Seleção em Massa',
+        description: 'Precisa excluir várias ideias? Use os checkboxes na lista para selecionar múltiplas ideias de uma vez. Uma barra de ação aparece no topo permitindo exclusão em massa.',
       },
     ],
   },
@@ -248,14 +301,16 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Relatórios',
     icon: BarChart3,
     color: '#06b6d4',
+    image: reportsImg,
+    intro: 'A seção de Relatórios oferece uma visão analítica completa do seu trabalho. Gráficos interativos mostram tendências, produtividade e métricas de desempenho para ajudá-lo a tomar decisões melhores.',
     items: [
       {
-        title: 'Dashboard analítico',
-        description: 'Visualize métricas detalhadas sobre projetos, tarefas e produtividade com gráficos interativos.',
+        title: 'Dashboard Analítico',
+        description: 'Visualize métricas detalhadas sobre projetos, tarefas e produtividade. Gráficos de linha mostram tendências ao longo do tempo, gráficos de pizza mostram distribuição por categoria.',
       },
       {
-        title: 'Relatório por período',
-        description: 'Filtre dados por intervalo de datas para análise temporal de desempenho e produtividade.',
+        title: 'Filtro por Período',
+        description: 'Selecione um intervalo de datas para analisar apenas um período específico. Ideal para relatórios mensais, trimestrais ou anuais.',
       },
     ],
   },
@@ -264,30 +319,29 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Faturamento',
     icon: Receipt,
     color: '#84cc16',
+    image: billingImg,
+    intro: 'Controle completo das suas finanças em um só lugar. Veja receita total, receita mensal, número de clientes e ticket médio. Gerencie pagamentos, despesas e até gere cobranças Pix automaticamente.',
     items: [
       {
-        title: 'Visão geral',
-        description: 'Painel consolidado com receita total, receita do mês, total de clientes e ticket médio.',
+        title: 'Painel Financeiro',
+        description: 'No topo, cards resumem seus números: receita total acumulada, receita do mês atual, total de clientes ativos e ticket médio por projeto.',
       },
       {
-        title: 'Clientes',
-        description: 'Lista de clientes com valores acumulados, filtrável e pesquisável.',
-      },
-      {
-        title: 'Créditos de IA',
-        description: 'Monitore o consumo de créditos de inteligência artificial por conta.',
+        title: 'Lista de Clientes',
+        description: 'Veja todos os clientes com valores acumulados. Use a busca para encontrar clientes específicos. A lista mostra quanto cada cliente já pagou.',
       },
       {
         title: 'Despesas',
-        description: 'Registre e categorize despesas operacionais. Visualize por período e categoria.',
-      },
-      {
-        title: 'Histórico',
-        description: 'Histórico completo de transações financeiras com filtros por data e status.',
+        description: 'Registre despesas operacionais separadas por categoria (ferramentas, hospedagem, marketing, etc.). Visualize por período e categoria para entender onde seu dinheiro está indo.',
       },
       {
         title: 'Chaves Pix',
-        description: 'Cadastre suas chaves Pix para geração automática de QR codes de cobrança nas propostas.',
+        description: 'Cadastre suas chaves Pix e o sistema gera QR codes de cobrança automaticamente. Basta enviar o QR code para o cliente pagar de forma instantânea.',
+        steps: [
+          { icon: Plus, text: 'Vá em Faturamento → Chaves Pix' },
+          { icon: Pencil, text: 'Cadastre tipo da chave, valor, nome do titular e cidade' },
+          { icon: CheckSquare, text: 'O QR code é gerado automaticamente para cada cobrança' },
+        ],
       },
     ],
   },
@@ -296,22 +350,30 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Colaboração',
     icon: Share2,
     color: '#a855f7',
+    image: collaborationImg,
+    intro: 'Trabalhe em equipe de forma eficiente. Compartilhe projetos e contas com outros usuários, defina permissões e veja quem está online em tempo real. Tudo sincronizado instantaneamente.',
     items: [
       {
-        title: 'Compartilhar projetos',
-        description: 'Convide outros usuários por e-mail para colaborar em projetos específicos. Defina permissões de visualizador ou editor.',
+        title: 'Compartilhar Projetos',
+        description: 'Convide outros usuários por e-mail para colaborar em projetos específicos. Escolha se eles terão permissão de "Visualizador" (apenas ver) ou "Editor" (ver e editar).',
+        steps: [
+          { icon: Share2, text: 'Abra o projeto e clique no ícone de compartilhar' },
+          { icon: Pencil, text: 'Digite o e-mail da pessoa que deseja convidar' },
+          { icon: Shield, text: 'Escolha a permissão: Visualizador ou Editor' },
+          { icon: CheckSquare, text: 'Envie o convite — a pessoa recebe uma notificação' },
+        ],
       },
       {
-        title: 'Compartilhar contas',
-        description: 'Compartilhe contas inteiras para que colaboradores tenham acesso a todos os projetos daquela conta.',
+        title: 'Compartilhar Contas',
+        description: 'Compartilhe uma conta inteira para dar acesso a TODOS os projetos daquele cliente. Ideal para equipes que trabalham juntas no mesmo cliente.',
       },
       {
-        title: 'Convites pendentes',
-        description: 'Gerencie convites enviados e recebidos. Aceite ou recuse convites de colaboração.',
+        title: 'Convites Pendentes',
+        description: 'Gerencie convites enviados e recebidos na seção "Colaborações". Aceite ou recuse convites que receber de outros usuários.',
       },
       {
-        title: 'Presença online',
-        description: 'Veja quem está online em tempo real. Avatares com indicador verde mostram usuários ativos no mesmo projeto.',
+        title: 'Presença Online',
+        description: 'Veja quem está online em tempo real! Avatares com um ponto verde indicam usuários ativos. Se estiverem no mesmo projeto que você, aparece um indicador especial.',
       },
     ],
   },
@@ -320,10 +382,12 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Equipes',
     icon: Users,
     color: '#14b8a6',
+    image: collaborationImg,
+    intro: 'Gerencie os membros da sua equipe, visualize papéis e permissões. Mantenha o controle de quem tem acesso a quê dentro da plataforma.',
     items: [
       {
-        title: 'Gerenciar equipe',
-        description: 'Visualize e gerencie os membros da sua equipe, incluindo papéis e permissões.',
+        title: 'Gerenciar Equipe',
+        description: 'Visualize todos os membros da sua equipe em um só lugar. Veja os papéis de cada pessoa (admin, editor, visualizador) e gerencie permissões de acesso.',
       },
     ],
   },
@@ -332,34 +396,40 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Configurações',
     icon: Settings,
     color: '#6b7280',
+    image: settingsImg,
+    intro: 'Personalize o sistema do seu jeito. Altere tema, idioma, configure notificações, exporte dados e muito mais. Tudo para que a plataforma se adapte à sua forma de trabalhar.',
     items: [
       {
-        title: 'Tema',
-        description: 'Alterne entre modo claro, escuro ou automático (segue o sistema). Acesse pelo ícone de sol/lua no cabeçalho.',
+        title: 'Tema (Claro/Escuro)',
+        description: 'Alterne entre modo claro ☀️ e escuro 🌙 clicando no ícone no cabeçalho. O modo automático segue a configuração do seu sistema operacional.',
       },
       {
         title: 'Idioma',
-        description: 'O sistema suporta Português, Inglês, Espanhol, Francês e Alemão. Altere no seletor de idioma do cabeçalho.',
+        description: 'O sistema está disponível em 5 idiomas: Português 🇧🇷, Inglês 🇺🇸, Espanhol 🇪🇸, Francês 🇫🇷 e Alemão 🇩🇪. Altere a qualquer momento pelo seletor no cabeçalho.',
       },
       {
-        title: 'Personalizar sidebar',
-        description: 'Oculte ou exiba seções da barra lateral conforme sua necessidade. Clique em "Personalizar barra lateral" no final da sidebar.',
+        title: 'Personalizar Sidebar',
+        description: 'Não usa todas as seções? Oculte as que não precisa! Clique em "Personalizar barra lateral" no final da sidebar e desmarque as seções que não quer ver.',
       },
       {
-        title: 'Notificações de deadline',
-        description: 'Configure alertas automáticos para prazos de projetos. Defina quantos dias antes do vencimento deseja ser notificado.',
+        title: 'Notificações de Deadline',
+        description: 'Configure alertas automáticos para quando os prazos dos projetos estiverem chegando. Defina quantos dias antes quer ser avisado (1, 3, 7 dias, etc.).',
       },
       {
-        title: 'Exportação e backup',
-        description: 'Exporte todos os seus dados em formato JSON para backup. Importe backups anteriores para restaurar dados.',
+        title: 'Exportação e Backup',
+        description: 'Exporte TODOS os seus dados em formato JSON para ter um backup seguro. Se precisar, importe o backup para restaurar tudo como estava.',
+        steps: [
+          { icon: Download, text: 'Clique em "Exportar Backup" para baixar seus dados' },
+          { icon: Upload, text: 'Use "Importar Backup" para restaurar de um arquivo JSON' },
+        ],
       },
       {
-        title: 'Busca global',
-        description: 'Use Ctrl+K (ou Cmd+K) para abrir a busca global. Pesquise projetos, contas e tarefas instantaneamente.',
+        title: 'Busca Global (Ctrl+K)',
+        description: 'Pressione Ctrl+K (ou Cmd+K no Mac) para abrir a busca global. Pesquise qualquer projeto, conta ou tarefa instantaneamente sem navegar entre páginas.',
       },
       {
-        title: 'PWA (App instalável)',
-        description: 'Instale o Central Opus Flow como aplicativo no seu dispositivo para acesso rápido direto da área de trabalho ou tela inicial.',
+        title: 'Instalar como App (PWA)',
+        description: 'Instale o Central Opus Flow como um aplicativo no seu computador ou celular. Funciona offline e abre direto da área de trabalho, como um app nativo!',
       },
     ],
   },
@@ -368,18 +438,20 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Planos e Assinatura',
     icon: Crown,
     color: '#eab308',
+    image: settingsImg,
+    intro: 'Escolha o plano ideal para suas necessidades. Desde o plano Starter para freelancers até o Business para agências maiores, cada plano oferece funcionalidades e limites diferentes.',
     items: [
       {
-        title: 'Planos disponíveis',
-        description: 'Escolha entre os planos Starter, Professional e Business. Cada plano oferece diferentes limites de projetos, contas e funcionalidades.',
+        title: 'Planos Disponíveis',
+        description: 'Temos 3 planos: Starter (ideal para iniciantes com poucos projetos), Professional (para freelancers ativos) e Business (para agências e equipes). Cada um tem limites diferentes de projetos e contas.',
       },
       {
-        title: 'Período de teste',
-        description: 'Novos usuários recebem um período de teste gratuito com acesso a todas as funcionalidades. Ao expirar, escolha um plano para continuar.',
+        title: 'Período de Teste',
+        description: 'Novos usuários ganham um período de teste gratuito com acesso completo a TODAS as funcionalidades. Quando expirar, basta escolher um plano para continuar usando.',
       },
       {
-        title: 'Cupons de desconto',
-        description: 'Aplique cupons promocionais para obter descontos ou extensões no plano. Insira o código na área de assinatura.',
+        title: 'Cupons de Desconto',
+        description: 'Tem um cupom promocional? Aplique na área de assinatura para obter desconto ou dias extras no seu plano. Cupons podem ser de tempo limitado, então use enquanto é válido!',
       },
     ],
   },
@@ -388,6 +460,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
 export default function Manual() {
   const [search, setSearch] = useState('');
   const [activeSection, setActiveSection] = useState<string>('dashboard');
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   const filteredSections = MANUAL_SECTIONS.map(section => ({
     ...section,
@@ -411,46 +484,72 @@ export default function Manual() {
     let y = 20;
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.text('Manual do Sistema - Central Opus Flow', 10, y);
+    doc.setFontSize(22);
+    doc.setTextColor(60, 60, 60);
+    doc.text('Manual do Sistema', 10, y);
+    y += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Central Opus Flow — Guia Completo', 10, y);
     y += 12;
+    doc.setDrawColor(100, 100, 100);
+    doc.line(10, y, 200, y);
+    y += 10;
 
     for (const section of MANUAL_SECTIONS) {
-      if (y > 260) { doc.addPage(); y = 20; }
+      if (y > 245) { doc.addPage(); y = 20; }
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(15);
+      doc.setTextColor(40, 40, 40);
       doc.text(section.title, 10, y);
-      y += 8;
+      y += 6;
+
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      const introLines = doc.splitTextToSize(section.intro, pageWidth);
+      doc.text(introLines, 10, y);
+      y += introLines.length * 4 + 4;
 
       for (const item of section.items) {
         if (y > 250) { doc.addPage(); y = 20; }
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.setTextColor(30, 30, 30);
-        doc.text(item.title, 14, y);
+        doc.text(`• ${item.title}`, 14, y);
         y += 5;
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor(80, 80, 80);
         const lines = doc.splitTextToSize(item.description, pageWidth - 8);
-        doc.text(lines, 14, y);
-        y += lines.length * 4 + 3;
+        doc.text(lines, 16, y);
+        y += lines.length * 4 + 2;
+
+        if (item.steps) {
+          for (const step of item.steps) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.setFontSize(8);
+            doc.setTextColor(60, 60, 150);
+            const stepLines = doc.splitTextToSize(`→ ${step.text}`, pageWidth - 14);
+            doc.text(stepLines, 20, y);
+            y += stepLines.length * 3.5 + 1;
+          }
+        }
 
         if (item.tips) {
           for (const tip of item.tips) {
-            if (y > 260) { doc.addPage(); y = 20; }
+            if (y > 270) { doc.addPage(); y = 20; }
             doc.setFontSize(8);
-            doc.setTextColor(120, 100, 30);
-            const tipLines = doc.splitTextToSize(`💡 ${tip}`, pageWidth - 12);
-            doc.text(tipLines, 18, y);
-            y += tipLines.length * 3.5 + 2;
+            doc.setTextColor(140, 120, 20);
+            const tipLines = doc.splitTextToSize(`💡 ${tip}`, pageWidth - 14);
+            doc.text(tipLines, 20, y);
+            y += tipLines.length * 3.5 + 1;
           }
         }
-        y += 2;
+        y += 3;
       }
-      y += 4;
+      y += 6;
     }
 
     doc.save('Manual-Central-Opus-Flow.pdf');
@@ -461,11 +560,11 @@ export default function Manual() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="border-b bg-card px-4 md:px-6 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <BookOpen className="w-5 h-5 text-primary" />
             <h1 className="text-base md:text-lg font-semibold">Manual do Sistema</h1>
             <Badge variant="secondary" className="text-xs">{MANUAL_SECTIONS.reduce((acc, s) => acc + s.items.length, 0)} tópicos</Badge>
-            
+
             <div className="flex items-center gap-1.5 ml-auto">
               <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={handlePrint}>
                 <Printer className="w-3.5 h-3.5" />
@@ -491,7 +590,7 @@ export default function Manual() {
 
         {/* Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar navigation */}
+          {/* Sidebar */}
           <div className="w-56 border-r bg-muted/20 hidden md:block">
             <ScrollArea className="h-full py-3">
               <nav className="space-y-0.5 px-2">
@@ -519,7 +618,7 @@ export default function Manual() {
             </ScrollArea>
           </div>
 
-          {/* Mobile section selector */}
+          {/* Mobile tabs */}
           <div className="md:hidden border-b bg-muted/20 px-3 py-2 overflow-x-auto">
             <div className="flex gap-1.5 min-w-max">
               {filteredSections.map(section => {
@@ -545,10 +644,11 @@ export default function Manual() {
 
           {/* Main content */}
           <ScrollArea className="flex-1">
-            <div className="max-w-3xl mx-auto px-4 md:px-8 py-6">
+            <div className="max-w-3xl mx-auto px-4 md:px-8 py-6 space-y-6">
               {currentSection && (
                 <>
-                  <div className="flex items-center gap-3 mb-6">
+                  {/* Section header */}
+                  <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: `${currentSection.color}15` }}
@@ -561,6 +661,33 @@ export default function Manual() {
                     </div>
                   </div>
 
+                  {/* Intro text */}
+                  <div className="rounded-xl border bg-primary/5 p-4">
+                    <div className="flex gap-2.5 items-start">
+                      <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <p className="text-sm leading-relaxed text-foreground/80">{currentSection.intro}</p>
+                    </div>
+                  </div>
+
+                  {/* Section image */}
+                  <div
+                    className="rounded-xl border overflow-hidden cursor-pointer transition-shadow hover:shadow-lg group relative"
+                    onClick={() => setExpandedImage(expandedImage === currentSection.id ? null : currentSection.id)}
+                  >
+                    <img
+                      src={currentSection.image}
+                      alt={`Visualização da seção ${currentSection.title}`}
+                      className="w-full h-auto object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                      <span className="text-white text-xs flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5" />
+                        Clique para {expandedImage === currentSection.id ? 'recolher' : 'ampliar'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Items */}
                   <div className="space-y-4">
                     {currentSection.items.map((item, idx) => (
                       <div
@@ -574,11 +701,35 @@ export default function Manual() {
                           >
                             {idx + 1}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold mb-1.5">{item.title}</h3>
+                          <div className="flex-1 min-w-0 space-y-3">
+                            <h3 className="text-sm font-semibold">{item.title}</h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+
+                            {/* Steps */}
+                            {item.steps && item.steps.length > 0 && (
+                              <div className="rounded-lg bg-muted/40 border p-3 space-y-2">
+                                <p className="text-xs font-medium text-foreground/70 flex items-center gap-1.5">
+                                  <MousePointer className="w-3 h-3" />
+                                  Passo a passo:
+                                </p>
+                                {item.steps.map((step, stepIdx) => {
+                                  const StepIcon = step.icon;
+                                  return (
+                                    <div key={stepIdx} className="flex items-center gap-2.5 text-xs">
+                                      <div className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                                        <StepIcon className="w-3 h-3 text-primary" />
+                                      </div>
+                                      <span className="text-foreground/70 font-medium mr-1">{stepIdx + 1}.</span>
+                                      <span className="text-muted-foreground">{step.text}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            {/* Tips */}
                             {item.tips && item.tips.length > 0 && (
-                              <div className="mt-3 space-y-1.5">
+                              <div className="space-y-1.5">
                                 {item.tips.map((tip, tipIdx) => (
                                   <div key={tipIdx} className="flex items-start gap-2 text-xs">
                                     <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />

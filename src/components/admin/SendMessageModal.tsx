@@ -77,6 +77,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('09:00');
+  const [displayDuration, setDisplayDuration] = useState(30);
 
   const { data: scheduledMessages = [], isLoading: loadingScheduled } = useQuery({
     queryKey: ['admin-scheduled-messages'],

@@ -24,6 +24,7 @@ export interface Idea {
   end_date: string | null;
   created_at: string;
   updated_at: string;
+  last_modified_by: string | null;
 }
 
 export const ROADMAP_OPTIONS = [

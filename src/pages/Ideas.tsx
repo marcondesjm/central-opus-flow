@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useIdeas, useCreateIdea, useUpdateIdea, useBulkDeleteIdeas, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
+import { useAuth } from '@/hooks/useAuth';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
 import { IdeasTimelineView } from '@/components/ideas/IdeasTimelineView';
@@ -11,20 +14,46 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar, Trash2, X } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { subMonths, addMonths } from 'date-fns';
+import { subMonths, addMonths, format } from 'date-fns';
 
 type ViewMode = 'table' | 'board' | 'timeline';
 
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
+  const { user } = useAuth();
   const createIdea = useCreateIdea();
   const bulkDelete = useBulkDeleteIdeas();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  // Fetch profiles for last_modified_by
+  const modifierUserIds = useMemo(() => {
+    if (!ideas) return [];
+    const ids = new Set<string>();
+    ideas.forEach(i => { if (i.last_modified_by) ids.add(i.last_modified_by); });
+    if (user?.id) ids.add(user.id);
+    return Array.from(ids);
+  }, [ideas, user?.id]);
+
+  const { data: modifierProfiles } = useQuery({
+    queryKey: ['idea-modifier-profiles', modifierUserIds],
+    queryFn: async () => {
+      if (modifierUserIds.length === 0) return {};
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', modifierUserIds);
+      const map: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      data?.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+      return map;
+    },
+    enabled: modifierUserIds.length > 0,
+  });
 
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [search, setSearch] = useState('');
@@ -230,6 +259,7 @@ export default function Ideas() {
                         <th className="text-center px-3 py-2.5 font-medium text-xs text-muted-foreground">Esforço</th>
                         <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Roteiro</th>
                         <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground w-32">Progresso</th>
+                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Modificado por</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -287,6 +317,25 @@ export default function Ideas() {
                                 <span className="text-[10px] text-muted-foreground w-7">{idea.progress}%</span>
                               </div>
                             </td>
+                            <td className="px-3 py-2.5">
+                              {(() => {
+                                const profile = modifierProfiles?.[idea.last_modified_by || ''] || (idea.user_id === user?.id ? modifierProfiles?.[user.id] : null);
+                                return profile ? (
+                                  <div className="flex items-center gap-1.5">
+                                    <Avatar className="w-5 h-5">
+                                      <AvatarImage src={profile.avatar_url || undefined} />
+                                      <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
+                                        {(profile.full_name || '?').slice(0, 2).toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0">
+                                      <span className="text-[10px] truncate block max-w-[80px]">{profile.full_name || 'Usuário'}</span>
+                                      <span className="text-[9px] text-muted-foreground">{format(new Date(idea.updated_at), 'dd/MM HH:mm')}</span>
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })()}
+                            </td>
                           </tr>
                         );
                       })}
@@ -334,6 +383,21 @@ export default function Ideas() {
                                 <span className="text-[9px] text-muted-foreground">{idea.progress}%</span>
                               </div>
                             </div>
+                            {(() => {
+                              const profile = modifierProfiles?.[idea.last_modified_by || ''] || (idea.user_id === user?.id ? modifierProfiles?.[user.id] : null);
+                              return profile ? (
+                                <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-border/50">
+                                  <Avatar className="w-4 h-4">
+                                    <AvatarImage src={profile.avatar_url || undefined} />
+                                    <AvatarFallback className="text-[7px] bg-primary/10 text-primary">
+                                      {(profile.full_name || '?').slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-[9px] text-muted-foreground truncate">{profile.full_name || 'Usuário'}</span>
+                                  <span className="text-[8px] text-muted-foreground/60 ml-auto">{format(new Date(idea.updated_at), 'dd/MM HH:mm')}</span>
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>

@@ -23,7 +23,7 @@ const borderMap = {
   error: 'border-l-red-500',
 };
 
-const AUTO_DISMISS_MS = 5000;
+const AUTO_DISMISS_MS = 8000;
 const MAX_VISIBLE = 2;
 
 export function NotificationBanner({ notifications, onMarkAsRead }: NotificationBannerProps) {
@@ -83,7 +83,7 @@ export function NotificationBanner({ notifications, onMarkAsRead }: Notification
   const hiddenCount = visibleNotifications.length - shown.length;
 
   return (
-    <div className="fixed top-20 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div className="fixed top-20 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       <AnimatePresence>
         {shown.map((notification) => {
           const isScheduledMsg = notification.notificationType === 'scheduled_message';

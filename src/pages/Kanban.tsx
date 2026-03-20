@@ -2021,6 +2021,7 @@ export default function KanbanPage() {
                                       >
                                         <TaskCard
                                           deal={deal}
+                                          modifierProfile={modifierProfiles?.[deal.last_modified_by || ''] || (deal.user_id === user?.id ? modifierProfiles?.[user.id] : null)}
                                           onEdit={() => { setEditDeal(deal); setShowAddModal(true); }}
                                           onDelete={() => setDeletingId(deal.id)}
                                           onPayments={() => setPaymentsDeal(deal)}

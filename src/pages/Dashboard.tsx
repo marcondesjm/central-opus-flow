@@ -234,6 +234,11 @@ export default function Dashboard() {
     // Only seed if user has zero accounts AND zero projects
     if (accounts.length > 0 || projects.length > 0) return;
 
+    // Only seed for accounts created in the last 10 minutes (truly new users)
+    const userCreatedAt = user.created_at ? new Date(user.created_at).getTime() : 0;
+    const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+    if (userCreatedAt < tenMinutesAgo) return;
+
     let cancelled = false;
 
     const seedExampleData = async () => {

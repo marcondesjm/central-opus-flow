@@ -1,5 +1,14 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useCallback } from 'react';
 import { Sidebar } from './Sidebar';
+import { MobileSidebar } from './MobileSidebar';
+import { MobileBottomNav } from './MobileBottomNav';
+import { AppFooter } from './AppFooter';
+import { useAccounts, LovableAccount } from '@/hooks/useProjects';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { MobileSidebar } from './MobileSidebar';
 import { MobileBottomNav } from './MobileBottomNav';
 import { AppFooter } from './AppFooter';

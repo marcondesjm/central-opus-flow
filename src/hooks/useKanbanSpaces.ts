@@ -110,8 +110,20 @@ export function useSystemUsers() {
         .select('user_id, full_name, email, avatar_url');
 
       if (error) throw error;
-      return data as { user_id: string; full_name: string | null; email: string; avatar_url: string | null }[];
+      // Mask emails for non-current users
+      return (data || []).map(p => ({
+        ...p,
+        email: p.user_id === user?.id ? p.email : maskEmail(p.email),
+      })) as { user_id: string; full_name: string | null; email: string; avatar_url: string | null }[];
     },
     enabled: !!user,
   });
+}
+
+function maskEmail(email: string): string {
+  if (!email) return '';
+  const [local, domain] = email.split('@');
+  if (!domain) return '***';
+  const masked = local.slice(0, 2) + '***';
+  return `${masked}@${domain}`;
 }

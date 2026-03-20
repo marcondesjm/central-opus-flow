@@ -2147,6 +2147,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_safe: {
+        Row: {
+          area_atuacao: string | null
+          avatar_url: string | null
+          cargo: string | null
+          created_at: string | null
+          full_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          area_atuacao?: string | null
+          avatar_url?: string | null
+          cargo?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          area_atuacao?: string | null
+          avatar_url?: string | null
+          cargo?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_auth_email: { Args: never; Returns: string }

@@ -19,14 +19,14 @@ export function UrgentAdminMessageModal() {
   const [countdown, setCountdown] = useState(30);
   const [canClose, setCanClose] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
-  const audioRef = useRef<AudioContext | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const flashRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasFetchedRef = useRef(false);
 
   // Play alert sound
   const playAlertSound = useCallback(() => {
     try {
       const ctx = new AudioContext();
-      audioRef.current = ctx;
-
       const playTone = (freq: number, startTime: number, duration: number) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -39,8 +39,6 @@ export function UrgentAdminMessageModal() {
         osc.start(startTime);
         osc.stop(startTime + duration);
       };
-
-      // Urgent alarm pattern
       for (let i = 0; i < 3; i++) {
         playTone(880, ctx.currentTime + i * 0.3, 0.15);
         playTone(660, ctx.currentTime + i * 0.3 + 0.15, 0.15);
@@ -48,8 +46,44 @@ export function UrgentAdminMessageModal() {
     } catch {}
   }, []);
 
+  const startCountdown = useCallback(() => {
+    // Clear any existing timers
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (flashRef.current) clearInterval(flashRef.current);
+
+    setCountdown(30);
+    setCanClose(false);
+
+    let remaining = 30;
+    countdownRef.current = setInterval(() => {
+      remaining -= 1;
+      setCountdown(remaining);
+      if (remaining <= 0) {
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        if (flashRef.current) clearInterval(flashRef.current);
+        setCanClose(true);
+        setShowFlash(false);
+      }
+    }, 1000);
+
+    // Flash effect
+    flashRef.current = setInterval(() => {
+      setShowFlash(true);
+      setTimeout(() => setShowFlash(false), 200);
+    }, 3000);
+  }, []);
+
+  const showModal = useCallback((msgs: UrgentMessage[]) => {
+    setMessages(msgs);
+    setCurrentIndex(0);
+    setOpen(true);
+    startCountdown();
+    setTimeout(() => playAlertSound(), 300);
+  }, [startCountdown, playAlertSound]);
+
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
 
     const fetchUrgent = async () => {
       const { data } = await supabase
@@ -61,12 +95,7 @@ export function UrgentAdminMessageModal() {
         .order('created_at', { ascending: false });
 
       if (data && data.length > 0) {
-        setMessages(data);
-        setCurrentIndex(0);
-        setCountdown(30);
-        setCanClose(false);
-        setOpen(true);
-        setTimeout(() => playAlertSound(), 500);
+        showModal(data);
       }
     };
 
@@ -84,12 +113,12 @@ export function UrgentAdminMessageModal() {
         },
         (payload: any) => {
           if (payload.new?.type === 'admin_message') {
-            setMessages((prev) => [payload.new as UrgentMessage, ...prev]);
-            setCurrentIndex(0);
-            setCountdown(30);
-            setCanClose(false);
-            setOpen(true);
-            setTimeout(() => playAlertSound(), 500);
+            const newMsg = payload.new as UrgentMessage;
+            setMessages((prev) => {
+              const updated = [newMsg, ...prev];
+              showModal(updated);
+              return updated;
+            });
           }
         }
       )
@@ -97,38 +126,10 @@ export function UrgentAdminMessageModal() {
 
     return () => {
       supabase.removeChannel(channel);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+      if (flashRef.current) clearInterval(flashRef.current);
     };
-  }, [user?.id, playAlertSound]);
-
-  // Countdown timer
-  useEffect(() => {
-    if (!open || canClose) return;
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setCanClose(true);
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [open, canClose]);
-
-  // Flash effect every 3 seconds
-  useEffect(() => {
-    if (!open || canClose) return;
-
-    const flashTimer = setInterval(() => {
-      setShowFlash(true);
-      setTimeout(() => setShowFlash(false), 200);
-    }, 3000);
-
-    return () => clearInterval(flashTimer);
-  }, [open, canClose]);
+  }, [user?.id, showModal]);
 
   const handleDismiss = useCallback(async () => {
     if (!canClose) return;
@@ -142,13 +143,13 @@ export function UrgentAdminMessageModal() {
 
     if (currentIndex < messages.length - 1) {
       setCurrentIndex((i) => i + 1);
-      setCountdown(30);
-      setCanClose(false);
+      startCountdown();
     } else {
       setOpen(false);
       setMessages([]);
+      hasFetchedRef.current = false;
     }
-  }, [canClose, messages, currentIndex]);
+  }, [canClose, messages, currentIndex, startCountdown]);
 
   const current = messages[currentIndex];
   if (!current || !open) return null;
@@ -167,17 +168,6 @@ export function UrgentAdminMessageModal() {
         style={{
           backgroundColor: showFlash ? 'rgba(220, 38, 38, 0.35)' : 'rgba(0, 0, 0, 0.85)',
           backdropFilter: 'blur(8px)',
-        }}
-      />
-
-      {/* Animated border glow ring */}
-      <div
-        className="absolute rounded-2xl"
-        style={{
-          width: 'calc(100% - 2rem)',
-          maxWidth: '540px',
-          height: 'auto',
-          animation: 'urgentRingPulse 1.5s ease-in-out infinite',
         }}
       />
 
@@ -224,7 +214,7 @@ export function UrgentAdminMessageModal() {
           </div>
         </div>
 
-        {/* Divider bar animada */}
+        {/* Animated stripes */}
         <div className="h-1 w-full" style={{
           background: 'repeating-linear-gradient(90deg, hsl(var(--destructive)) 0px, hsl(var(--destructive)) 20px, hsl(var(--destructive)/0.3) 20px, hsl(var(--destructive)/0.3) 40px)',
           backgroundSize: '40px 100%',

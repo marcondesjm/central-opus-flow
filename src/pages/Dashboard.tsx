@@ -32,6 +32,7 @@ import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
+import { DashboardActivitySection } from '@/components/dashboard/DashboardActivitySection';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
 import { useCollaboration } from '@/hooks/useCollaboration';
@@ -590,10 +591,10 @@ export default function Dashboard() {
         />
         
         <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
-          <div className="flex-1 p-3 sm:p-6 pb-20 lg:pb-6">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8">
           
           {/* Dashboard Header */}
-          <div className="mb-6">
+          <div className="mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">{t('dashboardPage.subtitle', 'Visão geral dos seus projetos e atividades')}</p>
           </div>
@@ -605,7 +606,7 @@ export default function Dashboard() {
 
           {/* Overdue Alert Banner */}
           {overdueProjects.length > 0 && (
-            <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm font-medium">
+            <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm font-medium animate-fade-in">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{overdueProjects.length} {overdueProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}</span>
             </div>
@@ -616,6 +617,9 @@ export default function Dashboard() {
 
           {/* Charts */}
           <ProjectCharts projects={projects} />
+
+          {/* Activity Section */}
+          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={() => setAddProjectOpen(true)} />
 
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />

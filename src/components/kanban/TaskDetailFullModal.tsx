@@ -819,7 +819,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
               <div className="space-y-3 pt-2">
                 {/* Existing comments */}
                 {(comments || []).length > 0 && (
-                  <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                  <ScrollArea className="max-h-[250px]">
+                    <div className="space-y-3 pr-3">
                     {(comments || []).map((comment: any) => {
                       const profile = commentProfiles?.[comment.user_id];
                       return (
@@ -833,8 +834,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-medium">{profile?.full_name || 'Usuário'}</span>
-                              <span className="text-[10px] text-muted-foreground">
-                                {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: ptBR })}
+                              <span className="text-[10px] text-muted-foreground" title={format(new Date(comment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}>
+                                {format(new Date(comment.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                               </span>
                               {comment.user_id === user?.id && (
                                 <button
@@ -850,7 +851,8 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
                         </div>
                       );
                     })}
-                  </div>
+                    </div>
+                  </ScrollArea>
                 )}
 
                 {/* Comment input */}

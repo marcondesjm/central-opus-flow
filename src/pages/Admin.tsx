@@ -1420,14 +1420,14 @@ export default function Admin() {
 
       {/* User Preview Dialog */}
       <Dialog open={!!previewUser} onOpenChange={(open) => { if (!open) { setPreviewUser(null); setPreviewData(null); } }}>
-        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+        <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eye className="w-5 h-5" />
               Conteúdo de {previewUser?.full_name || previewUser?.email}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto space-y-6">
+          <div className="flex-1 overflow-y-auto space-y-6 pr-1">
             {loadingPreview ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
@@ -1436,6 +1436,15 @@ export default function Admin() {
               </div>
             ) : previewData ? (
               <>
+                {/* Summary badges */}
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="gap-1"><Building2 className="w-3 h-3" /> {previewData.accounts.length} contas</Badge>
+                  <Badge variant="outline" className="gap-1"><FolderKanban className="w-3 h-3" /> {previewData.projects.length} projetos</Badge>
+                  <Badge variant="outline" className="gap-1"><LayoutGrid className="w-3 h-3" /> {previewData.kanbanDeals.length} tarefas</Badge>
+                  <Badge variant="outline" className="gap-1">💡 {previewData.ideas.length} ideias</Badge>
+                  <Badge variant="outline" className="gap-1">📄 {previewData.proposals.length} propostas</Badge>
+                </div>
+
                 {/* Accounts */}
                 <div>
                   <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
@@ -1497,7 +1506,7 @@ export default function Admin() {
                   )}
                 </div>
 
-                {/* Kanban Deals */}
+                {/* Kanban Deals - grouped by column name */}
                 <div>
                   <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
                     <LayoutGrid className="w-4 h-4" />
@@ -1506,9 +1515,15 @@ export default function Admin() {
                   {previewData.kanbanDeals.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Nenhuma tarefa no kanban.</p>
                   ) : (
-                    <div className="space-y-2">
-                      {/* Group deals by phase */}
+                    <div className="space-y-3">
                       {(() => {
+                        // Build column name map
+                        const columnMap = new Map<string, { name: string; color: string }>();
+                        previewData.kanbanColumns.forEach((col: any) => {
+                          columnMap.set(col.id, { name: col.name, color: col.color });
+                        });
+
+                        // Group deals by phase (column id)
                         const phases = new Map<string, any[]>();
                         previewData.kanbanDeals.forEach((deal: any) => {
                           const p = deal.phase || 'sem_fase';
@@ -1516,63 +1531,147 @@ export default function Admin() {
                           phases.get(p)!.push(deal);
                         });
 
-                        const phaseLabels: Record<string, string> = {
-                          prospeccao: 'Prospecção',
-                          qualificacao: 'Qualificação',
-                          proposta: 'Proposta',
-                          negociacao: 'Negociação',
-                          fechamento: 'Fechamento',
-                          concluido: 'Concluído',
+                        const priorityLabels: Record<string, { label: string; emoji: string; cls: string }> = {
+                          urgent: { label: 'Urgente', emoji: '🔴', cls: 'text-red-600' },
+                          high: { label: 'Alta', emoji: '🟠', cls: 'text-orange-600' },
+                          medium: { label: 'Média', emoji: '🟡', cls: 'text-yellow-600' },
+                          low: { label: 'Baixa', emoji: '🟢', cls: 'text-green-600' },
                         };
 
-                        const priorityColors: Record<string, string> = {
-                          urgent: 'text-red-600',
-                          high: 'text-orange-600',
-                          medium: 'text-yellow-600',
-                          low: 'text-green-600',
-                        };
-
-                        return Array.from(phases.entries()).map(([phase, deals]) => (
-                          <div key={phase} className="border rounded-lg overflow-hidden">
-                            <div className="bg-muted/50 px-3 py-2 flex items-center justify-between">
-                              <span className="text-xs font-semibold uppercase tracking-wide">
-                                {phaseLabels[phase] || phase}
-                              </span>
-                              <Badge variant="secondary" className="text-xs">{deals.length}</Badge>
-                            </div>
-                            <div className="divide-y divide-border">
-                              {deals.map((deal: any) => (
-                                <div key={deal.id} className="px-3 py-2 space-y-1">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <p className="font-medium text-sm truncate">{deal.company_name}</p>
-                                    <span className={cn("text-xs font-medium", priorityColors[deal.priority] || 'text-muted-foreground')}>
-                                      {deal.priority === 'urgent' ? '🔴 Urgente' :
-                                       deal.priority === 'high' ? '🟠 Alta' :
-                                       deal.priority === 'medium' ? '🟡 Média' : '🟢 Baixa'}
+                        return Array.from(phases.entries()).map(([phase, deals]) => {
+                          const col = columnMap.get(phase);
+                          const totalRevenue = deals.reduce((s: number, d: any) => s + Number(d.revenue || 0), 0);
+                          return (
+                            <div key={phase} className="border rounded-lg overflow-hidden">
+                              <div 
+                                className="px-3 py-2 flex items-center justify-between"
+                                style={{ 
+                                  backgroundColor: col?.color ? `${col.color}15` : 'hsl(var(--muted) / 0.5)',
+                                  borderLeft: `4px solid ${col?.color || 'hsl(var(--primary))'}` 
+                                }}
+                              >
+                                <span className="text-xs font-semibold uppercase tracking-wide">
+                                  {col?.name || phase}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  {totalRevenue > 0 && (
+                                    <span className="text-xs font-medium text-foreground">
+                                      R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                     </span>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground truncate">
-                                    Cliente: {deal.client_name}
-                                  </p>
-                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>Progresso: {deal.progress}%</span>
-                                    {deal.revenue > 0 && (
-                                      <span className="font-medium text-foreground">
-                                        R$ {Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                      </span>
-                                    )}
-                                  </div>
-                                  {deal.due_date && (
-                                    <p className="text-xs text-muted-foreground">
-                                      Prazo: {format(new Date(deal.due_date), 'dd/MM/yyyy', { locale: ptBR })}
-                                    </p>
                                   )}
+                                  <Badge variant="secondary" className="text-xs">{deals.length}</Badge>
                                 </div>
-                              ))}
+                              </div>
+                              <div className="divide-y divide-border">
+                                {deals.map((deal: any) => {
+                                  const p = priorityLabels[deal.priority] || priorityLabels.medium;
+                                  return (
+                                    <div key={deal.id} className="px-3 py-2 space-y-1">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <p className="font-medium text-sm truncate">{deal.company_name}</p>
+                                        <span className={cn("text-xs font-medium whitespace-nowrap", p.cls)}>
+                                          {p.emoji} {p.label}
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground truncate">
+                                        Cliente: {deal.client_name}
+                                      </p>
+                                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>Progresso: {deal.progress}%</span>
+                                        {Number(deal.revenue) > 0 && (
+                                          <span className="font-medium text-foreground">
+                                            R$ {Number(deal.revenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                          </span>
+                                        )}
+                                      </div>
+                                      {deal.due_date && (
+                                        <p className="text-xs text-muted-foreground">
+                                          Prazo: {format(new Date(deal.due_date), 'dd/MM/yyyy', { locale: ptBR })}
+                                        </p>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Ideas */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    💡 Ideias ({previewData.ideas.length})
+                  </h3>
+                  {previewData.ideas.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhuma ideia criada.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {previewData.ideas.map((idea: any) => (
+                        <div key={idea.id} className="p-3 rounded-lg border border-border bg-card space-y-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: idea.theme_color || '#3b82f6' }} />
+                              <p className="font-medium text-sm">{idea.title}</p>
+                            </div>
+                            <Badge variant="outline" className="text-xs capitalize">{idea.roadmap}</Badge>
+                          </div>
+                          {idea.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">{idea.description}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>Impacto: {idea.impact}/5</span>
+                            <span>Esforço: {idea.effort}/5</span>
+                            <span>Progresso: {idea.progress}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Proposals */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    📄 Propostas ({previewData.proposals.length})
+                  </h3>
+                  {previewData.proposals.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhuma proposta criada.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {previewData.proposals.map((prop: any) => {
+                        const statusMap: Record<string, { label: string; cls: string }> = {
+                          draft: { label: 'Rascunho', cls: 'bg-muted text-muted-foreground' },
+                          sent: { label: 'Enviada', cls: 'bg-blue-500/10 text-blue-600' },
+                          viewed: { label: 'Visualizada', cls: 'bg-amber-500/10 text-amber-600' },
+                          accepted: { label: 'Aceita', cls: 'bg-emerald-500/10 text-emerald-600' },
+                          rejected: { label: 'Rejeitada', cls: 'bg-destructive/10 text-destructive' },
+                        };
+                        const st = statusMap[prop.status] || statusMap.draft;
+                        return (
+                          <div key={prop.id} className="p-3 rounded-lg border border-border bg-card space-y-1">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium text-sm">{prop.proposal_title}</p>
+                              <Badge className={cn("text-xs", st.cls)}>{st.label}</Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Cliente: {prop.client_name}{prop.client_company ? ` — ${prop.client_company}` : ''}
+                            </p>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span className="font-medium text-foreground">
+                                R$ {Number(prop.total_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                {Number(prop.discount) > 0 && (
+                                  <span className="text-destructive ml-1">(-{Number(prop.discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})</span>
+                                )}
+                              </span>
+                              <span>{format(new Date(prop.created_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
                             </div>
                           </div>
-                        ));
-                      })()}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

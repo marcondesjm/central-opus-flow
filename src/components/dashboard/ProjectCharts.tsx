@@ -23,7 +23,7 @@ interface ProjectChartsProps {
 const STATUS_COLORS: Record<string, string> = {
   published: 'hsl(160, 84%, 39%)',
   draft: 'hsl(38, 92%, 50%)',
-  archived: 'hsl(220, 9%, 46%)',
+  archived: 'hsl(220, 13%, 45%)',
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -33,13 +33,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const CustomTooltipStyle = {
-  backgroundColor: 'hsl(var(--card))',
-  border: '1px solid hsl(var(--border))',
+  backgroundColor: 'hsl(222, 41%, 8%)',
+  border: '1px solid hsl(217, 33%, 15%)',
   borderRadius: '12px',
-  color: 'hsl(var(--card-foreground))',
+  color: 'hsl(220, 13%, 91%)',
   fontSize: '12px',
   padding: '10px 14px',
-  boxShadow: '0 8px 24px hsl(var(--foreground) / 0.1)',
+  boxShadow: '0 8px 24px hsl(222 47% 2% / 0.5)',
 };
 
 export function ProjectCharts({ projects }: ProjectChartsProps) {
@@ -104,7 +104,7 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
 
       <div className={`grid grid-cols-1 lg:grid-cols-5 gap-4 ${!isExpanded && isMobile ? 'hidden' : ''}`}>
         {/* Line / Area Chart — 3 cols */}
-        <Card className="lg:col-span-3 border-border/50 bg-card/80 backdrop-blur-sm rounded-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300">
+        <Card className="lg:col-span-3 border-border bg-card rounded-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300">
           <CardHeader className="pb-2 flex-row items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
               <TrendingUp className="w-4 h-4 text-primary" />
@@ -117,19 +117,19 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
                 <AreaChart data={monthlyData}>
                   <defs>
                     <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      <stop offset="0%" stopColor="hsl(263, 70%, 58%)" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="hsl(263, 70%, 58%)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(217, 33%, 15%)" vertical={false} />
                   <XAxis
                     dataKey="name"
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    tick={{ fontSize: 11, fill: 'hsl(220, 13%, 60%)' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    tick={{ fontSize: 11, fill: 'hsl(220, 13%, 60%)' }}
                     axisLine={false}
                     tickLine={false}
                     allowDecimals={false}
@@ -139,11 +139,11 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
                   <Area
                     type="monotone"
                     dataKey="total"
-                    stroke="hsl(var(--primary))"
+                    stroke="hsl(263, 70%, 58%)"
                     strokeWidth={2.5}
                     fill="url(#gradientArea)"
-                    dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
-                    activeDot={{ r: 6, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+                    dot={{ r: 4, fill: 'hsl(263, 70%, 58%)', strokeWidth: 2, stroke: 'hsl(222, 41%, 8%)' }}
+                    activeDot={{ r: 6, strokeWidth: 2, stroke: 'hsl(222, 41%, 8%)' }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -152,10 +152,10 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
         </Card>
 
         {/* Donut Chart — 2 cols */}
-        <Card className="lg:col-span-2 border-border/50 bg-card/80 backdrop-blur-sm rounded-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300">
+        <Card className="lg:col-span-2 border-border bg-card rounded-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300">
           <CardHeader className="pb-2 flex-row items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <PieIcon className="w-4 h-4 text-accent" />
+              <PieIcon className="w-4 h-4 text-primary" />
               Distribuição por Status
             </CardTitle>
           </CardHeader>
@@ -171,7 +171,7 @@ export function ProjectCharts({ projects }: ProjectChartsProps) {
                     outerRadius={isMobile ? 68 : 82}
                     paddingAngle={3}
                     dataKey="value"
-                    stroke="hsl(var(--card))"
+                    stroke="hsl(222, 41%, 8%)"
                     strokeWidth={3}
                   >
                     {statusData.map((entry, i) => (

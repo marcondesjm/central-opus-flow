@@ -113,13 +113,13 @@ export function ActivityFeed({ limit = 20, compact = false }: ActivityFeedProps)
             {logs.map((log) => (
               <div
                 key={log.id}
-                className="flex items-start gap-3 py-2 border-b border-border/50 last:border-0"
+                className="flex items-start gap-3 py-2.5 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded-lg px-2 transition-colors duration-200"
               >
                 <div className={`p-1.5 rounded-full shrink-0 ${actionColors[log.action] || 'bg-muted'}`}>
                   {actionIcons[log.action] || <Activity className="w-3 h-3" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm">
+                  <p className="text-sm text-foreground">
                     {formatActivityAction(log.action, log.entity_type, log.entity_name)}
                   </p>
                   <p className="text-xs text-muted-foreground">

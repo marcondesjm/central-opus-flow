@@ -475,6 +475,15 @@ export default function Proposals() {
                           {copied ? <Check className="w-3.5 h-3.5 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
                           Link
                         </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-9 w-9 text-primary shrink-0"
+                          onClick={() => window.open(`${window.location.origin}/proposal/${proposal.share_token}`, '_blank')}
+                          title="Abrir proposta em nova aba"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
                       )}
                       {proposal.client_phone && (
                         <Button

@@ -816,7 +816,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
 
               {/* Comment / Activity */}
               <Separator />
-              <div className="space-y-3 pt-2">
+              <div className="flex flex-col gap-3 pt-2">
                 {/* Existing comments */}
                 {(comments || []).length > 0 && (
                   <div className="max-h-[250px] overflow-y-auto">

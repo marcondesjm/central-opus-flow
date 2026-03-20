@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { useIdeas, useCreateIdea, useUpdateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
+import { useIdeas, useCreateIdea, useUpdateIdea, useBulkDeleteIdeas, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
 import { IdeasTimelineView } from '@/components/ideas/IdeasTimelineView';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar } from 'lucide-react';
+import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,6 +22,7 @@ type ViewMode = 'table' | 'board' | 'timeline';
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
   const createIdea = useCreateIdea();
+  const bulkDelete = useBulkDeleteIdeas();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -29,6 +30,30 @@ export default function Ideas() {
   const [search, setSearch] = useState('');
   const [filterRoadmap, setFilterRoadmap] = useState<string>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map(i => i.id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    bulkDelete.mutate(Array.from(selectedIds), {
+      onSuccess: () => setSelectedIds(new Set()),
+    });
+  };
 
   const filtered = useMemo(() => (ideas || []).filter(idea => {
     const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());

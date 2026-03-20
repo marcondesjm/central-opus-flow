@@ -169,121 +169,217 @@ Deno.serve(async (req) => {
         .insert({ user_id: demoUserId, role: "viewer" });
     }
 
-    // 5. Clone accounts
-    const { data: adminAccounts } = await adminClient
-      .from("lovable_accounts")
-      .select("*")
-      .eq("user_id", adminUserId);
+    // 5. Create demo accounts (NOT cloned from admin)
+    const demoAccounts = [
+      { name: "Agência Digital Pro", email: "contato@agenciapro.com", color: "emerald", credits: 2500, notes: "Conta principal da agência" },
+      { name: "Startup Tech", email: "admin@startuptech.io", color: "blue", credits: 1200, notes: "Projetos de tecnologia" },
+      { name: "Freelancer Design", email: "designer@outlook.com", color: "amber", credits: 800, notes: "Trabalhos freelance" },
+    ];
 
     const accountIdMap: Record<string, string> = {};
+    const accountIds: string[] = [];
 
-    if (adminAccounts && adminAccounts.length > 0) {
-      for (const acc of adminAccounts) {
-        const newId = crypto.randomUUID();
-        accountIdMap[acc.id] = newId;
-        await adminClient.from("lovable_accounts").insert({
-          id: newId,
-          user_id: demoUserId,
-          name: acc.name,
-          email: acc.email,
-          color: acc.color,
-          credits: acc.credits,
-          admin_email: acc.admin_email,
-          supabase_project_id: acc.supabase_project_id,
-          supabase_url: acc.supabase_url,
-          anon_key: acc.anon_key,
-          service_role_key: acc.service_role_key,
-          notes: acc.notes,
-        });
-      }
+    for (const acc of demoAccounts) {
+      const newId = crypto.randomUUID();
+      accountIds.push(newId);
+      await adminClient.from("lovable_accounts").insert({
+        id: newId,
+        user_id: demoUserId,
+        name: acc.name,
+        email: acc.email,
+        color: acc.color,
+        credits: acc.credits,
+        notes: acc.notes,
+      });
     }
 
-    // 6. Clone tags
-    const { data: adminTags } = await adminClient
-      .from("tags")
-      .select("*")
-      .eq("user_id", adminUserId);
+    // 6. Create demo tags
+    const demoTags = [
+      { name: "E-commerce", color: "blue" },
+      { name: "Landing Page", color: "emerald" },
+      { name: "SaaS", color: "violet" },
+      { name: "Dashboard", color: "amber" },
+      { name: "Mobile", color: "rose" },
+    ];
 
-    const tagIdMap: Record<string, string> = {};
-
-    if (adminTags && adminTags.length > 0) {
-      for (const tag of adminTags) {
-        const newId = crypto.randomUUID();
-        tagIdMap[tag.id] = newId;
-        await adminClient.from("tags").insert({
-          id: newId,
-          user_id: demoUserId,
-          name: tag.name,
-          color: tag.color,
-        });
-      }
+    const tagIds: string[] = [];
+    for (const tag of demoTags) {
+      const newId = crypto.randomUUID();
+      tagIds.push(newId);
+      await adminClient.from("tags").insert({
+        id: newId,
+        user_id: demoUserId,
+        name: tag.name,
+        color: tag.color,
+      });
     }
 
-    // 7. Clone projects
-    const { data: adminProjects } = await adminClient
-      .from("projects")
-      .select("*")
-      .eq("user_id", adminUserId);
+    // 7. Create demo projects (examples, NOT real projects)
+    const demoProjects = [
+      {
+        name: "Loja Virtual ModaExpress",
+        description: "E-commerce completo com carrinho, checkout integrado ao Stripe e painel admin para gestão de produtos e pedidos.",
+        url: "https://modaexpress-demo.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+        status: "published",
+        type: "website",
+        progress: 100,
+        is_favorite: true,
+        notes: "Projeto finalizado e em produção. Cliente satisfeito.",
+        account_idx: 0,
+        tag_idxs: [0],
+      },
+      {
+        name: "App Gestão Financeira",
+        description: "Aplicação SaaS para controle financeiro pessoal com gráficos, categorias e exportação de relatórios.",
+        url: "https://fincontrol-demo.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+        status: "published",
+        type: "app",
+        progress: 95,
+        is_favorite: true,
+        notes: "Último ajuste pendente: notificações push.",
+        account_idx: 1,
+        tag_idxs: [2, 3],
+      },
+      {
+        name: "Landing Page FitLife Academy",
+        description: "Página de captura com VSL, depoimentos e integração com email marketing para curso de fitness online.",
+        url: "https://fitlife-landing.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
+        status: "published",
+        type: "landing",
+        progress: 100,
+        is_favorite: false,
+        account_idx: 0,
+        tag_idxs: [1],
+      },
+      {
+        name: "Dashboard Imobiliária",
+        description: "Painel administrativo para imobiliária com listagem de imóveis, agendamento de visitas e CRM integrado.",
+        url: "https://imotech-dash.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
+        status: "draft",
+        type: "app",
+        progress: 60,
+        is_favorite: false,
+        notes: "Em desenvolvimento - falta integrar mapa e filtros avançados.",
+        account_idx: 1,
+        tag_idxs: [3],
+      },
+      {
+        name: "Portfolio Criativo",
+        description: "Site portfolio responsivo com animações, galeria de trabalhos e formulário de contato.",
+        url: "https://portfolio-criativo.lovable.app",
+        screenshot: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&q=80",
+        status: "draft",
+        type: "website",
+        progress: 35,
+        is_favorite: false,
+        notes: "Cliente pediu revisão nas cores e tipografia.",
+        account_idx: 2,
+        tag_idxs: [1],
+      },
+      {
+        name: "App Delivery PetShop",
+        description: "Aplicativo mobile-first para delivery de produtos pet com rastreamento e avaliações.",
+        url: null,
+        screenshot: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80",
+        status: "draft",
+        type: "app",
+        progress: 20,
+        is_favorite: false,
+        notes: "Fase inicial - definindo wireframes.",
+        account_idx: 2,
+        tag_idxs: [4, 0],
+      },
+    ];
 
     const projectIdMap: Record<string, string> = {};
+    const demoProjectChecklists = [
+      [
+        { title: "Configurar catálogo de produtos", is_completed: true },
+        { title: "Integrar Stripe", is_completed: true },
+        { title: "Implementar carrinho", is_completed: true },
+        { title: "Deploy em produção", is_completed: true },
+      ],
+      [
+        { title: "Criar dashboard com gráficos", is_completed: true },
+        { title: "Sistema de categorias", is_completed: true },
+        { title: "Exportação PDF", is_completed: true },
+        { title: "Notificações push", is_completed: false },
+      ],
+      [
+        { title: "Gravar VSL", is_completed: true },
+        { title: "Implementar formulário", is_completed: true },
+        { title: "Integrar email marketing", is_completed: true },
+      ],
+      [
+        { title: "Listagem de imóveis", is_completed: true },
+        { title: "Filtros avançados", is_completed: false },
+        { title: "Mapa interativo", is_completed: false },
+        { title: "Agendamento de visitas", is_completed: false },
+      ],
+      [
+        { title: "Layout responsivo", is_completed: true },
+        { title: "Galeria de trabalhos", is_completed: false },
+        { title: "Formulário de contato", is_completed: false },
+      ],
+      [
+        { title: "Wireframes", is_completed: false },
+        { title: "Design UI", is_completed: false },
+        { title: "Desenvolvimento frontend", is_completed: false },
+      ],
+    ];
 
-    if (adminProjects && adminProjects.length > 0) {
-      for (const proj of adminProjects) {
-        const newId = crypto.randomUUID();
-        projectIdMap[proj.id] = newId;
-        await adminClient.from("projects").insert({
-          id: newId,
-          user_id: demoUserId,
-          account_id: accountIdMap[proj.account_id] || proj.account_id,
-          name: proj.name,
-          description: proj.description,
-          url: proj.url,
-          status: proj.status,
-          type: proj.type,
-          progress: proj.progress,
-          is_favorite: proj.is_favorite,
-          notes: proj.notes,
-          screenshot: proj.screenshot,
-          deadline: proj.deadline,
-          repository_url: proj.repository_url,
-        });
-      }
+    for (let i = 0; i < demoProjects.length; i++) {
+      const proj = demoProjects[i];
+      const newId = crypto.randomUUID();
+      projectIdMap[`proj_${i}`] = newId;
 
-      // Clone project tags
-      const { data: adminProjectTags } = await adminClient
-        .from("project_tags")
-        .select("*")
-        .in("project_id", Object.keys(projectIdMap));
+      const deadlineOffset = i === 3 ? -2 : i === 5 ? 10 : null;
+      const deadline = deadlineOffset !== null
+        ? new Date(Date.now() + deadlineOffset * 86400000).toISOString()
+        : null;
 
-      if (adminProjectTags && adminProjectTags.length > 0) {
-        for (const pt of adminProjectTags) {
-          if (projectIdMap[pt.project_id] && tagIdMap[pt.tag_id]) {
-            await adminClient.from("project_tags").insert({
-              project_id: projectIdMap[pt.project_id],
-              tag_id: tagIdMap[pt.tag_id],
-            });
-          }
+      await adminClient.from("projects").insert({
+        id: newId,
+        user_id: demoUserId,
+        account_id: accountIds[proj.account_idx],
+        name: proj.name,
+        description: proj.description,
+        url: proj.url,
+        status: proj.status,
+        type: proj.type,
+        progress: proj.progress,
+        is_favorite: proj.is_favorite,
+        notes: proj.notes || null,
+        screenshot: proj.screenshot,
+        deadline,
+      });
+
+      // Insert tags
+      for (const tagIdx of proj.tag_idxs) {
+        if (tagIds[tagIdx]) {
+          await adminClient.from("project_tags").insert({
+            project_id: newId,
+            tag_id: tagIds[tagIdx],
+          });
         }
       }
 
-      // Clone project checklists
-      const { data: adminChecklists } = await adminClient
-        .from("project_checklists")
-        .select("*")
-        .in("project_id", Object.keys(projectIdMap));
-
-      if (adminChecklists && adminChecklists.length > 0) {
-        for (const cl of adminChecklists) {
-          if (projectIdMap[cl.project_id]) {
-            await adminClient.from("project_checklists").insert({
-              project_id: projectIdMap[cl.project_id],
-              user_id: demoUserId,
-              title: cl.title,
-              is_completed: cl.is_completed,
-              completed_at: cl.completed_at,
-              position: cl.position,
-            });
-          }
+      // Insert checklist
+      if (demoProjectChecklists[i]) {
+        for (let ci = 0; ci < demoProjectChecklists[i].length; ci++) {
+          const cl = demoProjectChecklists[i][ci];
+          await adminClient.from("project_checklists").insert({
+            project_id: newId,
+            user_id: demoUserId,
+            title: cl.title,
+            is_completed: cl.is_completed,
+            completed_at: cl.is_completed ? new Date().toISOString() : null,
+            position: ci,
+          });
         }
       }
     }

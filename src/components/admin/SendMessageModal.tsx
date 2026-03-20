@@ -168,6 +168,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
       setScheduledDate('');
       setScheduledTime('09:00');
       setIsScheduled(false);
+      setDisplayDuration(30);
       onOpenChange(false);
     } catch (error: any) {
       toast({

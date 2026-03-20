@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .update({ 
                 last_sign_in_at: new Date().toISOString(),
                 last_active_at: new Date().toISOString()
-              })
+              } as any)
               .eq('user_id', session.user.id)
               .then(() => {});
           }, 0);

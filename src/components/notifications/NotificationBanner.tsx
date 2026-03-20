@@ -23,7 +23,7 @@ const borderMap = {
   error: 'border-l-red-500',
 };
 
-const AUTO_DISMISS_MS = 5000;
+const AUTO_DISMISS_MS = 8000;
 const MAX_VISIBLE = 2;
 
 export function NotificationBanner({ notifications, onMarkAsRead }: NotificationBannerProps) {

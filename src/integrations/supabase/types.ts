@@ -771,6 +771,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          last_modified_by: string | null
           phase: string
           position: number
           priority: string
@@ -795,6 +796,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          last_modified_by?: string | null
           phase?: string
           position?: number
           priority?: string
@@ -819,6 +821,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          last_modified_by?: string | null
           phase?: string
           position?: number
           priority?: string

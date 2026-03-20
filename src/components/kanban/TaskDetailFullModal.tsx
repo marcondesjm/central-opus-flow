@@ -54,6 +54,73 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
   const updateItem = useUpdateChecklistItem();
   const deleteItem = useDeleteChecklistItem();
   const { data: systemUsers } = useSystemUsers();
+  const queryClient = useQueryClient();
+  const commentInputRef = useRef<HTMLInputElement>(null);
+  const [commentText, setCommentText] = useState('');
+
+  // Comments query
+  const { data: comments } = useQuery({
+    queryKey: ['kanban-comments', deal.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('kanban_comments' as any)
+        .select('*')
+        .eq('deal_id', deal.id)
+        .order('created_at', { ascending: true });
+      return (data || []) as any[];
+    },
+    enabled: open,
+  });
+
+  // Comment profiles
+  const commentUserIds = (comments || []).map((c: any) => c.user_id as string).filter(Boolean);
+  const uniqueCommentUserIds = [...new Set([...commentUserIds, user?.id || ''])].filter(Boolean);
+  
+  const { data: commentProfiles } = useQuery({
+    queryKey: ['comment-profiles', uniqueCommentUserIds],
+    queryFn: async () => {
+      if (uniqueCommentUserIds.length === 0) return {};
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', uniqueCommentUserIds);
+      const map: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      data?.forEach(p => { map[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url }; });
+      return map;
+    },
+    enabled: uniqueCommentUserIds.length > 0 && open,
+  });
+
+  const addComment = useMutation({
+    mutationFn: async (content: string) => {
+      const { error } = await supabase
+        .from('kanban_comments' as any)
+        .insert({ deal_id: deal.id, user_id: user!.id, content } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanban-comments', deal.id] });
+      setCommentText('');
+    },
+  });
+
+  const deleteComment = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('kanban_comments' as any)
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kanban-comments', deal.id] });
+    },
+  });
+
+  const handleSubmitComment = () => {
+    if (!commentText.trim() || !user) return;
+    addComment.mutate(commentText.trim());
+  };
 
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState(deal.description || '');

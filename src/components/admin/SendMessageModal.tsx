@@ -215,6 +215,7 @@ export function SendMessageModal({ open, onOpenChange, targetUser, allUsers = []
         entity_id: user.id,
         actor_id: user.id,
         actor_name: 'Administrador',
+        metadata: { display_duration: scheduled.display_duration || 30 },
       }));
 
       const { error: notifError } = await supabase

@@ -344,6 +344,92 @@ export default function Dashboard() {
             },
           ]);
 
+        // Create example kanban column + deal + scheduled messages
+        const { data: colData } = await supabase
+          .from('kanban_columns')
+          .insert({
+            user_id: user.id,
+            name: 'Em Andamento',
+            color: '#3b82f6',
+            position: 0,
+          })
+          .select()
+          .single();
+
+        if (colData) {
+          const { data: dealData } = await supabase
+            .from('kanban_deals')
+            .insert({
+              user_id: user.id,
+              client_name: 'Maria Silva',
+              company_name: 'Studio Design',
+              phase: colData.id,
+              position: 0,
+              priority: 'medium',
+              client_whatsapp: '5511999999999',
+              description: 'Cliente de exemplo para demonstração de mensagens agendadas.',
+            })
+            .select()
+            .single();
+
+          if (dealData) {
+            // Create 30 scheduled messages, one per day of the current month
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const templates = [
+              'Olá! Tudo bem? Passando para lembrar sobre nosso projeto. 😊',
+              'Bom dia! Como estão as coisas por aí? Alguma novidade?',
+              'Oi! Só confirmando nossa reunião. Pode me dar um retorno?',
+              'Olá! Gostaria de saber se recebeu a proposta que enviei.',
+              'Bom dia! Segue o link do material atualizado do projeto.',
+              'Oi! Lembrando que o prazo de entrega está se aproximando. ⏰',
+              'Olá! Já finalizei as alterações solicitadas. Pode conferir?',
+              'Bom dia! Preciso de sua aprovação para seguir com a próxima etapa.',
+              'Oi! Temos novidades incríveis sobre o projeto. Vamos conversar?',
+              'Olá! Enviando o relatório mensal de progresso. 📊',
+              'Bom dia! Confirma o horário da nossa call de amanhã?',
+              'Oi! O pagamento referente ao mês anterior já está disponível?',
+              'Olá! Preparei uma prévia do layout para sua análise. 🎨',
+              'Bom dia! Gostaria de agendar uma reunião para esta semana.',
+              'Oi! Segue a fatura atualizada conforme combinamos.',
+              'Olá! Estou disponível para tirar qualquer dúvida. 💬',
+              'Bom dia! Lembrete: a campanha começa na próxima segunda!',
+              'Oi! Finalizei o briefing. Pode dar uma olhada quando puder?',
+              'Olá! Preciso dos arquivos para dar continuidade ao trabalho.',
+              'Bom dia! Tudo certo para o lançamento? Confirme por favor. 🚀',
+              'Oi! Estou enviando as métricas da semana passada.',
+              'Olá! Que tal agendarmos um café para alinhar os próximos passos? ☕',
+              'Bom dia! Atualizei o cronograma conforme solicitado.',
+              'Oi! Lembrete amigável sobre o feedback pendente.',
+              'Olá! Nova versão do projeto disponível para revisão.',
+              'Bom dia! Confirmando o envio do contrato para assinatura. ✍️',
+              'Oi! Gostaria de apresentar uma ideia nova para o projeto.',
+              'Olá! Segue o resumo da reunião de hoje.',
+              'Bom dia! Última chamada para aprovação antes da entrega final.',
+              'Oi! Obrigado pela parceria este mês! Até o próximo. 🤝',
+            ];
+
+            const scheduledMessages = [];
+            for (let day = 1; day <= daysInMonth; day++) {
+              const date = new Date(year, month, day);
+              const dateStr = date.toISOString().split('T')[0];
+              scheduledMessages.push({
+                user_id: user.id,
+                deal_id: dealData.id,
+                message: templates[(day - 1) % templates.length],
+                scheduled_date: dateStr,
+                scheduled_time: '09:00',
+                sent: day < today.getDate(), // mark past days as sent
+              });
+            }
+
+            await supabase.from('kanban_scheduled_messages').insert(scheduledMessages);
+          }
+        }
+
         // Mark as seeded so it won't run again
         localStorage.setItem(seedKey, 'true');
 

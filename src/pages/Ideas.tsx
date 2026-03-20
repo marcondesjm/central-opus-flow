@@ -383,6 +383,21 @@ export default function Ideas() {
                                 <span className="text-[9px] text-muted-foreground">{idea.progress}%</span>
                               </div>
                             </div>
+                            {(() => {
+                              const profile = modifierProfiles?.[idea.last_modified_by || ''] || (idea.user_id === user?.id ? modifierProfiles?.[user.id] : null);
+                              return profile ? (
+                                <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-border/50">
+                                  <Avatar className="w-4 h-4">
+                                    <AvatarImage src={profile.avatar_url || undefined} />
+                                    <AvatarFallback className="text-[7px] bg-primary/10 text-primary">
+                                      {(profile.full_name || '?').slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-[9px] text-muted-foreground truncate">{profile.full_name || 'Usuário'}</span>
+                                  <span className="text-[8px] text-muted-foreground/60 ml-auto">{format(new Date(idea.updated_at), 'dd/MM HH:mm')}</span>
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>

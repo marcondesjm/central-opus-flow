@@ -169,9 +169,9 @@ export default function Dashboard() {
     showTour,
   } = useOnboarding();
 
-  const { seedDemoData, resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
+  const { resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
-  const [demoSeeded, setDemoSeeded] = useState(false);
+  const [_demoSeeded, _setDemoSeeded] = useState(false);
   const [demoResetDone, setDemoResetDone] = useState(() => {
     // Only reset once per browser session (sessionStorage clears on tab close)
     return sessionStorage.getItem('demo_data_reset') === 'true';

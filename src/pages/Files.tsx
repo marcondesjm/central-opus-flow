@@ -1,14 +1,11 @@
-import { AppNavBar } from '@/components/layout/AppNavBar';
-import { AppFooter } from '@/components/layout/AppFooter';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { FileManager } from '@/components/files/FileManager';
-import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { FolderOpen } from 'lucide-react';
 
 export default function Files() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <AppNavBar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 lg:pb-6">
+    <AppLayout>
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 lg:pb-6">
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -22,9 +19,7 @@ export default function Files() {
         </div>
 
         <FileManager />
-      </main>
-      <AppFooter />
-      <MobileBottomNav activeView="files" onViewChange={() => {}} onNewProject={() => {}} />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

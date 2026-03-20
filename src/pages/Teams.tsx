@@ -1,40 +1,29 @@
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Mail, UserCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Users, Mail, UserCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useSystemUsers } from '@/hooks/useKanbanSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTranslation } from 'react-i18next';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function Teams() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: users, isLoading } = useSystemUsers();
-  const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Equipes</h1>
-              <p className="text-sm text-muted-foreground">Usuários cadastrados na plataforma</p>
-            </div>
+    <AppLayout>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Equipes</h1>
+            <p className="text-sm text-muted-foreground">Usuários cadastrados na plataforma</p>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -94,7 +83,7 @@ export default function Teams() {
             })}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

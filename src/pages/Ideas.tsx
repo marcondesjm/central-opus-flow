@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { AppNavBar } from '@/components/layout/AppNavBar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { useIdeas, useCreateIdea, useUpdateIdea, Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { IdeaDetailPanel } from '@/components/ideas/IdeaDetailPanel';
 import { IdeasBoardView } from '@/components/ideas/IdeasBoardView';
@@ -58,8 +58,7 @@ export default function Ideas() {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <AppNavBar />
+    <AppLayout>
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
@@ -309,6 +308,6 @@ export default function Ideas() {
           <IdeaDetailPanel idea={currentIdea} onClose={() => setSelectedIdea(null)} />
         </div>
       )}
-    </div>
+    </AppLayout>
   );
 }

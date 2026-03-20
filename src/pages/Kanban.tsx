@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AppNavBar } from '@/components/layout/AppNavBar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -1398,8 +1398,7 @@ export default function KanbanPage() {
   const activeFiltersCount = [filterPriority !== 'all', filterAssignee !== 'all', filterTag !== 'all'].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <AppNavBar />
+    <AppLayout>
       <div className="flex flex-1">
       {/* Spaces sidebar */}
       <aside className="hidden lg:flex flex-col w-[200px] flex-shrink-0 border-r bg-card/30 h-screen sticky top-0">
@@ -2350,6 +2349,6 @@ export default function KanbanPage() {
       </Dialog>
       </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

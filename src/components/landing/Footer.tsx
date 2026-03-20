@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { FolderKanban, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { FolderKanban, Linkedin, Mail } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { ContactModal } from './ContactModal';
 import { AboutModal } from './AboutModal';
 
@@ -11,163 +10,96 @@ export function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleAnchorClick = (anchor: string) => {
+  const scrollTo = (anchor: string) => {
     if (location.pathname === '/') {
-      // Already on landing, just scroll
-      const el = document.querySelector(anchor);
-      el?.scrollIntoView({ behavior: 'smooth' });
+      document.querySelector(anchor)?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // Navigate to landing then scroll
       navigate('/' + anchor);
     }
   };
 
-  const productLinks = [
-    { label: 'Funcionalidades', action: () => handleAnchorClick('#features') },
-    { label: 'Preços', to: '/pricing' },
-    { label: 'FAQ', action: () => handleAnchorClick('#faq') },
-    { label: 'Demonstração', to: '/demo' },
-  ];
-
-  const legalLinks = [
-    { label: 'Termos de Uso', action: () => handleAnchorClick('#terms') },
-    { label: 'Privacidade', action: () => handleAnchorClick('#privacy') },
-    { label: 'Cookies', action: () => handleAnchorClick('#cookies') },
-  ];
-
   return (
     <>
-      <footer className="relative border-t border-border bg-muted/30">
-        {/* Gradient line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-        
-        <div className="container mx-auto max-w-6xl px-4 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <footer className="border-t border-border/30 bg-muted/10">
+        <div className="container mx-auto max-w-5xl px-4 py-12">
+          <div className="flex flex-col md:flex-row items-start justify-between gap-8 mb-10">
             {/* Brand */}
-            <div className="col-span-2">
-              <Link to="/" className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                  <FolderKanban className="w-5 h-5 text-primary-foreground" />
+            <div className="max-w-xs">
+              <Link to="/" className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
+                  <FolderKanban className="w-3.5 h-3.5 text-primary-foreground" />
                 </div>
-                <span className="font-bold text-xl">Central Opus Flow</span>
+                <span className="font-semibold text-sm">Central Opus Flow</span>
               </Link>
-              <p className="text-muted-foreground text-sm mb-6 max-w-xs">
-                A melhor forma de organizar e gerenciar todos os seus projetos em um único lugar.
+              <p className="text-[12px] text-muted-foreground leading-relaxed">
+                A plataforma completa para freelancers e agências organizarem
+                projetos, vendas e finanças.
               </p>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Twitter className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-9 w-9"
-                  onClick={() => window.open('https://www.linkedin.com/in/marcondes-dev', '_blank')}
-                >
-                  <Linkedin className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Github className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-9 w-9"
-                  onClick={() => setContactOpen(true)}
-                >
-                  <Mail className="w-4 h-4" />
-                </Button>
+            </div>
+
+            {/* Links */}
+            <div className="flex gap-12">
+              <div>
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Produto</h4>
+                <ul className="space-y-2">
+                  {[
+                    { label: 'Funcionalidades', action: () => scrollTo('#features') },
+                    { label: 'Preços', to: '/pricing' },
+                    { label: 'Demonstração', to: '/demo' },
+                    { label: 'Blog', to: '/blog' },
+                  ].map((link) => (
+                    <li key={link.label}>
+                      {'to' in link && link.to ? (
+                        <Link to={link.to} className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <button onClick={link.action} className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">
+                          {link.label}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Empresa</h4>
+                <ul className="space-y-2">
+                  <li><button onClick={() => setAboutOpen(true)} className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Sobre</button></li>
+                  <li><button onClick={() => setContactOpen(true)} className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Contato</button></li>
+                </ul>
               </div>
             </div>
 
-            {/* Product */}
-            <div>
-              <h4 className="font-semibold text-sm mb-4">Produto</h4>
-              <ul className="space-y-3">
-                {productLinks.map((link) => (
-                  <li key={link.label}>
-                    {'to' in link && link.to ? (
-                      <Link 
-                        to={link.to}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.label}
-                      </Link>
-                    ) : (
-                      <button 
-                        onClick={link.action}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {link.label}
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="font-semibold text-sm mb-4">Empresa</h4>
-              <ul className="space-y-3">
-                <li>
-                  <button 
-                    onClick={() => setAboutOpen(true)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Sobre
-                  </button>
-                </li>
-                <li>
-                  <Link 
-                    to="/blog"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setContactOpen(true)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Contato
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h4 className="font-semibold text-sm mb-4">Legal</h4>
-              <ul className="space-y-3">
-                {legalLinks.map((link) => (
-                  <li key={link.label}>
-                    <button 
-                      onClick={link.action}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            {/* Social */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => window.open('https://www.linkedin.com/in/marcondes-dev', '_blank')}
+                className="w-8 h-8 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+              >
+                <Linkedin className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setContactOpen(true)}
+                className="w-8 h-8 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Central Opus Flow — <a href="https://www.doorvii.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline-offset-2 hover:underline transition-colors">DoorVII®</a> Todos os direitos reservados.
+          {/* Bottom */}
+          <div className="pt-6 border-t border-border/20 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-[11px] text-muted-foreground/60">
+              © {new Date().getFullYear()} Central Opus Flow — <a href="https://www.doorvii.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">DoorVII®</a>
             </p>
-            <p className="text-sm text-muted-foreground">
-              Feito com ❤️ para criadores
+            <p className="text-[11px] text-muted-foreground/40">
+              Feito para criadores
             </p>
           </div>
         </div>
       </footer>
 
-      {/* Modals */}
       <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
       <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
     </>

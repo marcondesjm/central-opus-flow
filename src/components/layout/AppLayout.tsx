@@ -136,6 +136,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           account={editingAccount}
         />
       )}
+      <UrgentAdminMessageModal />
     </div>
   );
 }

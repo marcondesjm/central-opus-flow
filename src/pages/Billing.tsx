@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { AppNavBar } from '@/components/layout/AppNavBar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, DollarSign, TrendingUp, Receipt, Plus,

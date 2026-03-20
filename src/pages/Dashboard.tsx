@@ -848,8 +848,11 @@ export default function Dashboard() {
           {/* Charts */}
           <ProjectCharts projects={projects} />
 
-          {/* Activity Section */}
-          <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
+          {/* Activity + News Feed */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
+            <NewsFeedWidget />
+          </div>
 
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />

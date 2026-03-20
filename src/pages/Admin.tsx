@@ -1333,6 +1333,23 @@ export default function Admin() {
           <TabsContent value="assistant">
             <AssistantFaqManager />
           </TabsContent>
+
+          <TabsContent value="rss">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Rss className="w-5 h-5" />
+                  Gerenciar Feeds RSS
+                </CardTitle>
+                <CardDescription>
+                  Configure URLs de feeds RSS para exibir notícias no dashboard dos usuários.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RssFeedManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </main>
 

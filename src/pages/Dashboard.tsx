@@ -231,13 +231,12 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
     
+    // Use localStorage to ensure we only seed once per user
+    const seedKey = `example_data_seeded_${user.id}`;
+    if (localStorage.getItem(seedKey) === 'true') return;
+
     // Only seed if user has zero accounts AND zero projects
     if (accounts.length > 0 || projects.length > 0) return;
-
-    // Only seed for accounts created in the last 10 minutes (truly new users)
-    const userCreatedAt = user.created_at ? new Date(user.created_at).getTime() : 0;
-    const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
-    if (userCreatedAt < tenMinutesAgo) return;
 
     let cancelled = false;
 
@@ -344,6 +343,9 @@ export default function Dashboard() {
               position: 2,
             },
           ]);
+
+        // Mark as seeded so it won't run again
+        localStorage.setItem(seedKey, 'true');
 
         if (!cancelled) {
           await queryClient.invalidateQueries();

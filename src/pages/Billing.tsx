@@ -613,8 +613,7 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppNavBar />
+    <AppLayout>
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-[1400px] mx-auto gap-2">

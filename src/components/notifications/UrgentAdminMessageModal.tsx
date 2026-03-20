@@ -76,7 +76,8 @@ export function UrgentAdminMessageModal() {
     setMessages(msgs);
     setCurrentIndex(0);
     setOpen(true);
-    startCountdown();
+    const duration = msgs[0]?.metadata?.display_duration || 30;
+    startCountdown(duration);
     setTimeout(() => playAlertSound(), 300);
   }, [startCountdown, playAlertSound]);
 

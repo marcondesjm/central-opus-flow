@@ -553,12 +553,14 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg,
 }
 
 // ─── Add Column Modal ──────────────────────────
-function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number; spaceId?: string | null }) {
+function AddColumnModal({ open, onOpenChange, existingCount, spaceId, existingNames }: { open: boolean; onOpenChange: (v: boolean) => void; existingCount: number; spaceId?: string | null; existingNames: string[] }) {
   const createColumn = useCreateColumn();
   const [name, setName] = useState('');
   const [color, setColor] = useState('#3b82f6');
 
   const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+  const isDuplicate = name.trim() !== '' && existingNames.some(n => n.toLowerCase() === name.trim().toLowerCase());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -568,6 +570,7 @@ function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: 
           <div>
             <Label>Nome</Label>
             <Input placeholder="Ex: Em revisão" value={name} onChange={e => setName(e.target.value)} />
+            {isDuplicate && <p className="text-xs text-destructive mt-1">Já existe uma coluna com esse nome.</p>}
           </div>
           <div>
             <Label>Cor</Label>
@@ -585,7 +588,7 @@ function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: 
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={() => { if (name.trim()) { createColumn.mutate({ name: name.trim(), color, position: existingCount, space_id: spaceId || null }); onOpenChange(false); } }} disabled={!name.trim()}>
+          <Button onClick={() => { if (name.trim() && !isDuplicate) { createColumn.mutate({ name: name.trim(), color, position: existingCount, space_id: spaceId || null }); onOpenChange(false); } }} disabled={!name.trim() || isDuplicate}>
             Criar
           </Button>
         </DialogFooter>
@@ -596,12 +599,14 @@ function AddColumnModal({ open, onOpenChange, existingCount, spaceId }: { open: 
 
 
 // ─── Edit Column Modal ──────────────────────────
-function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpenChange: (v: boolean) => void; column: KanbanColumn }) {
+function EditColumnModal({ open, onOpenChange, column, existingNames }: { open: boolean; onOpenChange: (v: boolean) => void; column: KanbanColumn; existingNames: string[] }) {
   const updateColumn = useUpdateColumn();
   const [name, setName] = useState(column.name);
   const [color, setColor] = useState(column.color);
 
   const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+  const isDuplicate = name.trim() !== '' && name.trim().toLowerCase() !== column.name.toLowerCase() && existingNames.some(n => n.toLowerCase() === name.trim().toLowerCase());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -611,6 +616,7 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
           <div>
             <Label>Nome</Label>
             <Input value={name} onChange={e => setName(e.target.value)} />
+            {isDuplicate && <p className="text-xs text-destructive mt-1">Já existe uma coluna com esse nome.</p>}
           </div>
           <div>
             <Label>Cor</Label>
@@ -628,7 +634,7 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={() => { if (name.trim()) { updateColumn.mutate({ id: column.id, name: name.trim(), color }); onOpenChange(false); } }} disabled={!name.trim()}>
+          <Button onClick={() => { if (name.trim() && !isDuplicate) { updateColumn.mutate({ id: column.id, name: name.trim(), color }); onOpenChange(false); } }} disabled={!name.trim() || isDuplicate}>
             Salvar
           </Button>
         </DialogFooter>
@@ -2239,6 +2245,7 @@ export default function KanbanPage() {
           open={!!editingColumn}
           onOpenChange={v => { if (!v) setEditingColumn(null); }}
           column={editingColumn}
+          existingNames={visibleColumns.map(c => c.name)}
         />
       )}
 
@@ -2257,6 +2264,7 @@ export default function KanbanPage() {
           onOpenChange={setShowAddColumn}
           existingCount={visibleColumns.length}
           spaceId={activeSpaceId}
+          existingNames={visibleColumns.map(c => c.name)}
         />
       )}
 

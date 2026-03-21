@@ -94,7 +94,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       isOverdue ? "border-destructive/50 ring-1 ring-destructive/20" : "border-border"
     )}>
       {/* Screenshot */}
-      <div className="relative aspect-video bg-muted overflow-hidden">
+      <div className="relative aspect-[16/10] bg-muted overflow-hidden">
         {project.screenshot && !imgError ? (
           <img
             src={project.screenshot}
@@ -185,9 +185,9 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-card-foreground line-clamp-1">{project.name}</h3>
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-1.5 mb-1.5">
+          <h3 className="font-semibold text-sm text-card-foreground line-clamp-1">{project.name}</h3>
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -258,13 +258,13 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+        <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
           {project.description || t('cards.noDescription')}
         </p>
 
         {/* Tags */}
         {project.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-1 mb-2">
             {project.tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs font-normal">
                 {tag}
@@ -288,7 +288,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
           if (isComplete && !hasChecklist) return null;
           
           return (
-            <div className="mb-3">
+            <div className="mb-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className={cn(
@@ -344,7 +344,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         {/* Deadline indicator */}
         {project.deadline && (
           <div className={cn(
-            "flex items-center gap-1.5 text-xs mb-3 p-2 rounded-md",
+            "flex items-center gap-1.5 text-xs mb-2 p-1.5 rounded-md",
             isOverdue 
               ? "bg-destructive/10 text-destructive" 
               : "bg-muted text-muted-foreground"
@@ -355,7 +355,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border">
           <div className="flex items-center gap-2">
             {account && (
               <>

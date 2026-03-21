@@ -12,7 +12,8 @@ import {
   Star, Filter, Plus, Trash2, Pencil, Eye, MessageCircle,
   Globe, Crown, CheckSquare, Palette, Moon, Sun, Smartphone,
   Printer, FileDown, MousePointer, ArrowRight, Info, Zap,
-  GripHorizontal, Layers,
+  GripHorizontal, Layers, CloudCog, ExternalLink, KeyRound,
+  ShieldCheck, HardDrive,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -452,6 +453,95 @@ const MANUAL_SECTIONS: ManualSection[] = [
       {
         title: 'Cupons de Desconto',
         description: 'Tem um cupom promocional? Aplique na área de assinatura para obter desconto ou dias extras no seu plano. Cupons podem ser de tempo limitado, então use enquanto é válido!',
+      },
+    ],
+  },
+  {
+    id: 'google-drive',
+    title: 'Integração Google Drive',
+    icon: CloudCog,
+    color: '#34a853',
+    image: settingsImg,
+    intro: 'Conecte sua conta do Google Drive para armazenar arquivos maiores diretamente na nuvem do Google. Com essa integração, cada usuário autoriza o próprio Drive e pode fazer upload de arquivos sem o limite de 50MB do armazenamento interno.',
+    items: [
+      {
+        title: '1. Criar Projeto no Google Cloud',
+        description: 'O primeiro passo é criar um projeto no Google Cloud Console, que será a base para gerar as credenciais de acesso ao Google Drive.',
+        steps: [
+          { icon: ExternalLink, text: 'Acesse console.cloud.google.com e faça login com sua conta Google' },
+          { icon: Plus, text: 'Clique em "Selecionar Projeto" no topo da página e depois em "Novo Projeto"' },
+          { icon: Pencil, text: 'Dê um nome ao projeto (ex: "Meu App - Google Drive") e clique em "Criar"' },
+          { icon: CheckSquare, text: 'Aguarde a criação e certifique-se de que o projeto está selecionado' },
+        ],
+        tips: ['Se você já tem um projeto no Google Cloud, pode reutilizá-lo — não precisa criar um novo.'],
+      },
+      {
+        title: '2. Ativar a API do Google Drive',
+        description: 'Com o projeto criado, agora é necessário ativar a API do Google Drive para que o sistema possa se comunicar com ele.',
+        steps: [
+          { icon: Search, text: 'No menu lateral, vá em "APIs e Serviços" → "Biblioteca"' },
+          { icon: Search, text: 'Na barra de busca, digite "Google Drive API"' },
+          { icon: MousePointer, text: 'Clique no resultado "Google Drive API"' },
+          { icon: Zap, text: 'Clique no botão azul "ATIVAR" e aguarde a ativação' },
+        ],
+        tips: ['A ativação é instantânea. Se o botão mostrar "GERENCIAR", significa que a API já está ativa.'],
+      },
+      {
+        title: '3. Configurar Tela de Consentimento OAuth',
+        description: 'A tela de consentimento é o que os usuários verão quando autorizarem o acesso ao Google Drive. É obrigatório configurá-la antes de criar as credenciais.',
+        steps: [
+          { icon: ArrowRight, text: 'Vá em "APIs e Serviços" → "Tela de consentimento OAuth"' },
+          { icon: MousePointer, text: 'Selecione "Externo" como tipo de usuário e clique em "Criar"' },
+          { icon: Pencil, text: 'Preencha: Nome do app, Email de suporte e Email do desenvolvedor' },
+          { icon: ShieldCheck, text: 'Na etapa de escopos, clique em "Adicionar ou remover escopos"' },
+          { icon: Search, text: 'Busque e selecione: "drive.file" (permite acesso apenas aos arquivos criados pelo app)' },
+          { icon: CheckSquare, text: 'Finalize clicando em "Salvar e continuar" em todas as etapas' },
+        ],
+        tips: [
+          'O escopo "drive.file" é o mais seguro — só permite acessar arquivos que o próprio app criou.',
+          'Enquanto o app estiver em modo "Teste", adicione os emails dos testadores na tela de consentimento.',
+        ],
+      },
+      {
+        title: '4. Criar Credenciais OAuth 2.0',
+        description: 'Agora vamos criar o Client ID e Client Secret — são as "chaves" que permitem o sistema se conectar ao Google Drive de forma segura.',
+        steps: [
+          { icon: ArrowRight, text: 'Vá em "APIs e Serviços" → "Credenciais"' },
+          { icon: Plus, text: 'Clique em "Criar Credenciais" → "ID do cliente OAuth"' },
+          { icon: MousePointer, text: 'Em tipo de aplicativo, selecione "Aplicativo da Web"' },
+          { icon: Pencil, text: 'Dê um nome (ex: "Central Opus Flow")' },
+          { icon: ExternalLink, text: 'Em "URIs de redirecionamento autorizados", adicione a URL do seu app' },
+          { icon: KeyRound, text: 'Clique em "Criar" — copie o Client ID e o Client Secret exibidos' },
+        ],
+        tips: [
+          'IMPORTANTE: Guarde o Client ID e Client Secret em lugar seguro. Você precisará deles no próximo passo.',
+          'A URI de redirecionamento deve ser exatamente a URL do seu app (ex: https://seuapp.lovable.app).',
+        ],
+      },
+      {
+        title: '5. Adicionar Credenciais no Sistema',
+        description: 'Com o Client ID e Client Secret em mãos, o último passo é adicioná-los ao sistema para que a integração funcione.',
+        steps: [
+          { icon: Settings, text: 'No Central Opus Flow, vá em "Configurações" → "Integrações"' },
+          { icon: HardDrive, text: 'Encontre a seção "Google Drive" e clique em "Configurar"' },
+          { icon: KeyRound, text: 'Cole o Client ID e o Client Secret nos campos correspondentes' },
+          { icon: CheckSquare, text: 'Clique em "Salvar" e depois em "Conectar Google Drive"' },
+          { icon: ShieldCheck, text: 'Autorize o acesso na janela do Google que vai aparecer' },
+        ],
+        tips: [
+          'Após conectar, seus arquivos aparecerão automaticamente na seção de Arquivos do sistema.',
+          'Cada usuário precisa autorizar individualmente — as credenciais são por pessoa.',
+        ],
+      },
+      {
+        title: 'Perguntas Frequentes',
+        description: 'Dúvidas comuns sobre a integração com o Google Drive:',
+        tips: [
+          'P: Preciso pagar para usar a API? R: Não! O Google Drive API é gratuito para uso pessoal e de equipes pequenas.',
+          'P: Qual o limite de armazenamento? R: Depende do seu plano do Google (15GB gratuito, mais com Google One).',
+          'P: Meus arquivos ficam seguros? R: Sim! Usamos o escopo "drive.file" que só acessa arquivos criados pelo app.',
+          'P: Posso desconectar a qualquer momento? R: Sim, basta revogar o acesso em myaccount.google.com/permissions.',
+        ],
       },
     ],
   },

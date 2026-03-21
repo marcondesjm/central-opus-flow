@@ -155,7 +155,7 @@ export function Header({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 sm:gap-3">
+      <div className="flex items-center gap-1 sm:gap-3 shrink-0">
         {/* View Toggle */}
         <div className="hidden sm:flex items-center bg-muted rounded-lg p-1">
           <Tooltip>

@@ -258,7 +258,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+        <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
           {project.description || t('cards.noDescription')}
         </p>
 

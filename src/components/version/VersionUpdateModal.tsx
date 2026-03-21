@@ -15,6 +15,9 @@ export function VersionUpdateModal() {
   const [phase, setPhase] = useState<UpdatePhase>(null);
   const [progress, setProgress] = useState(0);
   const [dismissed, setDismissed] = useState(false);
+  const [pendingVersion, setPendingVersion] = useState<string | null>(null);
+  const [accumulateTimer, setAccumulateTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const ACCUMULATE_DELAY = 15000; // wait 15s for more updates before showing
 
   useEffect(() => {
     if (!systemVersion?.version) return;
@@ -28,11 +31,24 @@ export function VersionUpdateModal() {
     }
 
     if (lastSeenVersion !== systemVersion.version && !dismissed) {
-      // Start background "download" simulation
-      setPhase('downloading');
-      setProgress(0);
+      // Accumulate: reset timer each time a new version arrives
+      setPendingVersion(systemVersion.version);
+      if (accumulateTimer) clearTimeout(accumulateTimer);
+      const timer = setTimeout(() => {
+        setPhase('downloading');
+        setProgress(0);
+      }, ACCUMULATE_DELAY);
+      setAccumulateTimer(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [systemVersion?.version, dataUpdatedAt, dismissed]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (accumulateTimer) clearTimeout(accumulateTimer);
+    };
+  }, [accumulateTimer]);
 
   // Simulate background download progress
   useEffect(() => {
@@ -55,22 +71,42 @@ export function VersionUpdateModal() {
   }, [phase]);
 
   const handleInstall = useCallback(() => {
-    if (systemVersion?.version) {
-      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
-      localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+    const ver = pendingVersion || systemVersion?.version;
+    if (ver) {
+      localStorage.setItem(LAST_SEEN_KEY, ver);
+      localStorage.setItem(LOCAL_VERSION_KEY, ver);
     }
     window.location.reload();
-  }, [systemVersion?.version]);
+  }, [pendingVersion, systemVersion?.version]);
 
   const handleDismiss = useCallback(() => {
-    if (systemVersion?.version) {
-      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
+    const ver = pendingVersion || systemVersion?.version;
+    if (ver) {
+      localStorage.setItem(LAST_SEEN_KEY, ver);
     }
     setPhase(null);
     setDismissed(true);
-  }, [systemVersion?.version]);
+    setPendingVersion(null);
+    if (accumulateTimer) clearTimeout(accumulateTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingVersion, systemVersion?.version, accumulateTimer]);
+
+  // Count how many versions were skipped
+  const skippedCount = (() => {
+    const lastSeen = localStorage.getItem(LAST_SEEN_KEY);
+    if (!lastSeen || !pendingVersion) return 0;
+    const lastParts = lastSeen.split('.').map(Number);
+    const newParts = pendingVersion.split('.').map(Number);
+    // Simple diff based on patch
+    if (lastParts[0] === newParts[0] && lastParts[1] === newParts[1]) {
+      return Math.max(0, newParts[2] - lastParts[2]);
+    }
+    return 1;
+  })();
 
   if (!phase) return null;
+
+  const displayVersion = pendingVersion || systemVersion?.version;
 
   return (
     <AnimatePresence>
@@ -95,9 +131,11 @@ export function VersionUpdateModal() {
                 <Download className="w-5 h-5 text-primary animate-pulse" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">Baixando atualização...</p>
+                <p className="text-sm font-medium">
+                  Baixando {skippedCount > 1 ? `${skippedCount} atualizações` : 'atualização'}...
+                </p>
                 <p className="text-xs text-muted-foreground mb-2">
-                  v{systemVersion?.version} — {progress}%
+                  v{displayVersion} — {progress}%
                 </p>
                 <Progress value={progress} className="h-1.5" />
               </div>
@@ -110,9 +148,11 @@ export function VersionUpdateModal() {
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">Atualização pronta!</p>
+                <p className="text-sm font-medium">
+                  {skippedCount > 1 ? `${skippedCount} atualizações prontas!` : 'Atualização pronta!'}
+                </p>
                 <p className="text-xs text-muted-foreground mb-2">
-                  v{systemVersion?.version}
+                  v{displayVersion}
                   {systemVersion?.releaseName && ` — ${systemVersion.releaseName}`}
                 </p>
                 <Button size="sm" onClick={handleInstall} className="gap-1.5 w-full">

@@ -529,7 +529,7 @@ export default function Ideas() {
                 {!isLoading && (
                   <div
                     className="px-5 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b group"
-                    onClick={handleOpenCreate}
+                    onClick={() => handleCreate()}
                   >
                     <div className="w-6 h-6 rounded-md border-2 border-dashed border-muted-foreground/30 group-hover:border-primary flex items-center justify-center transition-colors">
                       <Plus className="w-3 h-3" />

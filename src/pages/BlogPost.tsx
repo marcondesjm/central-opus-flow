@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy, Send } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy, Send, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -296,6 +296,21 @@ export default function BlogPost() {
                 <img src={(post as any).secondary_image} alt={(post as any).subtitle || 'Imagem secundária'} className="w-full h-auto object-cover" />
               </div>
             )}
+            {/* Source Attribution */}
+            <div className="mt-10 mb-6 p-4 rounded-xl border border-border bg-muted/50 flex items-center gap-3">
+              <ExternalLink className="w-5 h-5 text-primary shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                Matéria originalmente publicada em{' '}
+                <a
+                  href="https://lovablehub.com.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-semibold hover:underline"
+                >
+                  LovableHub.com.br
+                </a>
+              </p>
+            </div>
           </motion.div>
 
           {/* Attachment / Download Section */}

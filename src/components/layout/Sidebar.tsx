@@ -122,6 +122,8 @@ export function Sidebar({
   onEditAccount,
 }: SidebarProps) {
   const [accountsOpen, setAccountsOpen] = useState(true);
+  const [accountPage, setAccountPage] = useState(0);
+  const ACCOUNTS_PER_PAGE = 3;
   const [spacesOpen, setSpacesOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);

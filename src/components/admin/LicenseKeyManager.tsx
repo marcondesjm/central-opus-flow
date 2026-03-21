@@ -8,11 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Key, Plus, Ban, Copy, Search, Loader2, Download, MessageCircle } from 'lucide-react';
+import { Key, Plus, Ban, Copy, Search, Loader2, Download, MessageCircle, Clock, AlertTriangle, User } from 'lucide-react';
 import { useLicenseKeys, useGenerateLicenseKeys, useRevokeLicenseKey, LicenseKey } from '@/hooks/useLicenseKeys';
-import { format } from 'date-fns';
+import { format, differenceInCalendarDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   available: { label: 'Disponível', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
@@ -20,6 +21,33 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   revoked: { label: 'Revogada', color: 'bg-destructive/10 text-destructive border-destructive/20' },
   expired: { label: 'Expirada', color: 'bg-muted text-muted-foreground border-muted' },
 };
+
+function ExpirationBadge({ expiresAt }: { expiresAt: string | null }) {
+  if (!expiresAt) return <span className="text-muted-foreground">-</span>;
+  const days = differenceInCalendarDays(new Date(expiresAt), new Date());
+  const isExpired = days <= 0;
+  const isUrgent = days <= 3;
+  const isWarning = days <= 7;
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs">{format(new Date(expiresAt), "dd/MM/yyyy", { locale: ptBR })}</span>
+      <span className={cn(
+        "text-[10px] font-medium flex items-center gap-0.5",
+        isExpired ? "text-destructive" :
+        isUrgent ? "text-destructive" :
+        isWarning ? "text-amber-600" :
+        "text-muted-foreground"
+      )}>
+        {isExpired ? (
+          <><AlertTriangle className="w-3 h-3" /> Expirada</>
+        ) : (
+          <><Clock className="w-3 h-3" /> {days}d restante{days !== 1 ? 's' : ''}</>
+        )}
+      </span>
+    </div>
+  );
+}
 
 export function LicenseKeyManager() {
   const { data: keys = [], isLoading } = useLicenseKeys();
@@ -29,6 +57,7 @@ export function LicenseKeyManager() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [planFilter, setPlanFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'created' | 'expiration'>('created');
 
   // Generate form
   const [genPlan, setGenPlan] = useState<'pro' | 'business'>('pro');
@@ -42,17 +71,27 @@ export function LicenseKeyManager() {
   const [revokeTarget, setRevokeTarget] = useState<LicenseKey | null>(null);
   const [revokeReason, setRevokeReason] = useState('');
 
-  const filtered = keys.filter((k) => {
-    if (statusFilter !== 'all' && k.status !== statusFilter) return false;
-    if (planFilter !== 'all' && k.plan !== planFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return k.key_code.toLowerCase().includes(q) ||
-        (k.activated_email || '').toLowerCase().includes(q) ||
-        (k.notes || '').toLowerCase().includes(q);
-    }
-    return true;
-  });
+  const filtered = keys
+    .filter((k) => {
+      if (statusFilter !== 'all' && k.status !== statusFilter) return false;
+      if (planFilter !== 'all' && k.plan !== planFilter) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        return k.key_code.toLowerCase().includes(q) ||
+          (k.activated_email || '').toLowerCase().includes(q) ||
+          (k.notes || '').toLowerCase().includes(q);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'expiration') {
+        // Activated keys with expiration first, sorted by nearest expiration
+        const aExp = a.expires_at ? new Date(a.expires_at).getTime() : Infinity;
+        const bExp = b.expires_at ? new Date(b.expires_at).getTime() : Infinity;
+        return aExp - bExp;
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -108,17 +147,28 @@ export function LicenseKeyManager() {
     window.open(url, '_blank');
   };
 
+  // Stats
+  const activatedKeys = keys.filter(k => k.status === 'activated');
+  const expiringIn7Days = activatedKeys.filter(k => {
+    if (!k.expires_at) return false;
+    const days = differenceInCalendarDays(new Date(k.expires_at), new Date());
+    return days >= 0 && days <= 7;
+  });
+  const expiredKeys = keys.filter(k => k.status === 'expired');
+
   const stats = {
     total: keys.length,
     available: keys.filter(k => k.status === 'available').length,
-    activated: keys.filter(k => k.status === 'activated').length,
+    activated: activatedKeys.length,
+    expiringSoon: expiringIn7Days.length,
+    expired: expiredKeys.length,
     revoked: keys.filter(k => k.status === 'revoked').length,
   };
 
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card><CardContent className="pt-4 pb-3 text-center">
           <p className="text-2xl font-bold">{stats.total}</p>
           <p className="text-xs text-muted-foreground">Total</p>
@@ -131,11 +181,63 @@ export function LicenseKeyManager() {
           <p className="text-2xl font-bold text-blue-600">{stats.activated}</p>
           <p className="text-xs text-muted-foreground">Ativadas</p>
         </CardContent></Card>
+        <Card className={cn(stats.expiringSoon > 0 && "border-amber-500/50 bg-amber-500/5")}>
+          <CardContent className="pt-4 pb-3 text-center">
+            <p className={cn("text-2xl font-bold", stats.expiringSoon > 0 ? "text-amber-600" : "text-muted-foreground")}>{stats.expiringSoon}</p>
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+              <AlertTriangle className="w-3 h-3" /> Vencendo em 7d
+            </p>
+          </CardContent>
+        </Card>
+        <Card><CardContent className="pt-4 pb-3 text-center">
+          <p className="text-2xl font-bold text-muted-foreground">{stats.expired}</p>
+          <p className="text-xs text-muted-foreground">Expiradas</p>
+        </CardContent></Card>
         <Card><CardContent className="pt-4 pb-3 text-center">
           <p className="text-2xl font-bold text-destructive">{stats.revoked}</p>
           <p className="text-xs text-muted-foreground">Revogadas</p>
         </CardContent></Card>
       </div>
+
+      {/* Expiring Soon Alert */}
+      {expiringIn7Days.length > 0 && (
+        <Card className="border-amber-500/50 bg-amber-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <AlertTriangle className="w-4 h-4" />
+              {expiringIn7Days.length} chave(s) vencendo nos próximos 7 dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {expiringIn7Days.map(key => {
+                const days = differenceInCalendarDays(new Date(key.expires_at!), new Date());
+                return (
+                  <div key={key.id} className="flex items-center justify-between p-2 rounded-lg bg-background/80 border text-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs">{key.key_code}</span>
+                      <Badge variant="outline" className="text-[10px]">{key.plan.toUpperCase()}</Badge>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <User className="w-3 h-3 text-muted-foreground" />
+                        <span>{key.activated_email || 'N/A'}</span>
+                      </div>
+                      <Badge variant="outline" className={cn(
+                        "text-[10px]",
+                        days <= 3 ? "border-destructive text-destructive" : "border-amber-500 text-amber-600"
+                      )}>
+                        <Clock className="w-3 h-3 mr-1" />
+                        {days}d restante{days !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Generate Form */}
       <Card>
@@ -187,10 +289,21 @@ export function LicenseKeyManager() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <CardTitle className="text-base">Chaves Geradas</CardTitle>
-            <Button variant="outline" size="sm" onClick={exportKeys}>
-              <Download className="w-4 h-4 mr-2" />
-              Exportar disponíveis
-            </Button>
+            <div className="flex items-center gap-2">
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+                <SelectTrigger className="w-40 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created">Mais recentes</SelectItem>
+                  <SelectItem value="expiration">Vencimento próximo</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" onClick={exportKeys}>
+                <Download className="w-4 h-4 mr-2" />
+                Exportar
+              </Button>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <div className="relative flex-1">
@@ -238,16 +351,20 @@ export function LicenseKeyManager() {
                     <TableHead>Plano</TableHead>
                     <TableHead>Duração</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Ativado por</TableHead>
-                    <TableHead>Expira em</TableHead>
+                    <TableHead>Usuário</TableHead>
+                    <TableHead>Vencimento</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((key) => {
                     const sc = statusConfig[key.status] || statusConfig.available;
+                    const isExpiringSoon = key.expires_at && key.status === 'activated' &&
+                      differenceInCalendarDays(new Date(key.expires_at), new Date()) <= 7 &&
+                      differenceInCalendarDays(new Date(key.expires_at), new Date()) >= 0;
+
                     return (
-                      <TableRow key={key.id}>
+                      <TableRow key={key.id} className={cn(isExpiringSoon && "bg-amber-500/5")}>
                         <TableCell>
                           <TooltipProvider>
                             <Tooltip>
@@ -279,18 +396,25 @@ export function LicenseKeyManager() {
                         <TableCell>
                           <Badge variant="outline" className={sc.color}>{sc.label}</Badge>
                         </TableCell>
-                        <TableCell className="text-xs">
-                          {key.activated_email || '-'}
-                          {key.activated_at && (
-                            <p className="text-[10px] text-muted-foreground">
-                              {format(new Date(key.activated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
-                            </p>
+                        <TableCell>
+                          {key.activated_email ? (
+                            <div className="flex items-center gap-1.5">
+                              <User className="w-3 h-3 text-muted-foreground shrink-0" />
+                              <div>
+                                <p className="text-xs truncate max-w-[160px]">{key.activated_email}</p>
+                                {key.activated_at && (
+                                  <p className="text-[10px] text-muted-foreground">
+                                    Ativada {format(new Date(key.activated_at), "dd/MM/yy", { locale: ptBR })}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs">
-                          {key.expires_at
-                            ? format(new Date(key.expires_at), "dd/MM/yyyy", { locale: ptBR })
-                            : '-'}
+                        <TableCell>
+                          <ExpirationBadge expiresAt={key.expires_at} />
                         </TableCell>
                         <TableCell className="text-right space-x-1">
                           {key.status === 'available' && (

@@ -36,6 +36,7 @@ import { CollaboratedProjectsSection } from '@/components/dashboard/Collaborated
 import { DashboardActivitySection } from '@/components/dashboard/DashboardActivitySection';
 import { NewsFeedWidget } from '@/components/dashboard/NewsFeedWidget';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
+import { useIsAdmin } from '@/hooks/useRoles';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
 import { useCollaboration } from '@/hooks/useCollaboration';
 import { useOnboarding } from '@/hooks/useOnboarding';

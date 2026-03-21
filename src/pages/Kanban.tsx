@@ -2161,7 +2161,7 @@ export default function KanbanPage() {
                             className={cn('flex-shrink-0', colDragSnapshot.isDragging && 'opacity-90 z-50')}
                             style={{ 
                               width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px',
-                              ...colDragProvided.draggableProps.style,
+                              ...getImmediateDragStyle(colDragProvided.draggableProps.style, colDragSnapshot.isDragging, colDragSnapshot.isDropAnimating),
                             }}
                         >
                           <div

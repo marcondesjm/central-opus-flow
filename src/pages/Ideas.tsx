@@ -377,7 +377,7 @@ export default function Ideas() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filtered.map((idea, index) => {
+                      {paginatedIdeas.map((idea, index) => {
                         const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                         const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
                         const isActive = currentIdea?.id === idea.id;

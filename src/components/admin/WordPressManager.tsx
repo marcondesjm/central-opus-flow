@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive } from 'lucide-react';
+import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive, FolderOpen } from 'lucide-react';
 import JSZip from 'jszip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

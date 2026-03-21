@@ -1065,11 +1065,7 @@ export default function Dashboard() {
       </Dialog>
 
       {/* Mobile Bottom Navigation */}
-      <MobileBottomNav
-        activeView={activeView}
-        onViewChange={handleViewChange}
-        onNewProject={() => setAddProjectOpen(true)}
-      />
+      <MobileBottomNav />
 
       {/* Onboarding Tour - Only show after welcome modal is closed */}
       {showTour && onboarding && welcomeComplete && (

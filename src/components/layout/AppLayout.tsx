@@ -126,7 +126,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </main>
         </div>
       </div>
-      <MobileBottomNav activeView={getActiveViewFromRoute()} onViewChange={handleViewChange} onNewProject={() => {}} />
+      <MobileBottomNav />
 
       <AddAccountModal open={addAccountOpen} onOpenChange={setAddAccountOpen} />
       {editingAccount && (

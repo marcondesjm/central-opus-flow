@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive, FolderOpen } from 'lucide-react';
 import JSZip from 'jszip';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function WordPressManager() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: connections = [], isLoading } = useWordPressConnections();
   const createConnection = useCreateWordPressConnection();
@@ -33,6 +35,7 @@ export function WordPressManager() {
   const [importing, setImporting] = useState(false);
   const [importingBackup, setImportingBackup] = useState(false);
   const [importResults, setImportResults] = useState<{ total: number; imported: number } | null>(null);
+  const [savedToFileManager, setSavedToFileManager] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backupFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,16 +68,14 @@ export function WordPressManager() {
   const extractXmlFromZip = async (file: File): Promise<string | null> => {
     try {
       const zip = await JSZip.loadAsync(file);
-      
-      // First try to find .xml files
+
       for (const [name, entry] of Object.entries(zip.files)) {
         if (!entry.dir && name.toLowerCase().endsWith('.xml')) {
           return await entry.async('text');
         }
       }
-      
-      // If no .xml found, try any text file that looks like XML
-      for (const [name, entry] of Object.entries(zip.files)) {
+
+      for (const [, entry] of Object.entries(zip.files)) {
         if (!entry.dir) {
           try {
             const content = await entry.async('text');
@@ -86,7 +87,7 @@ export function WordPressManager() {
           }
         }
       }
-      
+
       return null;
     } catch (err) {
       console.error('Erro ao processar ZIP:', err);
@@ -109,8 +110,6 @@ export function WordPressManager() {
       return xml;
     }
 
-    // .wpress uses a custom binary format (not zip) — skip XML extraction
-    // Any other format — return null so caller saves to file manager
     return null;
   };
 
@@ -124,13 +123,13 @@ export function WordPressManager() {
     console.log('[WP Upload] Arquivo selecionado:', file.name, file.type, file.size);
     setImporting(true);
     setImportResults(null);
+    setSavedToFileManager(null);
 
     try {
       const xmlText = await extractXmlFromFile(file);
       console.log('[WP Upload] XML encontrado:', !!xmlText);
-      
+
       if (!xmlText) {
-        // No XML found — save to file manager instead
         console.log('[WP Upload] Salvando no gerenciador de arquivos...');
         try {
           await uploadFile.mutateAsync({
@@ -139,6 +138,7 @@ export function WordPressManager() {
             description: `Arquivo WordPress importado: ${file.name}`,
           });
           console.log('[WP Upload] Salvo com sucesso no gerenciador');
+          setSavedToFileManager(file.name);
           toast.success(`Arquivo "${file.name}" salvo no Gerenciador de Arquivos!`);
         } catch (uploadErr: any) {
           console.error('[WP Upload] Erro ao salvar no gerenciador:', uploadErr?.message || uploadErr);
@@ -151,14 +151,14 @@ export function WordPressManager() {
       console.log('[WP Upload] Posts encontrados:', posts.length);
 
       if (posts.length === 0) {
-        // Has XML but no posts — still save the file
         try {
           await uploadFile.mutateAsync({
             file,
             module: 'general',
             description: `Arquivo WordPress sem posts: ${file.name}`,
           });
-          toast.info(`Nenhum post encontrado, mas o arquivo foi salvo no Gerenciador de Arquivos.`);
+          setSavedToFileManager(file.name);
+          toast.info('Nenhum post encontrado, mas o arquivo foi salvo no Gerenciador de Arquivos.');
         } catch (uploadErr: any) {
           console.error('[WP Upload] Erro ao salvar no gerenciador:', uploadErr?.message || uploadErr);
           toast.error(`Erro ao salvar arquivo: ${uploadErr?.message || 'erro desconhecido'}`);
@@ -304,7 +304,6 @@ export function WordPressManager() {
 
   return (
     <div className="space-y-6">
-      {/* WordPress DB Backup Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -328,13 +327,13 @@ export function WordPressManager() {
               Exportar Conexões
             </Button>
 
-          <input
-            ref={backupFileInputRef}
-            type="file"
-            accept=".json,.zip,.wpress"
-            onChange={handleImportWPBackup}
-            className="hidden"
-          />
+            <input
+              ref={backupFileInputRef}
+              type="file"
+              accept=".json,.zip,.wpress"
+              onChange={handleImportWPBackup}
+              className="hidden"
+            />
             <Button
               variant="outline"
               size="sm"
@@ -356,7 +355,6 @@ export function WordPressManager() {
         </CardContent>
       </Card>
 
-      {/* Upload Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -407,6 +405,23 @@ export function WordPressManager() {
             )}
           </div>
 
+          {savedToFileManager && (
+            <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/40 p-4">
+              <div>
+                <p className="text-sm font-medium text-foreground">Arquivo salvo no Gerenciador de Arquivos</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {savedToFileManager} foi salvo com sucesso e já pode ser acessado na área de Arquivos.
+                </p>
+              </div>
+              <div>
+                <Button type="button" variant="outline" className="gap-2" onClick={() => navigate('/files')}>
+                  <FolderOpen className="w-4 h-4" />
+                  Abrir Gerenciador de Arquivos
+                </Button>
+              </div>
+            </div>
+          )}
+
           {importResults && (
             <div className="p-4 rounded-lg bg-muted/50 border border-border">
               <p className="text-sm font-medium">
@@ -416,7 +431,7 @@ export function WordPressManager() {
                 {importResults.imported} de {importResults.total} posts importados com sucesso.
               </p>
               {importResults.imported < importResults.total && (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {importResults.total - importResults.imported} posts falharam (possível duplicação de slug).
                 </p>
               )}
@@ -425,7 +440,6 @@ export function WordPressManager() {
         </CardContent>
       </Card>
 
-      {/* Connections Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -470,7 +484,7 @@ export function WordPressManager() {
                         <User className="w-3 h-3" />
                         <span>{conn.username}</span>
                         <span>•</span>
-                        <span>{format(new Date(conn.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+                        <span>{format(new Date(conn.created_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
                       </div>
                     </div>
                   </div>
@@ -499,7 +513,6 @@ export function WordPressManager() {
         </CardContent>
       </Card>
 
-      {/* Add Connection Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>

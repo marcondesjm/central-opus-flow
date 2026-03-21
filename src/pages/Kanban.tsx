@@ -1295,125 +1295,149 @@ export default function KanbanPage() {
   // Use local overrides when dragging, otherwise use computed
   const dealsByColumn = localDealOverrides || computedDealsByColumn;
 
-  // Clear local overrides when query data changes (after DB sync)
+  // Clear local overrides only after the fresh query reflects the drag result
   useEffect(() => {
-    if (!dragPendingRef.current) {
+    if (dragPendingRef.current || !localDealOverrides) return;
+
+    const localSignature = Object.entries(localDealOverrides)
+      .map(([columnId, items]) => `${columnId}:${items.map(item => item.id).join(',')}`)
+      .join('|');
+
+    const computedSignature = Object.entries(computedDealsByColumn)
+      .map(([columnId, items]) => `${columnId}:${items.map(item => item.id).join(',')}`)
+      .join('|');
+
+    if (localSignature === computedSignature) {
       setLocalDealOverrides(null);
     }
-  }, [filteredDeals]);
+  }, [computedDealsByColumn, localDealOverrides]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
-  const handleDragEnd = async (result: DropResult) => {
+  const handleDragEnd = (result: DropResult) => {
     const { draggableId, destination, source, type } = result;
     if (!destination) {
       dragPendingRef.current = false;
       return;
     }
 
-    // Skip if dropped in same position
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
       dragPendingRef.current = false;
       return;
     }
 
-    // Force manual sort during drag
     setSortMode('default');
 
-    // Handle column reordering
     if (type === 'COLUMN') {
-      if (source.index === destination.index) return;
+      if (source.index === destination.index) {
+        dragPendingRef.current = false;
+        return;
+      }
+
       const sortedCols = [...(visibleColumns || [])];
-      
       const movedCol = sortedCols[source.index];
       const isFinalizadoCol = movedCol?.name?.toLowerCase().includes('finalizado') || movedCol?.name?.toLowerCase().includes('conclu');
-      if (isFinalizadoCol) return;
-      
+      if (isFinalizadoCol) {
+        dragPendingRef.current = false;
+        return;
+      }
+
       const lastCol = sortedCols[sortedCols.length - 1];
       const isLastFinalizados = lastCol?.name?.toLowerCase().includes('finalizado') || lastCol?.name?.toLowerCase().includes('conclu');
-      if (isLastFinalizados && destination.index >= sortedCols.length - 1) return;
-      
+      if (isLastFinalizados && destination.index >= sortedCols.length - 1) {
+        dragPendingRef.current = false;
+        return;
+      }
+
       const reordered = [...sortedCols];
       const [moved] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, moved);
-      await Promise.all(
+
+      void Promise.all(
         reordered.map((col, idx) =>
           col.position !== idx
             ? supabase.from('kanban_columns').update({ position: idx }).eq('id', col.id)
             : Promise.resolve()
         )
-      );
-      queryClient.invalidateQueries({ queryKey: ['kanban-columns'] });
+      ).finally(() => {
+        queryClient.invalidateQueries({ queryKey: ['kanban-columns'] });
+        dragPendingRef.current = false;
+      });
+
       return;
     }
 
-    // Handle deal dragging
     const sourcePhase = source.droppableId;
     const destinationPhase = destination.droppableId;
-    
-    // Build optimistic state from current dealsByColumn
     const newDealsByColumn = { ...dealsByColumn };
     const sourceDeals = [...(newDealsByColumn[sourcePhase] || [])];
     const sourceDealIndex = sourceDeals.findIndex(d => d.id === draggableId);
-    if (sourceDealIndex === -1) return;
+
+    if (sourceDealIndex === -1) {
+      dragPendingRef.current = false;
+      return;
+    }
 
     const [movedDeal] = sourceDeals.splice(sourceDealIndex, 1);
 
     if (sourcePhase === destinationPhase) {
-      // Reorder inside the same column
       sourceDeals.splice(destination.index, 0, movedDeal);
       newDealsByColumn[sourcePhase] = sourceDeals;
     } else {
-      // Move between columns
       const destinationDeals = [...(newDealsByColumn[destinationPhase] || [])];
       destinationDeals.splice(destination.index, 0, { ...movedDeal, phase: destinationPhase });
       newDealsByColumn[sourcePhase] = sourceDeals;
       newDealsByColumn[destinationPhase] = destinationDeals;
     }
 
-    // Apply optimistic update IMMEDIATELY
     setLocalDealOverrides(newDealsByColumn);
 
-    // Persist to DB in background
-    if (sourcePhase === destinationPhase) {
-      await Promise.all(
-        sourceDeals.map((deal, index) =>
-          supabase.from('kanban_deals').update({ position: index }).eq('id', deal.id)
-        )
-      );
-    } else {
-      const destDeals = newDealsByColumn[destinationPhase] || [];
-      await Promise.all([
-        ...sourceDeals.map((deal, index) =>
-          supabase.from('kanban_deals').update({ position: index }).eq('id', deal.id)
-        ),
-        ...destDeals.map((deal, index) =>
-          supabase.from('kanban_deals').update({
-            position: index,
-            ...(deal.id === movedDeal.id ? { phase: destinationPhase } : {}),
-          }).eq('id', deal.id)
-        ),
-      ]);
+    const persistDealMove = async () => {
+      if (sourcePhase === destinationPhase) {
+        await Promise.all(
+          sourceDeals.map((deal, index) =>
+            supabase.from('kanban_deals').update({ position: index }).eq('id', deal.id)
+          )
+        );
+      } else {
+        const destDeals = newDealsByColumn[destinationPhase] || [];
+        await Promise.all([
+          ...sourceDeals.map((deal, index) =>
+            supabase.from('kanban_deals').update({ position: index }).eq('id', deal.id)
+          ),
+          ...destDeals.map((deal, index) =>
+            supabase.from('kanban_deals').update({
+              position: index,
+              ...(deal.id === movedDeal.id ? { phase: destinationPhase } : {}),
+            }).eq('id', deal.id)
+          ),
+        ]);
 
-      const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
-      const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
+        const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
+        const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
 
-      if (movedDeal.client_email || movedDeal.client_whatsapp) {
-        setPhaseChangeNotification({
-          dealId: movedDeal.id,
-          clientName: movedDeal.client_name,
-          clientEmail: movedDeal.client_email,
-          clientWhatsapp: movedDeal.client_whatsapp,
-          companyName: movedDeal.company_name,
-          oldPhaseName: oldColumn?.name || 'Anterior',
-          newPhaseName: newColumn?.name || 'Nova',
-        });
+        if (movedDeal.client_email || movedDeal.client_whatsapp) {
+          setPhaseChangeNotification({
+            dealId: movedDeal.id,
+            clientName: movedDeal.client_name,
+            clientEmail: movedDeal.client_email,
+            clientWhatsapp: movedDeal.client_whatsapp,
+            companyName: movedDeal.company_name,
+            oldPhaseName: oldColumn?.name || 'Anterior',
+            newPhaseName: newColumn?.name || 'Nova',
+          });
+        }
       }
-    }
+    };
 
-    queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
-    // Allow overrides to be cleared after DB sync completes
-    setTimeout(() => { dragPendingRef.current = false; }, 1500);
+    void persistDealMove()
+      .then(() => queryClient.invalidateQueries({ queryKey: ['kanban-deals'] }))
+      .catch(() => {
+        setLocalDealOverrides(null);
+      })
+      .finally(() => {
+        dragPendingRef.current = false;
+      });
   };
 
   const kanbanRef = useRef<HTMLDivElement>(null);

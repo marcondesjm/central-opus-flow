@@ -268,15 +268,61 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
           'grid gap-3',
           compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
         )}>
-          {filteredFiles.map((file) => (
+          {paginatedFiles.map((file) => (
             <FileCard key={file.id} file={file} onDelete={setDeleteTarget} />
           ))}
         </div>
       ) : (
         <div className="space-y-1">
-          {filteredFiles.map((file) => (
+          {paginatedFiles.map((file) => (
             <FileListItem key={file.id} file={file} onDelete={setDeleteTarget} />
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {filteredFiles.length > itemsPerPage && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-muted-foreground">
+            {(safeCurrentPage - 1) * itemsPerPage + 1}–{Math.min(safeCurrentPage * itemsPerPage, filteredFiles.length)} de {filteredFiles.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              disabled={safeCurrentPage <= 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - safeCurrentPage) <= 1)
+              .map((p, idx, arr) => (
+                <span key={p} className="contents">
+                  {idx > 0 && arr[idx - 1] !== p - 1 && (
+                    <span className="text-xs text-muted-foreground px-1">…</span>
+                  )}
+                  <Button
+                    variant={p === safeCurrentPage ? 'default' : 'outline'}
+                    size="icon"
+                    className="h-8 w-8 text-xs"
+                    onClick={() => setCurrentPage(p)}
+                  >
+                    {p}
+                  </Button>
+                </span>
+              ))}
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              disabled={safeCurrentPage >= totalPages}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       )}
 

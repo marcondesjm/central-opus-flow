@@ -2141,7 +2141,7 @@ export default function KanbanPage() {
                           <div
                             ref={colDragProvided.innerRef}
                             {...colDragProvided.draggableProps}
-                            className={cn('flex-shrink-0 transition-all duration-200', colDragSnapshot.isDragging && 'opacity-90 scale-[1.02] rotate-1 z-50')}
+                            className={cn('flex-shrink-0', colDragSnapshot.isDragging && 'opacity-90 z-50')}
                             style={{ 
                               width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px',
                               ...colDragProvided.draggableProps.style,
@@ -2150,10 +2150,9 @@ export default function KanbanPage() {
                           <div
                             {...colDragProvided.dragHandleProps}
                             className={cn(
-                              'flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium transition-all duration-200',
-                              !isFinalizadoColumn && 'cursor-grab active:cursor-grabbing hover:brightness-125 hover:shadow-lg',
-                              isFinalizadoColumn && 'cursor-default',
-                              colDragSnapshot.isDragging && 'brightness-125 shadow-xl ring-2 ring-white/30'
+                              'flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium',
+                              !isFinalizadoColumn && 'cursor-grab active:cursor-grabbing',
+                              isFinalizadoColumn && 'cursor-default'
                             )}
                             style={{ backgroundColor: column.color }}
                           >
@@ -2189,7 +2188,7 @@ export default function KanbanPage() {
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
                                 className={cn(
-                                  'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0 transition-colors',
+                                  'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0',
                                   snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-card/80 border-border'
                                 )}
                               >
@@ -2201,17 +2200,9 @@ export default function KanbanPage() {
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                         className={cn(
-                                          'transition-shadow duration-200',
-                                          snapshot.isDragging 
-                                            ? 'shadow-xl shadow-primary/20 scale-[1.02] rotate-1 z-50' 
-                                            : 'hover:shadow-md'
+                                          snapshot.isDragging && 'shadow-lg z-50'
                                         )}
-                                        style={{
-                                          ...provided.draggableProps.style,
-                                          transition: snapshot.isDragging
-                                            ? provided.draggableProps.style?.transition
-                                            : 'transform 0.2s cubic-bezier(0.2,1,0.3,1), box-shadow 0.2s ease-out',
-                                        }}
+                                        style={provided.draggableProps.style}
                                       >
                                         <TaskCard
                                           deal={deal}

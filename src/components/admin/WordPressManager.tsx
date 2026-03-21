@@ -328,7 +328,7 @@ export function WordPressManager() {
                 <div>
                   <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.rar</span>
+                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span>, <span className="font-medium">.rar</span> ou <span className="font-medium">.wpress</span>
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Arquivo de exportação do WordPress (Ferramentas → Exportar)

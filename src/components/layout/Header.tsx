@@ -120,7 +120,7 @@ export function Header({
   }, [user?.id]);
 
   return (
-    <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm gap-2 sm:gap-4">
+    <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm gap-2 sm:gap-4 overflow-visible">
       {/* Mobile Menu */}
       {mobileMenuTrigger}
 
@@ -155,7 +155,7 @@ export function Header({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 sm:gap-3">
+      <div className="flex items-center gap-1 sm:gap-3 shrink-0">
         {/* View Toggle */}
         <div className="hidden sm:flex items-center bg-muted rounded-lg p-1">
           <Tooltip>
@@ -323,7 +323,7 @@ export function Header({
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="w-8 h-8 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
+              <Avatar className="w-8 h-8 shrink-0 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
                 {profile?.avatar_url && (
                   <AvatarImage 
                     src={profile.avatar_url} 

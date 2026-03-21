@@ -344,7 +344,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         {/* Deadline indicator */}
         {project.deadline && (
           <div className={cn(
-            "flex items-center gap-1.5 text-xs mb-3 p-2 rounded-md",
+            "flex items-center gap-1.5 text-xs mb-2 p-1.5 rounded-md",
             isOverdue 
               ? "bg-destructive/10 text-destructive" 
               : "bg-muted text-muted-foreground"

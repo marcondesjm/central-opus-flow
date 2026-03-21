@@ -103,6 +103,15 @@ export default function Auth() {
   
   const [activeTab, setActiveTab] = useState('login');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [changeTempPassword, setChangeTempPassword] = useState('');
+  const [changeNewPassword, setChangeNewPassword] = useState('');
+  const [changeConfirmPassword, setChangeConfirmPassword] = useState('');
+  const [changeEmail, setChangeEmail] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showChangeTempPw, setShowChangeTempPw] = useState(false);
+  const [showChangeNewPw, setShowChangeNewPw] = useState(false);
+  const [showChangeConfirmPw, setShowChangeConfirmPw] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
 
   // Set password flow

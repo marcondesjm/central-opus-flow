@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { Notification } from '@/components/notifications/NotificationCenter';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useSystemVersion } from './useSystemVersion';
 
 const STORAGE_KEY = 'centralopusflow-notifications';
 
@@ -14,7 +13,6 @@ const LAST_NOTIFIED_VERSION_KEY = 'centralopusflow-last-notified-version';
 
 export function useNotifications() {
   const { user } = useAuth();
-  const { data: systemVersion } = useSystemVersion();
   const [localNotifications, setLocalNotifications] = useState<Notification[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -139,29 +137,67 @@ export function useNotifications() {
     }
   }, []);
 
-  // Add notification when a new system version is detected
+  // Listen for version changes via realtime and add notification
   useEffect(() => {
-    if (!systemVersion?.version) return;
-    const lastNotified = localStorage.getItem(LAST_NOTIFIED_VERSION_KEY);
-    if (!lastNotified) {
-      localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, systemVersion.version);
-      return;
-    }
-    if (lastNotified !== systemVersion.version) {
-      localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, systemVersion.version);
-      const updateNotification: Notification = {
-        id: generateId(),
-        title: `Atualização v${systemVersion.version} disponível 🚀`,
-        message: systemVersion.releaseName
-          ? `${systemVersion.releaseName} — Atualize para ter acesso às últimas melhorias.`
-          : 'Uma nova versão do sistema está disponível. Atualize para ter acesso às últimas melhorias.',
-        type: 'info',
-        read: false,
-        createdAt: new Date(),
-      };
-      setLocalNotifications(prev => [updateNotification, ...prev].slice(0, 50));
-    }
-  }, [systemVersion?.version]);
+    if (!user) return;
+
+    // Check current version on mount
+    const checkVersion = async () => {
+      const { data } = await supabase
+        .from('system_config')
+        .select('value')
+        .eq('key', 'app_version')
+        .maybeSingle();
+      if (!data?.value) return;
+
+      const lastNotified = localStorage.getItem(LAST_NOTIFIED_VERSION_KEY);
+      if (!lastNotified) {
+        localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, data.value);
+        return;
+      }
+      if (lastNotified !== data.value) {
+        localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, data.value);
+        addVersionNotification(data.value);
+      }
+    };
+
+    checkVersion();
+
+    // Listen for realtime changes to system_config
+    const channel = supabase
+      .channel('notif-version-watch')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'system_config' },
+        (payload) => {
+          const row = payload.new as any;
+          if (row?.key === 'app_version') {
+            const lastNotified = localStorage.getItem(LAST_NOTIFIED_VERSION_KEY);
+            if (lastNotified && lastNotified !== row.value) {
+              localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, row.value);
+              addVersionNotification(row.value);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const addVersionNotification = (version: string) => {
+    const notification: Notification = {
+      id: generateId(),
+      title: `Atualização v${version} disponível 🚀`,
+      message: 'Uma nova versão do sistema está disponível. Atualize para ter acesso às últimas melhorias.',
+      type: 'info',
+      read: false,
+      createdAt: new Date(),
+    };
+    setLocalNotifications(prev => [notification, ...prev].slice(0, 50));
+  };
 
   // Persist local notifications to localStorage
   useEffect(() => {

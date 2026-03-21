@@ -1562,6 +1562,35 @@ export default function KanbanPage() {
                   </TooltipTrigger>
                   <TooltipContent side="right">{space.name}</TooltipContent>
                 </Tooltip>
+              <ShadTooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleSetActiveSpace(null)}
+                    className={cn(
+                      'w-full flex items-center justify-center py-2 rounded-md transition-colors',
+                      !activeSpaceId ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50'
+                    )}
+                  >
+                    <span className="text-[14px]">📋</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Todos</TooltipContent>
+              </ShadTooltip>
+              {spaces?.map(space => (
+                <ShadTooltip key={space.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => handleSetActiveSpace(space.id)}
+                      className={cn(
+                        'w-full flex items-center justify-center py-2 rounded-md transition-colors',
+                        activeSpaceId === space.id ? 'bg-primary/10' : 'hover:bg-muted/50'
+                      )}
+                    >
+                      <span className="w-5 h-5 rounded flex-shrink-0" style={{ backgroundColor: space.color }} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{space.name}</TooltipContent>
+                </ShadTooltip>
               ))}
             </>
           ) : (

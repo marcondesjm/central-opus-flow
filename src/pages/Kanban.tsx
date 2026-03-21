@@ -1738,7 +1738,7 @@ export default function KanbanPage() {
         </div>
 
         {/* View mode navigation tabs - ClickUp style */}
-        <div className="flex items-center gap-0 px-3 sm:px-4 max-w-[1800px] mx-auto overflow-x-auto border-t">
+        <div className="flex items-center gap-0 px-3 sm:px-4 max-w-[1800px] mx-auto overflow-x-auto border-t bg-card/50 backdrop-blur-sm">
           {[
             { id: 'kanban', label: 'Quadro', icon: <BarChart3 className="w-3.5 h-3.5" /> },
             { id: 'list', label: 'Lista', icon: <CheckSquare className="w-3.5 h-3.5" /> },
@@ -1749,10 +1749,10 @@ export default function KanbanPage() {
               key={tab.id}
               onClick={() => setViewMode(tab.id as 'kanban' | 'list' | 'calendar' | 'timeline')}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap',
                 viewMode === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'
+                  ? 'border-primary text-primary bg-primary/5'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40'
               )}
             >
               {tab.icon}
@@ -1773,18 +1773,18 @@ export default function KanbanPage() {
         </div>
 
         {/* Filters bar */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border-t bg-muted/30 max-w-[1800px] mx-auto">
-          <div className="relative flex-1 min-w-[150px] max-w-xs">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2.5 border-t border-border/50 bg-card/30 backdrop-blur-sm max-w-[1800px] mx-auto">
+          <div className="relative flex-1 min-w-[150px] max-w-xs group">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input
               placeholder="Buscar tarefas..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 h-8 text-sm"
+              className="pl-9 h-8 text-sm bg-background/60 border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all"
             />
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
+            <SelectTrigger className="w-28 sm:w-36 h-8 text-xs bg-background/60 border-border/40 hover:border-primary/40 transition-colors">
               <Flag className="w-3.5 h-3.5 mr-1" />
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
@@ -1796,7 +1796,7 @@ export default function KanbanPage() {
             </SelectContent>
           </Select>
           <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-            <SelectTrigger className="w-28 sm:w-40 h-8 text-xs">
+            <SelectTrigger className="w-28 sm:w-40 h-8 text-xs bg-background/60 border-border/40 hover:border-primary/40 transition-colors">
               <Users className="w-3.5 h-3.5 mr-1" />
               <SelectValue placeholder="Responsável" />
             </SelectTrigger>
@@ -1818,7 +1818,7 @@ export default function KanbanPage() {
           </Select>
           {allTags.length > 0 && (
             <Select value={filterTag} onValueChange={setFilterTag}>
-              <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
+              <SelectTrigger className="w-28 sm:w-36 h-8 text-xs bg-background/60 border-border/40 hover:border-primary/40 transition-colors">
                 <Tag className="w-3.5 h-3.5 mr-1" />
                 <SelectValue placeholder="Tag" />
               </SelectTrigger>
@@ -1831,7 +1831,7 @@ export default function KanbanPage() {
             </Select>
           )}
           <Select value={sortMode} onValueChange={v => setSortMode(v as any)}>
-            <SelectTrigger className="w-28 sm:w-36 h-8 text-xs">
+            <SelectTrigger className="w-28 sm:w-36 h-8 text-xs bg-background/60 border-border/40 hover:border-primary/40 transition-colors">
               <SelectValue placeholder="Ordenar" />
             </SelectTrigger>
             <SelectContent>
@@ -1853,7 +1853,7 @@ export default function KanbanPage() {
             </Button>
           )}
           {viewMode === 'kanban' && (
-            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowAddColumn(true)}>
+            <Button variant="outline" size="sm" className="h-8 text-xs bg-background/60 border-border/40 hover:border-primary/40 transition-colors" onClick={() => setShowAddColumn(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" />
               <span className="hidden sm:inline">Coluna</span>
             </Button>

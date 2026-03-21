@@ -8,6 +8,9 @@ import {
   FolderOpen,
   UsersRound,
   MoreHorizontal,
+  BookOpen,
+  Share2,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -17,9 +20,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 
 const mainItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/dashboard', label: 'Projetos', icon: LayoutDashboard },
   { path: '/kanban', label: 'Kanban', icon: Kanban },
   { path: '/proposals', label: 'Propostas', icon: FileText },
   { path: '/ideas', label: 'Ideias', icon: Sparkles },
@@ -30,12 +34,15 @@ const moreItems = [
   { path: '/billing', label: 'Faturamento', icon: Receipt },
   { path: '/files', label: 'Arquivos', icon: FolderOpen },
   { path: '/teams', label: 'Equipes', icon: UsersRound },
+  { path: '/collaborations', label: 'Colaborações', icon: Share2 },
+  { path: '/manual', label: 'Manual', icon: BookOpen },
 ];
 
 export function MobileBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
+  const scheduledCount = useScheduledMessagesCount();
 
   const isActive = (path: string) =>
     location.pathname === path ||
@@ -49,10 +56,11 @@ export function MobileBottomNav() {
       role="navigation"
       aria-label="Menu principal"
     >
-      <div className="flex items-center justify-around px-2 py-1">
+      <div className="flex items-center justify-around px-1 py-1">
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
+          const showBadge = item.path === '/kanban' && scheduledCount > 0;
 
           return (
             <button
@@ -61,10 +69,10 @@ export function MobileBottomNav() {
               aria-current={active ? 'page' : undefined}
               aria-label={item.label}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 min-w-[60px]',
+                'relative flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-xl transition-all duration-200 min-w-[56px]',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                 active
-                  ? 'text-primary'
+                  ? 'text-primary bg-primary/10'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
@@ -72,6 +80,11 @@ export function MobileBottomNav() {
               <span className={cn('text-[10px] font-medium', active && 'text-primary')}>
                 {item.label}
               </span>
+              {showBadge && (
+                <span className="absolute top-1 right-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                  {scheduledCount > 9 ? '9+' : scheduledCount}
+                </span>
+              )}
             </button>
           );
         })}
@@ -82,10 +95,10 @@ export function MobileBottomNav() {
             <button
               aria-label="Mais opções"
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 min-w-[60px]',
+                'flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-xl transition-all duration-200 min-w-[56px]',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                 moreIsActive
-                  ? 'text-primary'
+                  ? 'text-primary bg-primary/10'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
@@ -98,31 +111,33 @@ export function MobileBottomNav() {
           <PopoverContent
             side="top"
             align="end"
-            className="w-48 p-1"
+            className="w-52 p-1.5"
             sideOffset={8}
           >
-            {moreItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.path);
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => {
-                    navigate(item.path);
-                    setMoreOpen(false);
-                  }}
-                  className={cn(
-                    'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                    active
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-foreground hover:bg-accent'
-                  )}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              );
-            })}
+            <div className="space-y-0.5">
+              {moreItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.path);
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => {
+                      navigate(item.path);
+                      setMoreOpen(false);
+                    }}
+                    className={cn(
+                      'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                      active
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-foreground hover:bg-accent'
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
           </PopoverContent>
         </Popover>
       </div>

@@ -8,7 +8,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, GripHorizontal, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  Users, X, AlertTriangle, ChevronLeft, ChevronRight,
+  Users, X, AlertTriangle, ChevronLeft, ChevronRight, Palette,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -1047,6 +1047,14 @@ export default function KanbanPage() {
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);
   const [spacesCollapsed, setSpacesCollapsed] = useState(false);
+  const [colorPickerSpaceId, setColorPickerSpaceId] = useState<string | null>(null);
+
+  const SPACE_COLORS = [
+    '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7',
+    '#ec4899', '#ef4444', '#f97316', '#f59e0b',
+    '#eab308', '#22c55e', '#10b981', '#06b6d4',
+    '#0ea5e9', '#64748b', '#78716c', '#1e293b',
+  ];
 
   // Sync URL when space changes
   const handleSetActiveSpace = (spaceId: string | null) => {
@@ -1608,7 +1616,7 @@ export default function KanbanPage() {
                         <MoreHorizontal className="w-3.5 h-3.5" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuContent align="end" className="w-52">
                       <DropdownMenuItem onSelect={(e) => {
                         e.preventDefault();
                         handleSetActiveSpace(space.id);
@@ -1616,6 +1624,32 @@ export default function KanbanPage() {
                       }}>
                         <Pencil className="w-4 h-4 mr-2" /> Renomear
                       </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        setColorPickerSpaceId(colorPickerSpaceId === space.id ? null : space.id);
+                      }}>
+                        <Palette className="w-4 h-4 mr-2" /> Mudar cor
+                      </DropdownMenuItem>
+                      {colorPickerSpaceId === space.id && (
+                        <div className="px-2 py-2">
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {SPACE_COLORS.map(color => (
+                              <button
+                                key={color}
+                                className={cn(
+                                  'w-7 h-7 rounded-md border-2 transition-all hover:scale-110',
+                                  space.color === color ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'
+                                )}
+                                style={{ backgroundColor: color }}
+                                onClick={() => {
+                                  updateSpace.mutate({ id: space.id, color });
+                                  setColorPickerSpaceId(null);
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <DropdownMenuItem onSelect={(e) => {
                         e.preventDefault();
                         setDeletingSpaceId(space.id);

@@ -70,6 +70,8 @@ export default function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PROJECTS_PER_PAGE = 10;
   const [activeView, setActiveView] = useState(() => searchParams.get('view') || 'all');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(() => searchParams.get('account') || null);
 

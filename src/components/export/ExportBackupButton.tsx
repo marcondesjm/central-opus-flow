@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { getLocalKeys } from '@/hooks/useLocalKeys';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import JSZip from 'jszip';
 
 interface ExportBackupButtonProps {
   variant?: 'default' | 'ghost' | 'outline';

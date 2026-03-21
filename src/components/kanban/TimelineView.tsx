@@ -394,8 +394,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
         <div
           ref={scrollRef}
           onScroll={handleTimelineScroll}
-          className="flex-1 overflow-auto"
-          style={{ maxHeight: 'calc(100vh - 280px)' }}
+          className="flex-1 overflow-x-auto overflow-y-hidden"
         >
           <div style={{ width: totalWidth, minHeight: '100%' }} className="relative">
             {/* Month headers */}

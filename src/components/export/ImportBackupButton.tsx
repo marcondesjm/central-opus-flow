@@ -398,7 +398,7 @@ export function ImportBackupButton({
 
   return (
     <>
-      <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelect} className="hidden" />
+      <input ref={fileInputRef} type="file" accept=".json,.zip,.wpress" onChange={handleFileSelect} className="hidden" />
       
       <Button variant={variant} size={size} onClick={() => fileInputRef.current?.click()} disabled={importing} className={className}>
         {importing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}

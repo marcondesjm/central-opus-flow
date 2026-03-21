@@ -135,11 +135,18 @@ export function ExportBackupButton({
         },
       };
 
-      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+      const jsonContent = JSON.stringify(backupData, null, 2);
+      const dateStr = format(new Date(), 'yyyy-MM-dd-HHmm');
+
+      // Export as ZIP
+      const zip = new JSZip();
+      zip.file(`centralopusflow-backup-${dateStr}.json`, jsonContent);
+      const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
+      
+      const url = URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `centralopusflow-backup-${format(new Date(), 'yyyy-MM-dd-HHmm')}.json`;
+      link.download = `centralopusflow-backup-${dateStr}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

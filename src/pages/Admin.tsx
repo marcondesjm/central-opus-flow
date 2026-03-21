@@ -79,7 +79,7 @@ import {
   Globe,
   Send,
 } from 'lucide-react';
-import { format, formatDistanceToNow, differenceInDays, addDays } from 'date-fns';
+import { format, formatDistanceToNow, differenceInCalendarDays, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';

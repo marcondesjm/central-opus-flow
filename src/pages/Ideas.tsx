@@ -13,13 +13,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Lightbulb, Search, Filter, ArrowLeft, Loader2, List, LayoutGrid, Calendar, Trash2, X } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { subMonths, addMonths, format } from 'date-fns';
+import { subMonths, addMonths, format, formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type ViewMode = 'table' | 'board' | 'timeline';
 
@@ -28,7 +29,6 @@ export default function Ideas() {
   const { user } = useAuth();
   const createIdea = useCreateIdea();
   const bulkDelete = useBulkDeleteIdeas();
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   // Fetch profiles for last_modified_by
@@ -105,6 +105,15 @@ export default function Ideas() {
   const timelineStart = subMonths(new Date(), 6);
   const timelineEnd = addMonths(new Date(), 6);
 
+  // Stats
+  const stats = useMemo(() => {
+    const all = ideas || [];
+    const avgProgress = all.length > 0 ? Math.round(all.reduce((s, i) => s + i.progress, 0) / all.length) : 0;
+    const highImpact = all.filter(i => i.impact >= 4).length;
+    const nowCount = all.filter(i => i.roadmap === 'now').length;
+    return { total: all.length, avgProgress, highImpact, nowCount };
+  }, [ideas]);
+
   const viewButtons: { mode: ViewMode; icon: typeof List; label: string }[] = [
     { mode: 'table', icon: List, label: 'Lista' },
     { mode: 'board', icon: LayoutGrid, label: 'Roteiro' },
@@ -113,31 +122,64 @@ export default function Ideas() {
 
   return (
     <AppLayout>
-
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Toolbar */}
-        <div className="border-b bg-card px-3 md:px-6 py-3">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-amber-500" />
-                <h1 className="text-base md:text-lg font-semibold">
-                  {viewMode === 'table' ? 'Todas as ideias' : viewMode === 'board' ? 'Roteiro do produto' : 'Cronograma do produto'}
-                </h1>
-                <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
+        {/* Header with stats */}
+        <div className="border-b bg-card">
+          <div className="px-4 md:px-6 pt-5 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                  <Lightbulb className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h1 className="text-lg md:text-xl font-bold">
+                    {viewMode === 'table' ? 'Todas as Ideias' : viewMode === 'board' ? 'Roteiro do Produto' : 'Cronograma'}
+                  </h1>
+                  <p className="text-xs text-muted-foreground">Gerencie e priorize suas ideias de produto</p>
+                </div>
               </div>
+              <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={() => handleCreate()}>
+                <Plus className="w-4 h-4" />
+                Nova Ideia
+              </Button>
             </div>
 
-            <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
+            {/* Stats cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {[
+                { label: 'Total', value: stats.total, icon: Lightbulb, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                { label: 'Em Foco', value: stats.nowCount, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                { label: 'Alto Impacto', value: stats.highImpact, icon: Target, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                { label: 'Progresso Médio', value: `${stats.avgProgress}%`, icon: TrendingUp, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+              ].map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={stat.label} className="rounded-xl border border-border bg-background p-3 flex items-center gap-3">
+                    <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', stat.bg)}>
+                      <Icon className={cn('w-4 h-4', stat.color)} />
+                    </div>
+                    <div>
+                      <p className={cn('text-lg font-bold tabular-nums leading-tight', stat.color)}>{stat.value}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Toolbar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               {/* View switcher */}
-              <div className="flex items-center border rounded-md bg-muted/30">
+              <div className="flex items-center border rounded-lg bg-muted/30 p-0.5">
                 {viewButtons.map(({ mode, icon: Icon, label }) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
                     className={cn(
-                      'flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors rounded-md',
-                      viewMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                      'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all rounded-md',
+                      viewMode === mode
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -146,35 +188,38 @@ export default function Ideas() {
                 ))}
               </div>
 
-              <div className="relative flex-1 max-w-xs">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar ideias..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8 h-8 text-xs"
-                />
+              <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
+                <div className="relative flex-1 max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar ideias..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 h-9 text-sm"
+                  />
+                </div>
+
+                {viewMode !== 'board' && (
+                  <Select value={filterRoadmap} onValueChange={setFilterRoadmap}>
+                    <SelectTrigger className="h-9 w-auto min-w-[130px] text-xs">
+                      <Filter className="w-3.5 h-3.5 mr-1.5" />
+                      <SelectValue placeholder="Roteiro" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all" className="text-xs">Todos</SelectItem>
+                      {ROADMAP_OPTIONS.map(r => (
+                        <SelectItem key={r.id} value={r.id} className="text-xs">{r.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {filtered.length > 0 && (
+                  <Badge variant="outline" className="text-xs tabular-nums h-9 px-3">
+                    {filtered.length} {filtered.length === 1 ? 'ideia' : 'ideias'}
+                  </Badge>
+                )}
               </div>
-
-              {viewMode !== 'board' && (
-                <Select value={filterRoadmap} onValueChange={setFilterRoadmap}>
-                  <SelectTrigger className="h-8 w-auto min-w-[120px] text-xs">
-                    <Filter className="w-3 h-3 mr-1" />
-                    <SelectValue placeholder="Roteiro" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all" className="text-xs">Todos</SelectItem>
-                    {ROADMAP_OPTIONS.map(r => (
-                      <SelectItem key={r.id} value={r.id} className="text-xs">{r.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => handleCreate()}>
-                <Plus className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Criar</span>
-              </Button>
             </div>
           </div>
         </div>
@@ -191,11 +236,16 @@ export default function Ideas() {
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
             ) : filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-40 gap-3">
-                <Lightbulb className="w-10 h-10 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">Nenhuma ideia encontrada</p>
-                <Button size="sm" variant="outline" onClick={() => handleCreate()}>
-                  <Plus className="w-3.5 h-3.5 mr-1" /> Criar primeira ideia
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+                  <Lightbulb className="w-8 h-8 text-amber-500" />
+                </div>
+                <div className="text-center">
+                  <h3 className="font-semibold mb-1">Nenhuma ideia encontrada</h3>
+                  <p className="text-sm text-muted-foreground">Comece registrando suas ideias de produto</p>
+                </div>
+                <Button onClick={() => handleCreate()} className="gap-2">
+                  <Plus className="w-4 h-4" /> Criar primeira ideia
                 </Button>
               </div>
             ) : viewMode === 'board' ? (
@@ -217,12 +267,12 @@ export default function Ideas() {
               <>
                 {/* Bulk action bar */}
                 {selectedIds.size > 0 && (
-                  <div className="flex items-center gap-3 px-4 py-2 bg-destructive/10 border-b">
-                    <span className="text-xs font-medium">{selectedIds.size} selecionada(s)</span>
+                  <div className="flex items-center gap-3 px-5 py-2.5 bg-destructive/10 border-b animate-fade-in">
+                    <Badge variant="destructive" className="text-xs">{selectedIds.size} selecionada(s)</Badge>
                     <Button
                       size="sm"
                       variant="destructive"
-                      className="h-7 text-xs gap-1.5"
+                      className="h-8 text-xs gap-1.5"
                       onClick={handleBulkDelete}
                       disabled={bulkDelete.isPending}
                     >
@@ -232,7 +282,7 @@ export default function Ideas() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-7 text-xs gap-1"
+                      className="h-8 text-xs gap-1"
                       onClick={() => setSelectedIds(new Set())}
                     >
                       <X className="w-3 h-3" />
@@ -244,26 +294,26 @@ export default function Ideas() {
                 {/* Desktop table */}
                 <div className="hidden md:block">
                   <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-muted/50 z-10">
+                    <thead className="sticky top-0 bg-muted/60 backdrop-blur-sm z-10">
                       <tr className="border-b">
-                        <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground w-8">
+                        <th className="text-left px-4 py-3 font-medium text-xs text-muted-foreground w-10">
                           <Checkbox
                             className="h-4 w-4"
                             checked={filtered.length > 0 && selectedIds.size === filtered.length}
                             onCheckedChange={toggleAll}
                           />
                         </th>
-                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Resumo</th>
-                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Tema</th>
-                        <th className="text-center px-3 py-2.5 font-medium text-xs text-muted-foreground">Impacto</th>
-                        <th className="text-center px-3 py-2.5 font-medium text-xs text-muted-foreground">Esforço</th>
-                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Roteiro</th>
-                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground w-32">Progresso</th>
-                        <th className="text-left px-3 py-2.5 font-medium text-xs text-muted-foreground">Modificado por</th>
+                        <th className="text-left px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider">Resumo</th>
+                        <th className="text-left px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider">Tema</th>
+                        <th className="text-center px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider">Impacto</th>
+                        <th className="text-center px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider">Esforço</th>
+                        <th className="text-left px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider">Roteiro</th>
+                        <th className="text-left px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider w-36">Progresso</th>
+                        <th className="text-left px-3 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider">Modificado por</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filtered.map(idea => {
+                      {filtered.map((idea, index) => {
                         const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                         const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
                         const isActive = currentIdea?.id === idea.id;
@@ -273,66 +323,92 @@ export default function Ideas() {
                           <tr
                             key={idea.id}
                             className={cn(
-                              'border-b cursor-pointer transition-colors hover:bg-muted/30',
-                              isActive && 'bg-primary/5',
-                              isChecked && 'bg-destructive/5'
+                              'border-b transition-all duration-150 cursor-pointer group/row',
+                              isActive && 'bg-primary/[0.06] border-l-2 border-l-primary',
+                              isChecked && 'bg-destructive/[0.04]',
+                              !isActive && !isChecked && 'hover:bg-muted/40'
                             )}
                             onClick={() => setSelectedIdea(idea)}
+                            style={{ animationDelay: `${index * 20}ms` }}
                           >
-                            <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
+                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                               <Checkbox
                                 className="h-4 w-4"
                                 checked={isChecked}
                                 onCheckedChange={() => toggleSelect(idea.id)}
                               />
                             </td>
-                            <td className="px-3 py-2.5">
-                              <span className="font-medium text-sm truncate block max-w-[220px]">{idea.title}</span>
+                            <td className="px-3 py-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-base">{theme.icon}</span>
+                                <span className="font-medium text-sm truncate max-w-[220px] group-hover/row:text-primary transition-colors">{idea.title}</span>
+                              </div>
                             </td>
-                            <td className="px-3 py-2.5">
-                              <Badge variant="outline" className="text-[10px] gap-1" style={{ borderColor: theme.color, color: theme.color }}>
-                                {theme.icon} {theme.label}
+                            <td className="px-3 py-3">
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] gap-1 font-medium border-0"
+                                style={{ backgroundColor: `${theme.color}15`, color: theme.color }}
+                              >
+                                {theme.label}
                               </Badge>
                             </td>
-                            <td className="px-3 py-2.5">
+                            <td className="px-3 py-3">
                               <div className="flex justify-center">
                                 <DotRating value={idea.impact} color="bg-blue-500" size="sm" />
                               </div>
                             </td>
-                            <td className="px-3 py-2.5">
+                            <td className="px-3 py-3">
                               <div className="flex justify-center">
                                 <DotRating value={idea.effort} color="bg-amber-500" size="sm" />
                               </div>
                             </td>
-                            <td className="px-3 py-2.5">
+                            <td className="px-3 py-3">
                               {roadmap && (
-                                <Badge variant="secondary" className={cn('text-[10px]', roadmap.textColor, roadmap.bgLight)}>
+                                <Badge
+                                  variant="secondary"
+                                  className={cn('text-[10px] font-semibold border-0', roadmap.textColor, roadmap.bgLight)}
+                                >
                                   {roadmap.label}
                                 </Badge>
                               )}
                             </td>
-                            <td className="px-3 py-2.5">
+                            <td className="px-3 py-3">
                               <div className="flex items-center gap-2">
-                                <Progress value={idea.progress} className="h-1.5 flex-1" />
-                                <span className="text-[10px] text-muted-foreground w-7">{idea.progress}%</span>
+                                <Progress value={idea.progress} className="h-2 flex-1" />
+                                <span className={cn(
+                                  'text-[11px] font-semibold tabular-nums w-8 text-right',
+                                  idea.progress >= 80 ? 'text-emerald-500' : idea.progress >= 40 ? 'text-blue-500' : 'text-muted-foreground'
+                                )}>
+                                  {idea.progress}%
+                                </span>
                               </div>
                             </td>
-                            <td className="px-3 py-2.5">
+                            <td className="px-3 py-3">
                               {(() => {
                                 const profile = modifierProfiles?.[idea.last_modified_by || ''] || (idea.user_id === user?.id ? modifierProfiles?.[user.id] : null);
                                 return profile ? (
-                                  <div className="flex items-center gap-1.5">
-                                    <Avatar className="w-5 h-5">
-                                      <AvatarImage src={profile.avatar_url || undefined} />
-                                      <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
-                                        {(profile.full_name || '?').slice(0, 2).toUpperCase()}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <div className="min-w-0">
-                                      <span className="text-[10px] truncate block max-w-[80px]">{profile.full_name || 'Usuário'}</span>
-                                      <span className="text-[9px] text-muted-foreground">{format(new Date(idea.updated_at), 'dd/MM HH:mm')}</span>
-                                    </div>
-                                  </div>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-2">
+                                        <Avatar className="w-6 h-6 ring-2 ring-background">
+                                          <AvatarImage src={profile.avatar_url || undefined} className="object-cover" />
+                                          <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-semibold">
+                                            {(profile.full_name || '?').slice(0, 2).toUpperCase()}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="min-w-0">
+                                          <span className="text-xs font-medium truncate block max-w-[85px]">{profile.full_name || 'Usuário'}</span>
+                                          <span className="text-[10px] text-muted-foreground">
+                                            {formatDistanceToNow(new Date(idea.updated_at), { addSuffix: true, locale: ptBR })}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left">
+                                      <p>{format(new Date(idea.updated_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
                                 ) : null;
                               })()}
                             </td>
@@ -348,53 +424,77 @@ export default function Ideas() {
                   {filtered.map(idea => {
                     const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                     const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
+                    const isChecked = selectedIds.has(idea.id);
 
                     return (
                       <div
                         key={idea.id}
-                        className="px-3 py-3 active:bg-muted/30 cursor-pointer transition-colors"
+                        className={cn(
+                          'px-4 py-4 cursor-pointer transition-colors active:bg-muted/30',
+                          isChecked && 'bg-destructive/[0.04]'
+                        )}
                         onClick={() => setSelectedIdea(idea)}
                       >
-                        <div className="flex items-start gap-2">
-                          <span className="text-base mt-0.5">{theme.icon}</span>
+                        <div className="flex items-start gap-3">
+                          <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              className="h-4 w-4"
+                              checked={isChecked}
+                              onCheckedChange={() => toggleSelect(idea.id)}
+                            />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{idea.title}</p>
-                            <div className="flex items-center gap-2 mt-1.5">
-                              <Badge variant="outline" className="text-[9px] h-5" style={{ borderColor: theme.color, color: theme.color }}>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-base">{theme.icon}</span>
+                              <p className="font-medium text-sm truncate flex-1">{idea.title}</p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                              <Badge
+                                variant="outline"
+                                className="text-[9px] h-5 border-0 font-medium"
+                                style={{ backgroundColor: `${theme.color}15`, color: theme.color }}
+                              >
                                 {theme.label}
                               </Badge>
                               {roadmap && (
-                                <Badge variant="secondary" className={cn('text-[9px] h-5', roadmap.textColor, roadmap.bgLight)}>
+                                <Badge variant="secondary" className={cn('text-[9px] h-5 border-0 font-semibold', roadmap.textColor, roadmap.bgLight)}>
                                   {roadmap.label}
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-2">
-                              <div className="flex items-center gap-1">
-                                <span className="text-[9px] text-muted-foreground">Imp:</span>
+                            <div className="flex items-center gap-4 mb-2">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-muted-foreground font-medium">Impacto</span>
                                 <DotRating value={idea.impact} color="bg-blue-500" size="sm" />
                               </div>
-                              <div className="flex items-center gap-1">
-                                <span className="text-[9px] text-muted-foreground">Esf:</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-muted-foreground font-medium">Esforço</span>
                                 <DotRating value={idea.effort} color="bg-amber-500" size="sm" />
                               </div>
-                              <div className="flex items-center gap-1 flex-1">
-                                <Progress value={idea.progress} className="h-1 flex-1 max-w-16" />
-                                <span className="text-[9px] text-muted-foreground">{idea.progress}%</span>
-                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Progress value={idea.progress} className="h-1.5 flex-1" />
+                              <span className={cn(
+                                'text-[10px] font-semibold tabular-nums',
+                                idea.progress >= 80 ? 'text-emerald-500' : idea.progress >= 40 ? 'text-blue-500' : 'text-muted-foreground'
+                              )}>
+                                {idea.progress}%
+                              </span>
                             </div>
                             {(() => {
                               const profile = modifierProfiles?.[idea.last_modified_by || ''] || (idea.user_id === user?.id ? modifierProfiles?.[user.id] : null);
                               return profile ? (
-                                <div className="flex items-center gap-1.5 mt-2 pt-1.5 border-t border-border/50">
-                                  <Avatar className="w-4 h-4">
-                                    <AvatarImage src={profile.avatar_url || undefined} />
-                                    <AvatarFallback className="text-[7px] bg-primary/10 text-primary">
+                                <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                                  <Avatar className="w-5 h-5 ring-1 ring-background">
+                                    <AvatarImage src={profile.avatar_url || undefined} className="object-cover" />
+                                    <AvatarFallback className="text-[7px] bg-primary/10 text-primary font-semibold">
                                       {(profile.full_name || '?').slice(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span className="text-[9px] text-muted-foreground truncate">{profile.full_name || 'Usuário'}</span>
-                                  <span className="text-[8px] text-muted-foreground/60 ml-auto">{format(new Date(idea.updated_at), 'dd/MM HH:mm')}</span>
+                                  <span className="text-[10px] text-muted-foreground truncate">{profile.full_name || 'Usuário'}</span>
+                                  <span className="text-[9px] text-muted-foreground/60 ml-auto">
+                                    {formatDistanceToNow(new Date(idea.updated_at), { addSuffix: true, locale: ptBR })}
+                                  </span>
                                 </div>
                               ) : null;
                             })()}
@@ -408,11 +508,13 @@ export default function Ideas() {
                 {/* Create row */}
                 {!isLoading && (
                   <div
-                    className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b"
+                    className="px-5 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b group"
                     onClick={() => handleCreate()}
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    Criar
+                    <div className="w-6 h-6 rounded-md border-2 border-dashed border-muted-foreground/30 group-hover:border-primary flex items-center justify-center transition-colors">
+                      <Plus className="w-3 h-3" />
+                    </div>
+                    <span className="text-xs font-medium">Adicionar nova ideia</span>
                   </div>
                 )}
               </>

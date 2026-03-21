@@ -358,16 +358,36 @@ export default function Proposals() {
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Propostas Comerciais</h1>
-            <p className="text-sm text-muted-foreground">Crie e gerencie suas propostas com identidade visual</p>
+            <p className="text-sm text-muted-foreground mt-1">Crie e gerencie suas propostas com identidade visual</p>
           </div>
-          <Button onClick={() => setMode('create')}>
-            <Plus className="w-4 h-4 mr-2" />
+          <Button onClick={() => setMode('create')} size="lg" className="gap-2 shadow-lg shadow-primary/20">
+            <Plus className="w-4 h-4" />
             Nova Proposta
           </Button>
         </div>
+
+        {/* Stats summary */}
+        {proposals.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            {[
+              { label: 'Total', value: proposals.length, color: 'text-primary' },
+              { label: 'Aceitas', value: proposals.filter(p => p.status === 'accepted').length, color: 'text-emerald-500' },
+              { label: 'Enviadas', value: proposals.filter(p => p.status === 'sent').length, color: 'text-blue-500' },
+              { label: 'Valor Total', value: `R$ ${proposals.reduce((s, p) => s + (p.services || []).reduce((sum, sv) => sum + (Number(sv.quantity) || 0) * (Number(sv.unit_price) || 0), 0) - (Number(p.discount) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, color: 'text-amber-500', isText: true },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-xl border border-border bg-card p-4 text-center">
+                <p className={cn('text-2xl font-bold tabular-nums', stat.color)}>
+                  {stat.isText ? stat.value : stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wider font-medium">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
@@ -376,17 +396,19 @@ export default function Proposals() {
         ) : proposals.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <FileText className="w-12 h-12 text-muted-foreground/50 mb-4" />
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                <FileText className="w-8 h-8 text-primary" />
+              </div>
               <h3 className="text-lg font-semibold mb-2">Nenhuma proposta criada</h3>
               <p className="text-sm text-muted-foreground mb-6 max-w-md">
                 Crie propostas profissionais com sua identidade visual, logo do cliente e exporte em PDF ou compartilhe via link.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-3">
-                <Button onClick={() => setMode('create')}>
+                <Button onClick={() => setMode('create')} size="lg">
                   <Plus className="w-4 h-4 mr-2" />
                   Criar Primeira Proposta
                 </Button>
-                <Button variant="outline" onClick={createExampleProposal} disabled={createProposal.isPending}>
+                <Button variant="outline" size="lg" onClick={createExampleProposal} disabled={createProposal.isPending}>
                   {createProposal.isPending ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
@@ -398,7 +420,7 @@ export default function Proposals() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {proposals.map((proposal) => {
               const status = statusMap[proposal.status] || statusMap.draft;
               const total = (proposal.services || []).reduce(
@@ -406,120 +428,158 @@ export default function Proposals() {
               ) - (Number(proposal.discount) || 0);
 
               return (
-                <Card key={proposal.id} className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
-                  {/* Color bar */}
-                  <div className="h-1.5" style={{ backgroundColor: proposal.brand_color }} />
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        {proposal.client_logo_url ? (
-                          <img
-                            src={proposal.client_logo_url}
-                            alt=""
-                            className="w-10 h-10 rounded-lg object-contain border border-border p-0.5 flex-shrink-0"
-                          />
-                        ) : (
-                          <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold"
-                            style={{ backgroundColor: proposal.brand_color }}
-                          >
-                            {(proposal.client_name || 'C').charAt(0)}
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="font-semibold truncate">{proposal.client_name}</p>
-                          {proposal.client_company && (
-                            <p className="text-xs text-muted-foreground truncate">{proposal.client_company}</p>
+                <Card
+                  key={proposal.id}
+                  className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border-border/60 bg-card"
+                >
+                  {/* Top accent bar */}
+                  <div className="h-1" style={{ background: `linear-gradient(90deg, ${proposal.brand_color}, ${proposal.brand_secondary_color || proposal.brand_color}88)` }} />
+                  
+                  <CardContent className="p-0">
+                    {/* Client info header */}
+                    <div className="p-5 pb-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {proposal.client_logo_url ? (
+                            <img
+                              src={proposal.client_logo_url}
+                              alt=""
+                              className="w-12 h-12 rounded-xl object-contain border border-border p-1 flex-shrink-0 bg-background"
+                            />
+                          ) : (
+                            <div
+                              className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-bold text-lg shadow-lg"
+                              style={{ backgroundColor: proposal.brand_color, boxShadow: `0 4px 14px ${proposal.brand_color}40` }}
+                            >
+                              {(proposal.client_name || 'C').charAt(0).toUpperCase()}
+                            </div>
                           )}
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground truncate">{proposal.client_name}</p>
+                            {proposal.client_company && (
+                              <p className="text-xs text-muted-foreground truncate">{proposal.client_company}</p>
+                            )}
+                          </div>
                         </div>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            'text-[10px] flex-shrink-0 font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border-0',
+                            status.color
+                          )}
+                        >
+                          {status.label}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className={cn('text-[10px] flex-shrink-0', status.color)}>
-                        {status.label}
-                      </Badge>
                     </div>
 
-                    <p className="text-sm font-medium truncate mb-1">{proposal.proposal_title}</p>
-                    <p className="text-lg font-bold" style={{ color: proposal.brand_color }}>
-                      R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
-                    </p>
+                    {/* Proposal details */}
+                    <div className="px-5 pb-4">
+                      <p className="text-sm text-muted-foreground truncate mb-3">{proposal.proposal_title}</p>
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">Valor</p>
+                          <p className="text-2xl font-bold tabular-nums" style={{ color: proposal.brand_color }}>
+                            R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-1 mt-4 pt-3 border-t border-border">
-                      <Button size="sm" variant="ghost" className="h-9 min-w-[60px] flex-1 text-xs" onClick={() => handlePreview(proposal)}>
-                        <Eye className="w-3.5 h-3.5 mr-1" />
-                        Ver
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-9 min-w-[60px] flex-1 text-xs" onClick={() => handleEdit(proposal)}>
-                        <Pencil className="w-3.5 h-3.5 mr-1" />
-                        Editar
-                      </Button>
-                      {proposal.status === 'draft' ? (
+                    {/* Actions footer */}
+                    <div className="border-t border-border/60 bg-muted/30 px-3 py-2.5 flex items-center justify-between gap-1">
+                      {/* Primary actions */}
+                      <div className="flex items-center gap-0.5">
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-9 min-w-[60px] flex-1 text-xs text-blue-600"
-                          onClick={() => handlePublish(proposal.id)}
+                          className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary"
+                          onClick={() => handlePreview(proposal)}
                         >
-                          <Send className="w-3.5 h-3.5 mr-1" />
-                          Publicar
+                          <Eye className="w-3.5 h-3.5" />
+                          Ver
                         </Button>
-                      ) : (
-                        <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary"
+                          onClick={() => handleEdit(proposal)}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          Editar
+                        </Button>
+                        {proposal.status === 'draft' ? (
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-9 min-w-[60px] flex-1 text-xs"
+                            className="h-8 px-3 text-xs gap-1.5 text-blue-600 hover:bg-blue-500/10"
+                            onClick={() => handlePublish(proposal.id)}
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            Publicar
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary"
                             onClick={() => copyShareLink(proposal.share_token!)}
                           >
-                            {copied ? <Check className="w-3.5 h-3.5 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+                            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                             Link
                           </Button>
+                        )}
+                      </div>
+
+                      {/* Secondary actions */}
+                      <div className="flex items-center gap-0.5">
+                        {proposal.status !== 'draft' && proposal.share_token && (
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-9 w-9 text-primary shrink-0"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
                             onClick={() => window.open(`${window.location.origin}/proposal/${proposal.share_token}`, '_blank')}
                             title="Abrir proposta em nova aba"
                           >
-                            <ExternalLink className="w-4 h-4" />
+                            <ExternalLink className="w-3.5 h-3.5" />
                           </Button>
-                        </>
-                      )}
-                      {proposal.client_phone && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-9 w-9 text-emerald-600 shrink-0"
-                          onClick={() => sendWhatsApp(proposal)}
-                          title="Enviar via WhatsApp"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                        </Button>
-                      )}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive shrink-0">
-                            <Trash2 className="w-4 h-4" />
+                        )}
+                        {proposal.client_phone && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-emerald-600 hover:bg-emerald-500/10"
+                            onClick={() => sendWhatsApp(proposal)}
+                            title="Enviar via WhatsApp"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir proposta?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta ação não pode ser desfeita.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(proposal.id)}>
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir proposta?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                A proposta de <span className="font-semibold">{proposal.client_name}</span> será excluída permanentemente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(proposal.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

@@ -1225,6 +1225,10 @@ export default function Admin() {
                                       <Send className="w-4 h-4 mr-2" />
                                       Enviar Mensagem
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleResetPassword(user)}>
+                                      <KeyRound className="w-4 h-4 mr-2 text-orange-600" />
+                                      <span className="text-orange-600">Resetar Senha</span>
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => { setAssignKeyUser(user); setAssignKeyDialogOpen(true); }}>
                                       <Key className="w-4 h-4 mr-2" />

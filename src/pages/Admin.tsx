@@ -180,6 +180,72 @@ export default function Admin() {
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [messageTargetUser, setMessageTargetUser] = useState<any>(null);
   const [activeAdminTab, setActiveAdminTab] = useState('users');
+  const [assignKeyUser, setAssignKeyUser] = useState<AdminUser | null>(null);
+  const [assignKeyDialogOpen, setAssignKeyDialogOpen] = useState(false);
+  const [assignKeyPlan, setAssignKeyPlan] = useState<'pro' | 'business'>('pro');
+  const [assignKeyDuration, setAssignKeyDuration] = useState<'monthly' | 'annual'>('monthly');
+  const [assigningKey, setAssigningKey] = useState(false);
+
+  const handleAssignKey = async () => {
+    if (!assignKeyUser) return;
+    setAssigningKey(true);
+    try {
+      const duration_days = assignKeyDuration === 'annual' ? 365 : 30;
+      // Generate key
+      const { data: keyCode, error: genError } = await supabase.rpc('generate_license_key_code');
+      if (genError) throw genError;
+
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Não autenticado');
+
+      // Insert key already activated for the target user
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + duration_days);
+
+      const { error: insertError } = await supabase
+        .from('license_keys')
+        .insert({
+          key_code: keyCode,
+          plan: assignKeyPlan,
+          duration_type: assignKeyDuration,
+          duration_days,
+          status: 'activated',
+          activated_by: assignKeyUser.user_id,
+          activated_at: new Date().toISOString(),
+          activated_email: assignKeyUser.email,
+          expires_at: expiresAt.toISOString(),
+          created_by: currentUser.id,
+          notes: `Chave atribuída pelo admin para ${assignKeyUser.email}`,
+        });
+      if (insertError) throw insertError;
+
+      // Update subscription
+      await supabase
+        .from('subscriptions')
+        .update({
+          plan: assignKeyPlan,
+          is_trial: false,
+          trial_ends_at: null,
+          started_at: new Date().toISOString(),
+          expires_at: expiresAt.toISOString(),
+          payment_status: 'confirmed',
+          user_status: 'active',
+          subscription_type: assignKeyDuration,
+          max_accounts: 999,
+          max_projects: 999,
+        })
+        .eq('user_id', assignKeyUser.user_id);
+
+      toast({ title: '🔑 Chave atribuída!', description: `Plano ${assignKeyPlan.toUpperCase()} (${assignKeyDuration === 'annual' ? 'Anual' : 'Mensal'}) ativado para ${assignKeyUser.email}` });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['license-keys'] });
+      setAssignKeyDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: 'Erro ao atribuir chave', description: err.message, variant: 'destructive' });
+    } finally {
+      setAssigningKey(false);
+    }
+  };
 
   const handlePreviewUser = async (user: AdminUser) => {
     setPreviewUser(user);
@@ -1139,6 +1205,10 @@ export default function Admin() {
                                       Enviar Mensagem
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => { setAssignKeyUser(user); setAssignKeyDialogOpen(true); }}>
+                                      <Key className="w-4 h-4 mr-2" />
+                                      Inserir Chave
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleChangePlan(user, 'free')}>
                                       <CreditCard className="w-4 h-4 mr-2" />
                                       Plano Free
@@ -1777,6 +1847,47 @@ export default function Admin() {
         targetUser={messageTargetUser}
         allUsers={users.map(u => ({ user_id: u.user_id, email: u.email, full_name: u.full_name }))}
       />
+
+      {/* Assign License Key Dialog */}
+      <AlertDialog open={assignKeyDialogOpen} onOpenChange={setAssignKeyDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>🔑 Inserir Chave de Licença</AlertDialogTitle>
+            <AlertDialogDescription>
+              Gerar e ativar uma chave automaticamente para <strong>{assignKeyUser?.email}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Plano</label>
+              <Select value={assignKeyPlan} onValueChange={(v) => setAssignKeyPlan(v as 'pro' | 'business')}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Duração</label>
+              <Select value={assignKeyDuration} onValueChange={(v) => setAssignKeyDuration(v as 'monthly' | 'annual')}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Mensal (30 dias)</SelectItem>
+                  <SelectItem value="annual">Anual (365 dias)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAssignKey} disabled={assigningKey}>
+              {assigningKey ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Key className="w-4 h-4 mr-2" />}
+              Gerar e Ativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

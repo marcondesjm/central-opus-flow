@@ -577,6 +577,18 @@ export default function Dashboard() {
   const filteredProjects = useMemo(() => {
     let filtered = [...projects];
 
+    // Stats card filter
+    if (statsFilter === 'favorites') {
+      filtered = filtered.filter(p => p.is_favorite);
+    } else if (statsFilter === 'published') {
+      filtered = filtered.filter(p => p.status === 'published');
+    } else if (statsFilter === 'overdue') {
+      const now = new Date();
+      filtered = filtered.filter(p => 
+        p.deadline && new Date(p.deadline) < now && p.status !== 'published' && p.status !== 'archived'
+      );
+    }
+
     // View filter
     if (activeView === 'favorites') {
       filtered = filtered.filter(p => p.is_favorite);
@@ -617,7 +629,7 @@ export default function Dashboard() {
     }
 
     return filtered;
-  }, [projects, activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery]);
+  }, [projects, activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter]);
 
   // Reset page when filters change
   useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery]);

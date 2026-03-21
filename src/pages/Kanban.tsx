@@ -1997,7 +1997,7 @@ export default function KanbanPage() {
 
       {/* Views */}
       {viewMode === 'kanban' ? (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext onDragStart={() => { dragPendingRef.current = true; }} onDragEnd={handleDragEnd}>
           {/* Top scrollbar for accessibility */}
           <div
             ref={topScrollRef}

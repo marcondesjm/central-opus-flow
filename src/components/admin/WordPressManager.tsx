@@ -63,13 +63,31 @@ export function WordPressManager() {
   const extractXmlFromZip = async (file: File): Promise<string | null> => {
     try {
       const zip = await JSZip.loadAsync(file);
+      
+      // First try to find .xml files
       for (const [name, entry] of Object.entries(zip.files)) {
         if (!entry.dir && name.toLowerCase().endsWith('.xml')) {
           return await entry.async('text');
         }
       }
+      
+      // If no .xml found, try any text file that looks like XML
+      for (const [name, entry] of Object.entries(zip.files)) {
+        if (!entry.dir) {
+          try {
+            const content = await entry.async('text');
+            if (content.trimStart().startsWith('<?xml') || content.trimStart().startsWith('<rss') || content.includes('<wp:wxr_version>')) {
+              return content;
+            }
+          } catch {
+            // Binary file, skip
+          }
+        }
+      }
+      
       return null;
-    } catch {
+    } catch (err) {
+      console.error('Erro ao processar ZIP:', err);
       return null;
     }
   };

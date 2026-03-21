@@ -186,6 +186,10 @@ export default function Admin() {
   const [assignKeyPlan, setAssignKeyPlan] = useState<'pro' | 'business'>('pro');
   const [assignKeyDuration, setAssignKeyDuration] = useState<'monthly' | 'annual'>('monthly');
   const [assigningKey, setAssigningKey] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState<AdminUser | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   const handleAssignKey = async () => {
     if (!assignKeyUser) return;
@@ -394,23 +398,34 @@ export default function Admin() {
     setChangePlanDialogOpen(true);
   };
 
-  const handleResetPassword = async (user: AdminUser) => {
-    if (!user.email) return;
+  const handleResetPassword = (user: AdminUser) => {
+    setResetPasswordUser(user);
+    setNewPassword('');
+    setResetPasswordDialogOpen(true);
+  };
+
+  const confirmResetPassword = async () => {
+    if (!resetPasswordUser || !newPassword || newPassword.length < 6) return;
+    setResettingPassword(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth?tab=reset`,
+      const { data, error } = await supabase.functions.invoke('admin-reset-password', {
+        body: { userId: resetPasswordUser.user_id, newPassword },
       });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       toast({
-        title: 'E-mail enviado',
-        description: `Link de redefinição de senha enviado para ${user.email}`,
+        title: 'Senha redefinida',
+        description: `A senha de ${resetPasswordUser.email} foi atualizada com sucesso.`,
       });
+      setResetPasswordDialogOpen(false);
     } catch (err: any) {
       toast({
-        title: 'Erro ao enviar e-mail',
+        title: 'Erro ao redefinir senha',
         description: err.message || 'Tente novamente mais tarde.',
         variant: 'destructive',
       });
+    } finally {
+      setResettingPassword(false);
     }
   };
 
@@ -1909,6 +1924,44 @@ export default function Admin() {
             <AlertDialogAction onClick={handleAssignKey} disabled={assigningKey}>
               {assigningKey ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Key className="w-4 h-4 mr-2" />}
               Gerar e Ativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Reset Password Dialog */}
+      <AlertDialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-orange-600" />
+              Redefinir Senha
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Defina uma nova senha para <strong>{resetPasswordUser?.full_name || resetPasswordUser?.email}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              type="password"
+              placeholder="Nova senha (mínimo 6 caracteres)"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              minLength={6}
+            />
+            {newPassword.length > 0 && newPassword.length < 6 && (
+              <p className="text-xs text-destructive mt-1">A senha deve ter pelo menos 6 caracteres</p>
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmResetPassword} 
+              disabled={resettingPassword || newPassword.length < 6}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {resettingPassword ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <KeyRound className="w-4 h-4 mr-2" />}
+              Redefinir Senha
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

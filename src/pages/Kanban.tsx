@@ -2369,19 +2369,6 @@ export default function KanbanPage() {
         />
       )}
 
-      {phaseChangeNotification && (
-        <PhaseChangeNotificationModal
-          open={!!phaseChangeNotification}
-          onOpenChange={v => { if (!v) setPhaseChangeNotification(null); }}
-          dealId={phaseChangeNotification.dealId}
-          clientName={phaseChangeNotification.clientName}
-          clientEmail={phaseChangeNotification.clientEmail}
-          clientWhatsapp={phaseChangeNotification.clientWhatsapp}
-          companyName={phaseChangeNotification.companyName}
-          oldPhaseName={phaseChangeNotification.oldPhaseName}
-          newPhaseName={phaseChangeNotification.newPhaseName}
-        />
-      )}
 
       <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) { setWhatsAppCustomDeal(null); setScheduledDate(undefined); setShowScheduleDatePicker(false); } }}>
         <DialogContent className="sm:max-w-md">

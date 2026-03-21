@@ -485,7 +485,7 @@ export default function Ideas() {
 
                 {/* Mobile card list */}
                 <div className="md:hidden divide-y">
-                  {filtered.map(idea => {
+                  {paginatedIdeas.map(idea => {
                     const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                     const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
                     const isChecked = selectedIds.has(idea.id);

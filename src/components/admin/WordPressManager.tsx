@@ -138,13 +138,34 @@ export function WordPressManager() {
     try {
       const xmlText = await extractXmlFromFile(file);
       if (!xmlText) {
+        // No XML found — save to file manager instead
+        try {
+          await uploadFile.mutateAsync({
+            file,
+            module: 'general',
+            description: `Arquivo WordPress importado: ${file.name}`,
+          });
+          toast.success(`Arquivo "${file.name}" salvo no Gerenciador de Arquivos!`);
+        } catch (uploadErr) {
+          console.error('Erro ao salvar no gerenciador:', uploadErr);
+        }
         return;
       }
 
       const posts = parseWordPressXML(xmlText);
 
       if (posts.length === 0) {
-        toast.error('Nenhum post encontrado no arquivo selecionado.');
+        // Has XML but no posts — still save the file
+        try {
+          await uploadFile.mutateAsync({
+            file,
+            module: 'general',
+            description: `Arquivo WordPress sem posts: ${file.name}`,
+          });
+          toast.info(`Nenhum post encontrado, mas o arquivo foi salvo no Gerenciador de Arquivos.`);
+        } catch (uploadErr) {
+          console.error('Erro ao salvar no gerenciador:', uploadErr);
+        }
         return;
       }
 

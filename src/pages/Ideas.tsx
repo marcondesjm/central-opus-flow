@@ -179,10 +179,33 @@ export default function Ideas() {
                   <p className="text-xs text-muted-foreground">Gerencie e priorize suas ideias de produto</p>
                 </div>
               </div>
-              <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={() => handleCreate()}>
-                <Plus className="w-4 h-4" />
-                Nova Ideia
-              </Button>
+              {isCreating ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={createInputRef}
+                    placeholder="Nome da ideia..."
+                    value={newIdeaTitle}
+                    onChange={(e) => setNewIdeaTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleCreate();
+                      if (e.key === 'Escape') handleCancelCreate();
+                    }}
+                    className="h-9 w-48 text-sm"
+                  />
+                  <Button size="sm" className="gap-1.5 h-9" onClick={() => handleCreate()} disabled={!newIdeaTitle.trim() || createIdea.isPending}>
+                    {createIdea.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                    Criar
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-9" onClick={handleCancelCreate}>
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={handleOpenCreate}>
+                  <Plus className="w-4 h-4" />
+                  Nova Ideia
+                </Button>
+              )}
             </div>
 
             {/* Stats cards */}

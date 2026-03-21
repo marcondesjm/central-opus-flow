@@ -1205,6 +1205,10 @@ export default function Admin() {
                                       Enviar Mensagem
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => { setAssignKeyUser(user); setAssignKeyDialogOpen(true); }}>
+                                      <Key className="w-4 h-4 mr-2" />
+                                      Inserir Chave
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleChangePlan(user, 'free')}>
                                       <CreditCard className="w-4 h-4 mr-2" />
                                       Plano Free

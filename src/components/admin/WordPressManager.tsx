@@ -193,7 +193,28 @@ export function WordPressManager() {
 
     setImportingBackup(true);
     try {
-      const text = await file.text();
+      let text: string;
+      const ext = file.name.toLowerCase().split('.').pop();
+
+      if (ext === 'zip' || ext === 'wpress') {
+        // Try to extract a .json file from the archive
+        const zip = await JSZip.loadAsync(file);
+        let jsonContent: string | null = null;
+        for (const [name, entry] of Object.entries(zip.files)) {
+          if (!entry.dir && name.toLowerCase().endsWith('.json')) {
+            jsonContent = await entry.async('text');
+            break;
+          }
+        }
+        if (!jsonContent) {
+          toast.error(`Nenhum arquivo JSON de backup encontrado dentro do .${ext}.`);
+          return;
+        }
+        text = jsonContent;
+      } else {
+        text = await file.text();
+      }
+
       const backup = JSON.parse(text);
 
       if (!backup.data || !Array.isArray(backup.data)) {

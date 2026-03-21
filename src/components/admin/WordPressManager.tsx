@@ -102,18 +102,18 @@ export function WordPressManager() {
     if (ext === 'zip' || ext === 'wpress') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        toast.error(`Nenhum arquivo XML encontrado dentro do .${ext}.`);
+        toast.error(`Nenhum arquivo XML válido foi encontrado dentro de "${file.name}".`);
         return null;
       }
       return xml;
     }
 
     if (ext === 'rar') {
-      toast.error('Arquivos .rar não podem ser processados diretamente no navegador. Por favor, extraia o XML e faça upload do .xml ou use .zip.');
+      toast.error('Arquivo .rar não é suportado aqui. Use .zip, .xml ou .wpress.');
       return null;
     }
 
-    toast.error('Formato não suportado. Use .xml, .zip, .rar ou .wpress.');
+    toast.error('Formato não suportado. Use .xml, .zip ou .wpress.');
     return null;
   };
 
@@ -127,15 +127,13 @@ export function WordPressManager() {
     try {
       const xmlText = await extractXmlFromFile(file);
       if (!xmlText) {
-        setImporting(false);
         return;
       }
 
       const posts = parseWordPressXML(xmlText);
 
       if (posts.length === 0) {
-        toast.error('Nenhum post encontrado no arquivo XML.');
-        setImporting(false);
+        toast.error('Nenhum post encontrado no arquivo selecionado.');
         return;
       }
 
@@ -214,8 +212,12 @@ export function WordPressManager() {
       let text: string;
       const ext = file.name.toLowerCase().split('.').pop();
 
+      if (ext === 'rar') {
+        toast.error('Arquivo .rar não é suportado para importar conexões. Use .json, .zip ou .wpress.');
+        return;
+      }
+
       if (ext === 'zip' || ext === 'wpress') {
-        // Try to extract a .json file from the archive
         const zip = await JSZip.loadAsync(file);
         let jsonContent: string | null = null;
         for (const [name, entry] of Object.entries(zip.files)) {
@@ -225,7 +227,7 @@ export function WordPressManager() {
           }
         }
         if (!jsonContent) {
-          toast.error(`Nenhum arquivo JSON de backup encontrado dentro do .${ext}.`);
+          toast.error(`Nenhum arquivo JSON de backup encontrado dentro de "${file.name}".`);
           return;
         }
         text = jsonContent;
@@ -300,7 +302,7 @@ export function WordPressManager() {
           <input
             ref={backupFileInputRef}
             type="file"
-            accept=".json,.zip,.rar,.wpress"
+            accept=".json,.zip,.wpress"
             onChange={handleImportWPBackup}
             className="hidden"
           />
@@ -333,14 +335,14 @@ export function WordPressManager() {
             Importar Backup WordPress
           </CardTitle>
           <CardDescription>
-            Faça upload do arquivo de exportação do WordPress (.xml, .zip, .rar ou .wpress) para importar os posts automaticamente.
+            Faça upload do arquivo de exportação do WordPress (.xml, .zip ou .wpress) para importar os posts automaticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml,.zip,.rar,.wpress"
+            accept=".xml,.zip,.wpress"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -367,7 +369,7 @@ export function WordPressManager() {
                 <div>
                   <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span>, <span className="font-medium">.rar</span> ou <span className="font-medium">.wpress</span>
+                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.wpress</span>
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Arquivo de exportação do WordPress (Ferramentas → Exportar)

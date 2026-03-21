@@ -94,7 +94,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       isOverdue ? "border-destructive/50 ring-1 ring-destructive/20" : "border-border"
     )}>
       {/* Screenshot */}
-      <div className="relative aspect-video bg-muted overflow-hidden">
+      <div className="relative aspect-[16/10] bg-muted overflow-hidden">
         {project.screenshot && !imgError ? (
           <img
             src={project.screenshot}

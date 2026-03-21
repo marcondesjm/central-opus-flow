@@ -1157,15 +1157,6 @@ export default function KanbanPage() {
   );
 
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
-  const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
-    dealId: string;
-    clientName: string;
-    clientEmail: string | null;
-    clientWhatsapp: string | null;
-    companyName: string;
-    oldPhaseName: string;
-    newPhaseName: string;
-  } | null>(null);
 
   const getScheduledTimestamp = (scheduledDate: string, scheduledTime?: string) => new Date(`${scheduledDate}T${scheduledTime || '09:00:00'}`).getTime();
 

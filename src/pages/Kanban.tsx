@@ -2245,6 +2245,7 @@ export default function KanbanPage() {
           open={!!editingColumn}
           onOpenChange={v => { if (!v) setEditingColumn(null); }}
           column={editingColumn}
+          existingNames={visibleColumns.map(c => c.name)}
         />
       )}
 

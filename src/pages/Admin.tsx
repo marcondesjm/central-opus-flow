@@ -481,9 +481,9 @@ export default function Admin() {
     const endDate = user.trial_ends_at || user.subscription_expires_at;
     if (!endDate) return null;
     
-    const daysRemaining = Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+    const daysRemaining = Math.max(0, differenceInCalendarDays(new Date(endDate), new Date()));
     const isExpiringSoon = daysRemaining <= 3;
-    const isExpired = daysRemaining === 0;
+    const isExpired = daysRemaining <= 0;
     
     return (
       <TooltipProvider>

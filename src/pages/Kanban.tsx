@@ -44,7 +44,7 @@ import { format, isAfter, isBefore, addDays, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
-import PhaseChangeNotificationModal from '@/components/kanban/PhaseChangeNotificationModal';
+
 import { CalendarView } from '@/components/kanban/CalendarView';
 import { TimelineView } from '@/components/kanban/TimelineView';
 import TaskDetailFullModal from '@/components/kanban/TaskDetailFullModal';
@@ -1157,15 +1157,6 @@ export default function KanbanPage() {
   );
 
   const [sortMode, setSortMode] = useState<'default' | 'priority' | 'deadline' | 'name'>('default');
-  const [phaseChangeNotification, setPhaseChangeNotification] = useState<{
-    dealId: string;
-    clientName: string;
-    clientEmail: string | null;
-    clientWhatsapp: string | null;
-    companyName: string;
-    oldPhaseName: string;
-    newPhaseName: string;
-  } | null>(null);
 
   const getScheduledTimestamp = (scheduledDate: string, scheduledTime?: string) => new Date(`${scheduledDate}T${scheduledTime || '09:00:00'}`).getTime();
 
@@ -1470,20 +1461,6 @@ export default function KanbanPage() {
           ),
         ]);
 
-        const oldColumn = visibleColumns.find(c => c.id === movedDeal.phase) || columns?.find(c => c.id === movedDeal.phase);
-        const newColumn = visibleColumns.find(c => c.id === destinationPhase) || columns?.find(c => c.id === destinationPhase);
-
-        if (movedDeal.client_email || movedDeal.client_whatsapp) {
-          setPhaseChangeNotification({
-            dealId: movedDeal.id,
-            clientName: movedDeal.client_name,
-            clientEmail: movedDeal.client_email,
-            clientWhatsapp: movedDeal.client_whatsapp,
-            companyName: movedDeal.company_name,
-            oldPhaseName: oldColumn?.name || 'Anterior',
-            newPhaseName: newColumn?.name || 'Nova',
-          });
-        }
       }
     };
 
@@ -2392,19 +2369,6 @@ export default function KanbanPage() {
         />
       )}
 
-      {phaseChangeNotification && (
-        <PhaseChangeNotificationModal
-          open={!!phaseChangeNotification}
-          onOpenChange={v => { if (!v) setPhaseChangeNotification(null); }}
-          dealId={phaseChangeNotification.dealId}
-          clientName={phaseChangeNotification.clientName}
-          clientEmail={phaseChangeNotification.clientEmail}
-          clientWhatsapp={phaseChangeNotification.clientWhatsapp}
-          companyName={phaseChangeNotification.companyName}
-          oldPhaseName={phaseChangeNotification.oldPhaseName}
-          newPhaseName={phaseChangeNotification.newPhaseName}
-        />
-      )}
 
       <Dialog open={!!whatsAppCustomDeal} onOpenChange={v => { if (!v) { setWhatsAppCustomDeal(null); setScheduledDate(undefined); setShowScheduleDatePicker(false); } }}>
         <DialogContent className="sm:max-w-md">

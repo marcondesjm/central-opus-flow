@@ -25,12 +25,14 @@ export function AppFooter() {
 
   return (
     <>
-      <footer className="border-t border-border bg-card/50 backdrop-blur-sm px-4 py-3">
-        <div className="container mx-auto flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-3">
-            <span>© {new Date().getFullYear()} Central Opus Flow — <a href="https://www.doorvii.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline-offset-2 hover:underline transition-colors">DoorVII®</a> Todos os direitos reservados</span>
-            <ClearCacheButton />
-            <FeedbackButton />
+      <footer className="border-t border-border bg-card/50 backdrop-blur-sm px-4 py-3 pb-20 lg:pb-3">
+        <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
+            <span>© {new Date().getFullYear()} Central Opus Flow — <a href="https://www.doorvii.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline-offset-2 hover:underline transition-colors">DoorVII®</a></span>
+            <div className="flex items-center gap-2">
+              <ClearCacheButton />
+              <FeedbackButton />
+            </div>
           </div>
           
           {isLoading ? (

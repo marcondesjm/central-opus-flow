@@ -6,8 +6,9 @@ import {
   Calendar, Building2, Loader2, PieChart, Minus,
   BarChart3, ArrowUpRight, ArrowDownRight, Wallet, CreditCard,
   Clock, CheckCircle, XCircle, Trash2, Percent, Pencil,
-  Bot, Coins, Download, Upload,
+  Bot, Coins, Download, Upload, Key,
 } from 'lucide-react';
+import { ActivateLicenseKey } from '@/components/subscription/ActivateLicenseKey';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -662,6 +663,9 @@ export default function BillingPage() {
       </header>
 
       <div className="max-w-[1400px] mx-auto px-4 py-6 space-y-6">
+        {/* License Key Activation */}
+        <ActivateLicenseKey />
+
         {/* Stats Cards - 6 cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <StatCard

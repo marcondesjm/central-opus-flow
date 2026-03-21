@@ -80,6 +80,7 @@ export function useGlobalSync() {
       { table: 'activity_logs', keys: ['activity-logs'] },
       { table: 'system_config', keys: ['system-version', 'system-config'] },
       { table: 'changelog_entries', keys: ['changelog', 'changelog-by-version', 'latest-version'] },
+      { table: 'license_keys', keys: ['license-keys', 'my-license-keys'] },
       { table: 'assistant_faqs', keys: ['assistant-faqs'] },
       { table: 'project_files', keys: ['project-files'] },
       { table: 'project_history', keys: ['project-history'] },

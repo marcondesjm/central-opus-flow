@@ -1144,6 +1144,66 @@ export type Database = {
           },
         ]
       }
+      license_keys: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          activated_email: string | null
+          batch_id: string | null
+          created_at: string
+          created_by: string
+          duration_days: number
+          duration_type: string
+          expires_at: string | null
+          id: string
+          key_code: string
+          notes: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          revoked_at: string | null
+          revoked_reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          activated_email?: string | null
+          batch_id?: string | null
+          created_at?: string
+          created_by: string
+          duration_days?: number
+          duration_type?: string
+          expires_at?: string | null
+          id?: string
+          key_code: string
+          notes?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          activated_email?: string | null
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string
+          duration_days?: number
+          duration_type?: string
+          expires_at?: string | null
+          id?: string
+          key_code?: string
+          notes?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lovable_accounts: {
         Row: {
           admin_email: string | null
@@ -2266,6 +2326,8 @@ export type Database = {
       }
     }
     Functions: {
+      activate_license_key: { Args: { _key_code: string }; Returns: Json }
+      generate_license_key_code: { Args: never; Returns: string }
       get_auth_email: { Args: never; Returns: string }
       get_user_project_count: { Args: never; Returns: number }
       get_user_role: {

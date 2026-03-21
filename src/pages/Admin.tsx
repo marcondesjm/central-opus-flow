@@ -90,7 +90,8 @@ import { CouponManager } from '@/components/admin/CouponManager';
 import { SendMessageModal } from '@/components/admin/SendMessageModal';
 import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
 import { RssFeedManager } from '@/components/admin/RssFeedManager';
-import { Rss } from 'lucide-react';
+import { Rss, Key } from 'lucide-react';
+import { LicenseKeyManager } from '@/components/admin/LicenseKeyManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -847,6 +848,10 @@ export default function Admin() {
                 <Rss className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Feeds RSS
               </TabsTrigger>
+              <TabsTrigger value="license-keys" className="gap-1.5 text-xs sm:text-sm">
+                <Key className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Chaves
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -1349,6 +1354,23 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <RssFeedManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="license-keys">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Key className="w-5 h-5" />
+                  Chaves de Licença
+                </CardTitle>
+                <CardDescription>
+                  Gere, gerencie e revogue chaves de ativação para planos mensais e anuais.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LicenseKeyManager />
               </CardContent>
             </Card>
           </TabsContent>

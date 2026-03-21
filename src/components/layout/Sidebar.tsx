@@ -248,6 +248,14 @@ export function Sidebar({
             onClick={() => { onViewChange('all'); onAccountChange(null); }}
             active={isViewActive('all')}
           />
+          <Button
+            size="sm"
+            className="w-full justify-start gap-2 rounded-xl text-sm font-medium"
+            onClick={() => navigate('/dashboard?newProject=true')}
+          >
+            <Plus className="w-4 h-4" />
+            Novo Projeto
+          </Button>
           <NavItem icon={Kanban} label="Kanban" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
           {sidebarVisibility.proposals && (
             <NavItem icon={FileText} label={t('sidebar.proposals')} onClick={() => navigate('/proposals')} active={isRouteActive('/proposals')} />

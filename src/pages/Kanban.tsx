@@ -2065,22 +2065,30 @@ export default function KanbanPage() {
             <div className="top-scroll-spacer" style={{ height: '1px' }} />
           </div>
           <div ref={kanbanRef} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto scrollbar-visible">
-            <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
-              {(colProvided) => (
-                <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4" style={{ zoom: zoomLevel }}>
-                  {visibleColumns.map((column, colIndex) => {
-                    const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
-                    return (
-                    <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex} isDragDisabled={isFinalizadoColumn}>
-                      {(colDragProvided, colDragSnapshot) => (
-                        <div
-                          ref={colDragProvided.innerRef}
-                          {...colDragProvided.draggableProps}
-                          className={cn('flex-shrink-0 transition-all duration-200', colDragSnapshot.isDragging && 'opacity-90 scale-[1.02] rotate-1 z-50')}
-                          style={{ 
-                            width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px',
-                            ...colDragProvided.draggableProps.style,
-                          }}
+            <div
+              className="min-w-max pb-4"
+              style={{
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: 'top left',
+                width: `${100 / zoomLevel}%`,
+              }}
+            >
+              <Droppable droppableId="columns-droppable" direction="horizontal" type="COLUMN">
+                {(colProvided) => (
+                  <div ref={colProvided.innerRef} {...colProvided.droppableProps} className="flex gap-4 min-w-max pb-4">
+                    {visibleColumns.map((column, colIndex) => {
+                      const isFinalizadoColumn = column.name?.toLowerCase().includes('finalizado') || column.name?.toLowerCase().includes('conclu');
+                      return (
+                      <Draggable key={column.id} draggableId={`col-${column.id}`} index={colIndex} isDragDisabled={isFinalizadoColumn}>
+                        {(colDragProvided, colDragSnapshot) => (
+                          <div
+                            ref={colDragProvided.innerRef}
+                            {...colDragProvided.draggableProps}
+                            className={cn('flex-shrink-0 transition-all duration-200', colDragSnapshot.isDragging && 'opacity-90 scale-[1.02] rotate-1 z-50')}
+                            style={{ 
+                              width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px',
+                              ...colDragProvided.draggableProps.style,
+                            }}
                         >
                           <div
                             {...colDragProvided.dragHandleProps}

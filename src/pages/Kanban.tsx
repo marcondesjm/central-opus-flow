@@ -2198,6 +2198,7 @@ export default function KanbanPage() {
                 </div>
               )}
             </Droppable>
+            </div>
           </div>
         </DragDropContext>
       ) : viewMode === 'calendar' ? (

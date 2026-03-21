@@ -315,7 +315,7 @@ export function WordPressManager() {
             Importar Backup WordPress
           </CardTitle>
           <CardDescription>
-            Faça upload do arquivo XML de exportação do WordPress para importar os posts automaticamente.
+            Faça upload do arquivo de exportação do WordPress (.xml, .zip, .rar ou .wpress) para importar os posts automaticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

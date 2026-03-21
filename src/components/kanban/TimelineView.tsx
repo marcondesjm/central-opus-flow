@@ -360,7 +360,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
             ref={ticketScrollRef}
             onScroll={handleTicketScroll}
             className="overflow-y-auto"
-            style={{ maxHeight: 'calc(100vh - 280px)' }}
+            style={{ maxHeight: paginatedDeals.length * 40 + 20 }}
           >
             {paginatedDeals.map(deal => {
               const col = getColumnForDeal(deal);

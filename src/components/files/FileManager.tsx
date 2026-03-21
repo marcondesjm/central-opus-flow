@@ -81,6 +81,8 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   const handleUpload = useCallback(async (fileList: FileList | null) => {
     if (!fileList) return;

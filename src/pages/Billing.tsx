@@ -6,8 +6,9 @@ import {
   Calendar, Building2, Loader2, PieChart, Minus,
   BarChart3, ArrowUpRight, ArrowDownRight, Wallet, CreditCard,
   Clock, CheckCircle, XCircle, Trash2, Percent, Pencil,
-  Bot, Coins, Download, Upload,
+  Bot, Coins, Download, Upload, Key,
 } from 'lucide-react';
+import { ActivateLicenseKey } from '@/components/subscription/ActivateLicenseKey';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

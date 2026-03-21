@@ -186,6 +186,10 @@ export default function Admin() {
   const [assignKeyPlan, setAssignKeyPlan] = useState<'pro' | 'business'>('pro');
   const [assignKeyDuration, setAssignKeyDuration] = useState<'monthly' | 'annual'>('monthly');
   const [assigningKey, setAssigningKey] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState<AdminUser | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   const handleAssignKey = async () => {
     if (!assignKeyUser) return;

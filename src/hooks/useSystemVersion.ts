@@ -56,7 +56,11 @@ export function useSystemVersion() {
         .in('key', ['app_version', 'release_name', 'changelog']);
 
       if (error) {
-        console.error('Error fetching system version:', error);
+        if (error.message?.includes('AbortError') || error.code === '20') {
+          // Silently ignore abort errors from rapid navigation/refetch
+        } else {
+          console.error('Error fetching system version:', error);
+        }
         return {
           version: '1.0.0',
           releaseName: 'Initial Release',

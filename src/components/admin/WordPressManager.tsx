@@ -81,10 +81,10 @@ export function WordPressManager() {
       return await file.text();
     }
 
-    if (ext === 'zip') {
+    if (ext === 'zip' || ext === 'wpress') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        toast.error('Nenhum arquivo XML encontrado dentro do ZIP.');
+        toast.error(`Nenhum arquivo XML encontrado dentro do .${ext}.`);
         return null;
       }
       return xml;
@@ -95,7 +95,7 @@ export function WordPressManager() {
       return null;
     }
 
-    toast.error('Formato não suportado. Use .xml, .zip ou .rar.');
+    toast.error('Formato não suportado. Use .xml, .zip, .rar ou .wpress.');
     return null;
   };
 

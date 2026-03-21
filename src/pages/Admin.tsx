@@ -1847,6 +1847,47 @@ export default function Admin() {
         targetUser={messageTargetUser}
         allUsers={users.map(u => ({ user_id: u.user_id, email: u.email, full_name: u.full_name }))}
       />
+
+      {/* Assign License Key Dialog */}
+      <AlertDialog open={assignKeyDialogOpen} onOpenChange={setAssignKeyDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>🔑 Inserir Chave de Licença</AlertDialogTitle>
+            <AlertDialogDescription>
+              Gerar e ativar uma chave automaticamente para <strong>{assignKeyUser?.email}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Plano</label>
+              <Select value={assignKeyPlan} onValueChange={(v) => setAssignKeyPlan(v as 'pro' | 'business')}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Duração</label>
+              <Select value={assignKeyDuration} onValueChange={(v) => setAssignKeyDuration(v as 'monthly' | 'annual')}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Mensal (30 dias)</SelectItem>
+                  <SelectItem value="annual">Anual (365 dias)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAssignKey} disabled={assigningKey}>
+              {assigningKey ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Key className="w-4 h-4 mr-2" />}
+              Gerar e Ativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

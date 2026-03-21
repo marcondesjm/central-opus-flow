@@ -8,7 +8,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, GripHorizontal, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  Users, X, AlertTriangle,
+  Users, X, AlertTriangle, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Tooltip as ShadTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';

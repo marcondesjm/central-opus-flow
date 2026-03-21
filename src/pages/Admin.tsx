@@ -398,23 +398,34 @@ export default function Admin() {
     setChangePlanDialogOpen(true);
   };
 
-  const handleResetPassword = async (user: AdminUser) => {
-    if (!user.email) return;
+  const handleResetPassword = (user: AdminUser) => {
+    setResetPasswordUser(user);
+    setNewPassword('');
+    setResetPasswordDialogOpen(true);
+  };
+
+  const confirmResetPassword = async () => {
+    if (!resetPasswordUser || !newPassword || newPassword.length < 6) return;
+    setResettingPassword(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth?tab=reset`,
+      const { data, error } = await supabase.functions.invoke('admin-reset-password', {
+        body: { userId: resetPasswordUser.user_id, newPassword },
       });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       toast({
-        title: 'E-mail enviado',
-        description: `Link de redefinição de senha enviado para ${user.email}`,
+        title: 'Senha redefinida',
+        description: `A senha de ${resetPasswordUser.email} foi atualizada com sucesso.`,
       });
+      setResetPasswordDialogOpen(false);
     } catch (err: any) {
       toast({
-        title: 'Erro ao enviar e-mail',
+        title: 'Erro ao redefinir senha',
         description: err.message || 'Tente novamente mais tarde.',
         variant: 'destructive',
       });
+    } finally {
+      setResettingPassword(false);
     }
   };
 

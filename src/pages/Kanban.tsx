@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, type CSSProperties } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -1497,6 +1497,23 @@ export default function KanbanPage() {
       });
   };
 
+  const getImmediateDragStyle = (
+    style: CSSProperties | undefined,
+    isDragging: boolean,
+    isDropAnimating?: boolean
+  ): CSSProperties | undefined => {
+    if (!style) return style;
+
+    if (isDragging || isDropAnimating) {
+      return {
+        ...style,
+        transition: 'none',
+      };
+    }
+
+    return style;
+  };
+
   const kanbanRef = useRef<HTMLDivElement>(null);
   const topScrollRef = useRef<HTMLDivElement>(null);
   const isSyncing = useRef(false);
@@ -2144,7 +2161,7 @@ export default function KanbanPage() {
                             className={cn('flex-shrink-0', colDragSnapshot.isDragging && 'opacity-90 z-50')}
                             style={{ 
                               width: zoomLevel < 0.8 ? `${Math.max(220, 288 * (1 + (1 - zoomLevel) * 0.5))}px` : '288px',
-                              ...colDragProvided.draggableProps.style,
+                              ...getImmediateDragStyle(colDragProvided.draggableProps.style, colDragSnapshot.isDragging, colDragSnapshot.isDropAnimating),
                             }}
                         >
                           <div
@@ -2202,7 +2219,7 @@ export default function KanbanPage() {
                                         className={cn(
                                           snapshot.isDragging && 'shadow-lg z-50'
                                         )}
-                                        style={provided.draggableProps.style}
+                                        style={getImmediateDragStyle(provided.draggableProps.style, snapshot.isDragging, snapshot.isDropAnimating)}
                                       >
                                         <TaskCard
                                           deal={deal}

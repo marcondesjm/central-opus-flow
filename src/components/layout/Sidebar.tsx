@@ -224,15 +224,18 @@ export function Sidebar({
             <h1 className="font-semibold text-sidebar-foreground text-sm">Central Opus Flow</h1>
             {(() => {
               const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
+              const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
               const storedVersion = localStorage.getItem(LOCAL_VERSION_KEY);
-              const serverVersion = systemVersion?.version || '1.3.1';
-              const isOutdated = storedVersion && storedVersion !== serverVersion;
+              const lastSeenVersion = localStorage.getItem(LAST_SEEN_KEY);
+              const serverVersion = systemVersion?.version || '1.0.0';
+              const isOutdated = storedVersion !== serverVersion || lastSeenVersion !== serverVersion;
               
               if (isOutdated) {
                 return (
                   <button
                     onClick={() => {
                       localStorage.setItem(LOCAL_VERSION_KEY, serverVersion);
+                      localStorage.setItem(LAST_SEEN_KEY, serverVersion);
                       window.location.reload();
                     }}
                     className="flex items-center gap-1 text-[10px] text-amber-600 hover:text-amber-500 transition-colors"

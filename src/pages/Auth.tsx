@@ -887,28 +887,16 @@ export default function Auth() {
                     </div>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowChangePassword(true);
-                        setChangeEmail(loginEmail);
-                      }}
-                      className="text-sm text-orange-500 hover:underline"
-                    >
-                      Alterar senha temporária
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowForgotPassword(true);
-                        setResetEmail(loginEmail);
-                      }}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      Esqueci minha senha
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowChangePassword(true);
+                      setChangeEmail(loginEmail);
+                    }}
+                    className="text-sm text-primary hover:underline w-full text-right"
+                  >
+                    Esqueci minha senha
+                  </button>
 
                   <Button 
                     type="submit" 
@@ -1313,6 +1301,22 @@ export default function Auth() {
                     ) : (
                       'Alterar Senha'
                     )}
+                  </Button>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Não tem a senha temporária? Solicite ao administrador ou entre em contato com o suporte:
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-green-600 border-green-600/30 hover:bg-green-600/10"
+                    onClick={() => window.open('https://wa.me/5548996029392?text=Olá! Preciso de ajuda para redefinir minha senha na Central Opus Flow.', '_blank')}
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    Falar com Suporte via WhatsApp
                   </Button>
                 </div>
               </form>

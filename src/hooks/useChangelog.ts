@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
+import { codeChangelogEntries } from '@/data/codeChangelog';
 
 export interface ChangelogEntry {
   id: string;
@@ -16,18 +17,38 @@ export interface ChangelogEntry {
   contributor_email: string | null;
 }
 
+function mergeChangelogEntries(dbEntries: ChangelogEntry[] = []) {
+  const merged = [...dbEntries, ...codeChangelogEntries];
+  const deduped = new Map<string, ChangelogEntry>();
+
+  merged.forEach((entry) => {
+    const key = `${entry.version}:${entry.title}`;
+    const existing = deduped.get(key);
+
+    if (!existing || new Date(entry.created_at).getTime() > new Date(existing.created_at).getTime()) {
+      deduped.set(key, entry);
+    }
+  });
+
+  return Array.from(deduped.values()).sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+}
+
+async function fetchChangelogEntries() {
+  const { data, error } = await supabase
+    .from('changelog_entries')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return mergeChangelogEntries((data as ChangelogEntry[]) || []);
+}
+
 export function useChangelog() {
   return useQuery({
     queryKey: ['changelog'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('changelog_entries')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as ChangelogEntry[];
-    },
+    queryFn: fetchChangelogEntries,
     staleTime: 0,
     gcTime: 30 * 1000,
     refetchInterval: 15000,
@@ -71,14 +92,9 @@ export function useChangelogByVersion() {
   return useQuery({
     queryKey: ['changelog-by-version'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('changelog_entries')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const entries = await fetchChangelogEntries();
 
-      if (error) throw error;
-
-      const grouped = (data as ChangelogEntry[]).reduce((acc, entry) => {
+      const grouped = entries.reduce((acc, entry) => {
         if (!acc[entry.version]) {
           acc[entry.version] = [];
         }
@@ -97,11 +113,17 @@ export function useChangelogByVersion() {
           }
           return 0;
         })
-        .map(([version, entries]) => ({
-          version,
-          entries: entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
-          date: entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.created_at,
-        }));
+        .map(([version, versionEntries]) => {
+          const sortedEntries = versionEntries.sort(
+            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+
+          return {
+            version,
+            entries: sortedEntries,
+            date: sortedEntries[0]?.created_at,
+          };
+        });
     },
     staleTime: 0,
     gcTime: 30 * 1000,
@@ -177,15 +199,10 @@ export function useLatestVersion() {
   return useQuery({
     queryKey: ['latest-version'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('changelog_entries')
-        .select('version, created_at')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
+      const entries = await fetchChangelogEntries();
+      return entries[0]
+        ? { version: entries[0].version, created_at: entries[0].created_at }
+        : null;
     },
     staleTime: 0,
     gcTime: 30 * 1000,

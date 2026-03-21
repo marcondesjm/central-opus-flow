@@ -614,6 +614,9 @@ export default function Dashboard() {
     return filtered;
   }, [projects, activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery]);
 
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery]);
+
   const handleToggleFavorite = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
     if (project) {

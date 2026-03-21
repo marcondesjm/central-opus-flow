@@ -2264,6 +2264,7 @@ export default function KanbanPage() {
           onOpenChange={setShowAddColumn}
           existingCount={visibleColumns.length}
           spaceId={activeSpaceId}
+          existingNames={visibleColumns.map(c => c.name)}
         />
       )}
 

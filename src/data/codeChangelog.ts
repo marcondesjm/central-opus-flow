@@ -1,0 +1,40 @@
+import type { ChangelogEntry } from '@/hooks/useChangelog';
+
+export const codeChangelogEntries: ChangelogEntry[] = [
+  {
+    id: 'code-refresh-force-001',
+    version: '1.12.0',
+    title: 'Atualização forçada do histórico e versão',
+    description: 'O botão de atualizar agora força nova leitura das alterações para evitar dados presos em cache.',
+    type: 'improvement',
+    created_at: '2026-03-21T12:00:00.000Z',
+    created_by: null,
+    is_public: true,
+    contributor_name: null,
+    contributor_email: null,
+  },
+  {
+    id: 'code-ideas-panel-001',
+    version: '1.12.0',
+    title: 'Nova ideia abre direto no painel de edição',
+    description: 'Ao clicar em Nova Ideia, a ideia é criada e o painel lateral já abre para edição imediata.',
+    type: 'feature',
+    created_at: '2026-03-21T12:05:00.000Z',
+    created_by: null,
+    is_public: true,
+    contributor_name: null,
+    contributor_email: null,
+  },
+  {
+    id: 'code-ideas-pagination-001',
+    version: '1.12.0',
+    title: 'Resumo de ideias com itens mais recentes no topo',
+    description: 'A listagem passou a priorizar novas ideias e mostrar paginação de 10 itens por página.',
+    type: 'improvement',
+    created_at: '2026-03-21T12:10:00.000Z',
+    created_by: null,
+    is_public: true,
+    contributor_name: null,
+    contributor_email: null,
+  },
+];

@@ -5,13 +5,13 @@ import { useAuth } from '@/hooks/useAuth';
 declare const __BUILD_TIMESTAMP__: string;
 
 /**
- * Detecta novos builds e incrementa automaticamente a versão patch.
- * Compara o timestamp do build atual com o último registrado no banco.
- * Só incrementa uma vez por build (compartilhado entre todos os usuários).
+ * Detecta novos builds e incrementa a versão patch no máximo uma vez a cada 30 minutos.
+ * Agrupa múltiplos builds consecutivos em um único bump de versão.
  */
 export function AutoVersionBump() {
   const { user } = useAuth();
   const hasRun = useRef(false);
+  const MIN_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
   useEffect(() => {
     if (!user || hasRun.current) return;
@@ -21,24 +21,46 @@ export function AutoVersionBump() {
 
     (async () => {
       try {
-        // Check the last registered build timestamp in the DB
-        const { data: configRow } = await supabase
+        // Check last build timestamp AND last bump time
+        const { data: configRows } = await supabase
           .from('system_config')
-          .select('value')
-          .eq('key', 'last_build_timestamp')
-          .maybeSingle();
+          .select('key, value')
+          .in('key', ['last_build_timestamp', 'last_bump_at']);
 
-        const lastBuild = configRow?.value;
+        const configMap = (configRows || []).reduce((acc, row) => {
+          acc[row.key] = row.value;
+          return acc;
+        }, {} as Record<string, string>);
+
+        const lastBuild = configMap['last_build_timestamp'];
+        const lastBumpAt = configMap['last_bump_at'];
 
         if (lastBuild === currentBuild) {
           console.log('[AutoVersionBump] Build já registrado, ignorando.');
           return;
         }
 
-        // New build detected — bump version
+        // Save build timestamp immediately (dedup across users)
+        await supabase
+          .from('system_config')
+          .upsert(
+            { key: 'last_build_timestamp', value: currentBuild, updated_at: new Date().toISOString() },
+            { onConflict: 'key' }
+          );
+
+        // Check if enough time passed since last bump
+        if (lastBumpAt) {
+          const elapsed = Date.now() - new Date(lastBumpAt).getTime();
+          if (elapsed < MIN_INTERVAL_MS) {
+            console.log(`[AutoVersionBump] Último bump há ${Math.round(elapsed / 60000)}min, aguardando intervalo de 30min.`);
+            return;
+          }
+        }
+
+        // Bump version
         const { data, error } = await supabase.rpc('register_changelog', {
-          _title: 'Build atualizado',
-          _description: `Deploy automático em ${new Date(currentBuild).toLocaleString('pt-BR')}`,
+          _title: 'Sistema atualizado',
+          _description: `Pacote de melhorias aplicado em ${new Date().toLocaleString('pt-BR')}`,
           _type: 'improvement',
           _bump: 'patch',
         });
@@ -48,15 +70,15 @@ export function AutoVersionBump() {
           return;
         }
 
-        // Save the build timestamp to prevent duplicate bumps
+        // Save bump timestamp
         await supabase
           .from('system_config')
           .upsert(
-            { key: 'last_build_timestamp', value: currentBuild, updated_at: new Date().toISOString() },
+            { key: 'last_bump_at', value: new Date().toISOString(), updated_at: new Date().toISOString() },
             { onConflict: 'key' }
           );
 
-        console.log('[AutoVersionBump] Versão incrementada:', data);
+        console.log('[AutoVersionBump] Versão incrementada (pacote):', data);
       } catch (err) {
         console.error('[AutoVersionBump] Erro:', err);
       }

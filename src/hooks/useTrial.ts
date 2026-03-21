@@ -21,12 +21,11 @@ export function useTrial() {
     queryFn: async (): Promise<TrialInfo> => {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('is_trial, trial_ends_at, payment_status, expires_at, plan')
+        .select('is_trial, trial_ends_at, payment_status, expires_at, plan, user_status')
         .eq('user_id', user!.id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        // Default trial info if no subscription exists
+      if (error || !data) {
         return {
           isOnTrial: true,
           daysRemaining: 7,
@@ -38,28 +37,43 @@ export function useTrial() {
         };
       }
 
-      // For free plan: use expires_at if admin set it, otherwise 15 days from account creation
-      const freeEndDate = data.plan === 'free'
-        ? (data.expires_at 
-            ? new Date(data.expires_at)
-            : user?.created_at 
-              ? addDays(new Date(user.created_at), 15) 
-              : null)
-        : null;
-      const paidEndDate = data.trial_ends_at
+      // Check if user is admin - admins are always considered paid
+      const { data: roleData } = await supabase
+        .rpc('is_admin');
+      if (roleData === true) {
+        return {
+          isOnTrial: false,
+          daysRemaining: 999,
+          hoursRemaining: 999 * 24,
+          trialEndsAt: null,
+          isExpired: false,
+          paymentStatus: 'confirmed',
+          isPaid: true,
+        };
+      }
+
+      // Consider paid if payment_status is confirmed/paid/verified OR user_status is active with non-free plan
+      const paidStatuses = ['paid', 'verified', 'confirmed'];
+      const isPaid = (data.plan !== 'free') && (
+        paidStatuses.includes(data.payment_status ?? '') ||
+        (data.user_status === 'active' && !data.is_trial)
+      );
+
+      // Calculate end date
+      const endDate = data.trial_ends_at
         ? new Date(data.trial_ends_at)
         : data.expires_at
           ? new Date(data.expires_at)
-          : null;
-      const endDate = data.plan === 'free' ? freeEndDate : paidEndDate;
+          : user?.created_at
+            ? addDays(new Date(user.created_at), 15)
+            : null;
+
       const now = new Date();
       const isExpiredDate = endDate ? isPast(endDate) : false;
       const daysRemaining = endDate ? Math.max(0, differenceInDays(endDate, now)) : 0;
       const hoursRemaining = endDate ? Math.max(0, differenceInHours(endDate, now)) : 0;
-      const isPaid = (data.plan !== 'free') && (data.payment_status === 'paid' || data.payment_status === 'verified');
 
-      // Free plan follows strict 15-day window from account creation
-      const isOnTrial = !!endDate && !isPaid;
+      const isOnTrial = !!endDate && !isPaid && (data.is_trial === true || data.payment_status === 'pending');
 
       return {
         isOnTrial,
@@ -72,7 +86,7 @@ export function useTrial() {
       };
     },
     enabled: !!user,
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 60000,
   });
 }
 

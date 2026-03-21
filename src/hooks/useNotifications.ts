@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Notification } from '@/components/notifications/NotificationCenter';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useSystemVersion } from './useSystemVersion';
 
 const STORAGE_KEY = 'centralopusflow-notifications';
 
@@ -9,9 +10,11 @@ const STORAGE_KEY = 'centralopusflow-notifications';
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const WELCOME_SHOWN_KEY = 'centralopusflow-welcome-shown';
+const LAST_NOTIFIED_VERSION_KEY = 'centralopusflow-last-notified-version';
 
 export function useNotifications() {
   const { user } = useAuth();
+  const { data: systemVersion } = useSystemVersion();
   const [localNotifications, setLocalNotifications] = useState<Notification[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -135,6 +138,30 @@ export function useNotifications() {
       localStorage.setItem(WELCOME_SHOWN_KEY, 'true');
     }
   }, []);
+
+  // Add notification when a new system version is detected
+  useEffect(() => {
+    if (!systemVersion?.version) return;
+    const lastNotified = localStorage.getItem(LAST_NOTIFIED_VERSION_KEY);
+    if (!lastNotified) {
+      localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, systemVersion.version);
+      return;
+    }
+    if (lastNotified !== systemVersion.version) {
+      localStorage.setItem(LAST_NOTIFIED_VERSION_KEY, systemVersion.version);
+      const updateNotification: Notification = {
+        id: generateId(),
+        title: `Atualização v${systemVersion.version} disponível 🚀`,
+        message: systemVersion.releaseName
+          ? `${systemVersion.releaseName} — Atualize para ter acesso às últimas melhorias.`
+          : 'Uma nova versão do sistema está disponível. Atualize para ter acesso às últimas melhorias.',
+        type: 'info',
+        read: false,
+        createdAt: new Date(),
+      };
+      setLocalNotifications(prev => [updateNotification, ...prev].slice(0, 50));
+    }
+  }, [systemVersion?.version]);
 
   // Persist local notifications to localStorage
   useEffect(() => {

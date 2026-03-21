@@ -8,7 +8,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, GripHorizontal, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  Users, X, AlertTriangle,
+  Users, X, AlertTriangle, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Tooltip as ShadTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useKanbanDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, KanbanDeal, PRIORITY_OPTIONS } from '@/hooks/useKanban';
 import { useKanbanColumns, useCreateColumn, useUpdateColumn, useDeleteColumn, KanbanColumn } from '@/hooks/useKanbanColumns';
@@ -1045,6 +1046,7 @@ export default function KanbanPage() {
   const [showAddSpace, setShowAddSpace] = useState(false);
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);
+  const [spacesCollapsed, setSpacesCollapsed] = useState(false);
 
   // Sync URL when space changes
   const handleSetActiveSpace = (spaceId: string | null) => {
@@ -1472,91 +1474,146 @@ export default function KanbanPage() {
     <AppLayout>
       <div className="flex flex-1">
       {/* Spaces sidebar */}
-      <aside className="hidden lg:flex flex-col w-[200px] flex-shrink-0 border-r bg-card/30 h-screen sticky top-0">
-        <div className="flex items-center justify-between px-3 pt-3 pb-2">
-          <span className="text-[11px] font-semibold text-muted-foreground tracking-wider uppercase">Espaços</span>
+      <aside className={cn(
+        "hidden lg:flex flex-col flex-shrink-0 border-r bg-card/30 h-screen sticky top-0 transition-all duration-300",
+        spacesCollapsed ? "w-[48px]" : "w-[200px]"
+      )}>
+        <div className={cn("flex items-center px-2 pt-3 pb-2", spacesCollapsed ? "justify-center" : "justify-between px-3")}>
+          {!spacesCollapsed && (
+            <span className="text-[11px] font-semibold text-muted-foreground tracking-wider uppercase">Espaços</span>
+          )}
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowAddSpace(true)}>
-              <Plus className="w-3.5 h-3.5" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <MoreHorizontal className="w-3.5 h-3.5" />
+            {!spacesCollapsed && (
+              <>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowAddSpace(true)}>
+                  <Plus className="w-3.5 h-3.5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onSelect={() => setShowAddSpace(true)}>
-                  <Plus className="w-4 h-4 mr-2" /> Novo espaço
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={(e) => {
-                  e.preventDefault();
-                  if (activeSpaceId) {
-                    const space = spaces?.find(s => s.id === activeSpaceId);
-                    if (space) {
-                      setTimeout(() => setEditingSpaceName(space.name), 100);
-                    }
-                  }
-                }} disabled={!activeSpaceId}>
-                  <Pencil className="w-4 h-4 mr-2" /> Editar espaço
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={(e) => {
-                  e.preventDefault();
-                  if (activeSpaceId) setDeletingSpaceId(activeSpaceId);
-                }} disabled={!activeSpaceId} className="text-destructive focus:text-destructive">
-                  <Trash2 className="w-4 h-4 mr-2" /> Excluir espaço
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <MoreHorizontal className="w-3.5 h-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onSelect={() => setShowAddSpace(true)}>
+                      <Plus className="w-4 h-4 mr-2" /> Novo espaço
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      if (activeSpaceId) {
+                        const space = spaces?.find(s => s.id === activeSpaceId);
+                        if (space) {
+                          setTimeout(() => setEditingSpaceName(space.name), 100);
+                        }
+                      }
+                    }} disabled={!activeSpaceId}>
+                      <Pencil className="w-4 h-4 mr-2" /> Editar espaço
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      if (activeSpaceId) setDeletingSpaceId(activeSpaceId);
+                    }} disabled={!activeSpaceId} className="text-destructive focus:text-destructive">
+                      <Trash2 className="w-4 h-4 mr-2" /> Excluir espaço
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setSpacesCollapsed(prev => !prev)}
+              title={spacesCollapsed ? "Expandir espaços" : "Recolher espaços"}
+            >
+              {spacesCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+            </Button>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-1.5 space-y-0.5">
-          <button
-            onClick={() => handleSetActiveSpace(null)}
-            className={cn(
-              'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
-              !activeSpaceId ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-            )}
-          >
-            <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] bg-muted">📋</span>
-            <span className="truncate">Todos</span>
-          </button>
-          {spaces?.map(space => (
-            <div key={space.id} className="relative group">
+        <div className={cn("flex-1 overflow-y-auto space-y-0.5", spacesCollapsed ? "px-1" : "px-1.5")}>
+          {spacesCollapsed ? (
+            <>
+              <ShadTooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleSetActiveSpace(null)}
+                    className={cn(
+                      'w-full flex items-center justify-center py-2 rounded-md transition-colors',
+                      !activeSpaceId ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/50'
+                    )}
+                  >
+                    <span className="text-[14px]">📋</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Todos</TooltipContent>
+              </ShadTooltip>
+              {spaces?.map(space => (
+                <ShadTooltip key={space.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => handleSetActiveSpace(space.id)}
+                      className={cn(
+                        'w-full flex items-center justify-center py-2 rounded-md transition-colors',
+                        activeSpaceId === space.id ? 'bg-primary/10' : 'hover:bg-muted/50'
+                      )}
+                    >
+                      <span className="w-5 h-5 rounded flex-shrink-0" style={{ backgroundColor: space.color }} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{space.name}</TooltipContent>
+                </ShadTooltip>
+              ))}
+            </>
+          ) : (
+            <>
               <button
-                onClick={() => handleSetActiveSpace(space.id)}
+                onClick={() => handleSetActiveSpace(null)}
                 className={cn(
                   'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
-                  activeSpaceId === space.id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                  !activeSpaceId ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                 )}
               >
-                <span className="w-5 h-5 rounded flex-shrink-0" style={{ backgroundColor: space.color }} />
-                <span className="truncate flex-1">{space.name}</span>
+                <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] bg-muted">📋</span>
+                <span className="truncate">Todos</span>
               </button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded hover:bg-muted/80 transition-opacity">
-                    <MoreHorizontal className="w-3.5 h-3.5" />
+              {spaces?.map(space => (
+                <div key={space.id} className="relative group">
+                  <button
+                    onClick={() => handleSetActiveSpace(space.id)}
+                    className={cn(
+                      'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors text-left',
+                      activeSpaceId === space.id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    )}
+                  >
+                    <span className="w-5 h-5 rounded flex-shrink-0" style={{ backgroundColor: space.color }} />
+                    <span className="truncate flex-1">{space.name}</span>
                   </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onSelect={(e) => {
-                    e.preventDefault();
-                    handleSetActiveSpace(space.id);
-                    setTimeout(() => setEditingSpaceName(space.name), 100);
-                  }}>
-                    <Pencil className="w-4 h-4 mr-2" /> Renomear
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={(e) => {
-                    e.preventDefault();
-                    setDeletingSpaceId(space.id);
-                  }} className="text-destructive focus:text-destructive">
-                    <Trash2 className="w-4 h-4 mr-2" /> Excluir
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ))}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded hover:bg-muted/80 transition-opacity">
+                        <MoreHorizontal className="w-3.5 h-3.5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        handleSetActiveSpace(space.id);
+                        setTimeout(() => setEditingSpaceName(space.name), 100);
+                      }}>
+                        <Pencil className="w-4 h-4 mr-2" /> Renomear
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        setDeletingSpaceId(space.id);
+                      }} className="text-destructive focus:text-destructive">
+                        <Trash2 className="w-4 h-4 mr-2" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </aside>
 

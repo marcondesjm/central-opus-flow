@@ -396,7 +396,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
           onScroll={handleTimelineScroll}
           className="flex-1 overflow-x-auto overflow-y-hidden"
         >
-          <div style={{ width: totalWidth, minHeight: '100%' }} className="relative">
+          <div style={{ width: totalWidth }} className="relative">
             {/* Month headers */}
             <div className="h-10 border-b flex sticky top-0 z-10 bg-card">
               {months.map(month => {

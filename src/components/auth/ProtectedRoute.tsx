@@ -248,6 +248,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       {children}
       <ClippyAssistant />
       <VersionUpdateModal />
+      <VersionChecker />
     </>
   );
 }

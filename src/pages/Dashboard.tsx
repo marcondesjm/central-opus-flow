@@ -861,9 +861,6 @@ export default function Dashboard() {
           {/* Stats */}
           <StatsCards {...stats} />
 
-          {/* Charts */}
-          <ProjectCharts projects={projects} />
-
           {/* Activity */}
           <div className="mb-6">
             <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />

@@ -251,6 +251,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <ClippyAssistant />
       <VersionUpdateModal />
       <VersionChecker />
+      <AutoVersionBump />
       <ActivitySync />
     </>
   );

@@ -1048,7 +1048,7 @@ export default function Admin() {
 
                                       if (!effectiveExpiration) return null;
 
-                                      const daysLeft = differenceInDays(new Date(effectiveExpiration), new Date());
+                                      const daysLeft = Math.max(0, differenceInCalendarDays(new Date(effectiveExpiration), new Date()));
                                       const isExpired = daysLeft <= 0;
                                       const isExpiring = daysLeft <= 7;
 

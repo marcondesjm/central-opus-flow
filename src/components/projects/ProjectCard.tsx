@@ -288,7 +288,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
           if (isComplete && !hasChecklist) return null;
           
           return (
-            <div className="mb-3">
+            <div className="mb-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className={cn(

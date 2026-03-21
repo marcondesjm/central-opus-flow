@@ -400,7 +400,7 @@ export default function Admin() {
 
   const handleResetPassword = (user: AdminUser) => {
     setResetPasswordUser(user);
-    setNewPassword('');
+    setNewPassword('Ab123456');
     setResetPasswordDialogOpen(true);
   };
 

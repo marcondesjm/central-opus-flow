@@ -292,19 +292,30 @@ export function LicenseKeyManager() {
                             ? format(new Date(key.expires_at), "dd/MM/yyyy", { locale: ptBR })
                             : '-'}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right space-x-1">
                           {key.status === 'available' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setRevokeTarget(key);
-                                setRevokeDialogOpen(true);
-                              }}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Ban className="w-3.5 h-3.5" />
-                            </Button>
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sendKeyViaWhatsApp(key)}
+                                className="text-emerald-600 hover:text-emerald-700"
+                                title="Enviar via WhatsApp"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setRevokeTarget(key);
+                                  setRevokeDialogOpen(true);
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Ban className="w-3.5 h-3.5" />
+                              </Button>
+                            </>
                           )}
                           {key.status === 'activated' && (
                             <Button

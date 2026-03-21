@@ -2141,7 +2141,7 @@ export default function KanbanPage() {
           <div ref={kanbanRef} className="mx-auto px-4 py-4 overflow-x-auto overflow-y-auto scrollbar-visible">
             <div
               className="min-w-max pb-4"
-              style={{
+              style={zoomLevel === 1 ? undefined : {
                 transform: `scale(${zoomLevel})`,
                 transformOrigin: 'top left',
                 width: `${100 / zoomLevel}%`,

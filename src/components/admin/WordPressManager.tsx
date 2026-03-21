@@ -301,7 +301,7 @@ export function WordPressManager() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml"
+            accept=".xml,.zip,.rar"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -321,10 +321,16 @@ export function WordPressManager() {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">
-                <FileText className="w-10 h-10 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <FileText className="w-8 h-8 text-muted-foreground" />
+                  <Archive className="w-8 h-8 text-muted-foreground" />
+                </div>
                 <div>
-                  <p className="font-medium">Clique para selecionar o arquivo XML</p>
+                  <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
+                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.rar</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Arquivo de exportação do WordPress (Ferramentas → Exportar)
                   </p>
                 </div>

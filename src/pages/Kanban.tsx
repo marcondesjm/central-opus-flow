@@ -816,6 +816,15 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
   onPayments: (d: KanbanDeal) => void;
 }) {
   const getColumn = (id: string) => columns.find(c => c.id === id);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.max(1, Math.ceil(deals.length / itemsPerPage));
+  const paginatedDeals = deals.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page if deals change and current page is out of bounds
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [deals.length, totalPages, currentPage]);
 
   return (
     <div className="max-w-[1800px] mx-auto px-3 sm:px-4 py-4">
@@ -829,7 +838,7 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
           <span>Progresso</span>
           <span>Ações</span>
         </div>
-        {deals.map(deal => {
+        {paginatedDeals.map(deal => {
           const col = getColumn(deal.phase);
           const priority = PRIORITY_OPTIONS.find(p => p.id === deal.priority);
           const isOverdue = deal.due_date && isBefore(new Date(deal.due_date), new Date());
@@ -917,6 +926,48 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
           <p className="text-sm text-muted-foreground text-center py-8">Nenhuma tarefa encontrada</p>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-3 px-1">
+          <span className="text-xs text-muted-foreground">
+            {((currentPage - 1) * itemsPerPage) + 1}–{Math.min(currentPage * itemsPerPage, deals.length)} de {deals.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-2 text-xs"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+            >
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" />
+              Anterior
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <Button
+                key={page}
+                variant={page === currentPage ? 'default' : 'outline'}
+                size="sm"
+                className="h-8 w-8 p-0 text-xs"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-2 text-xs"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              Próximo
+              <ChevronRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

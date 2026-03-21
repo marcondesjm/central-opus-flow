@@ -54,7 +54,7 @@ export function AppFooter() {
                   </Badge>
                   {updatedAt && (
                     <span className="hidden sm:inline">
-                      Atualizado em {format(updatedAt, "dd/MM/yyyy", { locale: ptBR })}
+                      Atualizado em {format(updatedAt, "dd/MM/yyyy 'às' HH:mm:ss", { locale: ptBR })}
                     </span>
                   )}
                   <History className="w-3.5 h-3.5" />

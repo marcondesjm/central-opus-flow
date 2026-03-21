@@ -355,7 +355,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-2 border-t border-border">
           <div className="flex items-center gap-2">
             {account && (
               <>

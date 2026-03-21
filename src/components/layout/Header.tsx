@@ -124,8 +124,8 @@ export function Header({
       {/* Mobile Menu */}
       {mobileMenuTrigger}
 
-      {/* Search */}
-      <div className="flex-1 max-w-xl">
+      {/* Search - hidden on mobile, shown on desktop */}
+      <div className="hidden sm:block flex-1 max-w-xl">
         <Tooltip>
           <TooltipTrigger asChild>
             <div 

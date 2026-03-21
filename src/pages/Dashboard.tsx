@@ -48,7 +48,8 @@ import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButto
 import { ProjectStatus, ProjectType } from '@/types/project';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, ZoomIn, ZoomOut, Maximize2, AlertTriangle } from 'lucide-react';
+import { Loader2, ZoomIn, ZoomOut, Maximize2, AlertTriangle, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
@@ -823,6 +824,22 @@ export default function Dashboard() {
         
         <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
           <div className="flex-1 p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8">
+
+          {/* Mobile Search Bar */}
+          <div className="sm:hidden mb-4">
+            <div 
+              className="relative cursor-pointer"
+              onClick={() => setGlobalSearchOpen(true)}
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Buscar projetos, contas, tags..."
+                className="pl-10 bg-background border-border focus-visible:ring-primary/20 text-sm cursor-pointer"
+                readOnly
+              />
+            </div>
+          </div>
           
           {/* Dashboard Header */}
           <div className="mb-8">

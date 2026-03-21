@@ -355,17 +355,17 @@ export function WordPressManager() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Upload className="w-5 h-5 text-primary" />
+      <Card className="p-0">
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Upload className="w-4 h-4 text-primary" />
             Importar Backup WordPress
           </CardTitle>
-          <CardDescription>
-            Faça upload de qualquer arquivo. Se contiver XML do WordPress, os posts serão importados. Caso contrário, será salvo no Gerenciador de Arquivos.
+          <CardDescription className="text-xs">
+            XML importa posts, outros formatos vão para o Gerenciador de Arquivos.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 p-4 pt-0">
           <input
             ref={fileInputRef}
             type="file"
@@ -375,32 +375,27 @@ export function WordPressManager() {
 
           <div
             onClick={() => !importing && fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+            className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
               importing
                 ? 'border-primary/50 bg-primary/5 cursor-wait'
                 : 'border-border hover:border-primary/50 hover:bg-muted/50'
             }`}
           >
             {importing ? (
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
                 <p className="text-sm text-muted-foreground">Processando...</p>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-8 h-8 text-muted-foreground" />
-                  <Archive className="w-8 h-8 text-muted-foreground" />
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                  <Archive className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <div>
-                  <p className="font-medium">Clique para selecionar o arquivo</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Qualquer formato — XML importa posts, outros vão para Arquivos
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    WordPress XML, ZIP, RAR ou qualquer arquivo (máx. 50MB)
-                  </p>
-                </div>
+                <p className="text-sm font-medium">Clique para selecionar o arquivo</p>
+                <p className="text-xs text-muted-foreground">
+                  XML, ZIP, RAR ou qualquer arquivo (máx. 50MB)
+                </p>
               </div>
             )}
           </div>

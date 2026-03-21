@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Key, Plus, Ban, Copy, Search, Loader2, Download } from 'lucide-react';
+import { Key, Plus, Ban, Copy, Search, Loader2, Download, MessageCircle } from 'lucide-react';
 import { useLicenseKeys, useGenerateLicenseKeys, useRevokeLicenseKey, LicenseKey } from '@/hooks/useLicenseKeys';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

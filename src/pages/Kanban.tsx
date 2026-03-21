@@ -1047,6 +1047,14 @@ export default function KanbanPage() {
   const [editingSpaceName, setEditingSpaceName] = useState<string | null>(null);
   const [deletingSpaceId, setDeletingSpaceId] = useState<string | null>(null);
   const [spacesCollapsed, setSpacesCollapsed] = useState(false);
+  const [colorPickerSpaceId, setColorPickerSpaceId] = useState<string | null>(null);
+
+  const SPACE_COLORS = [
+    '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7',
+    '#ec4899', '#ef4444', '#f97316', '#f59e0b',
+    '#eab308', '#22c55e', '#10b981', '#06b6d4',
+    '#0ea5e9', '#64748b', '#78716c', '#1e293b',
+  ];
 
   // Sync URL when space changes
   const handleSetActiveSpace = (spaceId: string | null) => {

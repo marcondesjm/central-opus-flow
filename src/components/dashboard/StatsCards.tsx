@@ -2,19 +2,34 @@ import { FolderKanban, Star, Globe, AlertTriangle, ArrowUpRight, ArrowDownRight 
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
+type StatsFilter = 'all' | 'favorites' | 'published' | 'overdue';
+
 interface StatsCardsProps {
   totalProjects: number;
   favorites: number;
   published: number;
   archived: number;
   overdue?: number;
+  activeFilter?: StatsFilter;
+  onFilterChange?: (filter: StatsFilter) => void;
 }
 
-export function StatsCards({ totalProjects, favorites, published, archived, overdue = 0 }: StatsCardsProps) {
+export function StatsCards({ totalProjects, favorites, published, archived, overdue = 0, activeFilter, onFilterChange }: StatsCardsProps) {
   const { t } = useTranslation();
 
-  const stats = [
+  const stats: {
+    key: StatsFilter;
+    label: string;
+    value: number;
+    icon: typeof FolderKanban;
+    accentColor: string;
+    accentBg: string;
+    accentText: string;
+    trend: string;
+    trendUp: boolean;
+  }[] = [
     {
+      key: 'all',
       label: t('stats.totalProjects'),
       value: totalProjects,
       icon: FolderKanban,
@@ -25,6 +40,7 @@ export function StatsCards({ totalProjects, favorites, published, archived, over
       trendUp: true,
     },
     {
+      key: 'favorites',
       label: t('stats.favorites'),
       value: favorites,
       icon: Star,
@@ -35,6 +51,7 @@ export function StatsCards({ totalProjects, favorites, published, archived, over
       trendUp: true,
     },
     {
+      key: 'published',
       label: t('stats.published'),
       value: published,
       icon: Globe,
@@ -45,6 +62,7 @@ export function StatsCards({ totalProjects, favorites, published, archived, over
       trendUp: true,
     },
     {
+      key: 'overdue',
       label: t('stats.overdue'),
       value: overdue,
       icon: AlertTriangle,
@@ -60,6 +78,7 @@ export function StatsCards({ totalProjects, favorites, published, archived, over
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
+        const isActive = activeFilter === stat.key;
 
         return (
           <div
@@ -69,21 +88,28 @@ export function StatsCards({ totalProjects, favorites, published, archived, over
           >
             <div
               className={cn(
-                'relative overflow-hidden rounded-xl p-4 sm:p-5 transition-all duration-300',
+                'relative overflow-hidden rounded-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer',
                 'bg-card border border-border',
                 'hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]',
                 'active:scale-[0.98]',
+                isActive && 'ring-2 ring-offset-2 ring-offset-background',
               )}
               style={{
                 ['--hover-border' as string]: stat.accentColor,
+                ...(isActive ? { borderColor: stat.accentColor, ringColor: stat.accentColor, boxShadow: `0 0 20px ${stat.accentColor}25` } : {}),
               }}
+              onClick={() => onFilterChange?.(isActive ? 'all' : stat.key)}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = stat.accentColor;
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${stat.accentColor}15`;
+                if (!isActive) {
+                  (e.currentTarget as HTMLElement).style.borderColor = stat.accentColor;
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${stat.accentColor}15`;
+                }
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = '';
-                (e.currentTarget as HTMLElement).style.boxShadow = '';
+                if (!isActive) {
+                  (e.currentTarget as HTMLElement).style.borderColor = '';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '';
+                }
               }}
             >
               <div className="relative z-10">

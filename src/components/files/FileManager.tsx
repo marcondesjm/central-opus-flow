@@ -181,7 +181,7 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*,video/*,.pdf,.zip,.doc,.docx"
+          accept="*"
           className="hidden"
           onChange={(e) => handleUpload(e.target.files)}
         />

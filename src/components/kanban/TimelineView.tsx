@@ -281,28 +281,27 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
                 })}
               </div>
             </div>
-          </div>
         </div>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-3 py-2 border-t bg-card">
-          <span className="text-[10px] text-muted-foreground">
-            {((currentPage - 1) * itemsPerPage) + 1}–{Math.min(currentPage * itemsPerPage, sortedDeals.length)} de {sortedDeals.length}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </Button>
-            <span className="text-xs mx-1">{currentPage}/{totalPages}</span>
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Button>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-3 py-2 border-t bg-card">
+            <span className="text-[10px] text-muted-foreground">
+              {((currentPage - 1) * itemsPerPage) + 1}–{Math.min(currentPage * itemsPerPage, sortedDeals.length)} de {sortedDeals.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </Button>
+              <span className="text-xs mx-1">{currentPage}/{totalPages}</span>
+              <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     );
   }
 

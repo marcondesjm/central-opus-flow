@@ -1945,9 +1945,9 @@ export default function KanbanPage() {
               <ImportBackupButton />
               <ExportBackupButton />
             </div>
-            <Button size="sm" className="h-7 text-xs px-2 sm:px-3" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
-              <Plus className="w-3.5 h-3.5 sm:mr-1" />
-              <span className="hidden xs:inline">Nova Tarefa</span>
+            <Button size="sm" className="h-9 text-sm px-4 font-semibold shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all" onClick={() => { setEditDeal(null); setShowAddModal(true); }}>
+              <Plus className="w-4 h-4 mr-1.5" />
+              Nova Tarefa
             </Button>
           </div>
         </div>

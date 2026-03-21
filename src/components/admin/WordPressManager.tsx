@@ -304,17 +304,17 @@ export function WordPressManager() {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Database className="w-5 h-5 text-primary" />
+      <Card className="p-0">
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Database className="w-4 h-4 text-primary" />
             Backup de Conexões WordPress
           </CardTitle>
-          <CardDescription>
-            Exporte e importe suas conexões WordPress para manter um backup seguro das credenciais.
+          <CardDescription className="text-xs">
+            Exporte e importe conexões WordPress.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0">
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"

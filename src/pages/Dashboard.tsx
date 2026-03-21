@@ -36,6 +36,7 @@ import { CollaboratedProjectsSection } from '@/components/dashboard/Collaborated
 import { DashboardActivitySection } from '@/components/dashboard/DashboardActivitySection';
 import { NewsFeedWidget } from '@/components/dashboard/NewsFeedWidget';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
+import { useIsAdmin } from '@/hooks/useRoles';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
 import { useCollaboration } from '@/hooks/useCollaboration';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -237,10 +238,16 @@ export default function Dashboard() {
   }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
   // Auto-seed example data for NEW regular users (not demo, not admin)
-  const isAdminUser = user?.email === 'marcondesgestaotrafego@gmail.com';
+  const isAdminRole = useIsAdmin();
+  const isAdminUser = isAdminRole || user?.email === 'marcondesgestaotrafego@gmail.com';
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
     
+    // Only seed for users created in the last 10 minutes
+    const userCreatedAt = user?.created_at ? new Date(user.created_at).getTime() : 0;
+    const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+    if (userCreatedAt < tenMinutesAgo) return;
+
     // Use localStorage to ensure we only seed once per user
     const seedKey = `example_data_seeded_${user.id}`;
     if (localStorage.getItem(seedKey) === 'true') return;

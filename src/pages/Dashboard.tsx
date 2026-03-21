@@ -1160,7 +1160,7 @@ export default function Dashboard() {
 
       {/* WordPress Manager */}
       <Dialog open={wordpressOpen} onOpenChange={setWordpressOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <span className="text-lg">🌐</span>

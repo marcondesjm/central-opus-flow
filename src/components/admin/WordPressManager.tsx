@@ -474,25 +474,25 @@ export function WordPressManager() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
+      <Card className="p-0">
+        <CardHeader className="p-4 pb-2">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Key className="w-5 h-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Key className="w-4 h-4 text-primary" />
                 Conexões WordPress
               </CardTitle>
-              <CardDescription>
-                Salve as credenciais dos seus sites WordPress para referência.
+              <CardDescription className="text-xs">
+                Credenciais dos seus sites WordPress.
               </CardDescription>
             </div>
-            <Button onClick={() => setShowAddDialog(true)} size="sm" className="gap-2">
-              <Plus className="w-4 h-4" />
+            <Button onClick={() => setShowAddDialog(true)} size="sm" className="gap-1.5 h-7 text-xs">
+              <Plus className="w-3.5 h-3.5" />
               Adicionar
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0">
           {isLoading ? (
             <p className="text-sm text-muted-foreground py-4 text-center">Carregando...</p>
           ) : connections.length === 0 ? (

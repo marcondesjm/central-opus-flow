@@ -179,10 +179,10 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          'relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 cursor-pointer',
+          'relative border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 cursor-pointer',
           'hover:border-primary/50 hover:bg-primary/5',
           isDragging ? 'border-primary bg-primary/10 scale-[1.01]' : 'border-border/60',
-          compact && 'p-4'
+          compact && 'p-3'
         )}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -201,11 +201,11 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
           </div>
         ) : (
           <>
-            <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+            <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-1.5" />
             <p className="text-sm font-medium text-foreground">
               Arraste arquivos ou clique para enviar
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Imagens, vídeos, PDFs, documentos (máx. 50MB)
             </p>
             <div className="flex items-center gap-2 mt-3">

@@ -508,6 +508,7 @@ export default function Admin() {
         description: `O plano de ${selectedUser.email} foi alterado para ${planLabels[newPlan]}.`,
       });
       refetch();
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
     } catch (error: any) {
       toast({
         title: 'Erro',

@@ -199,6 +199,18 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
             <p className="text-xs text-muted-foreground mt-1">
               Imagens, vídeos, PDFs, documentos (máx. 50MB)
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3 gap-2 rounded-xl"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open('https://drive.google.com', '_blank');
+              }}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir Google Drive
+            </Button>
           </>
         )}
       </div>

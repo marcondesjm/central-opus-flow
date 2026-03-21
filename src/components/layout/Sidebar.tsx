@@ -294,28 +294,53 @@ export function Sidebar({
             ) : accounts.length === 0 ? (
               <p className="text-xs text-muted-foreground px-3 py-2">{t('sidebar.noAccounts')}</p>
             ) : (
-              <ul role="list" className="space-y-0.5">
-                {accounts.map((account) => {
-                  const isActive = selectedAccount === account.id;
-                  return (
-                    <li key={account.id} className={cn('group w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-all duration-200', isActive ? 'bg-primary/15 text-sidebar-foreground ring-1 ring-primary/30' : 'text-sidebar-foreground hover:bg-sidebar-accent')}>
-                      <button onClick={() => { onAccountChange(account.id); onViewChange('all'); }} className="flex-1 flex items-center gap-2.5 text-left min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
-                        <span className={cn('w-3 h-3 rounded-full flex-shrink-0 ring-2 ring-background shadow-sm', accountColorMap[account.color] || 'bg-muted')} aria-hidden="true" />
-                        <span className="flex-1 truncate font-medium">{account.name}</span>
-                      </button>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
-                          <Coins className="w-3 h-3" aria-hidden="true" />
-                          {account.credits ?? 0}
-                        </span>
-                        <button onClick={(e) => { e.stopPropagation(); onEditAccount?.(account); }} aria-label={`Editar conta ${account.name}`} className={cn('p-1 rounded-md transition-all', 'text-muted-foreground hover:text-foreground hover:bg-primary/20', 'opacity-60 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary')}>
-                          <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+              <>
+                <ul role="list" className="space-y-0.5">
+                  {accounts.slice(accountPage * ACCOUNTS_PER_PAGE, (accountPage + 1) * ACCOUNTS_PER_PAGE).map((account) => {
+                    const isActive = selectedAccount === account.id;
+                    return (
+                      <li key={account.id} className={cn('group w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-all duration-200', isActive ? 'bg-primary/15 text-sidebar-foreground ring-1 ring-primary/30' : 'text-sidebar-foreground hover:bg-sidebar-accent')}>
+                        <button onClick={() => { onAccountChange(account.id); onViewChange('all'); }} className="flex-1 flex items-center gap-2.5 text-left min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
+                          <span className={cn('w-3 h-3 rounded-full flex-shrink-0 ring-2 ring-background shadow-sm', accountColorMap[account.color] || 'bg-muted')} aria-hidden="true" />
+                          <span className="flex-1 truncate font-medium">{account.name}</span>
                         </button>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
+                            <Coins className="w-3 h-3" aria-hidden="true" />
+                            {account.credits ?? 0}
+                          </span>
+                          <button onClick={(e) => { e.stopPropagation(); onEditAccount?.(account); }} aria-label={`Editar conta ${account.name}`} className={cn('p-1 rounded-md transition-all', 'text-muted-foreground hover:text-foreground hover:bg-primary/20', 'opacity-60 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary')}>
+                            <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {accounts.length > ACCOUNTS_PER_PAGE && (
+                  <div className="flex items-center justify-between px-2 pt-1">
+                    <button
+                      onClick={() => setAccountPage(p => Math.max(0, p - 1))}
+                      disabled={accountPage === 0}
+                      className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Contas anteriores"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {accountPage * ACCOUNTS_PER_PAGE + 1}–{Math.min((accountPage + 1) * ACCOUNTS_PER_PAGE, accounts.length)} de {accounts.length}
+                    </span>
+                    <button
+                      onClick={() => setAccountPage(p => Math.min(Math.ceil(accounts.length / ACCOUNTS_PER_PAGE) - 1, p + 1))}
+                      disabled={(accountPage + 1) * ACCOUNTS_PER_PAGE >= accounts.length}
+                      className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Próximas contas"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
             <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground hover:text-sidebar-foreground mt-1" onClick={onAddAccount}>
               <Plus className="w-4 h-4" aria-hidden="true" />

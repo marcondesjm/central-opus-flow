@@ -28,6 +28,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useSystemVersion } from '@/hooks/useSystemVersion';
+import { Download } from 'lucide-react';
 
 interface ChangelogModalProps {
   open: boolean;
@@ -45,6 +47,7 @@ const typeConfig: Record<ChangelogEntry['type'], { icon: typeof Sparkles; label:
 export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   const { data: changelog, isLoading, isFetching } = useChangelogByVersion();
   const queryClient = useQueryClient();
+  const { data: systemVersion } = useSystemVersion();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -114,6 +117,22 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
     };
   }, [open, changelog]);
 
+  const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
+  const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
+
+  const hasUpdate = (() => {
+    const lastSeen = typeof window !== 'undefined' ? localStorage.getItem(LAST_SEEN_KEY) : null;
+    return systemVersion?.version && lastSeen && lastSeen !== systemVersion.version;
+  })();
+
+  const handleInstallUpdate = () => {
+    if (systemVersion?.version) {
+      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
+      localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+    }
+    window.location.reload();
+  };
+
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -144,6 +163,16 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <RefreshCw className={cn("h-3.5 w-3.5", (isRefreshing || isFetching) && "animate-spin")} />
               {isRefreshing || isFetching ? 'Atualizando...' : 'Atualizar'}
             </Button>
+            {hasUpdate && (
+              <Button
+                size="sm"
+                onClick={handleInstallUpdate}
+                className="gap-2 h-8 px-3 text-xs"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Instalar v{systemVersion?.version}
+              </Button>
+            )}
           </div>
           <DialogDescription>
             Confira todas as alterações e melhorias do sistema.

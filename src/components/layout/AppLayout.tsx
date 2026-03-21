@@ -54,9 +54,10 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const handleViewChange = useCallback((view: string) => {
     setActiveView(view);
-    if (location.pathname !== '/dashboard') {
-      navigate(`/dashboard?view=${view}${selectedAccount ? `&account=${selectedAccount}` : ''}`);
-    }
+    const params = new URLSearchParams();
+    params.set('view', view);
+    if (selectedAccount) params.set('account', selectedAccount);
+    navigate(`/dashboard?${params.toString()}`, { replace: location.pathname === '/dashboard' });
   }, [location.pathname, navigate, selectedAccount]);
 
   const handleAccountChange = useCallback((accountId: string | null) => {

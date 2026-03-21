@@ -4,7 +4,7 @@ import { BookOpen, Eye, Tag, LayoutGrid, MessageCircleQuestion } from 'lucide-re
 import { AdminMonitoringCharts } from '@/components/admin/AdminMonitoringCharts';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, getTrialDaysRemaining, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
+import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
 import { useUserRole, useIsAdmin } from '@/hooks/useRoles';
 import { useUpgradeSubscription, SubscriptionPlan } from '@/hooks/useSubscription';
 import { usePendingReceipts, useVerifyPayment } from '@/hooks/usePayments';

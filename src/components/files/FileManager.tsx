@@ -351,6 +351,13 @@ function FileListItem({ file, onDelete }: { file: UserFile; onDelete: (f: UserFi
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <a
           href={url}
+          download={file.file_name}
+          className="p-1.5 rounded-md hover:bg-muted transition-colors"
+        >
+          <Download className="w-4 h-4 text-muted-foreground" />
+        </a>
+        <a
+          href={url}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1.5 rounded-md hover:bg-muted transition-colors"

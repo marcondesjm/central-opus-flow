@@ -51,6 +51,9 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
   const today = new Date();
   const todayOffset = differenceInDays(today, rangeStart);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const sortedDeals = useMemo(() => {
     return [...deals].sort((a, b) => {
       const aHasDate = a.start_date || a.due_date;
@@ -62,6 +65,14 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
       return new Date(aStart).getTime() - new Date(bStart).getTime();
     });
   }, [deals]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedDeals.length / itemsPerPage));
+  const paginatedDeals = sortedDeals.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page if out of bounds
+  useMemo(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [sortedDeals.length, totalPages]);
 
   const getBarPosition = (deal: KanbanDeal) => {
     const start = deal.start_date
@@ -163,7 +174,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
               className="overflow-y-auto"
               style={{ maxHeight: 'calc(100vh - 320px)' }}
             >
-              {sortedDeals.map(deal => {
+              {paginatedDeals.map(deal => {
                 const col = getColumnForDeal(deal);
                 return (
                   <div
@@ -180,7 +191,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
                   </div>
                 );
               })}
-              {sortedDeals.length === 0 && (
+              {paginatedDeals.length === 0 && (
                 <div className="h-16 flex items-center justify-center text-[10px] text-muted-foreground">
                   Nenhuma tarefa
                 </div>
@@ -244,7 +255,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
               {/* Deal bars */}
               <div className="relative" style={{ paddingTop: rowHeight }}>
-                {sortedDeals.map(deal => {
+                {paginatedDeals.map(deal => {
                   const { left, width } = getBarPosition(deal);
                   const barColor = priorityBarColors[deal.priority] || 'bg-violet-400';
 
@@ -270,8 +281,26 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
                 })}
               </div>
             </div>
-          </div>
         </div>
+      </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-3 py-2 border-t bg-card">
+            <span className="text-[10px] text-muted-foreground">
+              {((currentPage - 1) * itemsPerPage) + 1}–{Math.min(currentPage * itemsPerPage, sortedDeals.length)} de {sortedDeals.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </Button>
+              <span className="text-xs mx-1">{currentPage}/{totalPages}</span>
+              <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -333,7 +362,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
             className="overflow-y-auto"
             style={{ maxHeight: 'calc(100vh - 280px)' }}
           >
-            {sortedDeals.map(deal => {
+            {paginatedDeals.map(deal => {
               const col = getColumnForDeal(deal);
               const priority = getPriorityColor(deal);
               return (
@@ -353,7 +382,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
                 </div>
               );
             })}
-            {sortedDeals.length === 0 && (
+            {paginatedDeals.length === 0 && (
               <div className="h-20 flex items-center justify-center text-xs text-muted-foreground">
                 Nenhuma tarefa encontrada
               </div>
@@ -417,7 +446,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
             {/* Deal bars */}
             <div className="relative" style={{ paddingTop: 40 }}>
-              {sortedDeals.map(deal => {
+              {paginatedDeals.map(deal => {
                 const { left, width } = getBarPosition(deal);
                 const barColor = priorityBarColors[deal.priority] || 'bg-violet-400';
                 const col = getColumnForDeal(deal);
@@ -469,6 +498,28 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-2 border-t bg-card">
+          <span className="text-xs text-muted-foreground">
+            {((currentPage - 1) * itemsPerPage) + 1}–{Math.min(currentPage * itemsPerPage, sortedDeals.length)} de {sortedDeals.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="sm" className="h-7 px-2 text-xs" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Anterior
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <Button key={page} variant={page === currentPage ? 'default' : 'outline'} size="sm" className="h-7 w-7 p-0 text-xs" onClick={() => setCurrentPage(page)}>
+                {page}
+              </Button>
+            ))}
+            <Button variant="outline" size="sm" className="h-7 px-2 text-xs" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
+              Próximo <ChevronRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

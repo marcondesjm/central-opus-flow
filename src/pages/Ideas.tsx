@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -32,10 +32,8 @@ export default function Ideas() {
   const bulkDelete = useBulkDeleteIdeas();
   const isMobile = useIsMobile();
 
-  // Inline creation state
-  const [isCreating, setIsCreating] = useState(false);
-  const [newIdeaTitle, setNewIdeaTitle] = useState('');
-  const createInputRef = useRef<HTMLInputElement>(null);
+
+  // Pagination
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,31 +112,21 @@ export default function Ideas() {
   useEffect(() => { setCurrentPage(1); }, [search, filterRoadmap]);
 
   const handleCreate = (roadmap?: string) => {
-    if (newIdeaTitle.trim()) {
-      createIdea.mutate({
-        title: newIdeaTitle.trim(),
-        theme: 'geral',
-        theme_color: '#6b7280',
-        roadmap: roadmap || 'now',
-        position: 0,
-      }, {
-        onSuccess: () => {
-          setNewIdeaTitle('');
-          setIsCreating(false);
-          setCurrentPage(1);
-        },
-      });
-    }
-  };
-
-  const handleOpenCreate = () => {
-    setIsCreating(true);
-    setTimeout(() => createInputRef.current?.focus(), 50);
-  };
-
-  const handleCancelCreate = () => {
-    setIsCreating(false);
-    setNewIdeaTitle('');
+    createIdea.mutate({
+      title: 'Nova ideia',
+      theme: 'geral',
+      theme_color: '#6b7280',
+      roadmap: roadmap || 'now',
+      position: 0,
+    }, {
+      onSuccess: (newIdea) => {
+        setCurrentPage(1);
+        // Open the detail panel with the new idea so user can edit inline
+        if (newIdea) {
+          setSelectedIdea(newIdea as Idea);
+        }
+      },
+    });
   };
 
   const currentIdea = selectedIdea ? (ideas || []).find(i => i.id === selectedIdea.id) || selectedIdea : null;
@@ -168,44 +156,10 @@ export default function Ideas() {
         <div className="border-b bg-card">
           <div className="px-4 md:px-6 pt-5 pb-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                  <Lightbulb className="w-5 h-5 text-amber-500" />
-                </div>
-                <div>
-                  <h1 className="text-lg md:text-xl font-bold">
-                    {viewMode === 'table' ? 'Todas as Ideias' : viewMode === 'board' ? 'Roteiro do Produto' : 'Cronograma'}
-                  </h1>
-                  <p className="text-xs text-muted-foreground">Gerencie e priorize suas ideias de produto</p>
-                </div>
-              </div>
-              {isCreating ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    ref={createInputRef}
-                    placeholder="Nome da ideia..."
-                    value={newIdeaTitle}
-                    onChange={(e) => setNewIdeaTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleCreate();
-                      if (e.key === 'Escape') handleCancelCreate();
-                    }}
-                    className="h-9 w-48 text-sm"
-                  />
-                  <Button size="sm" className="gap-1.5 h-9" onClick={() => handleCreate()} disabled={!newIdeaTitle.trim() || createIdea.isPending}>
-                    {createIdea.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                    Criar
-                  </Button>
-                  <Button size="sm" variant="ghost" className="h-9" onClick={handleCancelCreate}>
-                    <X className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              ) : (
-                <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={handleOpenCreate}>
-                  <Plus className="w-4 h-4" />
-                  Nova Ideia
-                </Button>
-              )}
+              <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={() => handleCreate()} disabled={createIdea.isPending}>
+                {createIdea.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Nova Ideia
+              </Button>
             </div>
 
             {/* Stats cards */}
@@ -308,7 +262,7 @@ export default function Ideas() {
                   <h3 className="font-semibold mb-1">Nenhuma ideia encontrada</h3>
                   <p className="text-sm text-muted-foreground">Comece registrando suas ideias de produto</p>
                 </div>
-                <Button onClick={handleOpenCreate} className="gap-2">
+                <Button onClick={() => handleCreate()} className="gap-2">
                   <Plus className="w-4 h-4" /> Criar primeira ideia
                 </Button>
               </div>
@@ -573,7 +527,7 @@ export default function Ideas() {
                 {!isLoading && (
                   <div
                     className="px-5 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b group"
-                    onClick={handleOpenCreate}
+                    onClick={() => handleCreate()}
                   >
                     <div className="w-6 h-6 rounded-md border-2 border-dashed border-muted-foreground/30 group-hover:border-primary flex items-center justify-center transition-colors">
                       <Plus className="w-3 h-3" />

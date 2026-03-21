@@ -398,11 +398,50 @@ export function WordPressManager() {
                     Qualquer formato — XML importa posts, outros vão para Arquivos
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    WordPress XML, ZIP, RAR ou qualquer arquivo
+                    WordPress XML, ZIP, RAR ou qualquer arquivo (máx. 50MB)
                   </p>
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+            >
+              <FolderOpen className="w-4 h-4" />
+              Meu Computador
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open('https://drive.google.com', '_blank');
+              }}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Google Drive
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open('https://github.com', '_blank');
+              }}
+            >
+              <Github className="w-4 h-4" />
+              GitHub
+            </Button>
           </div>
 
           {savedToFileManager && (

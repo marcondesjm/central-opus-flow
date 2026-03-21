@@ -81,10 +81,10 @@ export function WordPressManager() {
       return await file.text();
     }
 
-    if (ext === 'zip') {
+    if (ext === 'zip' || ext === 'wpress') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        toast.error('Nenhum arquivo XML encontrado dentro do ZIP.');
+        toast.error(`Nenhum arquivo XML encontrado dentro do .${ext}.`);
         return null;
       }
       return xml;
@@ -95,7 +95,7 @@ export function WordPressManager() {
       return null;
     }
 
-    toast.error('Formato não suportado. Use .xml, .zip ou .rar.');
+    toast.error('Formato não suportado. Use .xml, .zip, .rar ou .wpress.');
     return null;
   };
 
@@ -193,7 +193,28 @@ export function WordPressManager() {
 
     setImportingBackup(true);
     try {
-      const text = await file.text();
+      let text: string;
+      const ext = file.name.toLowerCase().split('.').pop();
+
+      if (ext === 'zip' || ext === 'wpress') {
+        // Try to extract a .json file from the archive
+        const zip = await JSZip.loadAsync(file);
+        let jsonContent: string | null = null;
+        for (const [name, entry] of Object.entries(zip.files)) {
+          if (!entry.dir && name.toLowerCase().endsWith('.json')) {
+            jsonContent = await entry.async('text');
+            break;
+          }
+        }
+        if (!jsonContent) {
+          toast.error(`Nenhum arquivo JSON de backup encontrado dentro do .${ext}.`);
+          return;
+        }
+        text = jsonContent;
+      } else {
+        text = await file.text();
+      }
+
       const backup = JSON.parse(text);
 
       if (!backup.data || !Array.isArray(backup.data)) {
@@ -258,13 +279,13 @@ export function WordPressManager() {
               Exportar Conexões
             </Button>
 
-            <input
-              ref={backupFileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleImportWPBackup}
-              className="hidden"
-            />
+          <input
+            ref={backupFileInputRef}
+            type="file"
+            accept=".json,.zip,.rar,.wpress"
+            onChange={handleImportWPBackup}
+            className="hidden"
+          />
             <Button
               variant="outline"
               size="sm"
@@ -301,7 +322,7 @@ export function WordPressManager() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml,.zip,.rar"
+            accept=".xml,.zip,.rar,.wpress"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -328,7 +349,7 @@ export function WordPressManager() {
                 <div>
                   <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.rar</span>
+                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span>, <span className="font-medium">.rar</span> ou <span className="font-medium">.wpress</span>
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Arquivo de exportação do WordPress (Ferramentas → Exportar)

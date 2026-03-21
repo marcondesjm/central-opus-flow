@@ -599,12 +599,14 @@ function AddColumnModal({ open, onOpenChange, existingCount, spaceId, existingNa
 
 
 // ─── Edit Column Modal ──────────────────────────
-function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpenChange: (v: boolean) => void; column: KanbanColumn }) {
+function EditColumnModal({ open, onOpenChange, column, existingNames }: { open: boolean; onOpenChange: (v: boolean) => void; column: KanbanColumn; existingNames: string[] }) {
   const updateColumn = useUpdateColumn();
   const [name, setName] = useState(column.name);
   const [color, setColor] = useState(column.color);
 
   const COLORS = ['#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316'];
+
+  const isDuplicate = name.trim() !== '' && name.trim().toLowerCase() !== column.name.toLowerCase() && existingNames.some(n => n.toLowerCase() === name.trim().toLowerCase());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -614,6 +616,7 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
           <div>
             <Label>Nome</Label>
             <Input value={name} onChange={e => setName(e.target.value)} />
+            {isDuplicate && <p className="text-xs text-destructive mt-1">Já existe uma coluna com esse nome.</p>}
           </div>
           <div>
             <Label>Cor</Label>
@@ -631,7 +634,7 @@ function EditColumnModal({ open, onOpenChange, column }: { open: boolean; onOpen
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={() => { if (name.trim()) { updateColumn.mutate({ id: column.id, name: name.trim(), color }); onOpenChange(false); } }} disabled={!name.trim()}>
+          <Button onClick={() => { if (name.trim() && !isDuplicate) { updateColumn.mutate({ id: column.id, name: name.trim(), color }); onOpenChange(false); } }} disabled={!name.trim() || isDuplicate}>
             Salvar
           </Button>
         </DialogFooter>

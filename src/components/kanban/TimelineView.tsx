@@ -307,7 +307,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
   // Desktop view
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-4 py-2 border-b bg-card">
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCenterDate(d => subMonths(d, 1))}>
@@ -350,7 +350,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
       </div>
 
       {/* Timeline */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex overflow-hidden">
         {/* Ticket column (fixed) */}
         <div className="flex-shrink-0 border-r bg-card z-10" style={{ width: ticketColWidth }}>
           <div className="h-10 border-b flex items-center px-3 bg-muted/50">
@@ -360,7 +360,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
             ref={ticketScrollRef}
             onScroll={handleTicketScroll}
             className="overflow-y-auto"
-            style={{ maxHeight: 'calc(100vh - 280px)' }}
+            style={{ maxHeight: paginatedDeals.length * 40 + 20 }}
           >
             {paginatedDeals.map(deal => {
               const col = getColumnForDeal(deal);
@@ -394,10 +394,9 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
         <div
           ref={scrollRef}
           onScroll={handleTimelineScroll}
-          className="flex-1 overflow-auto"
-          style={{ maxHeight: 'calc(100vh - 280px)' }}
+          className="flex-1 overflow-x-auto overflow-y-hidden"
         >
-          <div style={{ width: totalWidth, minHeight: '100%' }} className="relative">
+          <div style={{ width: totalWidth }} className="relative">
             {/* Month headers */}
             <div className="h-10 border-b flex sticky top-0 z-10 bg-card">
               {months.map(month => {

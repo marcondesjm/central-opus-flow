@@ -90,6 +90,10 @@ export default function Dashboard() {
     } else if (urlView === 'all') {
       setSelectedAccount(null);
     }
+    if (searchParams.get('newProject') === 'true') {
+      setAddProjectOpen(true);
+      setSearchParams((prev) => { prev.delete('newProject'); return prev; }, { replace: true });
+    }
   }, [searchParams, setSearchParams]);
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');

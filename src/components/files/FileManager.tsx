@@ -31,6 +31,7 @@ import {
   Loader2,
   FolderOpen,
   Plus,
+  Github,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';

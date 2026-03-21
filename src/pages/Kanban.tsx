@@ -1497,6 +1497,23 @@ export default function KanbanPage() {
       });
   };
 
+  const getImmediateDragStyle = (
+    style: CSSProperties | undefined,
+    isDragging: boolean,
+    isDropAnimating?: boolean
+  ): CSSProperties | undefined => {
+    if (!style) return style;
+
+    if (isDragging || isDropAnimating) {
+      return {
+        ...style,
+        transition: 'none',
+      };
+    }
+
+    return style;
+  };
+
   const kanbanRef = useRef<HTMLDivElement>(null);
   const topScrollRef = useRef<HTMLDivElement>(null);
   const isSyncing = useRef(false);

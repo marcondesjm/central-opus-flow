@@ -1616,7 +1616,7 @@ export default function KanbanPage() {
                         <MoreHorizontal className="w-3.5 h-3.5" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuContent align="end" className="w-52">
                       <DropdownMenuItem onSelect={(e) => {
                         e.preventDefault();
                         handleSetActiveSpace(space.id);
@@ -1624,6 +1624,32 @@ export default function KanbanPage() {
                       }}>
                         <Pencil className="w-4 h-4 mr-2" /> Renomear
                       </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        setColorPickerSpaceId(colorPickerSpaceId === space.id ? null : space.id);
+                      }}>
+                        <Palette className="w-4 h-4 mr-2" /> Mudar cor
+                      </DropdownMenuItem>
+                      {colorPickerSpaceId === space.id && (
+                        <div className="px-2 py-2">
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {SPACE_COLORS.map(color => (
+                              <button
+                                key={color}
+                                className={cn(
+                                  'w-7 h-7 rounded-md border-2 transition-all hover:scale-110',
+                                  space.color === color ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'
+                                )}
+                                style={{ backgroundColor: color }}
+                                onClick={() => {
+                                  updateSpace.mutate({ id: space.id, color });
+                                  setColorPickerSpaceId(null);
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <DropdownMenuItem onSelect={(e) => {
                         e.preventDefault();
                         setDeletingSpaceId(space.id);

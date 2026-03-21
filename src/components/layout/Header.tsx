@@ -323,7 +323,7 @@ export function Header({
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="w-8 h-8 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
+              <Avatar className="w-8 h-8 shrink-0 ring-2 ring-primary/20 cursor-pointer hover:ring-primary/40 transition-all">
                 {profile?.avatar_url && (
                   <AvatarImage 
                     src={profile.avatar_url} 

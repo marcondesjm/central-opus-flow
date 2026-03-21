@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -67,12 +68,62 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await queryClient.refetchQueries({ queryKey: ['changelog-by-version'] });
-    await queryClient.refetchQueries({ queryKey: ['changelog'] });
-    await queryClient.refetchQueries({ queryKey: ['latest-version'] });
-    await queryClient.refetchQueries({ queryKey: ['system-version'] });
-    toast.success('Histórico atualizado!');
-    setIsRefreshing(false);
+    try {
+      // Remove all cached data first to force fresh fetch
+      queryClient.removeQueries({ queryKey: ['changelog-by-version'] });
+      queryClient.removeQueries({ queryKey: ['changelog'] });
+      queryClient.removeQueries({ queryKey: ['latest-version'] });
+      queryClient.removeQueries({ queryKey: ['system-version'] });
+
+      // Now refetch everything fresh from the database
+      const results = await Promise.allSettled([
+        queryClient.fetchQuery({
+          queryKey: ['changelog-by-version'],
+          queryFn: async () => {
+            const { data, error } = await supabase
+              .from('changelog_entries')
+              .select('*')
+              .order('created_at', { ascending: false });
+            if (error) throw error;
+            const grouped = (data as ChangelogEntry[]).reduce((acc, entry) => {
+              if (!acc[entry.version]) acc[entry.version] = [];
+              acc[entry.version].push(entry);
+              return acc;
+            }, {} as Record<string, ChangelogEntry[]>);
+            return Object.entries(grouped)
+              .sort((a, b) => {
+                const vA = a[0].split('.').map(Number);
+                const vB = b[0].split('.').map(Number);
+                for (let i = 0; i < 3; i++) {
+                  if ((vB[i] || 0) !== (vA[i] || 0)) return (vB[i] || 0) - (vA[i] || 0);
+                }
+                return 0;
+              })
+              .map(([version, entries]) => ({
+                version,
+                entries: entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+                date: entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.created_at,
+              }));
+          },
+        }),
+        queryClient.fetchQuery({
+          queryKey: ['system-version'],
+          queryFn: async () => {
+            const { data } = await supabase
+              .from('system_config')
+              .select('key, value, updated_at')
+              .in('key', ['app_version', 'release_name', 'changelog']);
+            return data;
+          },
+        }),
+      ]);
+
+      toast.success('Histórico e versão atualizados!');
+    } catch (err) {
+      toast.error('Erro ao atualizar dados');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   useEffect(() => {

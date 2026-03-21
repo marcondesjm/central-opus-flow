@@ -51,6 +51,9 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
   const today = new Date();
   const todayOffset = differenceInDays(today, rangeStart);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const sortedDeals = useMemo(() => {
     return [...deals].sort((a, b) => {
       const aHasDate = a.start_date || a.due_date;
@@ -62,6 +65,14 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
       return new Date(aStart).getTime() - new Date(bStart).getTime();
     });
   }, [deals]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedDeals.length / itemsPerPage));
+  const paginatedDeals = sortedDeals.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page if out of bounds
+  useMemo(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [sortedDeals.length, totalPages]);
 
   const getBarPosition = (deal: KanbanDeal) => {
     const start = deal.start_date

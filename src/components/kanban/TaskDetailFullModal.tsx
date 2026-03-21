@@ -489,9 +489,9 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
         </div>
 
         {/* Two-column layout */}
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden" style={{ maxHeight: 'calc(95vh - 44px)' }}>
+        <div className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden" style={{ maxHeight: 'calc(95vh - 44px)' }}>
           {/* Left column */}
-          <div className="flex-1 overflow-y-auto min-w-0">
+          <div className="flex-1 md:overflow-y-auto min-w-0">
             <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
               {/* Title - editable */}
               <div className="flex items-start gap-3">
@@ -898,7 +898,7 @@ export default function TaskDetailFullModal({ deal, columns, open, onOpenChange 
           </div>
 
           {/* Right column - info panel */}
-          <div className="w-full md:w-[280px] lg:w-[340px] flex-shrink-0 border-t md:border-t-0 md:border-l bg-background overflow-y-auto">
+          <div className="w-full md:w-[280px] lg:w-[340px] flex-shrink-0 border-t md:border-t-0 md:border-l bg-background md:overflow-y-auto">
             {/* Phase / Status + Priority selector */}
             <div className="p-3 sm:p-4 border-b flex items-center gap-2 flex-wrap">
               <Select value={deal.phase} onValueChange={handlePhaseChange}>

@@ -101,15 +101,15 @@ export function WordPressManager() {
       return await file.text();
     }
 
-    if (ext === 'zip' || ext === 'wpress') {
+    if (ext === 'zip') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        // No XML found — will be saved to file manager by caller
         return null;
       }
       return xml;
     }
 
+    // .wpress uses a custom binary format (not zip) — skip XML extraction
     // Any other format — return null so caller saves to file manager
     return null;
   };

@@ -32,10 +32,8 @@ export default function Ideas() {
   const bulkDelete = useBulkDeleteIdeas();
   const isMobile = useIsMobile();
 
-  // Inline creation state
-  const [isCreating, setIsCreating] = useState(false);
-  const [newIdeaTitle, setNewIdeaTitle] = useState('');
-  const createInputRef = useRef<HTMLInputElement>(null);
+
+  // Pagination
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);

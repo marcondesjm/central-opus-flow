@@ -353,14 +353,13 @@ export function WordPressManager() {
             Importar Backup WordPress
           </CardTitle>
           <CardDescription>
-            Faça upload do arquivo de exportação do WordPress (.xml, .zip ou .wpress) para importar os posts automaticamente.
+            Faça upload de qualquer arquivo. Se contiver XML do WordPress, os posts serão importados. Caso contrário, será salvo no Gerenciador de Arquivos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml,.zip,.wpress,.rar,.json,.txt,.html,.css,.js,.php,.sql,.md,.doc,.docx,.pdf,.png,.jpg,.jpeg,.gif,.svg,.mp4,.webm"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -376,7 +375,7 @@ export function WordPressManager() {
             {importing ? (
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Importando posts...</p>
+                <p className="text-sm text-muted-foreground">Processando...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">
@@ -387,10 +386,10 @@ export function WordPressManager() {
                 <div>
                   <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.wpress</span>
+                    Qualquer formato — XML importa posts, outros vão para Arquivos
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Arquivo de exportação do WordPress (Ferramentas → Exportar)
+                    WordPress XML, ZIP, RAR ou qualquer arquivo
                   </p>
                 </div>
               </div>

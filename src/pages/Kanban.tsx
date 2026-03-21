@@ -2150,10 +2150,9 @@ export default function KanbanPage() {
                           <div
                             {...colDragProvided.dragHandleProps}
                             className={cn(
-                              'flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium transition-all duration-200',
-                              !isFinalizadoColumn && 'cursor-grab active:cursor-grabbing hover:brightness-125 hover:shadow-lg',
-                              isFinalizadoColumn && 'cursor-default',
-                              colDragSnapshot.isDragging && 'brightness-125 shadow-xl ring-2 ring-white/30'
+                              'flex items-center gap-1 px-2 py-2 rounded-t-lg text-white text-sm font-medium',
+                              !isFinalizadoColumn && 'cursor-grab active:cursor-grabbing',
+                              isFinalizadoColumn && 'cursor-default'
                             )}
                             style={{ backgroundColor: column.color }}
                           >

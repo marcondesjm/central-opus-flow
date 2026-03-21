@@ -1357,6 +1357,23 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="license-keys">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Key className="w-5 h-5" />
+                  Chaves de Licença
+                </CardTitle>
+                <CardDescription>
+                  Gere, gerencie e revogue chaves de ativação para planos mensais e anuais.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LicenseKeyManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </main>
 

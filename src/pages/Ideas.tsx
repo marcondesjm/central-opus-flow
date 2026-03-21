@@ -363,7 +363,7 @@ export default function Ideas() {
                         <th className="text-left px-4 py-3 font-medium text-xs text-muted-foreground w-10">
                           <Checkbox
                             className="h-4 w-4"
-                            checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                            checked={paginatedIdeas.length > 0 && selectedIds.size === paginatedIdeas.length}
                             onCheckedChange={toggleAll}
                           />
                         </th>

@@ -307,7 +307,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
   // Desktop view
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-4 py-2 border-b bg-card">
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCenterDate(d => subMonths(d, 1))}>

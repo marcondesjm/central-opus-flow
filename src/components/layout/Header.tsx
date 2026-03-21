@@ -371,7 +371,7 @@ export function Header({
                   const expAt = sub?.expires_at ? new Date(sub.expires_at) : null;
                   const trialAt = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null;
                   const freeExp = plan === 'free'
-                    ? (expAt || (profile?.created_at ? new Date(new Date(profile.created_at).getTime() + 15 * 24 * 60 * 60 * 1000) : null))
+                    ? (expAt || (profile?.created_at ? new Date(new Date(profile.created_at).getTime() + 7 * 24 * 60 * 60 * 1000) : null))
                     : null;
                   const effectiveDate = plan === 'free' ? freeExp : (expAt || trialAt);
                   if (!effectiveDate) return null;

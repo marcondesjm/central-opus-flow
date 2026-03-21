@@ -30,7 +30,7 @@ export interface AdminUser {
   projects_count: number;
 }
 
-export type SortField = 'created_at' | 'email' | 'full_name' | 'plan' | 'accounts_count' | 'projects_count';
+export type SortField = 'created_at' | 'email' | 'full_name' | 'plan' | 'accounts_count' | 'projects_count' | 'last_active_at';
 export type SortOrder = 'asc' | 'desc';
 
 export function useAdminUsers() {

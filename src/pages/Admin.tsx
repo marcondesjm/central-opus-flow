@@ -370,6 +370,11 @@ export default function Admin() {
         case 'projects_count':
           comparison = (a.projects_count || 0) - (b.projects_count || 0);
           break;
+        case 'last_active_at':
+          const aTime = a.last_active_at ? new Date(a.last_active_at).getTime() : 0;
+          const bTime = b.last_active_at ? new Date(b.last_active_at).getTime() : 0;
+          comparison = aTime - bTime;
+          break;
       }
       
       return sortOrder === 'asc' ? comparison : -comparison;

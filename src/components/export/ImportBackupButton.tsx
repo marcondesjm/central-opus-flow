@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { saveAccountLocalKeys, getLocalKeys } from '@/hooks/useLocalKeys';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import JSZip from 'jszip';
 import { useWordPressConnections, useCreateWordPressConnection } from '@/hooks/useWordPress';
 import {
   AlertDialog,

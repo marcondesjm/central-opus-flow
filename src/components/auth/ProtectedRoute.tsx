@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { CompleteProfileGate } from './CompleteProfileGate';
 import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
 import { VersionUpdateModal } from '@/components/version/VersionUpdateModal';
+import { VersionChecker } from '@/components/version/VersionChecker';
 import { useGlobalSync } from '@/hooks/useGlobalSync';
 
 interface ProtectedRouteProps {
@@ -247,6 +248,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       {children}
       <ClippyAssistant />
       <VersionUpdateModal />
+      <VersionChecker />
     </>
   );
 }

@@ -2219,7 +2219,7 @@ export default function KanbanPage() {
                                         className={cn(
                                           snapshot.isDragging && 'shadow-lg z-50'
                                         )}
-                                        style={provided.draggableProps.style}
+                                        style={getImmediateDragStyle(provided.draggableProps.style, snapshot.isDragging, snapshot.isDropAnimating)}
                                       >
                                         <TaskCard
                                           deal={deal}

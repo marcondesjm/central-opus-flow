@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target } from 'lucide-react';
+import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,6 +23,7 @@ import { subMonths, addMonths, format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 type ViewMode = 'table' | 'board' | 'timeline';
+const ITEMS_PER_PAGE = 10;
 
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
@@ -30,6 +31,14 @@ export default function Ideas() {
   const createIdea = useCreateIdea();
   const bulkDelete = useBulkDeleteIdeas();
   const isMobile = useIsMobile();
+
+  // Inline creation state
+  const [isCreating, setIsCreating] = useState(false);
+  const [newIdeaTitle, setNewIdeaTitle] = useState('');
+  const createInputRef = useRef<HTMLInputElement>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch profiles for last_modified_by
   const modifierUserIds = useMemo(() => {
@@ -70,10 +79,10 @@ export default function Ideas() {
   };
 
   const toggleAll = () => {
-    if (selectedIds.size === filtered.length) {
+    if (selectedIds.size === paginatedIdeas.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(filtered.map(i => i.id)));
+      setSelectedIds(new Set(paginatedIdeas.map(i => i.id)));
     }
   };
 
@@ -84,20 +93,52 @@ export default function Ideas() {
     });
   };
 
-  const filtered = useMemo(() => (ideas || []).filter(idea => {
-    const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());
-    const matchesRoadmap = filterRoadmap === 'all' || idea.roadmap === filterRoadmap;
-    return matchesSearch && matchesRoadmap;
-  }), [ideas, search, filterRoadmap]);
+  // Filter and sort newest first
+  const filtered = useMemo(() => (ideas || [])
+    .filter(idea => {
+      const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());
+      const matchesRoadmap = filterRoadmap === 'all' || idea.roadmap === filterRoadmap;
+      return matchesSearch && matchesRoadmap;
+    })
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+  [ideas, search, filterRoadmap]);
+
+  // Pagination logic
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginatedIdeas = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, currentPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setCurrentPage(1); }, [search, filterRoadmap]);
 
   const handleCreate = (roadmap?: string) => {
-    createIdea.mutate({
-      title: 'Nova ideia',
-      theme: 'geral',
-      theme_color: '#6b7280',
-      roadmap: roadmap || 'now',
-      position: (ideas?.length || 0),
-    });
+    if (newIdeaTitle.trim()) {
+      createIdea.mutate({
+        title: newIdeaTitle.trim(),
+        theme: 'geral',
+        theme_color: '#6b7280',
+        roadmap: roadmap || 'now',
+        position: 0,
+      }, {
+        onSuccess: () => {
+          setNewIdeaTitle('');
+          setIsCreating(false);
+          setCurrentPage(1);
+        },
+      });
+    }
+  };
+
+  const handleOpenCreate = () => {
+    setIsCreating(true);
+    setTimeout(() => createInputRef.current?.focus(), 50);
+  };
+
+  const handleCancelCreate = () => {
+    setIsCreating(false);
+    setNewIdeaTitle('');
   };
 
   const currentIdea = selectedIdea ? (ideas || []).find(i => i.id === selectedIdea.id) || selectedIdea : null;
@@ -138,10 +179,33 @@ export default function Ideas() {
                   <p className="text-xs text-muted-foreground">Gerencie e priorize suas ideias de produto</p>
                 </div>
               </div>
-              <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={() => handleCreate()}>
-                <Plus className="w-4 h-4" />
-                Nova Ideia
-              </Button>
+              {isCreating ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={createInputRef}
+                    placeholder="Nome da ideia..."
+                    value={newIdeaTitle}
+                    onChange={(e) => setNewIdeaTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleCreate();
+                      if (e.key === 'Escape') handleCancelCreate();
+                    }}
+                    className="h-9 w-48 text-sm"
+                  />
+                  <Button size="sm" className="gap-1.5 h-9" onClick={() => handleCreate()} disabled={!newIdeaTitle.trim() || createIdea.isPending}>
+                    {createIdea.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                    Criar
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-9" onClick={handleCancelCreate}>
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="default" className="gap-2 shadow-lg shadow-primary/20" onClick={handleOpenCreate}>
+                  <Plus className="w-4 h-4" />
+                  Nova Ideia
+                </Button>
+              )}
             </div>
 
             {/* Stats cards */}
@@ -244,7 +308,7 @@ export default function Ideas() {
                   <h3 className="font-semibold mb-1">Nenhuma ideia encontrada</h3>
                   <p className="text-sm text-muted-foreground">Comece registrando suas ideias de produto</p>
                 </div>
-                <Button onClick={() => handleCreate()} className="gap-2">
+                <Button onClick={handleOpenCreate} className="gap-2">
                   <Plus className="w-4 h-4" /> Criar primeira ideia
                 </Button>
               </div>
@@ -299,7 +363,7 @@ export default function Ideas() {
                         <th className="text-left px-4 py-3 font-medium text-xs text-muted-foreground w-10">
                           <Checkbox
                             className="h-4 w-4"
-                            checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                            checked={paginatedIdeas.length > 0 && selectedIds.size === paginatedIdeas.length}
                             onCheckedChange={toggleAll}
                           />
                         </th>
@@ -313,7 +377,7 @@ export default function Ideas() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filtered.map((idea, index) => {
+                      {paginatedIdeas.map((idea, index) => {
                         const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                         const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
                         const isActive = currentIdea?.id === idea.id;
@@ -421,7 +485,7 @@ export default function Ideas() {
 
                 {/* Mobile card list */}
                 <div className="md:hidden divide-y">
-                  {filtered.map(idea => {
+                  {paginatedIdeas.map(idea => {
                     const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                     const roadmap = ROADMAP_OPTIONS.find(r => r.id === idea.roadmap);
                     const isChecked = selectedIds.has(idea.id);
@@ -509,12 +573,55 @@ export default function Ideas() {
                 {!isLoading && (
                   <div
                     className="px-5 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 cursor-pointer transition-colors flex items-center gap-2 border-b group"
-                    onClick={() => handleCreate()}
+                    onClick={handleOpenCreate}
                   >
                     <div className="w-6 h-6 rounded-md border-2 border-dashed border-muted-foreground/30 group-hover:border-primary flex items-center justify-center transition-colors">
                       <Plus className="w-3 h-3" />
                     </div>
                     <span className="text-xs font-medium">Adicionar nova ideia</span>
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
+                    <p className="text-xs text-muted-foreground">
+                      Mostrando {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} de {filtered.length}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(p => p - 1)}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).slice(
+                        Math.max(0, currentPage - 3),
+                        Math.min(totalPages, currentPage + 2)
+                      ).map(page => (
+                        <Button
+                          key={page}
+                          variant={page === currentPage ? 'default' : 'outline'}
+                          size="icon"
+                          className="h-8 w-8 text-xs"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(p => p + 1)}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 )}
               </>

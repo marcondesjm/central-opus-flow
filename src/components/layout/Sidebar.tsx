@@ -11,6 +11,8 @@ import {
   Archive, 
   Plus,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Users,
   Tag, 
   LogOut,

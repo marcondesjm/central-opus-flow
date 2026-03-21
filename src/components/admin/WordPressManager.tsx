@@ -258,13 +258,13 @@ export function WordPressManager() {
               Exportar Conexões
             </Button>
 
-            <input
-              ref={backupFileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleImportWPBackup}
-              className="hidden"
-            />
+          <input
+            ref={backupFileInputRef}
+            type="file"
+            accept=".json,.zip,.rar,.wpress"
+            onChange={handleImportWPBackup}
+            className="hidden"
+          />
             <Button
               variant="outline"
               size="sm"

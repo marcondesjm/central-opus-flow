@@ -118,14 +118,15 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               Histórico de Atualizações
             </DialogTitle>
             <Button
-              variant="ghost"
-              size="icon"
+              variant="outline"
+              size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing || isFetching}
-              className="h-8 w-8"
-              title="Atualizar histórico"
+              className="gap-2 h-8 px-3 text-xs"
+              title="Forçar atualização do histórico e versão"
             >
-              <RefreshCw className={cn("h-4 w-4", (isRefreshing || isFetching) && "animate-spin")} />
+              <RefreshCw className={cn("h-3.5 w-3.5", (isRefreshing || isFetching) && "animate-spin")} />
+              {isRefreshing || isFetching ? 'Atualizando...' : 'Atualizar'}
             </Button>
           </div>
           <DialogDescription>

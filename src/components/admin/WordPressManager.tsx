@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive, FolderOpen } from 'lucide-react';
+import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive, FolderOpen, Github } from 'lucide-react';
 import JSZip from 'jszip';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';

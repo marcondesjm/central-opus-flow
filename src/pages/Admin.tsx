@@ -997,7 +997,7 @@ export default function Admin() {
                           const userStatus = user.user_status || 'active';
                           const isFrozen = userStatus === 'frozen';
                           const isPending = userStatus === 'pending_approval';
-                          const isSubscriptionExpired = user.subscription_expires_at && differenceInDays(new Date(user.subscription_expires_at), new Date()) <= 0;
+                          const isSubscriptionExpired = user.subscription_expires_at && differenceInCalendarDays(new Date(user.subscription_expires_at), new Date()) <= 0;
                           
                           return (
                             <TableRow key={user.id} className={cn(isFrozen && "opacity-60", isPending && "bg-amber-500/5")}>

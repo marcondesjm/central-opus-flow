@@ -27,6 +27,7 @@ export function WordPressManager() {
   const createConnection = useCreateWordPressConnection();
   const deleteConnection = useDeleteWordPressConnection();
   const createPost = useCreateBlogPost();
+  const uploadFile = useUploadFile();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [importing, setImporting] = useState(false);

@@ -861,9 +861,10 @@ export default function Dashboard() {
           {/* Stats */}
           <StatsCards {...stats} />
 
-          {/* Activity */}
-          <div className="mb-6">
+          {/* Activity + Growth Chart side by side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
+            <ProjectCharts projects={projects} />
           </div>
 
           {/* Collaborated Projects Section */}

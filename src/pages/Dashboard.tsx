@@ -985,7 +985,12 @@ export default function Dashboard() {
           </div>
           </div>
           </div>
-          
+
+          {/* News Feed */}
+          <div className="mb-6">
+            <NewsFeedWidget />
+          </div>
+
           {/* Footer com versão */}
           <AppFooter />
         </main>

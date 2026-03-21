@@ -186,8 +186,8 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
       {/* Content */}
       <div className="p-3">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-card-foreground line-clamp-1">{project.name}</h3>
+        <div className="flex items-start justify-between gap-1.5 mb-1.5">
+          <h3 className="font-semibold text-sm text-card-foreground line-clamp-1">{project.name}</h3>
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>

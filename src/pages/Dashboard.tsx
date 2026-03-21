@@ -98,6 +98,7 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [statsFilter, setStatsFilter] = useState<'all' | 'favorites' | 'published' | 'overdue'>('all');
   const [zoomLevel, setZoomLevel] = useState(1);
   const projectsRef = useRef<HTMLDivElement>(null);
 

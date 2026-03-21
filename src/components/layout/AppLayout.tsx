@@ -113,7 +113,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Mobile menu trigger */}
-          <div className="lg:hidden flex items-center px-4 py-2 border-b border-border bg-card/80 backdrop-blur-xl">
+          <div className="lg:hidden flex items-center px-4 py-2 border-b-2 border-primary/30 bg-primary/5 backdrop-blur-xl shadow-sm">
             <MobileSidebar {...sidebarProps} />
             <span className="ml-3 font-semibold text-sm text-foreground">Central Opus Flow</span>
           </div>

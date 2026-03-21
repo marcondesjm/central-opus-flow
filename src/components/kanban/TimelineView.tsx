@@ -350,7 +350,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
       </div>
 
       {/* Timeline */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex overflow-hidden">
         {/* Ticket column (fixed) */}
         <div className="flex-shrink-0 border-r bg-card z-10" style={{ width: ticketColWidth }}>
           <div className="h-10 border-b flex items-center px-3 bg-muted/50">

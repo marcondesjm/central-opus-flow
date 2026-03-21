@@ -129,6 +129,14 @@ export default function Dashboard() {
       setSettingsOpen(true);
       navigate(location.pathname, { replace: true });
     }
+    const viewParam = params.get('view');
+    if (viewParam === 'wordpress') {
+      setWordpressOpen(true);
+      navigate(location.pathname, { replace: true });
+    } else if (viewParam === 'tags') {
+      setTagsManagerOpen(true);
+      navigate(location.pathname, { replace: true });
+    }
   }, [location.pathname, location.search, navigate]);
 
   // Modal states

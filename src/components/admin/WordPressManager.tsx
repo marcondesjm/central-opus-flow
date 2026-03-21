@@ -360,7 +360,7 @@ export function WordPressManager() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml,.zip,.wpress"
+            accept=".xml,.zip,.wpress,.rar,.json,.txt,.html,.css,.js,.php,.sql,.md,.doc,.docx,.pdf,.png,.jpg,.jpeg,.gif,.svg,.mp4,.webm"
             onChange={handleFileUpload}
             className="hidden"
           />

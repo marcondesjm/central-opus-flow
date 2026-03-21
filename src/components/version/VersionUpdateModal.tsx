@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -15,9 +15,10 @@ const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
 const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
 
 export function VersionUpdateModal() {
-  const { data: systemVersion } = useSystemVersion();
+  const { data: systemVersion, dataUpdatedAt } = useSystemVersion();
   const [showModal, setShowModal] = useState(false);
 
+  // Check version on every data fetch, not just when version string changes
   useEffect(() => {
     if (!systemVersion?.version) return;
 
@@ -28,7 +29,6 @@ export function VersionUpdateModal() {
 
     // If user has never dismissed/updated, don't show on very first visit
     if (!lastSeenVersion) {
-      // Store current version as "seen" only on very first app usage
       localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
       return;
     }
@@ -37,23 +37,22 @@ export function VersionUpdateModal() {
     if (lastSeenVersion !== systemVersion.version) {
       setShowModal(true);
     }
-  }, [systemVersion?.version]);
+  }, [systemVersion?.version, dataUpdatedAt]);
 
-  const handleUpdate = () => {
+  const handleUpdate = useCallback(() => {
     if (systemVersion?.version) {
       localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
       localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
     }
     window.location.reload();
-  };
+  }, [systemVersion?.version]);
 
-  const handleDismiss = () => {
-    // Mark as seen so it doesn't keep showing
+  const handleDismiss = useCallback(() => {
     if (systemVersion?.version) {
       localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
     }
     setShowModal(false);
-  };
+  }, [systemVersion?.version]);
 
   return (
     <AlertDialog open={showModal} onOpenChange={setShowModal}>

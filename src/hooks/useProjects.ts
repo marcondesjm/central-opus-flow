@@ -258,7 +258,7 @@ export function useCreateProject() {
       const trialEndDate = subscription?.trial_ends_at ? new Date(subscription.trial_ends_at) : null;
       const baselineCreatedAt = subscription?.created_at || user.created_at || new Date().toISOString();
       const freeExpiration = (subscription?.plan ?? 'free') === 'free'
-        ? addDays(new Date(baselineCreatedAt), 15)
+        ? addDays(new Date(baselineCreatedAt), 7)
         : null;
       const effectiveExpiration = expirationDate || trialEndDate || freeExpiration;
       const isPaidPlan = (subscription?.plan === 'pro' || subscription?.plan === 'business') && 

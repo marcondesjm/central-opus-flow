@@ -17,7 +17,7 @@ export function VersionUpdateModal() {
   const [dismissed, setDismissed] = useState(false);
   const [pendingVersion, setPendingVersion] = useState<string | null>(null);
   const [accumulateTimer, setAccumulateTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
-  const ACCUMULATE_DELAY = 15000; // wait 15s for more updates before showing
+  const ACCUMULATE_DELAY = 30000; // wait 30s of silence before showing (accumulates all build updates)
 
   useEffect(() => {
     if (!systemVersion?.version) return;
@@ -31,14 +31,17 @@ export function VersionUpdateModal() {
     }
 
     if (lastSeenVersion !== systemVersion.version && !dismissed) {
-      // Accumulate: reset timer each time a new version arrives
+      // Always update to latest version, reset timer to keep accumulating
       setPendingVersion(systemVersion.version);
-      if (accumulateTimer) clearTimeout(accumulateTimer);
-      const timer = setTimeout(() => {
-        setPhase('downloading');
-        setProgress(0);
-      }, ACCUMULATE_DELAY);
-      setAccumulateTimer(timer);
+      if (phase === null) {
+        // Only reset accumulation timer if not already downloading/ready
+        if (accumulateTimer) clearTimeout(accumulateTimer);
+        const timer = setTimeout(() => {
+          setPhase('downloading');
+          setProgress(0);
+        }, ACCUMULATE_DELAY);
+        setAccumulateTimer(timer);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [systemVersion?.version, dataUpdatedAt, dismissed]);

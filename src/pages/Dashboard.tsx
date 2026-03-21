@@ -884,7 +884,7 @@ export default function Dashboard() {
           )}
 
           {/* Stats */}
-          <StatsCards {...stats} />
+          <StatsCards {...stats} activeFilter={statsFilter} onFilterChange={(f) => { setStatsFilter(f); setActiveView('all'); setStatusFilter('all'); }} />
 
           {/* Activity + Growth Chart side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">

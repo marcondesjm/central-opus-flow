@@ -238,7 +238,7 @@ export default function Dashboard() {
   }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
   // Auto-seed example data for NEW regular users (not demo, not admin)
-  const { data: isAdminRole } = useIsAdmin();
+  const isAdminRole = useIsAdmin();
   const isAdminUser = isAdminRole || user?.email === 'marcondesgestaotrafego@gmail.com';
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;

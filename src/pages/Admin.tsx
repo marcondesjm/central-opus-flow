@@ -173,7 +173,7 @@ export default function Admin() {
   const [newSubscriptionType, setNewSubscriptionType] = useState<'monthly' | 'annual'>('monthly');
   const [newStatus, setNewStatus] = useState<UserStatus>('active');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<SortField>('created_at');
+  const [sortField, setSortField] = useState<SortField>('last_active_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [previewUser, setPreviewUser] = useState<AdminUser | null>(null);
   const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[]; kanbanDeals: any[]; kanbanColumns: any[]; ideas: any[]; proposals: any[] } | null>(null);

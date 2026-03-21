@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database } from 'lucide-react';
+import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive } from 'lucide-react';
+import JSZip from 'jszip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,21 +60,60 @@ export function WordPressManager() {
     resetForm();
   };
 
+  const extractXmlFromZip = async (file: File): Promise<string | null> => {
+    try {
+      const zip = await JSZip.loadAsync(file);
+      for (const [name, entry] of Object.entries(zip.files)) {
+        if (!entry.dir && name.toLowerCase().endsWith('.xml')) {
+          return await entry.async('text');
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const extractXmlFromFile = async (file: File): Promise<string | null> => {
+    const ext = file.name.toLowerCase().split('.').pop();
+
+    if (ext === 'xml') {
+      return await file.text();
+    }
+
+    if (ext === 'zip') {
+      const xml = await extractXmlFromZip(file);
+      if (!xml) {
+        toast.error('Nenhum arquivo XML encontrado dentro do ZIP.');
+        return null;
+      }
+      return xml;
+    }
+
+    if (ext === 'rar') {
+      toast.error('Arquivos .rar não podem ser processados diretamente no navegador. Por favor, extraia o XML e faça upload do .xml ou use .zip.');
+      return null;
+    }
+
+    toast.error('Formato não suportado. Use .xml, .zip ou .rar.');
+    return null;
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!file.name.endsWith('.xml')) {
-      toast.error('Por favor, selecione um arquivo XML de exportação do WordPress.');
-      return;
-    }
 
     setImporting(true);
     setImportResults(null);
 
     try {
-      const text = await file.text();
-      const posts = parseWordPressXML(text);
+      const xmlText = await extractXmlFromFile(file);
+      if (!xmlText) {
+        setImporting(false);
+        return;
+      }
+
+      const posts = parseWordPressXML(xmlText);
 
       if (posts.length === 0) {
         toast.error('Nenhum post encontrado no arquivo XML.');
@@ -106,7 +146,7 @@ export function WordPressManager() {
       setImportResults({ total: posts.length, imported });
       toast.success(`${imported} de ${posts.length} posts importados!`);
     } catch (err) {
-      toast.error('Erro ao processar o arquivo XML.');
+      toast.error('Erro ao processar o arquivo.');
       console.error(err);
     } finally {
       setImporting(false);
@@ -261,7 +301,7 @@ export function WordPressManager() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml"
+            accept=".xml,.zip,.rar"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -281,10 +321,16 @@ export function WordPressManager() {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">
-                <FileText className="w-10 h-10 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <FileText className="w-8 h-8 text-muted-foreground" />
+                  <Archive className="w-8 h-8 text-muted-foreground" />
+                </div>
                 <div>
-                  <p className="font-medium">Clique para selecionar o arquivo XML</p>
+                  <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
+                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.rar</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Arquivo de exportação do WordPress (Ferramentas → Exportar)
                   </p>
                 </div>

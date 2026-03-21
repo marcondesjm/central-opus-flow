@@ -294,6 +294,45 @@ export default function Auth() {
     setIsLoading(false);
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (changeNewPassword !== changeConfirmPassword) {
+      toast({ title: 'Senhas não coincidem', description: 'A nova senha e a confirmação devem ser iguais.', variant: 'destructive' });
+      return;
+    }
+    if (changeNewPassword.length < 6) {
+      toast({ title: 'Senha muito curta', description: 'A nova senha deve ter pelo menos 6 caracteres.', variant: 'destructive' });
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      // First sign in with temp password
+      const { error: signInError } = await signIn(changeEmail, changeTempPassword);
+      if (signInError) {
+        toast({ title: 'Senha temporária inválida', description: 'A senha temporária informada está incorreta.', variant: 'destructive' });
+        setIsChangingPassword(false);
+        return;
+      }
+      // Now update password
+      const { error: updateError } = await supabase.auth.updateUser({ password: changeNewPassword });
+      if (updateError) throw updateError;
+      toast({ title: 'Senha alterada com sucesso!', description: 'Você já pode fazer login com sua nova senha.' });
+      setShowChangePassword(false);
+      setLoginEmail(changeEmail);
+      setLoginPassword('');
+      setChangeTempPassword('');
+      setChangeNewPassword('');
+      setChangeConfirmPassword('');
+      setChangeEmail('');
+      // Sign out so user logs in fresh with new password
+      await supabase.auth.signOut();
+    } catch (err: any) {
+      toast({ title: 'Erro ao alterar senha', description: err.message || 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

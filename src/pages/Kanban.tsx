@@ -822,7 +822,7 @@ function ListView({ deals, columns, onEdit, onDelete, onDetail, onPayments }: {
   const paginatedDeals = deals.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Reset page if deals change and current page is out of bounds
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
   }, [deals.length, totalPages, currentPage]);
 

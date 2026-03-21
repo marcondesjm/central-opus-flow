@@ -4,7 +4,7 @@ import { BookOpen, Eye, Tag, LayoutGrid, MessageCircleQuestion } from 'lucide-re
 import { AdminMonitoringCharts } from '@/components/admin/AdminMonitoringCharts';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, getTrialDaysRemaining, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
+import { useAdminUsers, useAdminStats, AdminUser, useUpdateUserStatus, useDeleteUser, SortField, SortOrder, UserStatus } from '@/hooks/useAdmin';
 import { useUserRole, useIsAdmin } from '@/hooks/useRoles';
 import { useUpgradeSubscription, SubscriptionPlan } from '@/hooks/useSubscription';
 import { usePendingReceipts, useVerifyPayment } from '@/hooks/usePayments';
@@ -79,7 +79,7 @@ import {
   Globe,
   Send,
 } from 'lucide-react';
-import { format, formatDistanceToNow, differenceInDays, addDays } from 'date-fns';
+import { format, formatDistanceToNow, differenceInCalendarDays, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -481,9 +481,9 @@ export default function Admin() {
     const endDate = user.trial_ends_at || user.subscription_expires_at;
     if (!endDate) return null;
     
-    const daysRemaining = Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+    const daysRemaining = Math.max(0, differenceInCalendarDays(new Date(endDate), new Date()));
     const isExpiringSoon = daysRemaining <= 3;
-    const isExpired = daysRemaining === 0;
+    const isExpired = daysRemaining <= 0;
     
     return (
       <TooltipProvider>
@@ -997,7 +997,7 @@ export default function Admin() {
                           const userStatus = user.user_status || 'active';
                           const isFrozen = userStatus === 'frozen';
                           const isPending = userStatus === 'pending_approval';
-                          const isSubscriptionExpired = user.subscription_expires_at && differenceInDays(new Date(user.subscription_expires_at), new Date()) <= 0;
+                          const isSubscriptionExpired = user.subscription_expires_at && differenceInCalendarDays(new Date(user.subscription_expires_at), new Date()) <= 0;
                           
                           return (
                             <TableRow key={user.id} className={cn(isFrozen && "opacity-60", isPending && "bg-amber-500/5")}>
@@ -1048,7 +1048,7 @@ export default function Admin() {
 
                                       if (!effectiveExpiration) return null;
 
-                                      const daysLeft = differenceInDays(new Date(effectiveExpiration), new Date());
+                                      const daysLeft = Math.max(0, differenceInCalendarDays(new Date(effectiveExpiration), new Date()));
                                       const isExpired = daysLeft <= 0;
                                       const isExpiring = daysLeft <= 7;
 

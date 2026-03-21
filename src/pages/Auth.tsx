@@ -103,6 +103,15 @@ export default function Auth() {
   
   const [activeTab, setActiveTab] = useState('login');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [changeTempPassword, setChangeTempPassword] = useState('');
+  const [changeNewPassword, setChangeNewPassword] = useState('');
+  const [changeConfirmPassword, setChangeConfirmPassword] = useState('');
+  const [changeEmail, setChangeEmail] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showChangeTempPw, setShowChangeTempPw] = useState(false);
+  const [showChangeNewPw, setShowChangeNewPw] = useState(false);
+  const [showChangeConfirmPw, setShowChangeConfirmPw] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
 
   // Set password flow
@@ -283,6 +292,45 @@ export default function Auth() {
     }
 
     setIsLoading(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (changeNewPassword !== changeConfirmPassword) {
+      toast({ title: 'Senhas não coincidem', description: 'A nova senha e a confirmação devem ser iguais.', variant: 'destructive' });
+      return;
+    }
+    if (changeNewPassword.length < 6) {
+      toast({ title: 'Senha muito curta', description: 'A nova senha deve ter pelo menos 6 caracteres.', variant: 'destructive' });
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      // First sign in with temp password
+      const { error: signInError } = await signIn(changeEmail, changeTempPassword);
+      if (signInError) {
+        toast({ title: 'Senha temporária inválida', description: 'A senha temporária informada está incorreta.', variant: 'destructive' });
+        setIsChangingPassword(false);
+        return;
+      }
+      // Now update password
+      const { error: updateError } = await supabase.auth.updateUser({ password: changeNewPassword });
+      if (updateError) throw updateError;
+      toast({ title: 'Senha alterada com sucesso!', description: 'Você já pode fazer login com sua nova senha.' });
+      setShowChangePassword(false);
+      setLoginEmail(changeEmail);
+      setLoginPassword('');
+      setChangeTempPassword('');
+      setChangeNewPassword('');
+      setChangeConfirmPassword('');
+      setChangeEmail('');
+      // Sign out so user logs in fresh with new password
+      await supabase.auth.signOut();
+    } catch (err: any) {
+      toast({ title: 'Erro ao alterar senha', description: err.message || 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -839,16 +887,28 @@ export default function Auth() {
                     </div>
                   </div>
                   
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(true);
-                      setResetEmail(loginEmail);
-                    }}
-                    className="text-sm text-primary hover:underline w-full text-right"
-                  >
-                    Esqueci minha senha
-                  </button>
+                  <div className="flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowChangePassword(true);
+                        setChangeEmail(loginEmail);
+                      }}
+                      className="text-sm text-orange-500 hover:underline"
+                    >
+                      Alterar senha temporária
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(true);
+                        setResetEmail(loginEmail);
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </div>
 
                   <Button 
                     type="submit" 
@@ -1142,6 +1202,116 @@ export default function Auth() {
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       'Enviar'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Change Temporary Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="w-full max-w-sm mx-4">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-orange-500" />
+                Alterar Senha Temporária
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Digite a senha temporária fornecida pelo administrador e defina sua nova senha.
+              </p>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={changeEmail}
+                      onChange={(e) => setChangeEmail(e.target.value)}
+                      required
+                      className="pl-10 h-11"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Senha Temporária</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type={showChangeTempPw ? "text" : "password"}
+                      placeholder="Senha do administrador"
+                      value={changeTempPassword}
+                      onChange={(e) => setChangeTempPassword(e.target.value)}
+                      required
+                      className="pl-10 pr-10 h-11"
+                    />
+                    <button type="button" onClick={() => setShowChangeTempPw(!showChangeTempPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      {showChangeTempPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Nova Senha</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type={showChangeNewPw ? "text" : "password"}
+                      placeholder="Sua nova senha"
+                      value={changeNewPassword}
+                      onChange={(e) => setChangeNewPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="pl-10 pr-10 h-11"
+                    />
+                    <button type="button" onClick={() => setShowChangeNewPw(!showChangeNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      {showChangeNewPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Confirmar Nova Senha</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type={showChangeConfirmPw ? "text" : "password"}
+                      placeholder="Confirme a nova senha"
+                      value={changeConfirmPassword}
+                      onChange={(e) => setChangeConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="pl-10 pr-10 h-11"
+                    />
+                    <button type="button" onClick={() => setShowChangeConfirmPw(!showChangeConfirmPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      {showChangeConfirmPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                {changeNewPassword && changeConfirmPassword && changeNewPassword !== changeConfirmPassword && (
+                  <p className="text-xs text-destructive">As senhas não coincidem</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowChangePassword(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="flex-1 bg-orange-600 hover:bg-orange-700" 
+                    disabled={isChangingPassword || changeNewPassword !== changeConfirmPassword}
+                  >
+                    {isChangingPassword ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      'Alterar Senha'
                     )}
                   </Button>
                 </div>

@@ -302,6 +302,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
           </div>
         </div>
       )}
+    </div>
     );
   }
 

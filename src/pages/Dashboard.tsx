@@ -943,33 +943,83 @@ export default function Dashboard() {
               </p>
             </div>
           ) : viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-              {transformedProjects.map((project, index) => {
-                const account = getAccount(project.accountId);
-                const onlineUsers = getProjectOnlineUsers(project.id);
-                const checklistProgress = checklistProgressMap[project.id];
-                return (
-                  <div
-                    key={project.id}
-                    className="animate-slide-up"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <ProjectCard
-                      project={project}
-                      account={account}
-                      onlineUsers={onlineUsers}
-                      checklistProgress={checklistProgress}
-                      onToggleFavorite={handleToggleFavorite}
-                      onEdit={handleEditProject}
-                      onEditFiles={handleEditFiles}
-                      onDelete={handleDeleteProject}
-                      onArchive={handleArchiveProject}
-                      onShowHistory={handleShowHistory}
-                    />
+            (() => {
+              const totalPages = Math.ceil(transformedProjects.length / PROJECTS_PER_PAGE);
+              const safeCurrentPage = Math.min(currentPage, totalPages || 1);
+              const paginatedProjects = transformedProjects.slice(
+                (safeCurrentPage - 1) * PROJECTS_PER_PAGE,
+                safeCurrentPage * PROJECTS_PER_PAGE
+              );
+              return (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                    {paginatedProjects.map((project, index) => {
+                      const account = getAccount(project.accountId);
+                      const onlineUsers = getProjectOnlineUsers(project.id);
+                      const checklistProgress = checklistProgressMap[project.id];
+                      return (
+                        <div
+                          key={project.id}
+                          className="animate-slide-up"
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          <ProjectCard
+                            project={project}
+                            account={account}
+                            onlineUsers={onlineUsers}
+                            checklistProgress={checklistProgress}
+                            onToggleFavorite={handleToggleFavorite}
+                            onEdit={handleEditProject}
+                            onEditFiles={handleEditFiles}
+                            onDelete={handleDeleteProject}
+                            onArchive={handleArchiveProject}
+                            onShowHistory={handleShowHistory}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-6">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={safeCurrentPage <= 1}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className="rounded-lg"
+                      >
+                        ← Anterior
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                          <Button
+                            key={page}
+                            variant={page === safeCurrentPage ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className={cn(
+                              "w-9 h-9 rounded-lg text-sm",
+                              page === safeCurrentPage && "pointer-events-none"
+                            )}
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={safeCurrentPage >= totalPages}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className="rounded-lg"
+                      >
+                        Próximo →
+                      </Button>
+                    </div>
+                  )}
+                </>
+              );
+            })()
           ) : (
             <ProjectList
               projects={transformedProjects}

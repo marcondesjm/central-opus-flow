@@ -49,14 +49,20 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Force refresh all version/changelog data whenever modal opens
+  // Force refresh all version/changelog data whenever modal opens + auto-refresh every 10s
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    const refreshAll = () => {
       queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
       queryClient.invalidateQueries({ queryKey: ['changelog'] });
       queryClient.invalidateQueries({ queryKey: ['latest-version'] });
       queryClient.invalidateQueries({ queryKey: ['system-version'] });
-    }
+    };
+
+    refreshAll();
+    const interval = window.setInterval(refreshAll, 10_000);
+    return () => clearInterval(interval);
   }, [open, queryClient]);
 
   const handleRefresh = async () => {

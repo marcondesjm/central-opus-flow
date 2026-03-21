@@ -2200,17 +2200,9 @@ export default function KanbanPage() {
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                         className={cn(
-                                          'transition-shadow duration-200',
-                                          snapshot.isDragging 
-                                            ? 'shadow-xl shadow-primary/20 scale-[1.02] rotate-1 z-50' 
-                                            : 'hover:shadow-md'
+                                          snapshot.isDragging && 'shadow-lg z-50'
                                         )}
-                                        style={{
-                                          ...provided.draggableProps.style,
-                                          transition: snapshot.isDragging
-                                            ? provided.draggableProps.style?.transition
-                                            : 'transform 0.2s cubic-bezier(0.2,1,0.3,1), box-shadow 0.2s ease-out',
-                                        }}
+                                        style={provided.draggableProps.style}
                                       >
                                         <TaskCard
                                           deal={deal}

@@ -186,17 +186,17 @@ export default function Ideas() {
             </div>
 
             {/* Toolbar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 shadow-sm">
               {/* View switcher */}
-              <div className="flex items-center border rounded-lg bg-muted/30 p-0.5">
+              <div className="flex items-center rounded-lg bg-muted/40 p-0.5 ring-1 ring-border/30">
                 {viewButtons.map(({ mode, icon: Icon, label }) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all rounded-md',
+                      'flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium transition-all duration-200 rounded-md',
                       viewMode === mode
-                        ? 'bg-background text-foreground shadow-sm'
+                        ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -206,21 +206,23 @@ export default function Ideas() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
-                <div className="relative flex-1 max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="h-6 w-px bg-border/40 hidden sm:block" />
+
+              <div className="flex items-center gap-2.5 flex-1 w-full sm:w-auto">
+                <div className="relative flex-1 max-w-xs group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
                     placeholder="Buscar ideias..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 h-9 text-sm"
+                    className="pl-9 h-9 text-sm bg-background/60 border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all"
                   />
                 </div>
 
                 {viewMode !== 'board' && (
                   <Select value={filterRoadmap} onValueChange={setFilterRoadmap}>
-                    <SelectTrigger className="h-9 w-auto min-w-[130px] text-xs">
-                      <Filter className="w-3.5 h-3.5 mr-1.5" />
+                    <SelectTrigger className="h-9 w-auto min-w-[130px] text-xs bg-background/60 border-border/40 hover:border-primary/40 transition-colors">
+                      <Filter className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
                       <SelectValue placeholder="Roteiro" />
                     </SelectTrigger>
                     <SelectContent>
@@ -233,7 +235,7 @@ export default function Ideas() {
                 )}
 
                 {filtered.length > 0 && (
-                  <Badge variant="outline" className="text-xs tabular-nums h-9 px-3">
+                  <Badge variant="secondary" className="text-xs tabular-nums h-9 px-3.5 bg-primary/10 text-primary border-primary/20 font-semibold">
                     {filtered.length} {filtered.length === 1 ? 'ideia' : 'ideias'}
                   </Badge>
                 )}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target } from 'lucide-react';
+import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,6 +23,7 @@ import { subMonths, addMonths, format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 type ViewMode = 'table' | 'board' | 'timeline';
+const ITEMS_PER_PAGE = 10;
 
 export default function Ideas() {
   const { data: ideas, isLoading } = useIdeas();
@@ -30,6 +31,14 @@ export default function Ideas() {
   const createIdea = useCreateIdea();
   const bulkDelete = useBulkDeleteIdeas();
   const isMobile = useIsMobile();
+
+  // Inline creation state
+  const [isCreating, setIsCreating] = useState(false);
+  const [newIdeaTitle, setNewIdeaTitle] = useState('');
+  const createInputRef = useRef<HTMLInputElement>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch profiles for last_modified_by
   const modifierUserIds = useMemo(() => {
@@ -70,10 +79,10 @@ export default function Ideas() {
   };
 
   const toggleAll = () => {
-    if (selectedIds.size === filtered.length) {
+    if (selectedIds.size === paginatedIdeas.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(filtered.map(i => i.id)));
+      setSelectedIds(new Set(paginatedIdeas.map(i => i.id)));
     }
   };
 
@@ -84,20 +93,52 @@ export default function Ideas() {
     });
   };
 
-  const filtered = useMemo(() => (ideas || []).filter(idea => {
-    const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());
-    const matchesRoadmap = filterRoadmap === 'all' || idea.roadmap === filterRoadmap;
-    return matchesSearch && matchesRoadmap;
-  }), [ideas, search, filterRoadmap]);
+  // Filter and sort newest first
+  const filtered = useMemo(() => (ideas || [])
+    .filter(idea => {
+      const matchesSearch = !search || idea.title.toLowerCase().includes(search.toLowerCase());
+      const matchesRoadmap = filterRoadmap === 'all' || idea.roadmap === filterRoadmap;
+      return matchesSearch && matchesRoadmap;
+    })
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+  [ideas, search, filterRoadmap]);
+
+  // Pagination logic
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginatedIdeas = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, currentPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setCurrentPage(1); }, [search, filterRoadmap]);
 
   const handleCreate = (roadmap?: string) => {
-    createIdea.mutate({
-      title: 'Nova ideia',
-      theme: 'geral',
-      theme_color: '#6b7280',
-      roadmap: roadmap || 'now',
-      position: (ideas?.length || 0),
-    });
+    if (newIdeaTitle.trim()) {
+      createIdea.mutate({
+        title: newIdeaTitle.trim(),
+        theme: 'geral',
+        theme_color: '#6b7280',
+        roadmap: roadmap || 'now',
+        position: 0,
+      }, {
+        onSuccess: () => {
+          setNewIdeaTitle('');
+          setIsCreating(false);
+          setCurrentPage(1);
+        },
+      });
+    }
+  };
+
+  const handleOpenCreate = () => {
+    setIsCreating(true);
+    setTimeout(() => createInputRef.current?.focus(), 50);
+  };
+
+  const handleCancelCreate = () => {
+    setIsCreating(false);
+    setNewIdeaTitle('');
   };
 
   const currentIdea = selectedIdea ? (ideas || []).find(i => i.id === selectedIdea.id) || selectedIdea : null;

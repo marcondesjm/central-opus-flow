@@ -237,7 +237,6 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
                 <Github className="w-4 h-4" />
                 GitHub
               </Button>
-              </Button>
             </div>
           </>
         )}

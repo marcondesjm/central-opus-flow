@@ -21,6 +21,10 @@ export function RefreshButton({ className }: RefreshButtonProps) {
       await queryClient.invalidateQueries({ queryKey: ['accounts'] });
       await queryClient.invalidateQueries({ queryKey: ['tags'] });
       await queryClient.invalidateQueries({ queryKey: ['collaborated-projects'] });
+      await queryClient.invalidateQueries({ queryKey: ['system-version'] });
+      await queryClient.invalidateQueries({ queryKey: ['latest-version'] });
+      await queryClient.invalidateQueries({ queryKey: ['changelog'] });
+      await queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
       
       toast.success('Dados atualizados!');
     } catch (error) {

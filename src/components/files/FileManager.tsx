@@ -109,6 +109,10 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredFiles.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedFiles = filteredFiles.slice((safeCurrentPage - 1) * itemsPerPage, safeCurrentPage * itemsPerPage);
+
   const typeGroups = files.reduce<Record<string, number>>((acc, f) => {
     acc[f.file_type] = (acc[f.file_type] || 0) + 1;
     return acc;

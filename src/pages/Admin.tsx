@@ -78,6 +78,7 @@ import {
   Calendar,
   Globe,
   Send,
+  KeyRound,
 } from 'lucide-react';
 import { format, formatDistanceToNow, differenceInCalendarDays, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

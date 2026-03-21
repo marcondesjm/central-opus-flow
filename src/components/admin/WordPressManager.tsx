@@ -102,7 +102,16 @@ export function WordPressManager() {
     if (ext === 'zip' || ext === 'wpress') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        toast.error(`Nenhum arquivo XML válido foi encontrado dentro de "${file.name}".`);
+        // List files inside ZIP for better error message
+        try {
+          const zip = await JSZip.loadAsync(file);
+          const fileNames = Object.keys(zip.files).filter(n => !zip.files[n].dir).slice(0, 5);
+          const fileList = fileNames.join(', ');
+          const extra = Object.keys(zip.files).length > 5 ? ` e mais ${Object.keys(zip.files).length - 5} arquivos` : '';
+          toast.error(`Este ZIP não contém um arquivo de exportação WordPress (XML). Arquivos encontrados: ${fileList}${extra}. Use Ferramentas → Exportar no WordPress para gerar o XML correto.`);
+        } catch {
+          toast.error(`Nenhum arquivo XML de exportação WordPress encontrado dentro de "${file.name}". Use Ferramentas → Exportar no WordPress.`);
+        }
         return null;
       }
       return xml;

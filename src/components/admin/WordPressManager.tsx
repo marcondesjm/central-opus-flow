@@ -301,7 +301,7 @@ export function WordPressManager() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml,.zip,.rar"
+            accept=".xml,.zip,.rar,.wpress"
             onChange={handleFileUpload}
             className="hidden"
           />

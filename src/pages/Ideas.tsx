@@ -114,31 +114,21 @@ export default function Ideas() {
   useEffect(() => { setCurrentPage(1); }, [search, filterRoadmap]);
 
   const handleCreate = (roadmap?: string) => {
-    if (newIdeaTitle.trim()) {
-      createIdea.mutate({
-        title: newIdeaTitle.trim(),
-        theme: 'geral',
-        theme_color: '#6b7280',
-        roadmap: roadmap || 'now',
-        position: 0,
-      }, {
-        onSuccess: () => {
-          setNewIdeaTitle('');
-          setIsCreating(false);
-          setCurrentPage(1);
-        },
-      });
-    }
-  };
-
-  const handleOpenCreate = () => {
-    setIsCreating(true);
-    setTimeout(() => createInputRef.current?.focus(), 50);
-  };
-
-  const handleCancelCreate = () => {
-    setIsCreating(false);
-    setNewIdeaTitle('');
+    createIdea.mutate({
+      title: 'Nova ideia',
+      theme: 'geral',
+      theme_color: '#6b7280',
+      roadmap: roadmap || 'now',
+      position: 0,
+    }, {
+      onSuccess: (newIdea) => {
+        setCurrentPage(1);
+        // Open the detail panel with the new idea so user can edit inline
+        if (newIdea) {
+          setSelectedIdea(newIdea as Idea);
+        }
+      },
+    });
   };
 
   const currentIdea = selectedIdea ? (ideas || []).find(i => i.id === selectedIdea.id) || selectedIdea : null;

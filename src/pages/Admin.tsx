@@ -848,6 +848,10 @@ export default function Admin() {
                 <Rss className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Feeds RSS
               </TabsTrigger>
+              <TabsTrigger value="license-keys" className="gap-1.5 text-xs sm:text-sm">
+                <Key className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Chaves
+              </TabsTrigger>
             </TabsList>
           </div>
 

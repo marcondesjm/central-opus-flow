@@ -29,7 +29,8 @@ import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
-import { Download } from 'lucide-react';
+import { Download, CheckCircle2, Loader2 as DownloadSpinner } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface ChangelogModalProps {
   open: boolean;
@@ -52,6 +53,9 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [downloadPhase, setDownloadPhase] = useState<'idle' | 'downloading' | 'ready'>('idle');
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const totalMB = 12.4; // simulated total size
 
   // Force refresh all version/changelog data whenever modal opens + auto-refresh every 10s
   useEffect(() => {
@@ -125,6 +129,37 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
     return systemVersion?.version && lastSeen && lastSeen !== systemVersion.version;
   })();
 
+  // Auto-detect update on modal open
+  useEffect(() => {
+    if (open && hasUpdate && downloadPhase === 'idle') {
+      // reset for new update
+      setDownloadProgress(0);
+    }
+  }, [open, hasUpdate, downloadPhase]);
+
+  // Simulate download progress
+  useEffect(() => {
+    if (downloadPhase !== 'downloading') return;
+    let current = 0;
+    const interval = setInterval(() => {
+      current += Math.random() * 8 + 2;
+      if (current >= 100) {
+        current = 100;
+        clearInterval(interval);
+        setDownloadProgress(100);
+        setTimeout(() => setDownloadPhase('ready'), 500);
+      } else {
+        setDownloadProgress(Math.round(current));
+      }
+    }, 400);
+    return () => clearInterval(interval);
+  }, [downloadPhase]);
+
+  const handleStartDownload = () => {
+    setDownloadProgress(0);
+    setDownloadPhase('downloading');
+  };
+
   const handleInstallUpdate = () => {
     if (systemVersion?.version) {
       localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
@@ -163,17 +198,46 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <RefreshCw className={cn("h-3.5 w-3.5", (isRefreshing || isFetching) && "animate-spin")} />
               {isRefreshing || isFetching ? 'Atualizando...' : 'Atualizar'}
             </Button>
-            {hasUpdate && (
+            {hasUpdate && downloadPhase === 'idle' && (
               <Button
                 size="sm"
-                onClick={handleInstallUpdate}
+                onClick={handleStartDownload}
                 className="gap-2 h-8 px-3 text-xs"
               >
                 <Download className="h-3.5 w-3.5" />
-                Instalar v{systemVersion?.version}
+                Baixar v{systemVersion?.version}
               </Button>
             )}
           </div>
+          {/* Download progress bar */}
+          {hasUpdate && downloadPhase === 'downloading' && (
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground flex items-center gap-1.5">
+                  <Download className="h-3 w-3 animate-bounce" />
+                  Baixando atualização v{systemVersion?.version}...
+                </span>
+                <span className="font-mono text-muted-foreground">
+                  {((totalMB * (100 - downloadProgress)) / 100).toFixed(1)} MB restantes
+                </span>
+              </div>
+              <Progress value={downloadProgress} className="h-2" />
+              <p className="text-[10px] text-muted-foreground text-right">{downloadProgress}%</p>
+            </div>
+          )}
+          {/* Ready to install */}
+          {hasUpdate && downloadPhase === 'ready' && (
+            <div className="mt-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Atualização pronta para instalar</span>
+              </div>
+              <Button size="sm" onClick={handleInstallUpdate} className="gap-1.5 h-8 px-3 text-xs">
+                <RefreshCw className="h-3.5 w-3.5" />
+                Instalar Agora
+              </Button>
+            </div>
+          )}
           <DialogDescription>
             Confira todas as alterações e melhorias do sistema.
           </DialogDescription>

@@ -48,7 +48,8 @@ import { WhatsAppSupportButton } from '@/components/support/WhatsAppSupportButto
 import { ProjectStatus, ProjectType } from '@/types/project';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, ZoomIn, ZoomOut, Maximize2, AlertTriangle } from 'lucide-react';
+import { Loader2, ZoomIn, ZoomOut, Maximize2, AlertTriangle, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';

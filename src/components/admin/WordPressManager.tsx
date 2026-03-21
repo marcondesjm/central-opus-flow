@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive } from 'lucide-react';
+import { Upload, Trash2, Globe, Key, User, Plus, FileText, Loader2, ExternalLink, Download, Database, Archive, FolderOpen } from 'lucide-react';
 import JSZip from 'jszip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import {
 import { useCreateBlogPost } from '@/hooks/useBlog';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useUploadFile } from '@/hooks/useUserFiles';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -26,6 +27,7 @@ export function WordPressManager() {
   const createConnection = useCreateWordPressConnection();
   const deleteConnection = useDeleteWordPressConnection();
   const createPost = useCreateBlogPost();
+  const uploadFile = useUploadFile();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -102,27 +104,13 @@ export function WordPressManager() {
     if (ext === 'zip' || ext === 'wpress') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        // List files inside ZIP for better error message
-        try {
-          const zip = await JSZip.loadAsync(file);
-          const fileNames = Object.keys(zip.files).filter(n => !zip.files[n].dir).slice(0, 5);
-          const fileList = fileNames.join(', ');
-          const extra = Object.keys(zip.files).length > 5 ? ` e mais ${Object.keys(zip.files).length - 5} arquivos` : '';
-          toast.error(`Este ZIP não contém um arquivo de exportação WordPress (XML). Arquivos encontrados: ${fileList}${extra}. Use Ferramentas → Exportar no WordPress para gerar o XML correto.`);
-        } catch {
-          toast.error(`Nenhum arquivo XML de exportação WordPress encontrado dentro de "${file.name}". Use Ferramentas → Exportar no WordPress.`);
-        }
+        // No XML found — will be saved to file manager by caller
         return null;
       }
       return xml;
     }
 
-    if (ext === 'rar') {
-      toast.error('Arquivo .rar não é suportado aqui. Use .zip, .xml ou .wpress.');
-      return null;
-    }
-
-    toast.error('Formato não suportado. Use .xml, .zip ou .wpress.');
+    // Any other format — return null so caller saves to file manager
     return null;
   };
 
@@ -136,13 +124,34 @@ export function WordPressManager() {
     try {
       const xmlText = await extractXmlFromFile(file);
       if (!xmlText) {
+        // No XML found — save to file manager instead
+        try {
+          await uploadFile.mutateAsync({
+            file,
+            module: 'general',
+            description: `Arquivo WordPress importado: ${file.name}`,
+          });
+          toast.success(`Arquivo "${file.name}" salvo no Gerenciador de Arquivos!`);
+        } catch (uploadErr) {
+          console.error('Erro ao salvar no gerenciador:', uploadErr);
+        }
         return;
       }
 
       const posts = parseWordPressXML(xmlText);
 
       if (posts.length === 0) {
-        toast.error('Nenhum post encontrado no arquivo selecionado.');
+        // Has XML but no posts — still save the file
+        try {
+          await uploadFile.mutateAsync({
+            file,
+            module: 'general',
+            description: `Arquivo WordPress sem posts: ${file.name}`,
+          });
+          toast.info(`Nenhum post encontrado, mas o arquivo foi salvo no Gerenciador de Arquivos.`);
+        } catch (uploadErr) {
+          console.error('Erro ao salvar no gerenciador:', uploadErr);
+        }
         return;
       }
 
@@ -344,14 +353,13 @@ export function WordPressManager() {
             Importar Backup WordPress
           </CardTitle>
           <CardDescription>
-            Faça upload do arquivo de exportação do WordPress (.xml, .zip ou .wpress) para importar os posts automaticamente.
+            Faça upload de qualquer arquivo. Se contiver XML do WordPress, os posts serão importados. Caso contrário, será salvo no Gerenciador de Arquivos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xml,.zip,.wpress"
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -367,7 +375,7 @@ export function WordPressManager() {
             {importing ? (
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Importando posts...</p>
+                <p className="text-sm text-muted-foreground">Processando...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">
@@ -378,10 +386,10 @@ export function WordPressManager() {
                 <div>
                   <p className="font-medium">Clique para selecionar o arquivo</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Formatos aceitos: <span className="font-medium">.xml</span>, <span className="font-medium">.zip</span> ou <span className="font-medium">.wpress</span>
+                    Qualquer formato — XML importa posts, outros vão para Arquivos
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Arquivo de exportação do WordPress (Ferramentas → Exportar)
+                    WordPress XML, ZIP, RAR ou qualquer arquivo
                   </p>
                 </div>
               </div>

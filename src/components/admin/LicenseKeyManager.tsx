@@ -92,6 +92,22 @@ export function LicenseKeyManager() {
     toast.success(`${available.length} chave(s) exportada(s)`);
   };
 
+  const sendKeyViaWhatsApp = (key: LicenseKey, phone?: string) => {
+    const planLabel = key.plan === 'business' ? 'Business' : 'Pro';
+    const durationLabel = key.duration_type === 'annual' ? 'Anual (365 dias)' : 'Mensal (30 dias)';
+    const message = `🔑 *Sua Chave de Licença*\n\n` +
+      `Plano: *${planLabel}*\n` +
+      `Duração: *${durationLabel}*\n\n` +
+      `Chave: *${key.key_code}*\n\n` +
+      `Para ativar, acesse o sistema → Faturamento → "Ativar Chave de Licença" e cole a chave acima.\n\n` +
+      `⚠️ Esta chave é de uso único e intransferível.`;
+    const encodedMsg = encodeURIComponent(message);
+    const url = phone
+      ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodedMsg}`
+      : `https://wa.me/?text=${encodedMsg}`;
+    window.open(url, '_blank');
+  };
+
   const stats = {
     total: keys.length,
     available: keys.filter(k => k.status === 'available').length,

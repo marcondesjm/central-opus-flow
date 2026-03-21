@@ -174,7 +174,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
               className="overflow-y-auto"
               style={{ maxHeight: 'calc(100vh - 320px)' }}
             >
-              {sortedDeals.map(deal => {
+              {paginatedDeals.map(deal => {
                 const col = getColumnForDeal(deal);
                 return (
                   <div
@@ -191,7 +191,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
                   </div>
                 );
               })}
-              {sortedDeals.length === 0 && (
+              {paginatedDeals.length === 0 && (
                 <div className="h-16 flex items-center justify-center text-[10px] text-muted-foreground">
                   Nenhuma tarefa
                 </div>
@@ -255,7 +255,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
               {/* Deal bars */}
               <div className="relative" style={{ paddingTop: rowHeight }}>
-                {sortedDeals.map(deal => {
+                {paginatedDeals.map(deal => {
                   const { left, width } = getBarPosition(deal);
                   const barColor = priorityBarColors[deal.priority] || 'bg-violet-400';
 
@@ -344,7 +344,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
             className="overflow-y-auto"
             style={{ maxHeight: 'calc(100vh - 280px)' }}
           >
-            {sortedDeals.map(deal => {
+            {paginatedDeals.map(deal => {
               const col = getColumnForDeal(deal);
               const priority = getPriorityColor(deal);
               return (
@@ -364,7 +364,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
                 </div>
               );
             })}
-            {sortedDeals.length === 0 && (
+            {paginatedDeals.length === 0 && (
               <div className="h-20 flex items-center justify-center text-xs text-muted-foreground">
                 Nenhuma tarefa encontrada
               </div>
@@ -428,7 +428,7 @@ export function TimelineView({ deals, columns, onDetail }: TimelineViewProps) {
 
             {/* Deal bars */}
             <div className="relative" style={{ paddingTop: 40 }}>
-              {sortedDeals.map(deal => {
+              {paginatedDeals.map(deal => {
                 const { left, width } = getBarPosition(deal);
                 const barColor = priorityBarColors[deal.priority] || 'bg-violet-400';
                 const col = getColumnForDeal(deal);

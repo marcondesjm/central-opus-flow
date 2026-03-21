@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { saveAccountLocalKeys, getLocalKeys } from '@/hooks/useLocalKeys';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import JSZip from 'jszip';
 import { useWordPressConnections, useCreateWordPressConnection } from '@/hooks/useWordPress';
 import {
   AlertDialog,
@@ -80,25 +81,38 @@ export function ImportBackupButton({
   const updateProject = useUpdateProject();
   const createWpConnection = useCreateWordPressConnection();
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const extractJsonFromZip = async (file: File): Promise<any> => {
+    const zip = await JSZip.loadAsync(file);
+    const jsonFile = Object.keys(zip.files).find(name => name.endsWith('.json'));
+    if (!jsonFile) throw new Error('Nenhum arquivo .json encontrado dentro do arquivo compactado.');
+    const content = await zip.files[jsonFile].async('string');
+    return JSON.parse(content);
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string);
-        if (!data.version || !data.data) {
-          throw new Error('Arquivo de backup inválido');
-        }
-        setBackupData(data);
-        setOverwriteExisting(false);
-        setConfirmOpen(true);
-      } catch (error: any) {
-        toast({ title: 'Erro ao ler arquivo', description: error.message || 'O arquivo não é um backup válido.', variant: 'destructive' });
+    try {
+      let data: any;
+      const ext = file.name.split('.').pop()?.toLowerCase();
+
+      if (ext === 'zip' || ext === 'wpress') {
+        data = await extractJsonFromZip(file);
+      } else {
+        const text = await file.text();
+        data = JSON.parse(text);
       }
-    };
-    reader.readAsText(file);
+
+      if (!data.version || !data.data) {
+        throw new Error('Arquivo de backup inválido');
+      }
+      setBackupData(data);
+      setOverwriteExisting(false);
+      setConfirmOpen(true);
+    } catch (error: any) {
+      toast({ title: 'Erro ao ler arquivo', description: error.message || 'O arquivo não é um backup válido.', variant: 'destructive' });
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -384,7 +398,7 @@ export function ImportBackupButton({
 
   return (
     <>
-      <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelect} className="hidden" />
+      <input ref={fileInputRef} type="file" accept=".json,.zip,.wpress" onChange={handleFileSelect} className="hidden" />
       
       <Button variant={variant} size={size} onClick={() => fileInputRef.current?.click()} disabled={importing} className={className}>
         {importing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}

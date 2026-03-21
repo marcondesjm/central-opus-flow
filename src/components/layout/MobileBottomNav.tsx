@@ -1,69 +1,130 @@
-import { LayoutDashboard, Star, Archive, Tag, Plus } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Kanban, 
+  FileText, 
+  Sparkles, 
+  BarChart3,
+  Receipt,
+  FolderOpen,
+  UsersRound,
+  MoreHorizontal,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
-interface MobileBottomNavProps {
-  activeView: string;
-  onViewChange: (view: string) => void;
-  onNewProject: () => void;
-}
-
-const navItems = [
-  { id: 'all', label: 'Projetos', icon: LayoutDashboard },
-  { id: 'favorites', label: 'Favoritos', icon: Star },
-  { id: 'new', label: 'Novo', icon: Plus, isAction: true },
-  { id: 'archived', label: 'Arquivados', icon: Archive },
-  { id: 'tags', label: 'Tags', icon: Tag },
+const mainItems = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/kanban', label: 'Kanban', icon: Kanban },
+  { path: '/proposals', label: 'Propostas', icon: FileText },
+  { path: '/ideas', label: 'Ideias', icon: Sparkles },
 ];
 
-export function MobileBottomNav({ activeView, onViewChange, onNewProject }: MobileBottomNavProps) {
-  const handleClick = (item: typeof navItems[0]) => {
-    if (item.isAction) {
-      onNewProject();
-    } else {
-      onViewChange(item.id);
-    }
-  };
+const moreItems = [
+  { path: '/reports', label: 'Relatórios', icon: BarChart3 },
+  { path: '/billing', label: 'Faturamento', icon: Receipt },
+  { path: '/files', label: 'Arquivos', icon: FolderOpen },
+  { path: '/teams', label: 'Equipes', icon: UsersRound },
+];
+
+export function MobileBottomNav() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  const isActive = (path: string) =>
+    location.pathname === path ||
+    (path !== '/dashboard' && location.pathname.startsWith(path));
+
+  const moreIsActive = moreItems.some((item) => isActive(item.path));
 
   return (
-    <nav 
+    <nav
       className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border safe-area-bottom"
       role="navigation"
       aria-label="Menu principal"
     >
       <div className="flex items-center justify-around px-2 py-1">
-        {navItems.map((item) => {
+        {mainItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeView === item.id;
-          const isAction = item.isAction;
+          const active = isActive(item.path);
 
           return (
             <button
-              key={item.id}
-              onClick={() => handleClick(item)}
-              aria-current={isActive ? 'page' : undefined}
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              aria-current={active ? 'page' : undefined}
               aria-label={item.label}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 min-w-[60px]',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                isAction
-                  ? 'bg-primary text-primary-foreground shadow-lg -mt-4 rounded-full p-3'
-                  : isActive
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
+                active
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Icon className={cn('w-5 h-5', isAction && 'w-6 h-6')} />
-              {!isAction && (
-                <span className={cn(
-                  'text-[10px] font-medium',
-                  isActive && 'text-primary'
-                )}>
-                  {item.label}
-                </span>
-              )}
+              <Icon className="w-5 h-5" />
+              <span className={cn('text-[10px] font-medium', active && 'text-primary')}>
+                {item.label}
+              </span>
             </button>
           );
         })}
+
+        {/* More menu */}
+        <Popover open={moreOpen} onOpenChange={setMoreOpen}>
+          <PopoverTrigger asChild>
+            <button
+              aria-label="Mais opções"
+              className={cn(
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 min-w-[60px]',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                moreIsActive
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <MoreHorizontal className="w-5 h-5" />
+              <span className={cn('text-[10px] font-medium', moreIsActive && 'text-primary')}>
+                Mais
+              </span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            side="top"
+            align="end"
+            className="w-48 p-1"
+            sideOffset={8}
+          >
+            {moreItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    navigate(item.path);
+                    setMoreOpen(false);
+                  }}
+                  className={cn(
+                    'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    active
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-foreground hover:bg-accent'
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </PopoverContent>
+        </Popover>
       </div>
     </nav>
   );

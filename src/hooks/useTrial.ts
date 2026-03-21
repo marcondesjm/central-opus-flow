@@ -65,7 +65,7 @@ export function useTrial() {
         : data.expires_at
           ? new Date(data.expires_at)
           : user?.created_at
-            ? addDays(new Date(user.created_at), 15)
+            ? addDays(new Date(user.created_at), 7)
             : null;
 
       const now = new Date();

@@ -1143,7 +1143,7 @@ export default function Auth() {
                 Ver demonstração
               </Link>
               {' · '}
-              15 dias grátis
+              7 dias grátis
             </p>
               </>
             )}

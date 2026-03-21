@@ -394,6 +394,26 @@ export default function Admin() {
     setChangePlanDialogOpen(true);
   };
 
+  const handleResetPassword = async (user: AdminUser) => {
+    if (!user.email) return;
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth?tab=reset`,
+      });
+      if (error) throw error;
+      toast({
+        title: 'E-mail enviado',
+        description: `Link de redefinição de senha enviado para ${user.email}`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Erro ao enviar e-mail',
+        description: err.message || 'Tente novamente mais tarde.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleStatusChange = (user: AdminUser, status: UserStatus) => {
     setSelectedUser(user);
     setNewStatus(status);

@@ -101,44 +101,54 @@ export function WordPressManager() {
       return await file.text();
     }
 
-    if (ext === 'zip' || ext === 'wpress') {
+    if (ext === 'zip') {
       const xml = await extractXmlFromZip(file);
       if (!xml) {
-        // No XML found — will be saved to file manager by caller
         return null;
       }
       return xml;
     }
 
+    // .wpress uses a custom binary format (not zip) — skip XML extraction
     // Any other format — return null so caller saves to file manager
     return null;
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log('[WP Upload] Nenhum arquivo selecionado');
+      return;
+    }
 
+    console.log('[WP Upload] Arquivo selecionado:', file.name, file.type, file.size);
     setImporting(true);
     setImportResults(null);
 
     try {
       const xmlText = await extractXmlFromFile(file);
+      console.log('[WP Upload] XML encontrado:', !!xmlText);
+      
       if (!xmlText) {
         // No XML found — save to file manager instead
+        console.log('[WP Upload] Salvando no gerenciador de arquivos...');
         try {
           await uploadFile.mutateAsync({
             file,
             module: 'general',
             description: `Arquivo WordPress importado: ${file.name}`,
           });
+          console.log('[WP Upload] Salvo com sucesso no gerenciador');
           toast.success(`Arquivo "${file.name}" salvo no Gerenciador de Arquivos!`);
-        } catch (uploadErr) {
-          console.error('Erro ao salvar no gerenciador:', uploadErr);
+        } catch (uploadErr: any) {
+          console.error('[WP Upload] Erro ao salvar no gerenciador:', uploadErr?.message || uploadErr);
+          toast.error(`Erro ao salvar arquivo: ${uploadErr?.message || 'erro desconhecido'}`);
         }
         return;
       }
 
       const posts = parseWordPressXML(xmlText);
+      console.log('[WP Upload] Posts encontrados:', posts.length);
 
       if (posts.length === 0) {
         // Has XML but no posts — still save the file
@@ -149,8 +159,9 @@ export function WordPressManager() {
             description: `Arquivo WordPress sem posts: ${file.name}`,
           });
           toast.info(`Nenhum post encontrado, mas o arquivo foi salvo no Gerenciador de Arquivos.`);
-        } catch (uploadErr) {
-          console.error('Erro ao salvar no gerenciador:', uploadErr);
+        } catch (uploadErr: any) {
+          console.error('[WP Upload] Erro ao salvar no gerenciador:', uploadErr?.message || uploadErr);
+          toast.error(`Erro ao salvar arquivo: ${uploadErr?.message || 'erro desconhecido'}`);
         }
         return;
       }
@@ -179,9 +190,9 @@ export function WordPressManager() {
 
       setImportResults({ total: posts.length, imported });
       toast.success(`${imported} de ${posts.length} posts importados!`);
-    } catch (err) {
+    } catch (err: any) {
+      console.error('[WP Upload] Erro geral:', err?.message || err);
       toast.error('Erro ao processar o arquivo.');
-      console.error(err);
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

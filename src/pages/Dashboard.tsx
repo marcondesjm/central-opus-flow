@@ -632,7 +632,7 @@ export default function Dashboard() {
   }, [projects, activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter]);
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery]);
+  useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter]);
 
   const handleToggleFavorite = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);

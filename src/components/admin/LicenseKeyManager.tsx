@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Key, Plus, Ban, Copy, Search, Loader2, Download } from 'lucide-react';
+import { Key, Plus, Ban, Copy, Search, Loader2, Download, MessageCircle } from 'lucide-react';
 import { useLicenseKeys, useGenerateLicenseKeys, useRevokeLicenseKey, LicenseKey } from '@/hooks/useLicenseKeys';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -90,6 +90,22 @@ export function LicenseKeyManager() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success(`${available.length} chave(s) exportada(s)`);
+  };
+
+  const sendKeyViaWhatsApp = (key: LicenseKey, phone?: string) => {
+    const planLabel = key.plan === 'business' ? 'Business' : 'Pro';
+    const durationLabel = key.duration_type === 'annual' ? 'Anual (365 dias)' : 'Mensal (30 dias)';
+    const message = `🔑 *Sua Chave de Licença*\n\n` +
+      `Plano: *${planLabel}*\n` +
+      `Duração: *${durationLabel}*\n\n` +
+      `Chave: *${key.key_code}*\n\n` +
+      `Para ativar, acesse o sistema → Faturamento → "Ativar Chave de Licença" e cole a chave acima.\n\n` +
+      `⚠️ Esta chave é de uso único e intransferível.`;
+    const encodedMsg = encodeURIComponent(message);
+    const url = phone
+      ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodedMsg}`
+      : `https://wa.me/?text=${encodedMsg}`;
+    window.open(url, '_blank');
   };
 
   const stats = {
@@ -276,19 +292,30 @@ export function LicenseKeyManager() {
                             ? format(new Date(key.expires_at), "dd/MM/yyyy", { locale: ptBR })
                             : '-'}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right space-x-1">
                           {key.status === 'available' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setRevokeTarget(key);
-                                setRevokeDialogOpen(true);
-                              }}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Ban className="w-3.5 h-3.5" />
-                            </Button>
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sendKeyViaWhatsApp(key)}
+                                className="text-emerald-600 hover:text-emerald-700"
+                                title="Enviar via WhatsApp"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setRevokeTarget(key);
+                                  setRevokeDialogOpen(true);
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Ban className="w-3.5 h-3.5" />
+                              </Button>
+                            </>
                           )}
                           {key.status === 'activated' && (
                             <Button

@@ -1928,6 +1928,44 @@ export default function Admin() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Reset Password Dialog */}
+      <AlertDialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-orange-600" />
+              Redefinir Senha
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Defina uma nova senha para <strong>{resetPasswordUser?.full_name || resetPasswordUser?.email}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              type="password"
+              placeholder="Nova senha (mínimo 6 caracteres)"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              minLength={6}
+            />
+            {newPassword.length > 0 && newPassword.length < 6 && (
+              <p className="text-xs text-destructive mt-1">A senha deve ter pelo menos 6 caracteres</p>
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmResetPassword} 
+              disabled={resettingPassword || newPassword.length < 6}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {resettingPassword ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <KeyRound className="w-4 h-4 mr-2" />}
+              Redefinir Senha
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

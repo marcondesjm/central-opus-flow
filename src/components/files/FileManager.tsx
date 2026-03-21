@@ -296,6 +296,14 @@ function FileCard({ file, onDelete }: { file: UserFile; onDelete: (f: UserFile) 
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <a
           href={url}
+          download={file.file_name}
+          className="w-7 h-7 rounded-lg bg-card/90 backdrop-blur border flex items-center justify-center hover:bg-card transition-colors"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Download className="w-3.5 h-3.5" />
+        </a>
+        <a
+          href={url}
           target="_blank"
           rel="noopener noreferrer"
           className="w-7 h-7 rounded-lg bg-card/90 backdrop-blur border flex items-center justify-center hover:bg-card transition-colors"

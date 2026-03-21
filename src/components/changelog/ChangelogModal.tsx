@@ -158,7 +158,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
                       </Badge>
                       {date && (
                         <span className="text-sm text-muted-foreground">
-                          {format(new Date(date), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                          {format(new Date(date), "dd 'de' MMMM 'de' yyyy 'às' HH:mm:ss", { locale: ptBR })}
                         </span>
                       )}
                     </div>

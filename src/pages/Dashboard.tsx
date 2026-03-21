@@ -850,9 +850,6 @@ export default function Dashboard() {
             <p className="text-sm text-muted-foreground mt-1">{t('dashboardPage.subtitle', 'Visão geral dos seus projetos e atividades')}</p>
           </div>
 
-  // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery]);
-
 
 
 

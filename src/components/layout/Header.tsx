@@ -120,7 +120,7 @@ export function Header({
   }, [user?.id]);
 
   return (
-    <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm gap-2 sm:gap-4">
+    <header className="h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm gap-2 sm:gap-4 overflow-visible">
       {/* Mobile Menu */}
       {mobileMenuTrigger}
 

@@ -4,13 +4,10 @@ import { useAuth } from '@/hooks/useAuth';
 
 declare const __BUILD_TIMESTAMP__: string;
 
-const BUILD_KEY = 'last_build_timestamp';
-const STORAGE_KEY = 'app_last_build_ts';
-
 /**
  * Detecta novos builds e incrementa automaticamente a versão patch.
- * Compara o timestamp do build atual com o salvo em localStorage.
- * Se diferente, chama register_changelog no banco.
+ * Compara o timestamp do build atual com o último registrado no banco.
+ * Só incrementa uma vez por build (compartilhado entre todos os usuários).
  */
 export function AutoVersionBump() {
   const { user } = useAuth();
@@ -21,13 +18,24 @@ export function AutoVersionBump() {
     hasRun.current = true;
 
     const currentBuild = __BUILD_TIMESTAMP__;
-    const lastBuild = localStorage.getItem(STORAGE_KEY);
 
-    if (lastBuild === currentBuild) return;
-
-    // New build detected — bump version
     (async () => {
       try {
+        // Check the last registered build timestamp in the DB
+        const { data: configRow } = await supabase
+          .from('system_config')
+          .select('value')
+          .eq('key', 'last_build_timestamp')
+          .maybeSingle();
+
+        const lastBuild = configRow?.value;
+
+        if (lastBuild === currentBuild) {
+          console.log('[AutoVersionBump] Build já registrado, ignorando.');
+          return;
+        }
+
+        // New build detected — bump version
         const { data, error } = await supabase.rpc('register_changelog', {
           _title: 'Build atualizado',
           _description: `Deploy automático em ${new Date(currentBuild).toLocaleString('pt-BR')}`,
@@ -35,12 +43,22 @@ export function AutoVersionBump() {
           _bump: 'patch',
         });
 
-        if (!error) {
-          localStorage.setItem(STORAGE_KEY, currentBuild);
-          console.log('[AutoVersionBump] Versão incrementada:', data);
+        if (error) {
+          console.error('[AutoVersionBump] Erro ao registrar:', error.message);
+          return;
         }
+
+        // Save the build timestamp to prevent duplicate bumps
+        await supabase
+          .from('system_config')
+          .upsert(
+            { key: 'last_build_timestamp', value: currentBuild, updated_at: new Date().toISOString() },
+            { onConflict: 'key' }
+          );
+
+        console.log('[AutoVersionBump] Versão incrementada:', data);
       } catch (err) {
-        console.error('[AutoVersionBump] Erro ao incrementar versão:', err);
+        console.error('[AutoVersionBump] Erro:', err);
       }
     })();
   }, [user]);

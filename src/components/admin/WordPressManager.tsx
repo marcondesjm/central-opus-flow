@@ -17,6 +17,7 @@ import {
 import { useCreateBlogPost } from '@/hooks/useBlog';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useUploadFile } from '@/hooks/useUserFiles';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

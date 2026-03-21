@@ -349,8 +349,8 @@ export function WordPressManager() {
               {importingBackup ? 'Importando...' : 'Importar Conexões'}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            As conexões também são incluídas no backup geral do sistema (Exportar Backup).
+          <p className="text-xs text-muted-foreground mt-2">
+            Incluídas no backup geral do sistema.
           </p>
         </CardContent>
       </Card>

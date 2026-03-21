@@ -2188,7 +2188,7 @@ export default function KanbanPage() {
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
                                 className={cn(
-                                  'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0 transition-colors',
+                                  'rounded-b-lg p-2 space-y-2 min-h-[200px] border border-t-0',
                                   snapshot.isDraggingOver ? 'bg-primary/5 border-primary/30' : 'bg-card/80 border-border'
                                 )}
                               >

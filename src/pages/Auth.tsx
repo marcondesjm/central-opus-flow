@@ -887,16 +887,28 @@ export default function Auth() {
                     </div>
                   </div>
                   
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(true);
-                      setResetEmail(loginEmail);
-                    }}
-                    className="text-sm text-primary hover:underline w-full text-right"
-                  >
-                    Esqueci minha senha
-                  </button>
+                  <div className="flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowChangePassword(true);
+                        setChangeEmail(loginEmail);
+                      }}
+                      className="text-sm text-orange-500 hover:underline"
+                    >
+                      Alterar senha temporária
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(true);
+                        setResetEmail(loginEmail);
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </div>
 
                   <Button 
                     type="submit" 

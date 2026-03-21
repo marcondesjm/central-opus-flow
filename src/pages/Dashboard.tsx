@@ -847,10 +847,8 @@ export default function Dashboard() {
             <p className="text-sm text-muted-foreground mt-1">{t('dashboardPage.subtitle', 'Visão geral dos seus projetos e atividades')}</p>
           </div>
 
-          {/* Daily Scheduled Messages Report */}
-          <div className="mb-4">
-            <DailyScheduledMessagesReport />
-          </div>
+
+
 
           {/* Overdue Alert Banner */}
           {overdueProjects.length > 0 && (

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy, Send } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, Tag, Clock, Star, MessageSquare, Lightbulb, FileText, Download, Copy, Send, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

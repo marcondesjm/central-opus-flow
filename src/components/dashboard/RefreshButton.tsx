@@ -13,20 +13,34 @@ export function RefreshButton({ className }: RefreshButtonProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
+  const refreshKeys = [
+    ['projects'],
+    ['accounts'],
+    ['tags'],
+    ['collaborated-projects'],
+    ['system-version'],
+    ['latest-version'],
+    ['changelog'],
+    ['changelog-by-version'],
+    ['activity-logs'],
+    ['project-history'],
+  ] as const;
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     
     try {
-      await queryClient.invalidateQueries({ queryKey: ['projects'] });
-      await queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      await queryClient.invalidateQueries({ queryKey: ['tags'] });
-      await queryClient.invalidateQueries({ queryKey: ['collaborated-projects'] });
-      await queryClient.invalidateQueries({ queryKey: ['system-version'] });
-      await queryClient.invalidateQueries({ queryKey: ['latest-version'] });
-      await queryClient.invalidateQueries({ queryKey: ['changelog'] });
-      await queryClient.invalidateQueries({ queryKey: ['changelog-by-version'] });
+      await Promise.all(
+        refreshKeys.map((queryKey) => queryClient.resetQueries({ queryKey }))
+      );
+
+      await Promise.all(
+        refreshKeys.map((queryKey) =>
+          queryClient.refetchQueries({ queryKey, type: 'all' })
+        )
+      );
       
-      toast.success('Dados atualizados!');
+      toast.success('Históricos e versão atualizados!');
     } catch (error) {
       toast.error('Erro ao atualizar dados');
     } finally {

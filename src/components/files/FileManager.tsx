@@ -225,6 +225,19 @@ export function FileManager({ module, moduleItemId, compact = false }: FileManag
                 <ExternalLink className="w-4 h-4" />
                 Google Drive
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 rounded-xl"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open('https://github.com', '_blank');
+                }}
+              >
+                <Github className="w-4 h-4" />
+                GitHub
+              </Button>
+              </Button>
             </div>
           </>
         )}

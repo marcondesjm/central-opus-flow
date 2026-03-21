@@ -1244,6 +1244,7 @@ export default function KanbanPage() {
 
   // Optimistic local state for drag-and-drop
   const [localDealOverrides, setLocalDealOverrides] = useState<Record<string, KanbanDeal[]> | null>(null);
+  const dragPendingRef = useRef(false);
 
   const computedDealsByColumn = useMemo(() => {
     const now = new Date();
@@ -1288,14 +1289,25 @@ export default function KanbanPage() {
 
   // Clear local overrides when query data changes (after DB sync)
   useEffect(() => {
-    setLocalDealOverrides(null);
+    if (!dragPendingRef.current) {
+      setLocalDealOverrides(null);
+    }
   }, [filteredDeals]);
 
   const totalRevenue = useMemo(() => deals?.reduce((s, d) => s + Number(d.revenue), 0) || 0, [deals]);
 
   const handleDragEnd = async (result: DropResult) => {
     const { draggableId, destination, source, type } = result;
-    if (!destination) return;
+    if (!destination) {
+      dragPendingRef.current = false;
+      return;
+    }
+
+    // Skip if dropped in same position
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      dragPendingRef.current = false;
+      return;
+    }
 
     // Force manual sort during drag
     setSortMode('default');
@@ -1392,6 +1404,8 @@ export default function KanbanPage() {
     }
 
     queryClient.invalidateQueries({ queryKey: ['kanban-deals'] });
+    // Allow overrides to be cleared after DB sync completes
+    setTimeout(() => { dragPendingRef.current = false; }, 1500);
   };
 
   const kanbanRef = useRef<HTMLDivElement>(null);
@@ -1983,7 +1997,7 @@ export default function KanbanPage() {
 
       {/* Views */}
       {viewMode === 'kanban' ? (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext onDragStart={() => { dragPendingRef.current = true; }} onDragEnd={handleDragEnd}>
           {/* Top scrollbar for accessibility */}
           <div
             ref={topScrollRef}

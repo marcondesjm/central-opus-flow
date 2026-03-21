@@ -78,6 +78,7 @@ import {
   Calendar,
   Globe,
   Send,
+  KeyRound,
 } from 'lucide-react';
 import { format, formatDistanceToNow, differenceInCalendarDays, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -391,6 +392,26 @@ export default function Admin() {
     setNewPlan(plan);
     setNewSubscriptionType((user.subscription_type as 'monthly' | 'annual') || 'monthly');
     setChangePlanDialogOpen(true);
+  };
+
+  const handleResetPassword = async (user: AdminUser) => {
+    if (!user.email) return;
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth?tab=reset`,
+      });
+      if (error) throw error;
+      toast({
+        title: 'E-mail enviado',
+        description: `Link de redefinição de senha enviado para ${user.email}`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Erro ao enviar e-mail',
+        description: err.message || 'Tente novamente mais tarde.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleStatusChange = (user: AdminUser, status: UserStatus) => {
@@ -1203,6 +1224,10 @@ export default function Admin() {
                                     >
                                       <Send className="w-4 h-4 mr-2" />
                                       Enviar Mensagem
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleResetPassword(user)}>
+                                      <KeyRound className="w-4 h-4 mr-2 text-orange-600" />
+                                      <span className="text-orange-600">Resetar Senha</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => { setAssignKeyUser(user); setAssignKeyDialogOpen(true); }}>

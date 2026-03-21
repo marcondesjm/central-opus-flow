@@ -173,7 +173,7 @@ export default function Admin() {
   const [newSubscriptionType, setNewSubscriptionType] = useState<'monthly' | 'annual'>('monthly');
   const [newStatus, setNewStatus] = useState<UserStatus>('active');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<SortField>('created_at');
+  const [sortField, setSortField] = useState<SortField>('last_active_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [previewUser, setPreviewUser] = useState<AdminUser | null>(null);
   const [previewData, setPreviewData] = useState<{ accounts: any[]; projects: any[]; kanbanDeals: any[]; kanbanColumns: any[]; ideas: any[]; proposals: any[] } | null>(null);
@@ -369,6 +369,11 @@ export default function Admin() {
           break;
         case 'projects_count':
           comparison = (a.projects_count || 0) - (b.projects_count || 0);
+          break;
+        case 'last_active_at':
+          const aTime = a.last_active_at ? new Date(a.last_active_at).getTime() : 0;
+          const bTime = b.last_active_at ? new Date(b.last_active_at).getTime() : 0;
+          comparison = aTime - bTime;
           break;
       }
       

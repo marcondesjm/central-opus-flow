@@ -193,7 +193,7 @@ export function ProjectCodePanel({ projectId, repositoryUrl, onRepositoryUrlChan
             multiple
             className="hidden"
             onChange={handleFileUpload}
-            accept=".zip,.rar,.7z,.tar,.gz,.js,.ts,.tsx,.jsx,.html,.css,.py,.php,.json,.sql,.md,.txt,.pdf,.doc,.docx"
+            accept="*"
           />
           <Button
             variant="outline"

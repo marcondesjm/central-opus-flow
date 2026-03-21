@@ -121,6 +121,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           <main className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
             <div className="flex-1">
+              <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                <DailyScheduledMessagesReport />
+              </div>
               {children}
             </div>
             <AppFooter />

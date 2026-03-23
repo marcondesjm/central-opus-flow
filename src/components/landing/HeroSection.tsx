@@ -47,7 +47,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          Envie sua landing page, receba comentários organizados, controle revisões
+          Envie seu projeto, receba comentários organizados, controle revisões
           e obtenha aprovação — tudo num fluxo simples.
         </motion.p>
 

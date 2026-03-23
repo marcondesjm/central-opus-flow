@@ -6,7 +6,7 @@ const steps = [
     icon: Send,
     number: '01',
     title: 'Envie sua versão',
-    description: 'Compartilhe o link da landing page com seu cliente.',
+    description: 'Compartilhe o link do projeto com seu cliente.',
   },
   {
     icon: MessageSquare,
@@ -57,7 +57,7 @@ export function SolutionSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Com o Central Opus, você envia sua landing page, recebe feedback
+          Com o Central Opus, você envia seu projeto, recebe feedback
           organizado e controla aprovações — tudo em um único fluxo.
         </motion.p>
 

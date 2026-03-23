@@ -370,7 +370,25 @@ export default function ProjectPublic() {
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Cliente</Badge>
                     )}
                   </div>
-                  <p className="text-muted-foreground text-xs">{f.comment}</p>
+                  {(() => {
+                    const parts = f.comment.split('\n\n📎 Imagens anexadas:\n');
+                    const text = parts[0];
+                    const imageLinks = parts[1]?.split('\n').filter(Boolean) || [];
+                    return (
+                      <>
+                        <p className="text-muted-foreground text-xs whitespace-pre-wrap">{text}</p>
+                        {imageLinks.length > 0 && (
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {imageLinks.map((url, i) => (
+                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border hover:opacity-80 transition" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

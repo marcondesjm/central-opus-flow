@@ -361,15 +361,17 @@ export function Sidebar({
           </div>
         )}
 
-        {/* ── GESTÃO (collapsible group) ── */}
-        <SectionLabel>{t('sidebar.management')}</SectionLabel>
-        <Collapsible>
-          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
+        {/* ── Separator ── */}
+        <div className="my-3 mx-2 border-t border-sidebar-border" />
+
+        {/* ── GESTÃO (collapsible, closed by default) ── */}
+        <Collapsible open={managementOpen} onOpenChange={setManagementOpen}>
+          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
             <div className="flex items-center gap-3">
-              <Settings2 className="w-4 h-4" aria-hidden="true" />
-              <span>{t('sidebar.management')}</span>
+              <Receipt className="w-4 h-4" aria-hidden="true" />
+              <span>💼 {t('sidebar.management')}</span>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+            <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', managementOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
             {sidebarVisibility.proposals && (
@@ -388,14 +390,14 @@ export function Sidebar({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* ── MAIS (collapsible group) ── */}
-        <Collapsible>
-          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md mt-0.5">
+        {/* ── MAIS (collapsible, closed by default) ── */}
+        <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
+          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary mt-0.5">
             <div className="flex items-center gap-3">
-              <Plus className="w-4 h-4" aria-hidden="true" />
-              <span>{t('sidebar.more')}</span>
+              <Settings2 className="w-4 h-4" aria-hidden="true" />
+              <span>⚙️ {t('sidebar.more')}</span>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+            <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', moreOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
             <NavItem icon={Sparkles} label={t('sidebar.ideas')} onClick={() => navigate('/ideas')} active={isRouteActive('/ideas')} />

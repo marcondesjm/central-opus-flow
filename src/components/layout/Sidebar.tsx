@@ -260,7 +260,7 @@ export function Sidebar({
             onClick={() => navigate('/dashboard?newProject=true')}
           >
             <Plus className="w-4 h-4" />
-            Novo Projeto
+            Nova Landing Page
           </Button>
 
           {/* Aprovações - HERO item */}

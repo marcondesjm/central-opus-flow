@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useProjectFeedback, useResolveFeedback, ProjectFeedback } from '@/hooks/useProjectFeedback';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, CheckCircle2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MessageCircle, CheckCircle2, Loader2, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 const PER_PAGE = 3;
+
+const IMAGE_URL_REGEX = /(https?:\/\/[^\s]+\.(?:png|jpe?g|webp|gif|svg)(?:\?[^\s]*)?)/gi;
 
 interface ProjectFeedbackTabProps {
   projectId: string;
@@ -91,6 +93,9 @@ export function ProjectFeedbackTab({ projectId }: ProjectFeedbackTabProps) {
 }
 
 function FeedbackItem({ feedback, onResolve, resolved }: { feedback: ProjectFeedback; onResolve?: (id: string) => void; resolved?: boolean }) {
+  const imageUrls = Array.from(new Set(feedback.comment.match(IMAGE_URL_REGEX) ?? []));
+  const commentText = feedback.comment.replace(IMAGE_URL_REGEX, '').replace(/\n{2,}/g, '\n').trim();
+
   return (
     <div className={cn(
       'p-3 rounded-lg border text-sm',
@@ -107,7 +112,22 @@ function FeedbackItem({ feedback, onResolve, resolved }: { feedback: ProjectFeed
               {format(new Date(feedback.created_at), "dd MMM HH:mm", { locale: ptBR })}
             </span>
           </div>
-          <p className="text-muted-foreground text-xs">"{feedback.comment}"</p>
+          {commentText ? (
+            <p className="text-muted-foreground text-xs whitespace-pre-line">"{commentText}"</p>
+          ) : null}
+
+          {imageUrls.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {imageUrls.map((url, index) => (
+                <Button key={url} variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" asChild>
+                  <a href={url} download target="_blank" rel="noreferrer">
+                    <Download className="w-3 h-3" />
+                    Baixar imagem {imageUrls.length > 1 ? index + 1 : ''}
+                  </a>
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
         {!resolved && onResolve && (
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1"

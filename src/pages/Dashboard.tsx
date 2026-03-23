@@ -810,7 +810,29 @@ export default function Dashboard() {
     }
   };
 
-  // Transform project data for components — deduplicate by id
+  // Transform ALL projects for ActionCenter stats (unfiltered)
+  const allTransformedProjects = projects
+    .filter((p, index, self) => self.findIndex(x => x.id === p.id) === index)
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      description: p.description || '',
+      url: p.url || '',
+      screenshot: p.screenshot,
+      status: p.status,
+      type: p.type,
+      accountId: p.account_id,
+      createdAt: new Date(p.created_at),
+      updatedAt: new Date(p.updated_at),
+      deadline: p.deadline ? new Date(p.deadline) : null,
+      isFavorite: p.is_favorite,
+      tags: p.tags?.map(t => t.name) || [],
+      notes: p.notes,
+      viewCount: p.view_count,
+      progress: p.progress ?? 0,
+    }));
+
+  // Transform FILTERED project data for list/grid
   const transformedProjects = filteredProjects
     .filter((p, index, self) => self.findIndex(x => x.id === p.id) === index)
     .map(p => ({

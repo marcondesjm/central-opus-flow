@@ -120,6 +120,45 @@ export function useNotifications() {
     };
   }, [user]);
 
+  // Listen for new project feedback
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('notif-feedback-watch')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'project_feedback',
+        },
+        async (payload) => {
+          const fb = payload.new as any;
+          // Check if the project belongs to the current user
+          const { data: project } = await supabase
+            .from('projects')
+            .select('id, name, user_id')
+            .eq('id', fb.project_id)
+            .single();
+
+          if (project && project.user_id === user.id) {
+            const typeLabel = fb.author_type === 'client' ? 'Cliente' : 'Equipe';
+            addNotification({
+              title: `💬 Novo feedback em "${project.name}"`,
+              message: `${fb.author_name} (${typeLabel}): ${fb.comment?.substring(0, 100)}${fb.comment?.length > 100 ? '...' : ''}`,
+              type: 'info',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, addNotification]);
+
   // Add welcome notification on first visit
   useEffect(() => {
     const welcomeShown = localStorage.getItem(WELCOME_SHOWN_KEY);

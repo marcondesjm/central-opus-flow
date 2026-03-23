@@ -1,14 +1,40 @@
+import { useState } from 'react';
 import { useProjectFeedback, useResolveFeedback, ProjectFeedback } from '@/hooks/useProjectFeedback';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { MessageCircle, CheckCircle2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 
+const PER_PAGE = 3;
+
 interface ProjectFeedbackTabProps {
   projectId: string;
+}
+
+function PaginatedList({ items, renderItem }: { items: any[]; renderItem: (item: any) => React.ReactNode }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(items.length / PER_PAGE);
+  const paged = items.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+
+  return (
+    <div className="space-y-2">
+      {paged.map(renderItem)}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Button variant="outline" size="icon" className="h-7 w-7" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <span className="text-xs text-muted-foreground">{page + 1} / {totalPages}</span>
+          <Button variant="outline" size="icon" className="h-7 w-7" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ProjectFeedbackTab({ projectId }: ProjectFeedbackTabProps) {
@@ -46,18 +72,18 @@ export function ProjectFeedbackTab({ projectId }: ProjectFeedbackTabProps) {
       {pending.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Pendentes</h4>
-          {pending.map(f => (
+          <PaginatedList items={pending} renderItem={(f) => (
             <FeedbackItem key={f.id} feedback={f} onResolve={handleResolve} />
-          ))}
+          )} />
         </div>
       )}
 
       {resolved.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Resolvidos</h4>
-          {resolved.map(f => (
+          <PaginatedList items={resolved} renderItem={(f) => (
             <FeedbackItem key={f.id} feedback={f} resolved />
-          ))}
+          )} />
         </div>
       )}
     </div>

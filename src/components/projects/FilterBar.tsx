@@ -107,8 +107,10 @@ export function FilterBar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
-              <SelectItem value="published">{t('filters.published')}</SelectItem>
+              <SelectItem value="approved">Aprovado</SelectItem>
               <SelectItem value="draft">{t('filters.draft')}</SelectItem>
+              <SelectItem value="review">Em Revisão</SelectItem>
+              <SelectItem value="changes">Ajustes</SelectItem>
               <SelectItem value="archived">{t('filters.archived')}</SelectItem>
             </SelectContent>
           </Select>

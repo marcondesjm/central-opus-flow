@@ -982,7 +982,7 @@ export default function Dashboard() {
                 }
               </p>
               {projects.length === 0 && (
-                <Button onClick={() => setAddProjectOpen(true)} size="lg" className="rounded-xl gap-2 px-8">
+                <Button onClick={handleNewProject} size="lg" className="rounded-xl gap-2 px-8">
                   <span className="text-lg">+</span>
                   Nova Landing Page
                 </Button>

@@ -28,6 +28,8 @@ import { TrialBanner } from '@/components/subscription/TrialBanner';
 import { SubscriptionExpirationBanner } from '@/components/subscription/SubscriptionExpirationBanner';
 import { WhatsAppRequiredBanner } from '@/components/subscription/WhatsAppRequiredBanner';
 import { TrialExpiredModal } from '@/components/subscription/TrialExpiredModal';
+import { UpgradeModal } from '@/components/subscription/UpgradeModal';
+import { usePaywall } from '@/hooks/usePaywall';
 
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';

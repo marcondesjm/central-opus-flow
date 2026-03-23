@@ -120,6 +120,59 @@ export function useNotifications() {
     };
   }, [user]);
 
+  // Ref for addNotification to avoid circular dependency
+  const addNotificationRef = useCallback((
+    notification: Omit<Notification, 'id' | 'read' | 'createdAt'>
+  ) => {
+    const newNotification: Notification = {
+      ...notification,
+      id: generateId(),
+      read: false,
+      createdAt: new Date(),
+    };
+    setLocalNotifications(prev => [newNotification, ...prev].slice(0, 50));
+    return newNotification;
+  }, []);
+
+  // Listen for new project feedback
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('notif-feedback-watch')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'project_feedback',
+        },
+        async (payload) => {
+          const fb = payload.new as any;
+          // Check if the project belongs to the current user
+          const { data: project } = await supabase
+            .from('projects')
+            .select('id, name, user_id')
+            .eq('id', fb.project_id)
+            .single();
+
+          if (project && project.user_id === user.id) {
+            const typeLabel = fb.author_type === 'client' ? 'Cliente' : 'Equipe';
+            addNotificationRef({
+              title: `💬 Novo feedback em "${project.name}"`,
+              message: `${fb.author_name} (${typeLabel}): ${fb.comment?.substring(0, 100)}${fb.comment?.length > 100 ? '...' : ''}`,
+              type: 'info',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, addNotificationRef]);
+
   // Add welcome notification on first visit
   useEffect(() => {
     const welcomeShown = localStorage.getItem(WELCOME_SHOWN_KEY);
@@ -209,19 +262,7 @@ export function useNotifications() {
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 50);
 
-  const addNotification = useCallback((
-    notification: Omit<Notification, 'id' | 'read' | 'createdAt'>
-  ) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: generateId(),
-      read: false,
-      createdAt: new Date(),
-    };
-    
-    setLocalNotifications(prev => [newNotification, ...prev].slice(0, 50));
-    return newNotification;
-  }, []);
+  const addNotification = addNotificationRef;
 
   const markAsRead = useCallback((id: string) => {
     if (id.startsWith('collab-')) {

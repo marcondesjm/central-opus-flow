@@ -122,25 +122,16 @@ export default function ProjectPublic() {
     if (!comment.trim() || !authorName.trim() || !project) return;
     setSubmitting(true);
     try {
-      let imageUrls: string[] = [];
-      if (commentImages.length > 0) {
-        imageUrls = await uploadImages(commentImages);
-      }
-      const fullComment = imageUrls.length > 0
-        ? `${comment.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.map(u => u).join('\n')}`
-        : comment.trim();
       const { error: fbError } = await supabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim(),
         author_type: 'client',
-        comment: fullComment,
+        comment: comment.trim(),
       });
       if (fbError) throw fbError;
       toast.success('✅ Comentário enviado!');
       setComment('');
-      setCommentImages([]);
-      setCommentPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-feedback', project.id] });
     } catch {
       toast.error('Erro ao enviar comentário');

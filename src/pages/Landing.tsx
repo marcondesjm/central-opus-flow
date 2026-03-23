@@ -3,15 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
-import { SocialProofBar } from '@/components/landing/SocialProofBar';
-import { DashboardPreview } from '@/components/landing/DashboardPreview';
 import { ProblemSection } from '@/components/landing/ProblemSection';
 import { SolutionSection } from '@/components/landing/SolutionSection';
-import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { BenefitsSection } from '@/components/landing/BenefitsSection';
-import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
+import { DifferentiationSection } from '@/components/landing/DifferentiationSection';
 import { PricingSection } from '@/components/landing/PricingSection';
-import { FAQSection } from '@/components/landing/FAQSection';
+import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
 import { Footer } from '@/components/landing/Footer';
 import { SocialProofNotification } from '@/components/landing/SocialProofNotification';
@@ -34,15 +31,12 @@ export default function Landing() {
       <LandingHeader />
 
       <HeroSection />
-      <SocialProofBar />
-      <DashboardPreview />
       <ProblemSection />
       <SolutionSection />
-      <FeaturesSection />
       <BenefitsSection />
-      <TestimonialsSection />
+      <DifferentiationSection />
       <PricingSection />
-      <FAQSection />
+      <TestimonialsSection />
       <FinalCTASection />
       <Footer />
     </div>

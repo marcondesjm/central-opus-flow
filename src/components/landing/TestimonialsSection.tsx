@@ -2,21 +2,21 @@ import { motion } from 'framer-motion';
 
 const testimonials = [
   {
-    content: 'Economizei 3 horas por semana. Eu tinha 3 contas e perdia tempo só procurando projetos. Agora encontro tudo em segundos.',
+    content: 'Antes eu perdia tudo no WhatsApp. Agora consigo organizar feedback e finalizar projetos muito mais rápido.',
     name: 'Carlos S.',
-    role: 'Freelancer',
+    role: 'Designer freelancer',
     initials: 'CS',
   },
   {
-    content: 'Gerencio 8 contas de clientes diferentes. O Central Opus Flow salvou minha sanidade mental. Recomendo para qualquer agência.',
+    content: 'Meus clientes adoram a experiência de aprovação. Simples, direto e sem confusão.',
     name: 'Ana R.',
-    role: 'Dona de Agência',
+    role: 'Designer de landing pages',
     initials: 'AR',
   },
   {
-    content: 'A busca com Ctrl+K é viciante. Nunca mais precisei lembrar em qual conta estava cada projeto. O kanban com financeiro é um diferencial.',
+    content: 'O controle de revisões mudou tudo. Chega de retrabalho infinito.',
     name: 'Pedro S.',
-    role: 'Dev Full-Stack',
+    role: 'Dev freelancer',
     initials: 'PS',
   },
 ];
@@ -24,17 +24,16 @@ const testimonials = [
 export function TestimonialsSection() {
   return (
     <section className="py-24 md:py-32 px-4">
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto max-w-4xl">
         <motion.div
-          className="mb-16"
+          className="mb-14"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
-          <p className="text-xs font-medium uppercase tracking-widest text-primary/80 mb-3">Depoimentos</p>
           <h2 className="text-2xl md:text-[2.5rem] font-bold tracking-[-0.02em]">
-            Quem usa, recomenda.
+            Designers já estão simplificando seus projetos
           </h2>
         </motion.div>
 

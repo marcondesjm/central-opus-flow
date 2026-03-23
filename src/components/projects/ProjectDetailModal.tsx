@@ -105,7 +105,16 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
 
           <div className="overflow-y-auto max-h-[calc(85vh-140px)] px-5 pb-5">
             <TabsContent value="overview" className="mt-0">
-              <ProjectOverviewTab project={project as any} onSendVersion={handleSendVersion} />
+              <ProjectOverviewTab 
+                project={{
+                  id: project.id,
+                  status: project.status,
+                  description: project.description,
+                  notes: project.notes,
+                  max_revisions: maxRevisions,
+                }} 
+                onSendVersion={handleSendVersion} 
+              />
             </TabsContent>
             <TabsContent value="versions" className="mt-0">
               <ProjectVersionsTab projectId={project.id} maxRevisions={maxRevisions} />

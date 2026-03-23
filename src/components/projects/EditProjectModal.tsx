@@ -27,7 +27,7 @@ interface EditProjectModalProps {
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
   draft: { label: 'Rascunho', color: 'text-muted-foreground', icon: Clock },
-  published: { label: 'Publicado', color: 'text-emerald-600', icon: CheckCircle2 },
+  published: { label: 'Aprovado', color: 'text-emerald-600', icon: CheckCircle2 },
   review: { label: 'Em revisão', color: 'text-amber-600', icon: Clock },
   approved: { label: 'Aprovado', color: 'text-emerald-600', icon: CheckCircle2 },
   changes: { label: 'Ajustes solicitados', color: 'text-red-600', icon: AlertTriangle },

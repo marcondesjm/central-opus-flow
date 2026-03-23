@@ -13,7 +13,7 @@ import { Eye, Layers, MessageCircle, History, Clock, CheckCircle2, AlertTriangle
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ProjectOverviewTab } from './ProjectOverviewTab';
+import { ProjectEditForm } from './ProjectEditForm';
 import { ProjectVersionsTab } from './ProjectVersionsTab';
 import { ProjectFeedbackTab } from './ProjectFeedbackTab';
 import { ProjectHistoryPanel } from './ProjectHistoryPanel';
@@ -100,9 +100,9 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
             </TabsList>
 
             <TabsContent value="overview">
-              <ProjectOverviewTab 
+              <ProjectEditForm 
                 project={project} 
-                onSendVersion={() => setActiveTab('versions')} 
+                onSaved={() => onOpenChange(false)} 
               />
             </TabsContent>
 

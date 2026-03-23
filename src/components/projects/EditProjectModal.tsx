@@ -2,34 +2,21 @@ import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUpdateProject, useAccounts, useTags, Project } from '@/hooks/useProjects';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, X, FileEdit, History, CheckSquare, Key, Code2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { CoverUpload } from './CoverUpload';
-import { DeadlinePicker } from './DeadlinePicker';
+import { useUpdateProject, useAccounts, Project } from '@/hooks/useProjects';
+import { useProjectVersions } from '@/hooks/useProjectVersions';
+import { Eye, Layers, MessageCircle, History, Clock, CheckCircle2, AlertTriangle, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { ProjectOverviewTab } from './ProjectOverviewTab';
+import { ProjectVersionsTab } from './ProjectVersionsTab';
+import { ProjectFeedbackTab } from './ProjectFeedbackTab';
 import { ProjectHistoryPanel } from './ProjectHistoryPanel';
-import { ProjectChecklist } from './ProjectChecklist';
-import { ProjectKeysPanel } from './ProjectKeysPanel';
-import { ProjectCodePanel } from './ProjectCodePanel';
 
 interface EditProjectModalProps {
   open: boolean;
@@ -38,373 +25,102 @@ interface EditProjectModalProps {
   initialTab?: string;
 }
 
-const projectTypes = [
-  { value: 'website', label: 'Website' },
-  { value: 'landing', label: 'Landing Page' },
-  { value: 'app', label: 'Aplicativo' },
-  { value: 'funnel', label: 'Funil' },
-  { value: 'other', label: 'Outro' },
-] as const;
-
-const projectStatuses = [
-  { value: 'draft', label: 'Rascunho' },
-  { value: 'published', label: 'Publicado' },
-  { value: 'archived', label: 'Arquivado' },
-] as const;
-
-const tagColors: Record<string, string> = {
-  blue: 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400',
-  green: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400',
-  yellow: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
-  red: 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400',
-  purple: 'bg-violet-500/10 text-violet-600 border-violet-500/20 dark:text-violet-400',
-  pink: 'bg-pink-500/10 text-pink-600 border-pink-500/20 dark:text-pink-400',
-  indigo: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:text-indigo-400',
-  cyan: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400',
+const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
+  draft: { label: 'Rascunho', color: 'text-muted-foreground', icon: Clock },
+  published: { label: 'Publicado', color: 'text-emerald-600', icon: CheckCircle2 },
+  review: { label: 'Em revisão', color: 'text-amber-600', icon: Clock },
+  approved: { label: 'Aprovado', color: 'text-emerald-600', icon: CheckCircle2 },
+  changes: { label: 'Ajustes solicitados', color: 'text-red-600', icon: AlertTriangle },
+  archived: { label: 'Arquivado', color: 'text-muted-foreground', icon: Clock },
 };
 
-export function EditProjectModal({ open, onOpenChange, project, initialTab = 'details' }: EditProjectModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [url, setUrl] = useState('');
-  const [accountId, setAccountId] = useState('');
-  const [coverUrl, setCoverUrl] = useState<string | null>(null);
-  const [type, setType] = useState<'website' | 'landing' | 'app' | 'funnel' | 'other'>('website');
-  const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
-  const [notes, setNotes] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [deadline, setDeadline] = useState<Date | null>(null);
-  const [repositoryUrl, setRepositoryUrl] = useState<string | null>(null);
-  
+export function EditProjectModal({ open, onOpenChange, project, initialTab = 'versions' }: EditProjectModalProps) {
   const { data: accounts = [] } = useAccounts();
-  const { data: tags = [] } = useTags();
-  const updateProject = useUpdateProject();
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
-    if (project) {
-      setName(project.name);
-      setDescription(project.description || '');
-      setUrl(project.url || '');
-      setAccountId(project.account_id);
-      setCoverUrl(project.screenshot || null);
-      setType(project.type as typeof type);
-      setStatus(project.status as typeof status);
-      setNotes(project.notes || '');
-      setSelectedTags(project.tags?.map(t => t.id) || []);
-      setDeadline(project.deadline ? new Date(project.deadline) : null);
-      setRepositoryUrl((project as any).repository_url || null);
-    }
-  }, [project]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!project || !name.trim() || !accountId) {
-      toast({
-        title: 'Campos obrigatórios',
-        description: 'Preencha o nome e selecione uma conta.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      await updateProject.mutateAsync({
-        id: project.id,
-        name: name.trim(),
-        description: description.trim() || null,
-        url: url.trim() || null,
-        account_id: accountId,
-        screenshot: coverUrl,
-        type,
-        status,
-        notes: notes.trim() || null,
-        tagIds: selectedTags,
-        deadline: deadline?.toISOString() || null,
-        // Pass previous data for history tracking
-        previousData: {
-          name: project.name,
-          description: project.description,
-          url: project.url,
-          status: project.status,
-          type: project.type,
-          notes: project.notes,
-          deadline: project.deadline,
-        },
-      });
-      
-      toast({
-        title: 'Projeto atualizado!',
-        description: `O projeto "${name}" foi atualizado.`,
-      });
-      
-      onOpenChange(false);
-    } catch (error: any) {
-      toast({
-        title: 'Erro ao atualizar projeto',
-        description: error.message || 'Tente novamente.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const toggleTag = (tagId: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tagId) 
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    );
-  };
-
-  const getTagColor = (color: string) => {
-    return tagColors[color] || tagColors.blue;
-  };
+    if (open) setActiveTab(initialTab);
+  }, [open, initialTab]);
 
   if (!project) return null;
 
+  const account = accounts.find(a => a.id === project.account_id);
+  const config = statusConfig[project.status] || statusConfig.draft;
+  const StatusIcon = config.icon;
+  const maxRevisions = (project as any).max_revisions || 3;
+  const clientName = (project as any).client_name || account?.name || '—';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Editar Projeto</DialogTitle>
-          <DialogDescription>
-            Atualize as informações do projeto.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Tabs defaultValue={initialTab} key={initialTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="details" className="gap-1.5">
-              <FileEdit className="h-4 w-4" />
-              <span className="hidden sm:inline">Detalhes</span>
-            </TabsTrigger>
-            <TabsTrigger value="code" className="gap-1.5">
-              <Code2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Código</span>
-            </TabsTrigger>
-            <TabsTrigger value="keys" className="gap-1.5">
-              <Key className="h-4 w-4" />
-              <span className="hidden sm:inline">Keys</span>
-            </TabsTrigger>
-            <TabsTrigger value="checklist" className="gap-1.5">
-              <CheckSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Checklist</span>
-            </TabsTrigger>
-            <TabsTrigger value="history" className="gap-1.5">
-              <History className="h-4 w-4" />
-              <span className="hidden sm:inline">Histórico</span>
-            </TabsTrigger>
-          </TabsList>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        {/* Project Header */}
+        <div className="p-6 pb-4 border-b bg-muted/30">
+          <DialogHeader className="mb-3">
+            <DialogTitle className="text-lg font-bold">{project.name}</DialogTitle>
+          </DialogHeader>
           
-          <TabsContent value="details">
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* Cover Upload */}
-          <div className="space-y-2">
-            <Label>Capa do projeto</Label>
-            <CoverUpload 
-              coverUrl={coverUrl} 
-              onCoverChange={setCoverUrl}
-              disabled={updateProject.isPending}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-project-name">Nome do projeto *</Label>
-            <Input
-              id="edit-project-name"
-              placeholder="Ex: Minha Landing Page"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="edit-project-account">Conta *</Label>
-            <Select value={accountId} onValueChange={setAccountId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma conta" />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id}>
-                    {account.name} ({account.email})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-project-type">Tipo</Label>
-              <Select value={type} onValueChange={(v) => setType(v as typeof type)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {projectTypes.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-project-status">Status</Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {projectStatuses.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="edit-project-url">URL do projeto</Label>
-            <Input
-              id="edit-project-url"
-              type="url"
-              placeholder="https://meu-projeto.lovable.app"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="edit-project-description">Descrição</Label>
-            <Textarea
-              id="edit-project-description"
-              placeholder="Descreva seu projeto..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="edit-project-notes">Notas</Label>
-            <Textarea
-              id="edit-project-notes"
-              placeholder="Anotações sobre o projeto..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-            />
-          </div>
-          
-          {/* Tags Selection */}
-          <div className="space-y-2">
-            <Label className="flex items-center justify-between">
-              <span>Tags</span>
-              {selectedTags.length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  {selectedTags.length} selecionada{selectedTags.length !== 1 ? 's' : ''}
-                </span>
-              )}
-            </Label>
-            {tags.length > 0 ? (
-              <div className="flex flex-wrap gap-2 p-3 border border-border rounded-lg bg-muted/30">
-                {tags.map((tag) => {
-                  const isSelected = selectedTags.includes(tag.id);
-                  return (
-                    <Badge
-                      key={tag.id}
-                      variant="outline"
-                      className={cn(
-                        'cursor-pointer transition-all duration-200 px-3 py-1',
-                        isSelected 
-                          ? cn(getTagColor(tag.color), 'ring-2 ring-primary/30') 
-                          : 'hover:bg-muted'
-                      )}
-                      onClick={() => toggleTag(tag.id)}
-                    >
-                      {tag.name}
-                      {isSelected && (
-                        <X className="w-3 h-3 ml-1.5" />
-                      )}
-                    </Badge>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center p-4 border border-dashed border-border rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  Nenhuma tag criada. Vá em Tags no menu para criar.
-                </p>
-              </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <User className="w-3 h-3" />
+              {clientName}
+            </span>
+            <Badge variant="outline" className={cn('text-xs gap-1 py-0', config.color)}>
+              <StatusIcon className="w-3 h-3" />
+              {config.label}
+            </Badge>
+            {project.deadline && (
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Prazo: {format(new Date(project.deadline), "dd MMM", { locale: ptBR })}
+              </span>
             )}
           </div>
+        </div>
 
-          {/* Deadline Picker */}
-          <div className="space-y-2">
-            <Label>Prazo de entrega</Label>
-            <DeadlinePicker
-              value={deadline}
-              onChange={setDeadline}
-              disabled={updateProject.isPending}
-            />
-          </div>
-          
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={updateProject.isPending}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={updateProject.isPending}>
-              {updateProject.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar Alterações'
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-          </TabsContent>
-          
-          <TabsContent value="code" className="mt-4">
-            <ProjectCodePanel
-              projectId={project.id}
-              repositoryUrl={repositoryUrl}
-              onRepositoryUrlChange={(url) => {
-                setRepositoryUrl(url);
-                updateProject.mutateAsync({
-                  id: project.id,
-                  repository_url: url,
-                });
-              }}
-            />
-          </TabsContent>
-          
-          <TabsContent value="keys" className="mt-4">
-            <ProjectKeysPanel projectId={project.id} projectName={project.name} />
-          </TabsContent>
-          
-          <TabsContent value="checklist" className="mt-4">
-            <ProjectChecklist projectId={project.id} isOwner={true} />
-          </TabsContent>
-          
-          <TabsContent value="history" className="mt-4">
-            <ProjectHistoryPanel projectId={project.id} />
-          </TabsContent>
-        </Tabs>
+        {/* Tabs */}
+        <div className="px-6 pb-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mt-4">
+              <TabsTrigger value="overview" className="gap-1.5 text-xs">
+                <Eye className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Visão Geral</span>
+              </TabsTrigger>
+              <TabsTrigger value="versions" className="gap-1.5 text-xs">
+                <Layers className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Versões</span>
+              </TabsTrigger>
+              <TabsTrigger value="feedback" className="gap-1.5 text-xs">
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Feedback</span>
+              </TabsTrigger>
+              <TabsTrigger value="activity" className="gap-1.5 text-xs">
+                <History className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Atividade</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              <ProjectOverviewTab 
+                project={project} 
+                onSendVersion={() => setActiveTab('versions')} 
+              />
+            </TabsContent>
+
+            <TabsContent value="versions">
+              <ProjectVersionsTab projectId={project.id} maxRevisions={maxRevisions} />
+            </TabsContent>
+
+            <TabsContent value="feedback">
+              <ProjectFeedbackTab projectId={project.id} />
+            </TabsContent>
+
+            <TabsContent value="activity">
+              <div className="mt-4">
+                <ProjectHistoryPanel projectId={project.id} />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

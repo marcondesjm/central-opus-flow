@@ -684,6 +684,21 @@ export default function Dashboard() {
     }
   };
 
+  const handleSendVersion = () => {
+    // Open the first review/active project on the versions tab
+    const target = projects.find(p => (p.status as string) === 'review') || projects.find(p => p.status === 'draft' || p.status === 'published') || projects[0];
+    if (target) {
+      setEditingProject(target as Project);
+      setEditProjectInitialTab('versions');
+      setEditProjectOpen(true);
+    }
+  };
+
+  const handleViewApprovals = () => {
+    setActiveView('favorites');
+    setSearchParams(prev => { prev.set('view', 'favorites'); return prev; });
+  };
+
   const handleShowHistory = (projectId: string) => {
     setHistoryProjectId(projectId);
     setHistoryModalOpen(true);
@@ -906,6 +921,8 @@ export default function Dashboard() {
               }))}
               onOpenProject={handleEditProject}
               onNewProject={handleNewProject}
+              onSendVersion={handleSendVersion}
+              onViewApprovals={handleViewApprovals}
             />
           </div>
 

@@ -19,9 +19,11 @@ interface ActionCenterProps {
   projects: ActionProject[];
   onOpenProject: (projectId: string) => void;
   onNewProject: () => void;
+  onSendVersion: () => void;
+  onViewApprovals: () => void;
 }
 
-export function ActionCenter({ projects, onOpenProject, onNewProject }: ActionCenterProps) {
+export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals }: ActionCenterProps) {
   const now = new Date();
 
   const overdueProjects = projects.filter(
@@ -183,11 +185,11 @@ export function ActionCenter({ projects, onOpenProject, onNewProject }: ActionCe
           <Plus className="w-4 h-4" />
           Nova Landing Page
         </Button>
-        <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => {}}>
+        <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={onSendVersion}>
           <Send className="w-4 h-4" />
           Enviar nova versão
         </Button>
-        <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => {}}>
+        <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={onViewApprovals}>
           <Star className="w-4 h-4" />
           Ver aprovações
         </Button>

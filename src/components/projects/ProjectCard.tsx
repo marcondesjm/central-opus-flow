@@ -66,6 +66,7 @@ const statusConfigMap: Record<string, { key: string; className: string }> = {
 
 export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onEditFiles, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [imgError, setImgError] = useState(false);

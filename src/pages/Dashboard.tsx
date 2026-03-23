@@ -684,7 +684,21 @@ export default function Dashboard() {
     }
   };
 
-  const handleShowHistory = (projectId: string) => {
+  const handleSendVersion = () => {
+    // Open the first review/active project on the versions tab
+    const target = projects.find(p => p.status === 'review') || projects.find(p => p.status === 'draft' || p.status === 'published') || projects[0];
+    if (target) {
+      setEditingProject(target as Project);
+      setEditProjectInitialTab('versions');
+      setEditProjectOpen(true);
+    }
+  };
+
+  const handleViewApprovals = () => {
+    setActiveView('favorites');
+    setSearchParams(prev => { prev.set('view', 'favorites'); return prev; });
+  };
+
     setHistoryProjectId(projectId);
     setHistoryModalOpen(true);
   };

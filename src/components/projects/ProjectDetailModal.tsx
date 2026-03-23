@@ -59,7 +59,7 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
           <h2 className="font-bold text-lg text-foreground pr-8">{project.name}</h2>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              {project.clientName && <span>{project.clientName}</span>}
+              {(project as any).client_name && <span>{(project as any).client_name}</span>}
             </span>
             <span>—</span>
             <Badge variant="secondary" className={cn('text-[10px] px-1.5 py-0', status.className)}>

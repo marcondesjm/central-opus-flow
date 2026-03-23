@@ -54,7 +54,7 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
     }
 
     try {
-      await updateProject.mutateAsync({
+      const updateData: any = {
         id: project.id,
         name: name.trim(),
         description: description.trim() || null,
@@ -64,12 +64,17 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
         notes: notes.trim() || null,
         progress,
         deadline: deadline ? deadline.toISOString() : null,
-        account_id: accountId,
         previousData: project,
-      });
+      };
+      // Only include account_id if it's a valid non-empty value
+      if (accountId && accountId.trim() !== '') {
+        updateData.account_id = accountId;
+      }
+      await updateProject.mutateAsync(updateData);
       toast.success('Projeto atualizado!');
       onSaved?.();
-    } catch {
+    } catch (err) {
+      console.error('Erro ao atualizar projeto:', err);
       toast.error('Erro ao atualizar projeto');
     }
   };

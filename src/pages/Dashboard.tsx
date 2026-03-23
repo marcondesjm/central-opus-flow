@@ -686,7 +686,7 @@ export default function Dashboard() {
 
   const handleSendVersion = () => {
     // Open the first review/active project on the versions tab
-    const target = projects.find(p => p.status === 'review') || projects.find(p => p.status === 'draft' || p.status === 'published') || projects[0];
+    const target = projects.find(p => (p.status as string) === 'review') || projects.find(p => p.status === 'draft' || p.status === 'published') || projects[0];
     if (target) {
       setEditingProject(target as Project);
       setEditProjectInitialTab('versions');

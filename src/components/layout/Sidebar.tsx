@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
+import { useLatestVersion } from '@/hooks/useChangelog';
 import { SidebarCustomizeModal, getSidebarVisibility, type SidebarVisibility } from '@/components/layout/SidebarCustomizeModal';
 import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 import { 
@@ -56,6 +57,7 @@ import { useBlogPosts } from '@/hooks/useBlog';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
+import { getHighestVersion, isVersionBehind } from '@/lib/versioning';
 
 interface SidebarProps {
   activeView: string;
@@ -142,6 +144,8 @@ export function Sidebar({
   const { data: spaces } = useKanbanSpaces();
   const scheduledCount = useScheduledMessagesCount();
   const { data: systemVersion } = useSystemVersion();
+  const { data: latestVersion } = useLatestVersion();
+  const targetVersion = getHighestVersion(latestVersion?.version, systemVersion?.version) || '1.0.0';
 
   useEffect(() => {
     if (!user?.id) return;
@@ -218,22 +222,22 @@ export function Sidebar({
               const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
               const storedVersion = localStorage.getItem(LOCAL_VERSION_KEY);
               const lastSeenVersion = localStorage.getItem(LAST_SEEN_KEY);
-              const serverVersion = systemVersion?.version || '1.0.0';
-              const isOutdated = storedVersion !== serverVersion || lastSeenVersion !== serverVersion;
+              const installedVersion = storedVersion || targetVersion;
+              const isOutdated = isVersionBehind(installedVersion, targetVersion) || isVersionBehind(lastSeenVersion, targetVersion);
               if (isOutdated) {
                 return (
                   <button
-                    onClick={() => { localStorage.setItem(LOCAL_VERSION_KEY, serverVersion); localStorage.setItem(LAST_SEEN_KEY, serverVersion); window.location.reload(); }}
+                    onClick={() => { localStorage.setItem(LOCAL_VERSION_KEY, targetVersion); localStorage.setItem(LAST_SEEN_KEY, targetVersion); localStorage.setItem('centralopusflow-installed-at', new Date().toISOString()); window.location.reload(); }}
                     className="flex items-center gap-1 text-[10px] text-amber-600 hover:text-amber-500 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    {t('sidebar.updateTo', { version: serverVersion })}
+                    {t('sidebar.updateTo', { version: targetVersion })}
                   </button>
                 );
               }
               return (
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  v{serverVersion}
+                  v{installedVersion}
                   <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                 </p>
               );

@@ -11,6 +11,7 @@ import { CompleteProfileGate } from './CompleteProfileGate';
 import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
 import { VersionUpdateModal } from '@/components/version/VersionUpdateModal';
 import { VersionChecker } from '@/components/version/VersionChecker';
+import { AutoVersionBump } from '@/components/version/AutoVersionBump';
 import { ActivitySync } from '@/components/activity/ActivitySync';
 import { useGlobalSync } from '@/hooks/useGlobalSync';
 
@@ -248,6 +249,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     <>
       {children}
       <ClippyAssistant />
+      <AutoVersionBump />
       <VersionUpdateModal />
       <VersionChecker />
       <ActivitySync />

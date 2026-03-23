@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useProjectVersions, useAddVersion, ProjectVersion } from '@/hooks/useProjectVersions';
+import { usePaywall } from '@/hooks/usePaywall';
+import { UpgradeModal } from '@/components/subscription/UpgradeModal';
 import { useProjectFeedback } from '@/hooks/useProjectFeedback';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,9 +28,16 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
   const { data: versions = [], isLoading } = useProjectVersions(projectId);
   const { data: feedback = [] } = useProjectFeedback(projectId);
   const addVersion = useAddVersion();
+  const paywall = usePaywall();
   const [showForm, setShowForm] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
   const [notes, setNotes] = useState('');
+
+  const handleShowForm = () => {
+    if (paywall.checkRevisionLimit(versions.length)) {
+      setShowForm(true);
+    }
+  };
 
   const handleAddVersion = async () => {
     if (!previewUrl.trim()) {
@@ -72,7 +81,7 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
 
       {/* Add version button/form */}
       {!showForm ? (
-        <Button onClick={() => setShowForm(true)} className="w-full gap-2">
+        <Button onClick={handleShowForm} className="w-full gap-2">
           <Plus className="w-4 h-4" />
           Nova versão
         </Button>
@@ -167,6 +176,12 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
           })}
         </div>
       )}
+      <UpgradeModal
+        open={paywall.paywallOpen}
+        onOpenChange={paywall.closePaywall}
+        trigger={paywall.paywallTrigger}
+        triggerMessage={paywall.triggerMessage}
+      />
     </div>
   );
 }

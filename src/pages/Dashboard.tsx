@@ -28,6 +28,8 @@ import { TrialBanner } from '@/components/subscription/TrialBanner';
 import { SubscriptionExpirationBanner } from '@/components/subscription/SubscriptionExpirationBanner';
 import { WhatsAppRequiredBanner } from '@/components/subscription/WhatsAppRequiredBanner';
 import { TrialExpiredModal } from '@/components/subscription/TrialExpiredModal';
+import { UpgradeModal } from '@/components/subscription/UpgradeModal';
+import { usePaywall } from '@/hooks/usePaywall';
 
 import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
@@ -168,6 +170,7 @@ export default function Dashboard() {
   const deleteProject = useDeleteProject();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const paywall = usePaywall();
   
   const {
     notifications,
@@ -187,6 +190,12 @@ export default function Dashboard() {
     completeOnboarding,
     showTour,
   } = useOnboarding();
+
+  const handleNewProject = useCallback(() => {
+    if (paywall.checkProjectLimit()) {
+      setAddProjectOpen(true);
+    }
+  }, [paywall]);
 
   const { resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
@@ -848,7 +857,7 @@ export default function Dashboard() {
           onSearchChange={setSearchQuery}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onNewProject={() => setAddProjectOpen(true)}
+          onNewProject={handleNewProject}
           mobileMenuTrigger={<MobileSidebar {...sidebarProps} />}
           onOpenSearch={() => setGlobalSearchOpen(true)}
           notifications={notifications}
@@ -896,7 +905,7 @@ export default function Dashboard() {
                 accountName: getAccount(p.accountId)?.name,
               }))}
               onOpenProject={handleEditProject}
-              onNewProject={() => setAddProjectOpen(true)}
+              onNewProject={handleNewProject}
             />
           </div>
 
@@ -973,7 +982,7 @@ export default function Dashboard() {
                 }
               </p>
               {projects.length === 0 && (
-                <Button onClick={() => setAddProjectOpen(true)} size="lg" className="rounded-xl gap-2 px-8">
+                <Button onClick={handleNewProject} size="lg" className="rounded-xl gap-2 px-8">
                   <span className="text-lg">+</span>
                   Nova Landing Page
                 </Button>
@@ -1186,10 +1195,18 @@ export default function Dashboard() {
           hasConnectedAccount={onboarding.has_connected_account || accounts.length > 0}
           hasCreatedProject={onboarding.has_created_project || projects.length > 0}
           onConnectAccount={() => setAddAccountOpen(true)}
-          onCreateProject={() => setAddProjectOpen(true)}
+          onCreateProject={handleNewProject}
           onDismiss={completeOnboarding}
         />
       )}
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={paywall.paywallOpen}
+        onOpenChange={paywall.closePaywall}
+        trigger={paywall.paywallTrigger}
+        triggerMessage={paywall.triggerMessage}
+      />
 
       {/* WhatsApp Support Button */}
       <WhatsAppSupportButton />

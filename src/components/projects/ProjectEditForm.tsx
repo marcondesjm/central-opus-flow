@@ -22,7 +22,6 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
   const updateProject = useUpdateProject();
   const { data: accounts = [] } = useAccounts();
   const [copied, setCopied] = useState(false);
-  const { data: accounts = [] } = useAccounts();
 
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description || '');

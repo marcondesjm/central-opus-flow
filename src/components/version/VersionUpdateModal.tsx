@@ -22,19 +22,23 @@ export function VersionUpdateModal() {
   useEffect(() => {
     if (!systemVersion?.version) return;
 
+    const installedVersion = localStorage.getItem(LOCAL_VERSION_KEY);
     const lastSeenVersion = localStorage.getItem(LAST_SEEN_KEY);
-    localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+
+    if (!installedVersion) {
+      localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+    }
 
     if (!lastSeenVersion) {
       localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
       return;
     }
 
-    if (lastSeenVersion !== systemVersion.version && !dismissed) {
-      // Always update to latest version, reset timer to keep accumulating
+    const currentInstalledVersion = installedVersion || systemVersion.version;
+
+    if (currentInstalledVersion !== systemVersion.version && !dismissed) {
       setPendingVersion(systemVersion.version);
       if (phase === null) {
-        // Only reset accumulation timer if not already downloading/ready
         if (accumulateTimer) clearTimeout(accumulateTimer);
         const timer = setTimeout(() => {
           setPhase('downloading');

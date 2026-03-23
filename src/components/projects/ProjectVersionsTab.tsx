@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useProjectVersions, useAddVersion, ProjectVersion } from '@/hooks/useProjectVersions';
+import { usePaywall } from '@/hooks/usePaywall';
+import { UpgradeModal } from '@/components/subscription/UpgradeModal';
 import { useProjectFeedback } from '@/hooks/useProjectFeedback';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

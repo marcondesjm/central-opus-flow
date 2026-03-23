@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers, ImagePlus, X } from 'lucide-react';
+import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers, ImagePlus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';

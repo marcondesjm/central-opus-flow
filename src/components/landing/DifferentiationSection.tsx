@@ -1,61 +1,68 @@
 import { motion } from 'framer-motion';
-import { Target, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+
+const comparisons = [
+  { them: 'Ferramentas genéricas', us: 'Feito para entregas de projetos' },
+  { them: 'Feedback por WhatsApp', us: 'Feedback centralizado e organizado' },
+  { them: 'Revisões infinitas', us: 'Limites claros de revisões' },
+  { them: 'Setup complexo', us: 'Comece em 2 minutos' },
+];
 
 export function DifferentiationSection() {
   return (
-    <section className="py-24 md:py-32 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-muted/40 dark:bg-muted/10" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-
-      {/* Large glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[160px] pointer-events-none bg-primary/[0.06]" />
+    <section className="py-20 md:py-28 px-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-muted/30 dark:bg-muted/5" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 
       <div className="container mx-auto max-w-3xl relative">
         <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 24 }}
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary mb-8">
-            <Target className="w-3 h-3" />
-            Foco no que importa
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-card/50 text-[11px] font-medium text-muted-foreground mb-5">
+            Por que Central Opus?
           </div>
-
-          <h2 className="text-3xl md:text-5xl font-black tracking-[-0.04em] mb-8">
+          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mb-3">
             Não é mais um{' '}
-            <span className="relative inline-block">
+            <span className="relative">
               gerenciador de projetos
-              <motion.div
-                className="absolute -bottom-1 left-0 right-0 h-[3px] rounded-full bg-destructive/40"
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              />
+              <span className="absolute -bottom-0.5 left-0 right-0 h-[2px] bg-destructive/30 rounded-full" />
             </span>
           </h2>
-
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto mb-10">
-            Enquanto outras ferramentas tentam fazer tudo, o Central Opus foca no
-            que realmente importa:
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Enquanto outras ferramentas tentam fazer tudo, nós focamos no que realmente importa para freelancers e agências.
           </p>
-
-          <motion.div
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl border border-primary/30 bg-primary/[0.06] backdrop-blur-sm"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <ArrowRight className="w-5 h-5 text-primary" />
-            <span className="text-base md:text-lg font-bold text-foreground">
-              Entregar projetos com menos caos e mais controle.
-            </span>
-          </motion.div>
         </motion.div>
+
+        {/* Comparison table */}
+        <div className="rounded-2xl border border-border/50 bg-card/60 overflow-hidden">
+          {/* Header */}
+          <div className="grid grid-cols-2 border-b border-border/40">
+            <div className="p-4 text-xs font-medium text-muted-foreground/60 uppercase tracking-wider">Outros</div>
+            <div className="p-4 text-xs font-medium text-primary uppercase tracking-wider border-l border-border/40">Central Opus</div>
+          </div>
+          {/* Rows */}
+          {comparisons.map((c, i) => (
+            <motion.div
+              key={i}
+              className="grid grid-cols-2 border-b border-border/30 last:border-b-0"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: i * 0.08 }}
+            >
+              <div className="p-4 text-sm text-muted-foreground/60 line-through decoration-destructive/30">{c.them}</div>
+              <div className="p-4 text-sm text-foreground font-medium border-l border-border/40 flex items-center gap-2">
+                <ArrowRight className="w-3 h-3 text-primary shrink-0" />
+                {c.us}
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

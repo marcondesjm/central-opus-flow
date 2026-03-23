@@ -1,64 +1,60 @@
 import { motion } from 'framer-motion';
-import { X, AlertTriangle } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const problems = [
-  'Feedback espalhado entre WhatsApp, email e áudio',
-  'Clientes pedindo mudanças infinitas',
-  'Você perde tempo tentando organizar tudo',
-  'Não sabe quando o projeto está realmente aprovado',
+  { text: 'Feedback espalhado entre WhatsApp, email e áudio', emoji: '😩' },
+  { text: 'Clientes pedindo mudanças infinitas', emoji: '🔄' },
+  { text: 'Você perde tempo tentando organizar tudo', emoji: '⏰' },
+  { text: 'Não sabe quando o projeto está realmente aprovado', emoji: '❓' },
 ];
 
 export function ProblemSection() {
   return (
-    <section className="py-24 md:py-32 px-4 relative overflow-hidden">
-      {/* Subtle red glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full blur-[200px] pointer-events-none bg-destructive/[0.04]" />
-
-      <div className="container mx-auto max-w-3xl relative">
+    <section className="py-20 md:py-28 px-4 relative">
+      <div className="container mx-auto max-w-3xl">
         <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 24 }}
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-xs font-semibold text-destructive mb-6">
-            <AlertTriangle className="w-3 h-3" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-destructive/20 bg-destructive/5 text-[11px] font-medium text-destructive mb-5">
             O problema
           </div>
-          <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-[-0.04em]">
+          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] leading-tight">
             Você já passou por isso?
           </h2>
         </motion.div>
 
-        <div className="space-y-3 mb-14">
+        <div className="space-y-2.5 mb-10">
           {problems.map((problem, i) => (
             <motion.div
               key={i}
-              className="group flex items-center gap-4 p-5 rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm hover:border-destructive/40 hover:bg-destructive/[0.03] transition-all duration-500 cursor-default"
-              initial={{ opacity: 0, x: -20 }}
+              className="group flex items-center gap-4 p-4 rounded-xl border border-border/50 bg-card/60 hover:border-destructive/30 hover:bg-destructive/[0.02] transition-all duration-300"
+              initial={{ opacity: 0, x: -16 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ x: 4 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
             >
-              <div className="w-8 h-8 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0 group-hover:bg-destructive/20 group-hover:scale-110 transition-all duration-300">
-                <X className="w-4 h-4 text-destructive" />
+              <div className="w-8 h-8 rounded-lg bg-destructive/8 flex items-center justify-center shrink-0 group-hover:bg-destructive/12 transition-colors">
+                <X className="w-3.5 h-3.5 text-destructive" />
               </div>
-              <p className="text-base text-foreground/80 leading-relaxed font-medium">{problem}</p>
+              <p className="text-sm text-foreground/80 font-medium flex-1">{problem.text}</p>
+              <span className="text-lg opacity-60 group-hover:opacity-100 transition-opacity">{problem.emoji}</span>
             </motion.div>
           ))}
         </div>
 
         <motion.div
-          className="relative p-6 rounded-2xl bg-gradient-to-r from-primary/[0.06] to-transparent border border-primary/15"
+          className="relative p-5 rounded-xl bg-card border border-primary/15"
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-primary" />
-          <p className="text-base md:text-lg font-semibold text-foreground/90 leading-relaxed pl-4">
+          <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: 'var(--gradient-primary)' }} />
+          <p className="text-sm md:text-base font-semibold text-foreground/90 leading-relaxed pl-4">
             Isso não é profissional — e está te fazendo perder{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
               tempo e dinheiro.

@@ -1,76 +1,86 @@
 import { motion } from 'framer-motion';
-import { MessageSquare, Clock, CheckCircle2, TrendingUp, LucideIcon } from 'lucide-react';
+import { MessageSquare, Clock, CheckCircle2, TrendingUp, Shield, Zap } from 'lucide-react';
 
-const benefits: { icon: LucideIcon; title: string; desc: string; accent: string }[] = [
+const benefits = [
   {
     icon: MessageSquare,
     title: 'Feedback organizado',
-    desc: 'Nunca mais perca mensagens importantes.',
-    accent: 'group-hover:shadow-primary/15',
+    desc: 'Nunca mais perca mensagens importantes. Tudo centralizado em um só lugar.',
+    span: 'col-span-1',
   },
   {
     icon: Clock,
     title: 'Menos retrabalho',
-    desc: 'Evite revisões infinitas.',
-    accent: 'group-hover:shadow-accent/15',
+    desc: 'Evite revisões infinitas com limites claros e controle total do fluxo.',
+    span: 'col-span-1',
   },
   {
     icon: CheckCircle2,
     title: 'Aprovação clara',
-    desc: 'Saiba exatamente quando o projeto acabou.',
-    accent: 'group-hover:shadow-[hsl(160,84%,39%)]/15',
+    desc: 'Saiba exatamente quando o projeto acabou. Sem ambiguidades.',
+    span: 'col-span-1',
   },
   {
     icon: TrendingUp,
     title: 'Mais produtividade',
-    desc: 'Entregue mais projetos, mais rápido.',
-    accent: 'group-hover:shadow-[hsl(326,78%,60%)]/15',
+    desc: 'Entregue mais projetos, mais rápido, com processos automatizados.',
+    span: 'col-span-1',
+  },
+  {
+    icon: Shield,
+    title: 'Controle de versões',
+    desc: 'Histórico completo de todas as versões enviadas. Nada se perde.',
+    span: 'col-span-1 sm:col-span-1',
+  },
+  {
+    icon: Zap,
+    title: 'Setup em minutos',
+    desc: 'Comece a usar imediatamente. Sem configurações complexas.',
+    span: 'col-span-1 sm:col-span-1',
   },
 ];
 
 export function BenefitsSection() {
   return (
-    <section id="features" className="py-24 md:py-32 px-4 relative overflow-hidden">
-      <div className="absolute bottom-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full blur-[180px] pointer-events-none bg-primary/[0.05]" />
-      <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full blur-[140px] pointer-events-none bg-accent/[0.04]" />
-
-      <div className="container mx-auto max-w-5xl relative">
+    <section id="features" className="py-20 md:py-28 px-4 relative">
+      <div className="container mx-auto max-w-5xl">
         <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 24 }}
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.5 }}
         >
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-4">Benefícios</p>
-          <h2 className="text-3xl md:text-5xl font-black tracking-[-0.04em]">
-            Trabalhe como um{' '}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-card/50 text-[11px] font-medium text-muted-foreground mb-5">
+            Funcionalidades
+          </div>
+          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mb-3">
+            Tudo que você precisa para{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              profissional
+              entregar melhor
             </span>
           </h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Ferramentas pensadas para quem entrega projetos digitais
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* Bento grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {benefits.map((b, i) => (
             <motion.div
               key={b.title}
-              className={`group relative p-8 rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm hover:border-primary/30 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl ${b.accent} overflow-hidden`}
-              initial={{ opacity: 0, y: 16 }}
+              className={`group relative p-6 rounded-2xl border border-border/50 bg-card/60 hover:border-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${b.span}`}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.4, delay: i * 0.06 }}
             >
-              {/* Hover gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
-                  <b.icon className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="font-bold text-xl mb-2">{b.title}</h3>
-                <p className="text-base text-muted-foreground leading-relaxed">{b.desc}</p>
+              <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center mb-4 group-hover:bg-primary/12 transition-colors">
+                <b.icon className="w-4.5 h-4.5 text-primary" />
               </div>
+              <h3 className="font-semibold text-sm mb-1.5">{b.title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
             </motion.div>
           ))}
         </div>

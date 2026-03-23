@@ -522,15 +522,13 @@ export default function ProjectPublic() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">Descreva os ajustes necessários:</p>
-              {!authorName.trim() && (
-                <Input
-                  placeholder="Seu nome"
-                  value={authorName}
-                  onChange={(e) => setAuthorName(e.target.value)}
-                  className="bg-muted/30"
-                  maxLength={100}
-                />
-              )}
+              <Input
+                placeholder="Seu nome"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                className="bg-muted/30"
+                maxLength={100}
+              />
               <Textarea
                 placeholder="Ex: Mudar a cor do botão, ajustar o texto do banner..."
                 value={changesReason}

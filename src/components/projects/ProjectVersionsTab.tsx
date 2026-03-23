@@ -145,10 +145,18 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
 
                 <div className="flex items-center gap-3 text-xs">
                   {v.preview_url && (
-                    <a href={v.preview_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-primary hover:underline">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        let url = v.preview_url!;
+                        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="flex items-center gap-1 text-primary hover:underline cursor-pointer bg-transparent border-none p-0"
+                    >
                       <ExternalLink className="w-3 h-3" /> Ver preview
-                    </a>
+                    </button>
                   )}
                   {versionFeedback.length > 0 && (
                     <span className="flex items-center gap-1 text-muted-foreground">

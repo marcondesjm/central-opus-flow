@@ -1,68 +1,59 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Play, Sparkles, Star } from 'lucide-react';
+import { ArrowRight, Play, Star, CheckCircle2, Users, FolderKanban, BarChart3, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export function HeroSection() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 px-4 overflow-hidden">
-      {/* Animated gradient orbs */}
-      <div className="absolute top-[-20%] left-[10%] w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none bg-primary/[0.12] animate-[pulse_8s_ease-in-out_infinite]" />
-      <div className="absolute top-[10%] right-[5%] w-[400px] h-[400px] rounded-full blur-[100px] pointer-events-none bg-accent/[0.08] animate-[pulse_10s_ease-in-out_infinite_2s]" />
-      <div className="absolute bottom-[-10%] left-[40%] w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none bg-[hsl(326,78%,60%)]/[0.06] animate-[pulse_12s_ease-in-out_infinite_4s]" />
+    <section className="relative pt-28 pb-0 md:pt-36 px-4 overflow-hidden">
+      {/* Gradient mesh background */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'var(--gradient-hero)' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] pointer-events-none opacity-60" style={{ background: 'var(--gradient-glow)' }} />
 
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{
-        backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-        backgroundSize: '60px 60px'
-      }} />
-
-      <div className="container mx-auto max-w-5xl relative">
-        {/* Floating badge */}
+      <div className="container mx-auto max-w-6xl relative">
+        {/* Badge */}
         <motion.div
-          className="flex justify-center mb-8"
-          initial={{ opacity: 0, y: 16, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, type: 'spring', bounce: 0.4 }}
+          className="flex justify-center mb-6"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-primary/25 bg-primary/[0.08] backdrop-blur-xl text-xs font-semibold text-primary shadow-lg shadow-primary/5">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm text-[12px] font-medium text-muted-foreground shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--success))] animate-pulse" />
             Feedback organizado, aprovações rápidas
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           </div>
         </motion.div>
 
         {/* Headline */}
         <motion.h1
-          className="text-center text-[clamp(2.5rem,7vw,5rem)] font-black leading-[0.95] tracking-[-0.05em] text-foreground mb-8"
-          initial={{ opacity: 0, y: 24 }}
+          className="text-center text-4xl sm:text-5xl md:text-[3.75rem] lg:text-[4.25rem] font-bold leading-[1.08] tracking-[-0.035em] text-foreground mb-5 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.08 }}
+          transition={{ duration: 0.6, delay: 0.05 }}
         >
-          Pare de receber feedback
+          Pare de receber feedback{' '}
           <br className="hidden sm:block" />
           de clientes no{' '}
-          <span className="relative inline-block">
+          <span className="relative">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
               WhatsApp
             </span>
-            {/* Underline accent */}
-            <motion.div
-              className="absolute -bottom-1 left-0 right-0 h-[4px] rounded-full"
+            <motion.span
+              className="absolute -bottom-1 left-0 right-0 h-[3px] rounded-full origin-left"
               style={{ background: 'var(--gradient-primary)' }}
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
             />
           </span>
         </motion.h1>
 
         {/* Subheadline */}
         <motion.p
-          className="text-center text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed font-light"
-          initial={{ opacity: 0, y: 20 }}
+          className="text-center text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed"
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.15 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
           Envie seu projeto, receba comentários organizados, controle revisões
           e obtenha aprovação — tudo num fluxo simples.
@@ -70,49 +61,133 @@ export function HeroSection() {
 
         {/* CTAs */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
-          initial={{ opacity: 0, y: 20 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8"
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.22 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
         >
           <Link to="/auth">
             <Button
               size="lg"
-              className="h-14 px-10 rounded-2xl text-base font-bold shadow-2xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_-10px_hsl(var(--primary)/0.4)] active:scale-[0.97] relative overflow-hidden group"
+              className="h-12 px-8 rounded-xl text-sm font-semibold bg-foreground text-background hover:bg-foreground/90 shadow-xl shadow-foreground/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               Começar grátis
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 ml-2" />
             </Button>
           </Link>
           <Link to="/demo">
             <Button
-              variant="outline"
+              variant="ghost"
               size="lg"
-              className="h-14 px-10 rounded-2xl text-base font-semibold border-border/60 backdrop-blur-xl hover:bg-card/80 hover:border-primary/30 active:scale-[0.97] transition-all duration-300"
+              className="h-12 px-8 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground gap-2"
             >
-              <Play className="w-4 h-4 mr-2 fill-current" />
+              <Play className="w-3.5 h-3.5 fill-current" />
               Veja como funciona
             </Button>
           </Link>
         </motion.div>
 
-        {/* Social proof row */}
+        {/* Social proof */}
         <motion.div
-          className="flex flex-col items-center gap-4"
+          className="flex flex-col items-center gap-2.5 mb-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
         >
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             ))}
-            <span className="text-sm text-muted-foreground ml-2">Aprovado por freelancers</span>
+            <span className="text-xs text-muted-foreground ml-1.5">Aprovado por freelancers</span>
           </div>
-          <p className="text-sm text-muted-foreground/50 font-medium">
+          <p className="text-xs text-muted-foreground/50">
             Grátis para até 2 projetos · Sem cartão de crédito
           </p>
+        </motion.div>
+
+        {/* Dashboard Mockup */}
+        <motion.div
+          className="relative mx-auto max-w-5xl"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        >
+          {/* Glow behind mockup */}
+          <div className="absolute -inset-4 rounded-3xl blur-3xl pointer-events-none bg-primary/[0.06]" />
+
+          <div className="relative rounded-t-2xl border border-border/60 border-b-0 bg-card shadow-2xl overflow-hidden">
+            {/* Browser chrome */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-muted/30">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(0,72%,51%)]/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(38,92%,50%)]/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[hsl(160,84%,39%)]/60" />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <div className="h-5 w-56 rounded-md bg-muted/60 flex items-center justify-center">
+                  <span className="text-[10px] text-muted-foreground/50">centralopusflow.app/dashboard</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dashboard content mockup */}
+            <div className="p-6 bg-gradient-to-b from-card to-muted/20 min-h-[320px] md:min-h-[420px]">
+              {/* Top bar mockup */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FolderKanban className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <div className="h-3 w-24 rounded bg-foreground/10 mb-1" />
+                    <div className="h-2 w-16 rounded bg-foreground/5" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-8 w-20 rounded-lg bg-primary/10" />
+                  <div className="h-8 w-8 rounded-lg bg-muted" />
+                </div>
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                {[
+                  { icon: FolderKanban, label: 'Projetos', value: '12', color: 'text-primary' },
+                  { icon: Users, label: 'Clientes', value: '8', color: 'text-[hsl(var(--accent))]' },
+                  { icon: CheckCircle2, label: 'Aprovados', value: '9', color: 'text-[hsl(var(--success))]' },
+                  { icon: BarChart3, label: 'Receita', value: 'R$4.2k', color: 'text-[hsl(var(--chart-4))]' },
+                ].map((stat) => (
+                  <div key={stat.label} className="p-3 rounded-xl border border-border/40 bg-card/80">
+                    <stat.icon className={`w-4 h-4 ${stat.color} mb-2`} />
+                    <div className="text-lg font-bold text-foreground">{stat.value}</div>
+                    <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Project cards mockup */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { name: 'Site Restaurante', status: 'Aprovado', statusColor: 'bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]' },
+                  { name: 'App Fitness', status: 'Em revisão', statusColor: 'bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))]' },
+                  { name: 'Loja Virtual', status: 'Rascunho', statusColor: 'bg-muted text-muted-foreground' },
+                ].map((project) => (
+                  <div key={project.name} className="rounded-xl border border-border/40 bg-card/60 overflow-hidden">
+                    <div className="h-20 bg-gradient-to-br from-primary/5 to-accent/5" />
+                    <div className="p-3">
+                      <div className="text-xs font-medium text-foreground mb-1">{project.name}</div>
+                      <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-md ${project.statusColor}`}>
+                        {project.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom fade */}
+          <div className="h-24 bg-gradient-to-t from-background to-transparent -mt-24 relative z-10" />
         </motion.div>
       </div>
     </section>

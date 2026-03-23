@@ -1,4 +1,4 @@
-import { Project } from '@/hooks/useProjects';
+// Accepts Project from either types/project or hooks/useProjects
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useProjectVersions } from '@/hooks/useProjectVersions';
@@ -10,7 +10,14 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 interface ProjectOverviewTabProps {
-  project: Project;
+  project: {
+    id: string;
+    status: string;
+    description?: string | null;
+    notes?: string | null;
+    share_token?: string | null;
+    max_revisions?: number;
+  };
   onSendVersion: () => void;
 }
 
@@ -32,8 +39,8 @@ export function ProjectOverviewTab({ project, onSendVersion }: ProjectOverviewTa
   const config = statusLabels[project.status] || statusLabels.draft;
   const StatusIcon = config.icon;
 
-  const shareUrl = (project as any).share_token 
-    ? `${window.location.origin}/p/${(project as any).share_token}` 
+  const shareUrl = project.share_token 
+    ? `${window.location.origin}/p/${project.share_token}` 
     : null;
 
   const copyShareLink = () => {
@@ -60,8 +67,8 @@ export function ProjectOverviewTab({ project, onSendVersion }: ProjectOverviewTa
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Pendentes</p>
         </div>
         <div className="p-3 rounded-lg border bg-card text-center">
-          <p className={cn('text-2xl font-bold', versions.length >= (project as any).max_revisions ? 'text-destructive' : '')}>
-            {versions.length}/{(project as any).max_revisions || 3}
+          <p className={cn('text-2xl font-bold', versions.length >= (project.max_revisions || 3) ? 'text-destructive' : '')}>
+            {versions.length}/{project.max_revisions || 3}
           </p>
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Revisões</p>
         </div>

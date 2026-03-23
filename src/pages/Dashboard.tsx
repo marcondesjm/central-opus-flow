@@ -507,11 +507,15 @@ export default function Dashboard() {
   const handleSelectAccount = useCallback((accountId: string) => {
     setSelectedAccount(accountId);
     setActiveView('all');
+    setStatsFilter('all');
+    setActionStatsFilter(null);
   }, []);
 
   const handleSelectTag = useCallback((tagName: string) => {
     setTagFilter(tagName);
     setActiveView('all');
+    setStatsFilter('all');
+    setActionStatsFilter(null);
   }, []);
 
   // Handle accepting invite from notification
@@ -784,6 +788,8 @@ export default function Dashboard() {
 
   const handleViewChange = (view: string) => {
     setActiveView(view);
+    setStatsFilter('all');
+    setActionStatsFilter(null);
     if (view === 'tags') {
       setTagsManagerOpen(true);
     } else if (view === 'wordpress') {
@@ -795,6 +801,8 @@ export default function Dashboard() {
     setStatusFilter('all');
     setTypeFilter('all');
     setTagFilter(null);
+    setStatsFilter('all');
+    setActionStatsFilter(null);
   };
 
   const hasActiveFilters = statusFilter !== 'all' || typeFilter !== 'all' || tagFilter !== null;

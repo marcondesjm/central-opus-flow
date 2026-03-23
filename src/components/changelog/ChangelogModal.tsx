@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useChangelogByVersion, ChangelogEntry } from '@/hooks/useChangelog';
+import { useChangelogByVersion, ChangelogEntry, useLatestVersion } from '@/hooks/useChangelog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
@@ -31,6 +31,7 @@ import { toast } from 'sonner';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { Download, CheckCircle2, Loader2 as DownloadSpinner } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { getHighestVersion, isVersionBehind } from '@/lib/versioning';
 
 interface ChangelogModalProps {
   open: boolean;
@@ -49,6 +50,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   const { data: changelog, isLoading, isFetching } = useChangelogByVersion();
   const queryClient = useQueryClient();
   const { data: systemVersion } = useSystemVersion();
+  const { data: latestVersion } = useLatestVersion();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -123,10 +125,11 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
 
   const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
   const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
+  const targetVersion = getHighestVersion(latestVersion?.version, systemVersion?.version);
 
   const hasUpdate = (() => {
-    const lastSeen = typeof window !== 'undefined' ? localStorage.getItem(LAST_SEEN_KEY) : null;
-    return systemVersion?.version && lastSeen && lastSeen !== systemVersion.version;
+    const installedVersion = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_VERSION_KEY) : null;
+    return isVersionBehind(installedVersion, targetVersion);
   })();
 
   // Auto-detect update on modal open
@@ -161,9 +164,9 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   };
 
   const handleInstallUpdate = () => {
-    if (systemVersion?.version) {
-      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
-      localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+    if (targetVersion) {
+      localStorage.setItem(LAST_SEEN_KEY, targetVersion);
+      localStorage.setItem(LOCAL_VERSION_KEY, targetVersion);
       localStorage.setItem('centralopusflow-installed-at', new Date().toISOString());
     }
     window.location.reload();
@@ -206,7 +209,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
                 className="gap-2 h-8 px-3 text-xs"
               >
                 <Download className="h-3.5 w-3.5" />
-                Baixar v{systemVersion?.version}
+                Baixar v{targetVersion}
               </Button>
             )}
           </div>
@@ -216,7 +219,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground flex items-center gap-1.5">
                   <Download className="h-3 w-3 animate-bounce" />
-                  Baixando atualização v{systemVersion?.version}...
+                  Baixando atualização v{targetVersion}...
                 </span>
                 <span className="font-mono text-muted-foreground">
                   {((totalMB * (100 - downloadProgress)) / 100).toFixed(1)} MB restantes

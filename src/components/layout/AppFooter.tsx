@@ -11,6 +11,7 @@ import { FeedbackButton } from '@/components/support/FeedbackButton';
 import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getHighestVersion } from '@/lib/versioning';
 
 const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
 const INSTALLED_AT_KEY = 'centralopusflow-installed-at';
@@ -23,9 +24,10 @@ export function AppFooter() {
   const { version, updatedAt } = useMemo(() => {
     const installedVersion = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_VERSION_KEY) : null;
     const installedAt = typeof window !== 'undefined' ? localStorage.getItem(INSTALLED_AT_KEY) : null;
+    const fallbackVersion = getHighestVersion(latestVersion?.version, systemVersion?.version) || '1.0.0';
 
     return {
-      version: installedVersion || latestVersion?.version || systemVersion?.version || '1.0.0',
+      version: installedVersion || fallbackVersion,
       updatedAt: installedAt
         ? new Date(installedAt)
         : latestVersion?.created_at

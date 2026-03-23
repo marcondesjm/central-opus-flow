@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
+import { useLatestVersion } from '@/hooks/useChangelog';
 import { RefreshCw, Download, X, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
+import { getHighestVersion, isVersionBehind } from '@/lib/versioning';
 
 const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
 const LAST_SEEN_KEY = 'centralopusflow-last-seen-version';
@@ -12,32 +14,34 @@ type UpdatePhase = 'downloading' | 'ready' | null;
 
 export function VersionUpdateModal() {
   const { data: systemVersion, dataUpdatedAt } = useSystemVersion();
+  const { data: latestVersion } = useLatestVersion();
   const [phase, setPhase] = useState<UpdatePhase>(null);
   const [progress, setProgress] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const [pendingVersion, setPendingVersion] = useState<string | null>(null);
   const [accumulateTimer, setAccumulateTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const ACCUMULATE_DELAY = 30000; // wait 30s of silence before showing (accumulates all build updates)
+  const targetVersion = getHighestVersion(latestVersion?.version, systemVersion?.version);
 
   useEffect(() => {
-    if (!systemVersion?.version) return;
+    if (!targetVersion) return;
 
     const installedVersion = localStorage.getItem(LOCAL_VERSION_KEY);
     const lastSeenVersion = localStorage.getItem(LAST_SEEN_KEY);
 
     if (!installedVersion) {
-      localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+      localStorage.setItem(LOCAL_VERSION_KEY, targetVersion);
     }
 
     if (!lastSeenVersion) {
-      localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
+      localStorage.setItem(LAST_SEEN_KEY, targetVersion);
       return;
     }
 
-    const currentInstalledVersion = installedVersion || systemVersion.version;
+    const currentInstalledVersion = installedVersion || targetVersion;
 
-    if (currentInstalledVersion !== systemVersion.version && !dismissed) {
-      setPendingVersion(systemVersion.version);
+    if (isVersionBehind(currentInstalledVersion, targetVersion) && !dismissed) {
+      setPendingVersion(targetVersion);
       if (phase === null) {
         if (accumulateTimer) clearTimeout(accumulateTimer);
         const timer = setTimeout(() => {
@@ -48,7 +52,7 @@ export function VersionUpdateModal() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [systemVersion?.version, dataUpdatedAt, dismissed]);
+  }, [targetVersion, dataUpdatedAt, dismissed, phase, accumulateTimer]);
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -78,17 +82,17 @@ export function VersionUpdateModal() {
   }, [phase]);
 
   const handleInstall = useCallback(() => {
-    const ver = pendingVersion || systemVersion?.version;
+    const ver = pendingVersion || targetVersion;
     if (ver) {
       localStorage.setItem(LAST_SEEN_KEY, ver);
       localStorage.setItem(LOCAL_VERSION_KEY, ver);
       localStorage.setItem('centralopusflow-installed-at', new Date().toISOString());
     }
     window.location.reload();
-  }, [pendingVersion, systemVersion?.version]);
+  }, [pendingVersion, targetVersion]);
 
   const handleDismiss = useCallback(() => {
-    const ver = pendingVersion || systemVersion?.version;
+    const ver = pendingVersion || targetVersion;
     if (ver) {
       localStorage.setItem(LAST_SEEN_KEY, ver);
     }
@@ -97,7 +101,7 @@ export function VersionUpdateModal() {
     setPendingVersion(null);
     if (accumulateTimer) clearTimeout(accumulateTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingVersion, systemVersion?.version, accumulateTimer]);
+  }, [pendingVersion, targetVersion, accumulateTimer]);
 
   // Count how many versions were skipped
   const skippedCount = (() => {
@@ -114,7 +118,7 @@ export function VersionUpdateModal() {
 
   if (!phase) return null;
 
-  const displayVersion = pendingVersion || systemVersion?.version;
+  const displayVersion = pendingVersion || targetVersion;
 
   return (
     <AnimatePresence>

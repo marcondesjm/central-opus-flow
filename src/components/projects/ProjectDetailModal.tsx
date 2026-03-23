@@ -22,7 +22,7 @@ interface ProjectDetailModalProps {
 
 const statusLabels: Record<string, { label: string; className: string }> = {
   draft: { label: 'Rascunho', className: 'bg-muted text-muted-foreground' },
-  published: { label: 'Publicado', className: 'bg-emerald-500/10 text-emerald-600' },
+  published: { label: 'Aprovado', className: 'bg-emerald-500/10 text-emerald-600' },
   review: { label: 'Em revisão', className: 'bg-amber-500/10 text-amber-600' },
   approved: { label: 'Aprovado', className: 'bg-emerald-500/10 text-emerald-600' },
   changes: { label: 'Ajustes', className: 'bg-destructive/10 text-destructive' },

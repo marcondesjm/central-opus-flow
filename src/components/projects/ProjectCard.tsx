@@ -56,7 +56,7 @@ const accountColorMap = {
 };
 
 const statusConfigMap: Record<string, { key: string; className: string }> = {
-  published: { key: 'filters.published', className: 'bg-status-published/10 text-status-published border-status-published/20' },
+  published: { key: 'filters.approved', className: 'bg-status-published/10 text-status-published border-status-published/20' },
   draft: { key: 'filters.draft', className: 'bg-status-draft/10 text-status-draft border-status-draft/20' },
   archived: { key: 'filters.archived', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
   review: { key: 'filters.review', className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },

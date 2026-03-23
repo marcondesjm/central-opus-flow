@@ -19,7 +19,7 @@ interface ProjectHoverCardProps {
 }
 
 const statusConfig = {
-  published: { label: 'Publicado', className: 'bg-status-published/10 text-status-published' },
+  published: { label: 'Aprovado', className: 'bg-status-published/10 text-status-published' },
   draft: { label: 'Rascunho', className: 'bg-status-draft/10 text-status-draft' },
   archived: { label: 'Arquivado', className: 'bg-status-archived/10 text-status-archived' },
 };

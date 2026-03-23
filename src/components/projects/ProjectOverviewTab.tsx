@@ -1,4 +1,4 @@
-import { Project } from '@/types/project';
+// Accepts Project from either types/project or hooks/useProjects
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useProjectVersions } from '@/hooks/useProjectVersions';

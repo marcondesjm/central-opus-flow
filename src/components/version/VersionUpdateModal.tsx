@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { useLatestVersion } from '@/hooks/useChangelog';
@@ -19,8 +19,8 @@ export function VersionUpdateModal() {
   const [progress, setProgress] = useState(0);
   const [dismissed, setDismissed] = useState(false);
   const [pendingVersion, setPendingVersion] = useState<string | null>(null);
-  const [accumulateTimer, setAccumulateTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
-  const ACCUMULATE_DELAY = 30000; // wait 30s of silence before showing (accumulates all build updates)
+  const accumulateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ACCUMULATE_DELAY = 30000;
   const targetVersion = getHighestVersion(latestVersion?.version, systemVersion?.version);
 
   useEffect(() => {
@@ -43,23 +43,22 @@ export function VersionUpdateModal() {
     if (isVersionBehind(currentInstalledVersion, targetVersion) && !dismissed) {
       setPendingVersion(targetVersion);
       if (phase === null) {
-        if (accumulateTimer) clearTimeout(accumulateTimer);
-        const timer = setTimeout(() => {
+        if (accumulateTimerRef.current) clearTimeout(accumulateTimerRef.current);
+        accumulateTimerRef.current = setTimeout(() => {
           setPhase('downloading');
           setProgress(0);
         }, ACCUMULATE_DELAY);
-        setAccumulateTimer(timer);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetVersion, dataUpdatedAt, dismissed, phase, accumulateTimer]);
+  }, [targetVersion, dataUpdatedAt, dismissed]);
 
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
-      if (accumulateTimer) clearTimeout(accumulateTimer);
+      if (accumulateTimerRef.current) clearTimeout(accumulateTimerRef.current);
     };
-  }, [accumulateTimer]);
+  }, []);
 
   // Simulate background download progress
   useEffect(() => {
@@ -99,9 +98,8 @@ export function VersionUpdateModal() {
     setPhase(null);
     setDismissed(true);
     setPendingVersion(null);
-    if (accumulateTimer) clearTimeout(accumulateTimer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingVersion, targetVersion, accumulateTimer]);
+    if (accumulateTimerRef.current) clearTimeout(accumulateTimerRef.current);
+  }, [pendingVersion, targetVersion]);
 
   // Count how many versions were skipped
   const skippedCount = (() => {

@@ -323,6 +323,7 @@ export function useUpdateProject() {
         .from('projects')
         .update(updates)
         .eq('id', id)
+        .select()
         .maybeSingle();
 
       if (error) throw error;
@@ -429,7 +430,9 @@ export function useToggleFavorite() {
       const { error } = await supabase
         .from('projects')
         .update({ is_favorite: isFavorite })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .maybeSingle();
       
       if (error) throw error;
     },

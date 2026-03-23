@@ -81,7 +81,7 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
 
       {/* Add version button/form */}
       {!showForm ? (
-        <Button onClick={() => setShowForm(true)} className="w-full gap-2">
+        <Button onClick={handleShowForm} className="w-full gap-2">
           <Plus className="w-4 h-4" />
           Nova versão
         </Button>

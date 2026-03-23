@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { History, Calendar, Tag, FileEdit, Star, Archive, CheckCircle, Eye } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { History, Calendar, Tag, FileEdit, Star, Archive, CheckCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { useProjectHistory, ProjectHistoryEntry } from '@/hooks/useProjectHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -30,6 +30,8 @@ const actionLabels: Record<string, string> = {
   favorite_toggled: 'alterou favorito',
   progress_changed: 'alterou o progresso',
 };
+
+const PER_PAGE = 3;
 
 function HistoryItem({ entry }: { entry: ProjectHistoryEntry }) {
   const icon = actionIcons[entry.action] || <FileEdit className="h-4 w-4 text-muted-foreground" />;
@@ -110,12 +112,31 @@ export function ProjectHistoryPanel({ projectId }: ProjectHistoryPanelProps) {
   }
 
   return (
-    <ScrollArea className="h-[300px]">
-      <div className="space-y-1 pr-4">
-        {history.map((entry) => (
-          <HistoryItem key={entry.id} entry={entry} />
-        ))}
-      </div>
-    </ScrollArea>
+    <PaginatedHistory items={history} />
+  );
+}
+
+function PaginatedHistory({ items }: { items: ProjectHistoryEntry[] }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(items.length / PER_PAGE);
+  const paged = items.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+
+  return (
+    <div className="space-y-1">
+      {paged.map((entry) => (
+        <HistoryItem key={entry.id} entry={entry} />
+      ))}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Button variant="outline" size="icon" className="h-7 w-7" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <span className="text-xs text-muted-foreground">{page + 1} / {totalPages}</span>
+          <Button variant="outline" size="icon" className="h-7 w-7" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

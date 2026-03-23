@@ -1,4 +1,4 @@
-import { Project } from '@/hooks/useProjects';
+import { Project } from '@/types/project';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useProjectVersions } from '@/hooks/useProjectVersions';

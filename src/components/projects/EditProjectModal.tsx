@@ -37,7 +37,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 export function EditProjectModal({ open, onOpenChange, project, initialTab = 'versions' }: EditProjectModalProps) {
   const { data: accounts = [] } = useAccounts();
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [localStatus, setLocalStatus] = useState(project?.status || 'draft');
+  const [localStatus, setLocalStatus] = useState<string>(project?.status || 'draft');
 
   useEffect(() => {
     if (open) setActiveTab(initialTab);
@@ -111,7 +111,7 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
                   // Refresh local status from query cache
                   onOpenChange(false);
                 }} 
-                onStatusChange={(s) => setLocalStatus(s)}
+                onStatusChange={(s: string) => setLocalStatus(s)}
               />
             </TabsContent>
 

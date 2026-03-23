@@ -950,7 +950,7 @@ export default function Dashboard() {
           {/* Action Center */}
           <div className="mb-8">
             <ActionCenter
-              projects={transformedProjects.map(p => ({
+              projects={allTransformedProjects.map(p => ({
                 ...p,
                 accountName: getAccount(p.accountId)?.name,
               }))}

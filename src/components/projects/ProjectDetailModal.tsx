@@ -103,7 +103,7 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
             </TabsList>
           </div>
 
-          <div className="overflow-y-auto max-h-[calc(85vh-140px)] px-5 pb-5">
+          <div className="overflow-y-auto max-h-[calc(92vh-140px)] px-5 pb-5">
             <TabsContent value="overview" className="mt-0">
               <ProjectOverviewTab 
                 project={{

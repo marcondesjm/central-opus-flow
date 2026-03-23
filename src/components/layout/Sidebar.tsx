@@ -271,15 +271,14 @@ export function Sidebar({
               'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
               'active:scale-[0.97]',
-              'bg-gradient-to-r from-amber-500/15 to-primary/10 border border-amber-500/30',
               isViewActive('favorites')
-                ? 'text-amber-600 dark:text-amber-400 border-amber-500/60 shadow-sm shadow-amber-500/10'
-                : 'text-amber-600 dark:text-amber-400 hover:border-amber-500/50 hover:shadow-sm hover:shadow-amber-500/10'
+                ? 'bg-primary/15 text-primary border border-primary/40 shadow-sm shadow-primary/10'
+                : 'bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/30 hover:shadow-sm hover:shadow-primary/10'
             )}
           >
-            <Star className="w-4 h-4 fill-amber-500 text-amber-500 flex-shrink-0" aria-hidden="true" />
+            <Star className="w-4 h-4 fill-primary text-primary flex-shrink-0" aria-hidden="true" />
             <span className="flex-1 text-left">{t('sidebar.approvals')}</span>
-            <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0 h-5 hover:bg-amber-600">⭐</Badge>
+            <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0 h-5 hover:bg-primary/90">⭐</Badge>
           </button>
 
           <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />

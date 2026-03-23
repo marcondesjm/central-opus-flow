@@ -436,7 +436,7 @@
     "favoriteProjects": "Favorite Projects",
     "archivedProjects": "Archived Projects",
     "organizeByTags": "Organize by Tags",
-    "allProjects": "All Projects",
+    "allProjects": "Landing Pages",
     "account": "Account",
     "deleteProject": "Delete project?",
     "deleteProjectDesc": "This action cannot be undone. The project \"{{name}}\" will be permanently deleted.",

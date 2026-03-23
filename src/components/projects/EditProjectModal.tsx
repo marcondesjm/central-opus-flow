@@ -37,15 +37,20 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 export function EditProjectModal({ open, onOpenChange, project, initialTab = 'versions' }: EditProjectModalProps) {
   const { data: accounts = [] } = useAccounts();
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [localStatus, setLocalStatus] = useState(project?.status || 'draft');
 
   useEffect(() => {
     if (open) setActiveTab(initialTab);
   }, [open, initialTab]);
 
+  useEffect(() => {
+    if (project) setLocalStatus(project.status);
+  }, [project?.status, project?.id]);
+
   if (!project) return null;
 
   const account = accounts.find(a => a.id === project.account_id);
-  const config = statusConfig[project.status] || statusConfig.draft;
+  const config = statusConfig[localStatus] || statusConfig.draft;
   const StatusIcon = config.icon;
   const maxRevisions = (project as any).max_revisions || 3;
   const clientName = (project as any).client_name || account?.name || '—';
@@ -102,7 +107,11 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
             <TabsContent value="overview">
               <ProjectEditForm 
                 project={project} 
-                onSaved={() => onOpenChange(false)} 
+                onSaved={() => {
+                  // Refresh local status from query cache
+                  onOpenChange(false);
+                }} 
+                onStatusChange={(s) => setLocalStatus(s)}
               />
             </TabsContent>
 

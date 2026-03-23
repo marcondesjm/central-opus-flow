@@ -149,12 +149,12 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
       </div>
 
       {/* Share Link */}
-      {project.share_token && (
-        <div className="space-y-1.5">
-          <Label className="text-xs font-medium flex items-center gap-1">
-            <Link className="w-3 h-3" />
-            Link de aprovação do cliente
-          </Label>
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium flex items-center gap-1">
+          <Link className="w-3 h-3" />
+          Link de aprovação do cliente
+        </Label>
+        {project.share_token ? (
           <div className="flex gap-2">
             <Input 
               readOnly 
@@ -172,7 +172,7 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
                 setTimeout(() => setCopied(false), 2000);
               }}
             >
-              {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+              {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
             </Button>
             <Button 
               variant="outline" 
@@ -183,8 +183,28 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
               <ExternalLink className="w-4 h-4" />
             </Button>
           </div>
-        </div>
-      )}
+        ) : (
+          <Button 
+            variant="outline" 
+            className="w-full text-xs gap-2"
+            onClick={async () => {
+              const shareToken = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+              try {
+                await updateProject.mutateAsync({
+                  id: project.id,
+                  share_token: shareToken,
+                } as any);
+                toast.success('Link de aprovação gerado!');
+              } catch {
+                toast.error('Erro ao gerar link');
+              }
+            }}
+          >
+            <Link className="w-3.5 h-3.5" />
+            Gerar link de aprovação
+          </Button>
+        )}
+      </div>
       {/* Deadline */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Prazo</Label>

@@ -170,6 +170,7 @@ export default function Dashboard() {
   const deleteProject = useDeleteProject();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const paywall = usePaywall();
   
   const {
     notifications,

@@ -1071,10 +1071,7 @@ export default function Dashboard() {
           </div>
           </div>
 
-          {/* News Feed */}
-          <div className="mb-6">
-            <NewsFeedWidget />
-          </div>
+          {/* spacer */}
 
           {/* Footer com versão */}
           <AppFooter />

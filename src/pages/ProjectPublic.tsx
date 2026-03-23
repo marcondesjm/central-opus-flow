@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers, ImagePlus, X } from 'lucide-react';
+import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers, ImagePlus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -77,6 +77,7 @@ export default function ProjectPublic() {
   const [changesImages, setChangesImages] = useState<File[]>([]);
   const [commentPreviews, setCommentPreviews] = useState<string[]>([]);
   const [changesPreviews, setChangesPreviews] = useState<string[]>([]);
+  const [commentPage, setCommentPage] = useState(0);
   const commentFileRef = useRef<HTMLInputElement>(null);
   const changesFileRef = useRef<HTMLInputElement>(null);
 
@@ -357,42 +358,75 @@ export default function ProjectPublic() {
             Comentários
           </h2>
 
-          {feedback.length > 0 && (
-            <div className="space-y-3 mb-6">
-              {feedback.map(f => (
-                <div key={f.id} className="p-3 rounded-lg bg-muted/30 border text-sm">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-foreground">{f.author_name}</span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {format(new Date(f.created_at), "dd MMM HH:mm", { locale: ptBR })}
-                    </span>
-                    {f.author_type === 'client' && (
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Cliente</Badge>
-                    )}
-                  </div>
-                  {(() => {
-                    const parts = f.comment.split('\n\n📎 Imagens anexadas:\n');
-                    const text = parts[0];
-                    const imageLinks = parts[1]?.split('\n').filter(Boolean) || [];
-                    return (
-                      <>
-                        <p className="text-muted-foreground text-xs whitespace-pre-wrap">{text}</p>
-                        {imageLinks.length > 0 && (
-                          <div className="flex gap-2 flex-wrap mt-2">
-                            {imageLinks.map((url, i) => (
-                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                                <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border hover:opacity-80 transition" />
-                              </a>
-                            ))}
-                          </div>
+          {feedback.length > 0 && (() => {
+            const sorted = [...feedback].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            const perPage = 3;
+            const totalPages = Math.ceil(sorted.length / perPage);
+            const paged = sorted.slice(commentPage * perPage, (commentPage + 1) * perPage);
+            return (
+              <div className="mb-6">
+                <div className="space-y-3">
+                  {paged.map(f => (
+                    <div key={f.id} className="p-3 rounded-lg bg-muted/30 border text-sm">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-foreground">{f.author_name}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(new Date(f.created_at), "dd MMM HH:mm", { locale: ptBR })}
+                        </span>
+                        {f.author_type === 'client' && (
+                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Cliente</Badge>
                         )}
-                      </>
-                    );
-                  })()}
+                      </div>
+                      {(() => {
+                        const parts = f.comment.split('\n\n📎 Imagens anexadas:\n');
+                        const text = parts[0];
+                        const imageLinks = parts[1]?.split('\n').filter(Boolean) || [];
+                        return (
+                          <>
+                            <p className="text-muted-foreground text-xs whitespace-pre-wrap">{text}</p>
+                            {imageLinks.length > 0 && (
+                              <div className="flex gap-2 flex-wrap mt-2">
+                                {imageLinks.map((url, i) => (
+                                  <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                    <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border hover:opacity-80 transition" />
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-3 mt-4">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={commentPage === 0}
+                      onClick={() => setCommentPage(p => p - 1)}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {commentPage + 1} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={commentPage >= totalPages - 1}
+                      onClick={() => setCommentPage(p => p + 1)}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Add comment form */}
           <div className="space-y-3">

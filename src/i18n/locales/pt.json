@@ -439,9 +439,9 @@
   },
   "dashboardPage": {
     "loadingProjects": "Carregando projetos...",
-    "noProjectsYet": "Nenhum projeto ainda",
-    "noProjectsFound": "Nenhum projeto encontrado",
-    "addAccountStart": "Adicione uma conta e comece a gerenciar seus projetos",
+    "noProjectsYet": "Você ainda não tem landing pages",
+    "noProjectsFound": "Nenhuma landing page encontrada",
+    "addAccountStart": "Crie sua primeira e comece a organizar feedback dos seus clientes",
     "adjustFilters": "Tente ajustar seus filtros ou termo de busca",
     "projectCount": "{{count}} projeto",
     "projectCount_plural": "{{count}} projetos",

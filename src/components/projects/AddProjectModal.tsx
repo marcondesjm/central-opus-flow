@@ -154,9 +154,9 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Projeto</DialogTitle>
+          <DialogTitle>Nova Landing Page</DialogTitle>
           <DialogDescription>
-            Adicione um novo projeto para gerenciar.
+            Adicione uma nova landing page para gerenciar.
           </DialogDescription>
         </DialogHeader>
         

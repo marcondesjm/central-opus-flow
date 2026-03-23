@@ -164,6 +164,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
     if (systemVersion?.version) {
       localStorage.setItem(LAST_SEEN_KEY, systemVersion.version);
       localStorage.setItem(LOCAL_VERSION_KEY, systemVersion.version);
+      localStorage.setItem('centralopusflow-installed-at', new Date().toISOString());
     }
     window.location.reload();
   };

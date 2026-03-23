@@ -77,6 +77,7 @@ export default function ProjectPublic() {
   const [changesImages, setChangesImages] = useState<File[]>([]);
   const [commentPreviews, setCommentPreviews] = useState<string[]>([]);
   const [changesPreviews, setChangesPreviews] = useState<string[]>([]);
+  const [commentPage, setCommentPage] = useState(0);
   const commentFileRef = useRef<HTMLInputElement>(null);
   const changesFileRef = useRef<HTMLInputElement>(null);
 

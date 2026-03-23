@@ -3,6 +3,7 @@ import {
   Kanban, 
   FileText, 
   Sparkles, 
+  Star,
   BarChart3,
   Receipt,
   FolderOpen,
@@ -23,18 +24,19 @@ import {
 import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 
 const mainItems = [
-  { path: '/dashboard', label: 'Projetos', icon: LayoutDashboard },
-  { path: '/kanban', label: 'Kanban', icon: Kanban },
+  { path: '/dashboard', label: 'Landing Pages', icon: LayoutDashboard },
+  { path: '/dashboard?view=favorites', label: 'Aprovações', icon: Star },
   { path: '/proposals', label: 'Propostas', icon: FileText },
-  { path: '/ideas', label: 'Ideias', icon: Sparkles },
 ];
 
 const moreItems = [
+  { path: '/kanban', label: 'Kanban', icon: Kanban },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/billing', label: 'Faturamento', icon: Receipt },
-  { path: '/files', label: 'Arquivos', icon: FolderOpen },
+  { path: '/files', label: 'Versões', icon: FolderOpen },
   { path: '/teams', label: 'Equipes', icon: UsersRound },
   { path: '/collaborations', label: 'Colaborações', icon: Share2 },
+  { path: '/ideas', label: 'Ideias', icon: Sparkles },
   { path: '/manual', label: 'Manual', icon: BookOpen },
 ];
 

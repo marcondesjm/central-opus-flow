@@ -936,6 +936,8 @@ export default function Dashboard() {
               onNewProject={handleNewProject}
               onSendVersion={handleSendVersion}
               onViewApprovals={handleViewApprovals}
+              activeStatsFilter={actionStatsFilter}
+              onStatsFilterChange={setActionStatsFilter}
             />
           </div>
 

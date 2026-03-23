@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 
 const problems = [
   'Feedback espalhado entre WhatsApp, email e áudio',
@@ -10,50 +10,59 @@ const problems = [
 
 export function ProblemSection() {
   return (
-    <section className="py-28 md:py-36 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'var(--gradient-glow)' }} />
+    <section className="py-24 md:py-32 px-4 relative overflow-hidden">
+      {/* Subtle red glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full blur-[200px] pointer-events-none bg-destructive/[0.04]" />
 
-      <div className="container mx-auto max-w-2xl relative">
+      <div className="container mx-auto max-w-3xl relative">
         <motion.div
-          className="mb-14"
-          initial={{ opacity: 0, y: 20 }}
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7 }}
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-destructive mb-4">O problema</p>
-          <h2 className="text-3xl md:text-[2.75rem] font-extrabold leading-tight tracking-[-0.03em]">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-xs font-semibold text-destructive mb-6">
+            <AlertTriangle className="w-3 h-3" />
+            O problema
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-[-0.04em]">
             Você já passou por isso?
           </h2>
         </motion.div>
 
-        <div className="space-y-3 mb-12">
+        <div className="space-y-3 mb-14">
           {problems.map((problem, i) => (
             <motion.div
               key={i}
-              className="group flex items-start gap-4 p-5 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm hover:border-destructive/30 hover:bg-destructive/[0.03] transition-all duration-300"
-              initial={{ opacity: 0, x: -16 }}
+              className="group flex items-center gap-4 p-5 rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm hover:border-destructive/40 hover:bg-destructive/[0.03] transition-all duration-500 cursor-default"
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ x: 4 }}
             >
-              <div className="w-7 h-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-destructive/15 transition-colors">
-                <X className="w-3.5 h-3.5 text-destructive" />
+              <div className="w-8 h-8 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0 group-hover:bg-destructive/20 group-hover:scale-110 transition-all duration-300">
+                <X className="w-4 h-4 text-destructive" />
               </div>
-              <p className="text-[15px] text-muted-foreground leading-relaxed">{problem}</p>
+              <p className="text-base text-foreground/80 leading-relaxed font-medium">{problem}</p>
             </motion.div>
           ))}
         </div>
 
         <motion.div
-          className="relative pl-5 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:rounded-full before:bg-primary"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          className="relative p-6 rounded-2xl bg-gradient-to-r from-primary/[0.06] to-transparent border border-primary/15"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <p className="text-base font-medium text-foreground/80 leading-relaxed">
-            Isso não é profissional — e está te fazendo perder tempo (e dinheiro).
+          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-primary" />
+          <p className="text-base md:text-lg font-semibold text-foreground/90 leading-relaxed pl-4">
+            Isso não é profissional — e está te fazendo perder{' '}
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
+              tempo e dinheiro.
+            </span>
           </p>
         </motion.div>
       </div>

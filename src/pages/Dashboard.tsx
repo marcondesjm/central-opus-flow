@@ -1200,6 +1200,14 @@ export default function Dashboard() {
         />
       )}
 
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={paywall.paywallOpen}
+        onOpenChange={paywall.closePaywall}
+        trigger={paywall.paywallTrigger}
+        triggerMessage={paywall.triggerMessage}
+      />
+
       {/* WhatsApp Support Button */}
       <WhatsAppSupportButton />
       </div>

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers, ImagePlus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,11 +12,23 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const publicSupabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  }
+);
+
 function usePublicProject(token: string | undefined) {
   return useQuery({
     queryKey: ['public-project', token],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await publicSupabase
         .from('projects')
         .select('*')
         .eq('share_token', token!)
@@ -32,7 +44,7 @@ function usePublicVersions(projectId: string | undefined) {
   return useQuery({
     queryKey: ['public-versions', projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await publicSupabase
         .from('project_versions')
         .select('*')
         .eq('project_id', projectId!)
@@ -48,7 +60,7 @@ function usePublicFeedback(projectId: string | undefined) {
   return useQuery({
     queryKey: ['public-feedback', projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await publicSupabase
         .from('project_feedback')
         .select('*')
         .eq('project_id', projectId!)
@@ -107,9 +119,9 @@ export default function ProjectPublic() {
     for (const file of files) {
       const ext = file.name.split('.').pop();
       const path = `public-feedback/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from('user-files').upload(path, file);
+      const { error: uploadError } = await publicSupabase.storage.from('user-files').upload(path, file);
       if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from('user-files').getPublicUrl(path);
+      const { data: urlData } = publicSupabase.storage.from('user-files').getPublicUrl(path);
       urls.push(urlData.publicUrl);
     }
     return urls;
@@ -122,7 +134,7 @@ export default function ProjectPublic() {
     if (!comment.trim() || !authorName.trim() || !project) return;
     setSubmitting(true);
     try {
-      const { error: fbError } = await supabase.from('project_feedback').insert({
+      const { error: fbError } = await publicSupabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim(),
@@ -144,34 +156,34 @@ export default function ProjectPublic() {
     if (!project) return;
     setSubmitting(true);
     try {
-      // Update project status
-      const { error: projError } = await supabase
+      const { error: projError } = await publicSupabase
         .from('projects')
-        .update({ status: 'approved' } as any)
+        .update({ status: 'approved' } as never)
         .eq('id', project.id);
       if (projError) throw projError;
 
-      // Update current version status
       if (currentVersion) {
-        await supabase
+        const { error: versionError } = await publicSupabase
           .from('project_versions')
-          .update({ status: 'approved' } as any)
+          .update({ status: 'approved' } as never)
           .eq('id', currentVersion.id);
+        if (versionError) throw versionError;
       }
 
-      // Add approval feedback
-      await supabase.from('project_feedback').insert({
+      const { error: feedbackError } = await publicSupabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim() || 'Cliente',
         author_type: 'client',
         comment: '✅ Projeto aprovado pelo cliente.',
       });
+      if (feedbackError) throw feedbackError;
 
       setActionDone('approved');
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });
       toast.success('🎉 Projeto aprovado com sucesso!');
-    } catch {
+    } catch (err) {
+      console.error('handleApprove error:', err);
       toast.error('Erro ao aprovar projeto');
     } finally {
       setSubmitting(false);
@@ -185,38 +197,36 @@ export default function ProjectPublic() {
     }
     setSubmitting(true);
     try {
-      const { error: projError } = await supabase
+      const { error: projError } = await publicSupabase
         .from('projects')
-        .update({ status: 'changes' } as any)
+        .update({ status: 'changes' } as never)
         .eq('id', project.id);
       if (projError) throw projError;
 
       if (currentVersion) {
-        await supabase
+        const { error: versionError } = await publicSupabase
           .from('project_versions')
-          .update({ status: 'changes' } as any)
+          .update({ status: 'changes' } as never)
           .eq('id', currentVersion.id);
+        if (versionError) throw versionError;
       }
 
       let imageUrls: string[] = [];
       if (changesImages.length > 0) {
-        try {
-          imageUrls = await uploadImages(changesImages);
-        } catch (uploadErr) {
-          console.error('Image upload failed:', uploadErr);
-        }
+        imageUrls = await uploadImages(changesImages);
       }
       const fullComment = imageUrls.length > 0
         ? `⚠️ Ajustes solicitados: ${changesReason.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.join('\n')}`
         : `⚠️ Ajustes solicitados: ${changesReason.trim()}`;
 
-      await supabase.from('project_feedback').insert({
+      const { error: feedbackError } = await publicSupabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim() || 'Cliente',
         author_type: 'client',
         comment: fullComment,
       });
+      if (feedbackError) throw feedbackError;
 
       setActionDone('changes');
       setChangesImages([]);
@@ -280,14 +290,12 @@ export default function ProjectPublic() {
   return (
     <div className="min-h-screen bg-background py-6 px-4">
       <div className="max-w-[700px] mx-auto space-y-6">
-        {/* Header */}
         <div className="bg-card rounded-2xl shadow-sm p-6 border">
           <h1 className="text-xl font-bold text-foreground mb-1">{project.name}</h1>
           {project.description && (
             <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
           )}
           
-          {/* Current version info */}
           {currentVersion && (
             <div className="flex items-center gap-3 flex-wrap">
               {currentVersion.preview_url && (
@@ -311,7 +319,6 @@ export default function ProjectPublic() {
           )}
         </div>
 
-        {/* All versions */}
         {versions.length > 1 && (
           <div className="bg-card rounded-2xl shadow-sm p-6 border">
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -347,7 +354,6 @@ export default function ProjectPublic() {
           </div>
         )}
 
-        {/* Feedback section */}
         <div className="bg-card rounded-2xl shadow-sm p-6 border">
           <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
@@ -424,7 +430,6 @@ export default function ProjectPublic() {
             );
           })()}
 
-          {/* Add comment form */}
           <div className="space-y-3">
             <Input
               placeholder="Seu nome"
@@ -452,7 +457,6 @@ export default function ProjectPublic() {
           </div>
         </div>
 
-        {/* Approval actions */}
         <div className="bg-card rounded-2xl shadow-sm p-6 border">
           <h2 className="text-sm font-semibold text-foreground mb-4">O que deseja fazer?</h2>
           

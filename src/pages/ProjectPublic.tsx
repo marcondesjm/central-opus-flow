@@ -193,14 +193,12 @@ export default function ProjectPublic() {
     }
     setSubmitting(true);
     try {
-      // Update project status
       const { error: projError } = await supabase
         .from('projects')
         .update({ status: 'changes' } as any)
         .eq('id', project.id);
       if (projError) throw projError;
 
-      // Update current version status
       if (currentVersion) {
         await supabase
           .from('project_versions')
@@ -208,16 +206,25 @@ export default function ProjectPublic() {
           .eq('id', currentVersion.id);
       }
 
-      // Add changes feedback with reason
+      let imageUrls: string[] = [];
+      if (changesImages.length > 0) {
+        imageUrls = await uploadImages(changesImages);
+      }
+      const fullComment = imageUrls.length > 0
+        ? `⚠️ Ajustes solicitados: ${changesReason.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.join('\n')}`
+        : `⚠️ Ajustes solicitados: ${changesReason.trim()}`;
+
       await supabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim() || 'Cliente',
         author_type: 'client',
-        comment: `⚠️ Ajustes solicitados: ${changesReason.trim()}`,
+        comment: fullComment,
       });
 
       setActionDone('changes');
+      setChangesImages([]);
+      setChangesPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });
       toast.success('📝 Ajustes solicitados!');
     } catch {

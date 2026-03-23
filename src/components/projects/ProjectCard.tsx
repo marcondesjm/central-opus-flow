@@ -54,10 +54,13 @@ const accountColorMap = {
   violet: 'bg-account-violet',
 };
 
-const statusConfigMap = {
+const statusConfigMap: Record<string, { key: string; className: string }> = {
   published: { key: 'filters.published', className: 'bg-status-published/10 text-status-published border-status-published/20' },
   draft: { key: 'filters.draft', className: 'bg-status-draft/10 text-status-draft border-status-draft/20' },
   archived: { key: 'filters.archived', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
+  review: { key: 'filters.review', className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+  approved: { key: 'filters.approved', className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+  changes: { key: 'filters.changes', className: 'bg-destructive/10 text-destructive border-destructive/20' },
 };
 
 export function ProjectCard({ project, account, onlineUsers = [], checklistProgress, onToggleFavorite, onEdit, onEditFiles, onDelete, onArchive, onDeadlineChange, onShowHistory }: ProjectCardProps) {

@@ -1,4 +1,4 @@
-export type ProjectStatus = 'published' | 'draft' | 'archived';
+export type ProjectStatus = 'published' | 'draft' | 'archived' | 'review' | 'approved' | 'changes';
 export type ProjectType = 'website' | 'landing' | 'app' | 'funnel' | 'other';
 
 export interface LovableAccount {

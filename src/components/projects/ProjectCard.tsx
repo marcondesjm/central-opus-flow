@@ -23,6 +23,7 @@ import {
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { isOverdueProject, normalizeProjectStatus } from '@/lib/project-status';
 
 import { ProjectCardOnlineUsers } from './ProjectCardOnlineUsers';
 import { ProjectUserPresence } from '@/hooks/useProjectPresence';
@@ -72,13 +73,11 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
   const [imgError, setImgError] = useState(false);
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const statusCfg = statusConfigMap[project.status];
+  const normalizedStatus = normalizeProjectStatus(project.status);
+  const statusCfg = statusConfigMap[normalizedStatus];
   
   // Check if project is overdue
-  const isOverdue = project.deadline && 
-    new Date(project.deadline) < new Date() && 
-    project.status !== 'published' && 
-    project.status !== 'archived';
+  const isOverdue = isOverdueProject(project);
 
   const handleOpenProject = () => {
     if (project.url) {

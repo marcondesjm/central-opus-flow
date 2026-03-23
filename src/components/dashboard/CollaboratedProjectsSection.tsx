@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isOverdueProject } from '@/lib/project-status';
 
 interface CollaboratedProjectsSectionProps {
   onEditProject?: (projectId: string) => void;
@@ -60,10 +61,7 @@ export function CollaboratedProjectsSection({ onEditProject }: CollaboratedProje
       {(!isMobile || isExpanded) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {collaboratedProjects.map((project) => {
-            const isOverdue = project.deadline && 
-              new Date(project.deadline) < now && 
-              project.status !== 'published' && 
-              project.status !== 'archived';
+            const isOverdue = isOverdueProject(project, now);
 
             return (
               <div 

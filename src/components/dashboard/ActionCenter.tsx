@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { isApprovedStatus, isOverdueProject, normalizeProjectStatus } from '@/lib/project-status';
 
 interface ActionProject {
   id: string;
@@ -30,14 +31,12 @@ interface ActionCenterProps {
 export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals, activeStatsFilter, onStatsFilterChange }: ActionCenterProps) {
   const now = new Date();
 
-  const overdueProjects = projects.filter(
-    p => p.deadline && new Date(p.deadline) < now && p.status !== 'published' && p.status !== 'archived' && p.status !== 'approved'
-  );
+  const overdueProjects = projects.filter(p => isOverdueProject(p, now));
 
   const reviewProjects = projects.filter(p => p.status === 'review');
   const changesProjects = projects.filter(p => p.status === 'changes');
   const approvalProjects = projects.filter(p => p.isFavorite); // favorites = approvals
-  const approvedProjects = projects.filter(p => p.status === 'approved');
+  const approvedProjects = projects.filter(p => isApprovedStatus(p.status));
 
   const hasActions = overdueProjects.length > 0 || reviewProjects.length > 0 || changesProjects.length > 0;
 
@@ -142,14 +141,15 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {approvalProjects.slice(0, 4).map((project) => {
-              const statusColor = project.status === 'review'
+              const normalizedStatus = normalizeProjectStatus(project.status);
+              const statusColor = normalizedStatus === 'review'
                 ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-                : project.status === 'approved'
+                : normalizedStatus === 'approved'
                   ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
                   : 'bg-primary/10 text-primary border-primary/20';
-              const statusLabel = project.status === 'review'
+              const statusLabel = normalizedStatus === 'review'
                 ? '🟡 Aguardando aprovação'
-                : project.status === 'approved'
+                : normalizedStatus === 'approved'
                   ? '🟢 Aprovado'
                   : '📋 Em análise';
 

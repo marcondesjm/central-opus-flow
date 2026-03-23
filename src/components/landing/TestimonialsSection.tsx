@@ -11,7 +11,7 @@ const testimonials = [
   {
     content: 'Meus clientes adoram a experiência de aprovação. Simples, direto e sem confusão.',
     name: 'Ana R.',
-    role: 'Designer de landing pages',
+    role: 'Web designer freelancer',
     initials: 'AR',
   },
   {

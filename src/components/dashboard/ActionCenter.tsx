@@ -19,6 +19,8 @@ interface ActionCenterProps {
   projects: ActionProject[];
   onOpenProject: (projectId: string) => void;
   onNewProject: () => void;
+  onSendVersion: () => void;
+  onViewApprovals: () => void;
 }
 
 export function ActionCenter({ projects, onOpenProject, onNewProject }: ActionCenterProps) {

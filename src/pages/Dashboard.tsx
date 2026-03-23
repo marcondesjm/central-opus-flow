@@ -638,7 +638,11 @@ export default function Dashboard() {
 
     // Status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(p => p.status === statusFilter);
+      if (statusFilter === 'approved') {
+        filtered = filtered.filter(p => isApprovedStatus(p.status));
+      } else {
+        filtered = filtered.filter(p => p.status === statusFilter);
+      }
     }
 
     // Type filter

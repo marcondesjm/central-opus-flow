@@ -6,56 +6,35 @@ import { motion } from 'framer-motion';
 export function HeroSection() {
   return (
     <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 px-4 overflow-hidden">
-      {/* Ambient glow */}
       <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/[0.07] rounded-full blur-[150px] pointer-events-none" />
 
-      <div className="container mx-auto max-w-4xl relative">
-        {/* Eyebrow */}
-        <motion.div
-          className="flex justify-center mb-8"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Link to="/demo" className="group">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-card/50 backdrop-blur text-xs text-muted-foreground hover:border-primary/40 transition-colors">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Novo: Pipeline Kanban com automações
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </Link>
-        </motion.div>
-
-        {/* Headline */}
+      <div className="container mx-auto max-w-3xl relative">
         <motion.h1
-          className="text-center text-[clamp(2rem,5.5vw,4.25rem)] font-bold leading-[1.08] tracking-[-0.03em] text-foreground mb-6"
+          className="text-center text-[clamp(2rem,5.5vw,3.75rem)] font-bold leading-[1.08] tracking-[-0.03em] text-foreground mb-6"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.05 }}
+          transition={{ duration: 0.7 }}
         >
-          Gerencie projetos, clientes e
+          Pare de receber feedback
           <br className="hidden sm:block" />
-          finanças em um só lugar
+          de clientes no WhatsApp
         </motion.h1>
 
-        {/* Subheadline */}
         <motion.p
-          className="text-center text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed"
+          className="text-center text-base md:text-lg text-muted-foreground max-w-lg mx-auto mb-10 leading-relaxed"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.12 }}
+          transition={{ duration: 0.7, delay: 0.08 }}
         >
-          Central Opus Flow é a plataforma que centraliza contas, projetos,
-          kanban, propostas e cobranças — para freelancers e agências que
-          querem escalar sem caos.
+          Envie sua landing page, receba comentários organizados, controle revisões
+          e obtenha aprovação — tudo num fluxo simples.
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
           className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
+          transition={{ duration: 0.7, delay: 0.16 }}
         >
           <Link to="/auth">
             <Button
@@ -73,19 +52,18 @@ export function HeroSection() {
               className="h-12 px-7 rounded-xl text-sm font-semibold border-border/60 hover:bg-muted/50 active:scale-[0.97]"
             >
               <Play className="w-3.5 h-3.5 mr-2 fill-current" />
-              Ver demonstração
+              Veja como funciona
             </Button>
           </Link>
         </motion.div>
 
-        {/* Trust line */}
         <motion.p
           className="text-center text-xs text-muted-foreground/60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.35 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
         >
-          Grátis por 7 dias · Sem cartão de crédito · Cancele quando quiser
+          Grátis para até 2 projetos · Sem cartão de crédito
         </motion.p>
       </div>
     </section>

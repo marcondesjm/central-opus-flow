@@ -192,7 +192,7 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
       <div className="flex flex-wrap gap-2">
         <Button onClick={onNewProject} size="sm" className="rounded-xl gap-2">
           <Plus className="w-4 h-4" />
-          Nova Landing Page
+          Novo Projeto
         </Button>
         <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={onSendVersion}>
           <Send className="w-4 h-4" />

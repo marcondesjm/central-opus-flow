@@ -25,6 +25,7 @@ const Kanban = lazy(() => import("./pages/Kanban"));
 const Billing = lazy(() => import("./pages/Billing"));
 const Proposals = lazy(() => import("./pages/Proposals"));
 const ProposalPublic = lazy(() => import("./pages/ProposalPublic"));
+const ProjectPublic = lazy(() => import("./pages/ProjectPublic"));
 const Teams = lazy(() => import("./pages/Teams"));
 const Ideas = lazy(() => import("./pages/Ideas"));
 const Reports = lazy(() => import("./pages/Reports"));

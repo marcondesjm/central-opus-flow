@@ -390,146 +390,20 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
 
     {/* Screenshot Preview Dialog */}
     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+      <DialogContent className="max-w-3xl p-0 overflow-hidden">
         <DialogTitle className="sr-only">Preview de {project.name}</DialogTitle>
-        <div className="grid md:grid-cols-2 gap-0">
-          {/* Image */}
-          <div className="aspect-video md:aspect-auto md:min-h-[400px] bg-muted overflow-hidden">
-            {project.screenshot ? (
-              <img
-                src={project.screenshot}
-                alt={project.name}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-accent/10">
-                <div className="w-20 h-20 rounded-2xl bg-primary/15 flex items-center justify-center mb-3 shadow-sm">
-                  <span className="text-4xl font-bold text-primary/70">{project.name?.charAt(0)?.toUpperCase() || 'P'}</span>
-                </div>
-                <span className="text-sm text-muted-foreground/70 font-medium">Sem imagem</span>
-              </div>
-            )}
-          </div>
-
-          {/* Details */}
-          <div className="p-6 space-y-4 overflow-y-auto max-h-[500px]">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-lg text-foreground">{project.name}</h3>
-                <Badge variant="secondary" className={cn('text-xs', statusCfg.className)}>
-                  {t(statusCfg.key)}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">{project.description || t('cards.noDescription')}</p>
-            </div>
-
-            {/* Info Grid */}
-            <div className="space-y-3 text-sm">
-              {project.type && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t('cards.type')}:</span>
-                  <span className="font-medium text-foreground capitalize">{project.type}</span>
-                </div>
-              )}
-
-              {account && (
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t('cards.account')}:</span>
-                  <div className="flex items-center gap-2">
-                    <span className={cn('w-2.5 h-2.5 rounded-full', accountColorMap[account.color])} />
-                    <span className="font-medium text-foreground">{account.name}</span>
-                  </div>
-                </div>
-              )}
-
-              {project.url && (
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">URL:</span>
-                  <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-[200px] flex items-center gap-1">
-                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                    {project.url.replace(/^https?:\/\//, '')}
-                  </a>
-                </div>
-              )}
-
-              {account && (
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t('cards.credits')}:</span>
-                  <span className="flex items-center gap-1 font-medium text-primary">
-                    <Coins className="w-3.5 h-3.5" />
-                    {account.credits}
-                  </span>
-                </div>
-              )}
-
-              {project.deadline && (
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t('cards.deadline')}:</span>
-                  <span className={cn("font-medium flex items-center gap-1", isOverdue ? "text-destructive" : "text-foreground")}>
-                    <Calendar className="w-3.5 h-3.5" />
-                    {format(new Date(project.deadline), "dd/MM/yyyy", { locale: ptBR })}
-                    {isOverdue && <AlertTriangle className="w-3.5 h-3.5" />}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Progress / Checklist */}
-            {(() => {
-              const hasChecklist = checklistProgress && checklistProgress.total > 0;
-              const progressValue = hasChecklist ? checklistProgress.percentage : project.progress;
-              return (
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{hasChecklist ? `${t('cards.tasks')}:` : `${t('cards.progress')}:`}</span>
-                    <span className="font-medium text-foreground">
-                      {hasChecklist ? `${checklistProgress.completed}/${checklistProgress.total}` : `${progressValue}%`}
-                    </span>
-                  </div>
-                  <Progress value={progressValue} className="h-2" />
-                </div>
-              );
-            })()}
-
-            {/* Tags */}
-            {project.tags.length > 0 && (
-              <div className="space-y-1.5">
-                <span className="text-sm text-muted-foreground">{t('cards.tags')}:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {project.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs font-normal">{tag}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Notes */}
-            {project.notes && (
-              <div className="space-y-1.5">
-                <span className="text-sm text-muted-foreground">{t('cards.notes')}:</span>
-                <p className="text-sm text-foreground bg-muted/50 p-2 rounded-md">{project.notes}</p>
-              </div>
-            )}
-
-            {/* Checklist inline */}
-            <div className="space-y-1.5">
-              <span className="text-sm text-muted-foreground flex items-center gap-1.5">
-                <ListChecks className="w-3.5 h-3.5" />
-                Checklist:
-              </span>
-              <div className="bg-muted/30 rounded-lg p-3">
-                <ProjectChecklist projectId={project.id} />
-              </div>
-            </div>
-
-            {/* Updated */}
-            <div className="pt-2 border-t border-border text-xs text-muted-foreground">
-              {t('cards.updated')} {formatDistanceToNow(project.updatedAt, { addSuffix: true, locale: ptBR })}
-            </div>
-          </div>
-        </div>
+        {project.screenshot && (
+          <img src={project.screenshot} alt={project.name} className="w-full h-auto object-contain" />
+        )}
       </DialogContent>
     </Dialog>
+
+    {/* Project Detail Modal */}
+    <ProjectDetailModal
+      project={project}
+      open={detailOpen}
+      onOpenChange={setDetailOpen}
+    />
 
     {/* Checklist Dialog */}
     <Dialog open={checklistOpen} onOpenChange={setChecklistOpen}>

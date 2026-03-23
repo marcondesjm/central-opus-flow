@@ -148,6 +148,43 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
         <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." />
       </div>
 
+      {/* Share Link */}
+      {project.share_token && (
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium flex items-center gap-1">
+            <Link className="w-3 h-3" />
+            Link de aprovação do cliente
+          </Label>
+          <div className="flex gap-2">
+            <Input 
+              readOnly 
+              value={`${window.location.origin}/p/${project.share_token}`}
+              className="text-xs bg-muted/50"
+            />
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="shrink-0"
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/p/${project.share_token}`);
+                setCopied(true);
+                toast.success('Link copiado!');
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="shrink-0"
+              onClick={() => window.open(`${window.location.origin}/p/${project.share_token}`, '_blank')}
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Deadline */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Prazo</Label>

@@ -219,7 +219,8 @@ export default function ProjectPublic() {
       setChangesPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });
       toast.success('📝 Ajustes solicitados!');
-    } catch {
+    } catch (err) {
+      console.error('handleRequestChanges error:', err);
       toast.error('Erro ao solicitar ajustes');
     } finally {
       setSubmitting(false);

@@ -25,6 +25,7 @@ const Kanban = lazy(() => import("./pages/Kanban"));
 const Billing = lazy(() => import("./pages/Billing"));
 const Proposals = lazy(() => import("./pages/Proposals"));
 const ProposalPublic = lazy(() => import("./pages/ProposalPublic"));
+const ProjectPublic = lazy(() => import("./pages/ProjectPublic"));
 const Teams = lazy(() => import("./pages/Teams"));
 const Ideas = lazy(() => import("./pages/Ideas"));
 const Reports = lazy(() => import("./pages/Reports"));
@@ -187,6 +188,7 @@ function AppContent() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/proposal/:token" element={<ProposalPublic />} />
+            <Route path="/p/:token" element={<ProjectPublic />} />
             <Route
               path="/dashboard"
               element={

@@ -522,7 +522,7 @@ export default function ProjectPublic() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">Descreva os ajustes necessários:</p>
-              {!authorName.trim() && (
+              {!authorName && (
                 <Input
                   placeholder="Seu nome"
                   value={authorName}

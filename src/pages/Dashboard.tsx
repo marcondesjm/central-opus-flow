@@ -707,9 +707,24 @@ export default function Dashboard() {
     }
   };
 
+  const handleActionStatsFilterChange = (filter: 'review' | 'waiting' | 'overdue' | 'approved' | null) => {
+    setActionStatsFilter(filter);
+    setActiveView('all');
+    setStatsFilter('all');
+    setStatusFilter('all');
+    setTypeFilter('all');
+    setTagFilter(null);
+    setSelectedAccount(null);
+    setSearchQuery('');
+    setSearchParams(prev => {
+      prev.delete('view');
+      prev.delete('account');
+      return prev;
+    }, { replace: true });
+  };
+
   const handleViewApprovals = () => {
-    setActiveView('favorites');
-    setSearchParams(prev => { prev.set('view', 'favorites'); return prev; });
+    handleActionStatsFilterChange('waiting');
   };
 
   const handleShowHistory = (projectId: string) => {
@@ -959,7 +974,7 @@ export default function Dashboard() {
               onSendVersion={handleSendVersion}
               onViewApprovals={handleViewApprovals}
               activeStatsFilter={actionStatsFilter}
-              onStatsFilterChange={setActionStatsFilter}
+              onStatsFilterChange={handleActionStatsFilterChange}
             />
           </div>
 

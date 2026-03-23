@@ -129,7 +129,7 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="draft">Rascunho</SelectItem>
-              <SelectItem value="published">Publicado</SelectItem>
+              <SelectItem value="published">Aprovado</SelectItem>
               <SelectItem value="review">Em revisão</SelectItem>
               <SelectItem value="approved">Aprovado</SelectItem>
               <SelectItem value="changes">Ajustes</SelectItem>

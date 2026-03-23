@@ -199,14 +199,14 @@ export default function ProjectPublic() {
     try {
       const { error: projError } = await publicSupabase
         .from('projects')
-        .update({ status: 'changes' } as never)
+        .update({ status: 'draft' } as never)
         .eq('id', project.id);
       if (projError) throw projError;
 
       if (currentVersion) {
         const { error: versionError } = await publicSupabase
           .from('project_versions')
-          .update({ status: 'changes' } as never)
+          .update({ status: 'changes_requested' } as never)
           .eq('id', currentVersion.id);
         if (versionError) throw versionError;
       }

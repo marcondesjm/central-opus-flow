@@ -58,7 +58,7 @@ export interface Project {
   description: string | null;
   url: string | null;
   screenshot: string | null;
-  status: 'published' | 'draft' | 'archived';
+  status: 'published' | 'draft' | 'archived' | 'review' | 'approved' | 'changes';
   type: 'website' | 'landing' | 'app' | 'funnel' | 'other';
   is_favorite: boolean;
   notes: string | null;
@@ -323,6 +323,7 @@ export function useUpdateProject() {
         .from('projects')
         .update(updates)
         .eq('id', id)
+        .select()
         .maybeSingle();
 
       if (error) throw error;
@@ -429,7 +430,9 @@ export function useToggleFavorite() {
       const { error } = await supabase
         .from('projects')
         .update({ is_favorite: isFavorite })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .maybeSingle();
       
       if (error) throw error;
     },

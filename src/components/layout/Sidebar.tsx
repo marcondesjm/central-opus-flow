@@ -260,33 +260,32 @@ export function Sidebar({
             <Plus className="w-4 h-4" />
             Novo Projeto
           </Button>
-          <NavItem icon={Kanban} label="Kanban" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
-          {sidebarVisibility.proposals && (
-            <NavItem icon={FileText} label={t('sidebar.proposals')} onClick={() => navigate('/proposals')} active={isRouteActive('/proposals')} />
-          )}
-          <NavItem icon={Sparkles} label="Ideias" onClick={() => navigate('/ideas')} active={isRouteActive('/ideas')} />
-          <NavItem icon={BarChart3} label="Relatórios" onClick={() => navigate('/reports')} active={isRouteActive('/reports')} />
+
+          {/* Aprovações - HERO item */}
+          <button
+            onClick={() => { onViewChange('favorites'); onAccountChange(null); }}
+            aria-current={isViewActive('favorites') ? 'page' : undefined}
+            className={cn(
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+              'active:scale-[0.97]',
+              'bg-gradient-to-r from-amber-500/15 to-primary/10 border border-amber-500/30',
+              isViewActive('favorites')
+                ? 'text-amber-600 dark:text-amber-400 border-amber-500/60 shadow-sm shadow-amber-500/10'
+                : 'text-amber-600 dark:text-amber-400 hover:border-amber-500/50 hover:shadow-sm hover:shadow-amber-500/10'
+            )}
+          >
+            <Star className="w-4 h-4 fill-amber-500 text-amber-500 flex-shrink-0" aria-hidden="true" />
+            <span className="flex-1 text-left">{t('sidebar.approvals')}</span>
+            <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0 h-5 hover:bg-amber-600">⭐</Badge>
+          </button>
+
+          <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />
         </div>
 
-        {/* ── CONTAS ── */}
-        <SectionLabel>{t('sidebar.accounts')}</SectionLabel>
+        {/* ── CONTAS (Clientes expandidos) ── */}
         <Collapsible open={accountsOpen} onOpenChange={setAccountsOpen}>
-          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-sidebar-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
-            <div className="flex items-center gap-2">
-              <Users className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>{accounts.length} {accounts.length === 1 ? 'conta' : 'contas'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {!isLoading && accounts.length > 0 && (
-                <span className="flex items-center gap-1 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-medium">
-                  <Coins className="w-3 h-3" aria-hidden="true" />
-                  {accounts.reduce((sum, acc) => sum + (acc.credits ?? 0), 0)}
-                </span>
-              )}
-              <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', accountsOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-0.5 mt-1">
+          <CollapsibleContent className="space-y-0.5 mt-1 ml-1">
             {isLoading ? (
               <div className="flex items-center justify-center py-4" role="status">
                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" aria-hidden="true" />
@@ -352,9 +351,6 @@ export function Sidebar({
         {/* Dashboard sub-filters */}
         {location.pathname === '/dashboard' && (
           <div className="space-y-0.5 mt-1">
-            {sidebarVisibility.favorites && (
-              <NavItem icon={Star} label={t('sidebar.favorites')} onClick={() => { onViewChange('favorites'); onAccountChange(null); }} active={isViewActive('favorites')} />
-            )}
             {sidebarVisibility.archived && (
               <NavItem icon={Archive} label={t('sidebar.archived')} onClick={() => { onViewChange('archived'); onAccountChange(null); }} active={isViewActive('archived')} />
             )}
@@ -364,107 +360,61 @@ export function Sidebar({
           </div>
         )}
 
-        {/* ── ESPAÇOS KANBAN ── */}
-        {sidebarVisibility.kanban && (
-          <>
-            <SectionLabel>Espaços</SectionLabel>
-            <Collapsible open={spacesOpen} onOpenChange={setSpacesOpen}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-sidebar-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
-                <div className="flex items-center gap-2">
-                  <FolderKanban className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Kanban Spaces</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="p-0.5 rounded hover:bg-sidebar-accent" onClick={(e) => { e.stopPropagation(); navigate('/kanban'); }}>
-                    <Plus className="w-3.5 h-3.5" />
-                  </span>
-                  <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', spacesOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-0.5 mt-1">
-                <ul role="list" className="space-y-0.5">
-                  <li>
-                    <button onClick={() => navigate('/kanban')} className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
-                      <span className="w-5 h-5 rounded flex items-center justify-center text-[10px] bg-muted">📋</span>
-                      <span className="flex-1 text-left truncate">Todos</span>
-                    </button>
-                  </li>
-                  {spaces && spaces.length > 0 ? spaces.map((space) => (
-                    <li key={space.id}>
-                      <button onClick={() => navigate(`/kanban?space=${space.id}`)} className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 group">
-                        <span className="w-5 h-5 rounded flex items-center justify-center text-xs flex-shrink-0" style={{ backgroundColor: space.color + '20', color: space.color }}>🗂</span>
-                        <span className="flex-1 text-left truncate">{space.name}</span>
-                      </button>
-                    </li>
-                  )) : (
-                    <li><p className="text-xs text-muted-foreground px-3 py-2">Nenhum espaço criado</p></li>
-                  )}
-                </ul>
-              </CollapsibleContent>
-            </Collapsible>
-          </>
-        )}
-
-        {/* ── GESTÃO ── */}
-        <SectionLabel>Gestão</SectionLabel>
-        <div className="space-y-0.5">
-          {sidebarVisibility.billing && (
-            <Collapsible open={billingOpen} onOpenChange={setBillingOpen}>
-              <CollapsibleTrigger className={cn(
-                'w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-                isRouteActive('/billing') ? 'bg-primary/10 text-primary border-l-[3px] border-primary' : 'text-sidebar-foreground hover:bg-sidebar-accent/60'
-              )}>
-                <div className="flex items-center gap-3">
-                  <Receipt className="w-4 h-4" aria-hidden="true" />
-                  {t('sidebar.billing')}
-                </div>
-                <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', billingOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-0.5">
-                <div className="ml-4 space-y-0.5 border-l-2 border-sidebar-border pl-3">
-                  {[
-                    { id: 'overview', label: t('sidebar.billingOverview'), icon: BarChart3 },
-                    { id: 'clients', label: t('sidebar.billingClients'), icon: Building2 },
-                    { id: 'ai-costs', label: t('sidebar.billingAiCredits'), icon: Bot },
-                    { id: 'expenses', label: t('sidebar.billingExpenses'), icon: Minus },
-                    { id: 'history', label: t('sidebar.billingHistory'), icon: Clock },
-                    { id: 'pix', label: t('sidebar.billingPix'), icon: CreditCard },
-                  ].map(item => (
-                    <button key={item.id} onClick={() => navigate(`/billing?tab=${item.id}`)} className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-all duration-150">
-                      <item.icon className="w-3.5 h-3.5" aria-hidden="true" />
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {sidebarVisibility.teams && (
-            <NavItem icon={UsersRound} label="Equipes" onClick={() => navigate('/teams')} active={isRouteActive('/teams')} />
-          )}
-          {sidebarVisibility.collaborations && (
-            <NavItem icon={Share2} label={t('sidebar.collaborations')} onClick={() => navigate('/collaborations')} active={isRouteActive('/collaborations')} />
-          )}
-          <NavItem icon={FolderOpen} label="Arquivos" onClick={() => navigate('/files')} active={isRouteActive('/files')} />
-          <NavItem icon={MessageCircle} label="Mensagens" onClick={() => navigate('/kanban?panel=scheduled')} badge={scheduledCount} active={false} />
-        </div>
-
-        {/* ── RECURSOS ── */}
-        <SectionLabel>Recursos</SectionLabel>
-        <div className="space-y-0.5">
-          <NavItem icon={BookOpen} label="Manual" onClick={() => navigate('/manual')} active={isRouteActive('/manual')} />
-          <NavItem icon={FileCode2} label="Documentação" onClick={() => navigate('/documentation')} active={isRouteActive('/documentation')} />
-          {sidebarVisibility.wordpress && (
-            <NavItem icon={Globe} label={t('sidebar.wordpress')} onClick={() => onViewChange('wordpress')} active={activeView === 'wordpress' && !selectedAccount} />
-          )}
-          {sidebarVisibility.blog && (
-            <div>
-              <NavItem icon={BookOpen} label={t('common.blog')} onClick={() => navigate('/blog')} active={isRouteActive('/blog')} />
-              <BlogSidebarPreview />
+        {/* ── GESTÃO (collapsible group) ── */}
+        <SectionLabel>{t('sidebar.management')}</SectionLabel>
+        <Collapsible>
+          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
+            <div className="flex items-center gap-3">
+              <Settings2 className="w-4 h-4" aria-hidden="true" />
+              <span>{t('sidebar.management')}</span>
             </div>
-          )}
-        </div>
+            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
+            {sidebarVisibility.proposals && (
+              <NavItem icon={FileText} label={t('sidebar.proposals')} onClick={() => navigate('/proposals')} active={isRouteActive('/proposals')} />
+            )}
+            {sidebarVisibility.billing && (
+              <NavItem icon={Receipt} label={t('sidebar.billing')} onClick={() => navigate('/billing')} active={isRouteActive('/billing')} />
+            )}
+            <NavItem icon={BarChart3} label={t('sidebar.reports')} onClick={() => navigate('/reports')} active={isRouteActive('/reports')} />
+            {sidebarVisibility.teams && (
+              <NavItem icon={UsersRound} label={t('sidebar.teams')} onClick={() => navigate('/teams')} active={isRouteActive('/teams')} />
+            )}
+            {sidebarVisibility.collaborations && (
+              <NavItem icon={Share2} label={t('sidebar.collaborations')} onClick={() => navigate('/collaborations')} active={isRouteActive('/collaborations')} />
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* ── MAIS (collapsible group) ── */}
+        <Collapsible>
+          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md mt-0.5">
+            <div className="flex items-center gap-3">
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              <span>{t('sidebar.more')}</span>
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
+            <NavItem icon={Sparkles} label={t('sidebar.ideas')} onClick={() => navigate('/ideas')} active={isRouteActive('/ideas')} />
+            <NavItem icon={FolderOpen} label={t('sidebar.files')} onClick={() => navigate('/files')} active={isRouteActive('/files')} />
+            <NavItem icon={MessageCircle} label={t('sidebar.messages')} onClick={() => navigate('/kanban?panel=scheduled')} badge={scheduledCount} active={false} />
+            {sidebarVisibility.kanban && (
+              <NavItem icon={Kanban} label="Kanban" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
+            )}
+            <NavItem icon={BookOpen} label="Manual" onClick={() => navigate('/manual')} active={isRouteActive('/manual')} />
+            {sidebarVisibility.wordpress && (
+              <NavItem icon={Globe} label={t('sidebar.wordpress')} onClick={() => onViewChange('wordpress')} active={activeView === 'wordpress' && !selectedAccount} />
+            )}
+            {sidebarVisibility.blog && (
+              <div>
+                <NavItem icon={BookOpen} label={t('common.blog')} onClick={() => navigate('/blog')} active={isRouteActive('/blog')} />
+                <BlogSidebarPreview />
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Customize */}
         <div className="pt-3 mt-2 border-t border-sidebar-border">

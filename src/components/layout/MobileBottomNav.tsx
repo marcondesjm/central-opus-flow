@@ -3,6 +3,7 @@ import {
   Kanban, 
   FileText, 
   Sparkles, 
+  Star,
   BarChart3,
   Receipt,
   FolderOpen,

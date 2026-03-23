@@ -905,7 +905,7 @@ export default function Dashboard() {
                 accountName: getAccount(p.accountId)?.name,
               }))}
               onOpenProject={handleEditProject}
-              onNewProject={() => setAddProjectOpen(true)}
+              onNewProject={handleNewProject}
             />
           </div>
 

@@ -95,7 +95,7 @@ export function SidebarCustomizeModal({ open, onOpenChange, onUpdate }: Props) {
           <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-muted/50">
             <div className="flex items-center gap-3">
               <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Todos os Projetos</span>
+              <span className="text-sm font-medium">Páginas de destino</span>
             </div>
             <span className="text-xs text-muted-foreground">Sempre visível</span>
           </div>

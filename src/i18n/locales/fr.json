@@ -239,7 +239,7 @@
     "bannerDesc": "Ceci est un aperçu complet du tableau de bord Pro.",
     "createAccount": "Créer un compte gratuit",
     "planPro": "Plan Pro",
-    "allProjects": "Tous les Projets",
+    "allProjects": "Pages de destination",
     "favorites": "Favoris",
     "archived": "Archivés",
     "tags": "Tags",
@@ -343,7 +343,7 @@
     "daysAgo": "il y a {{count}} jours"
   },
   "sidebar": {
-    "allProjects": "Tous les Projets",
+    "allProjects": "Pages de destination",
     "favorites": "Favoris",
     "archived": "Archivés",
     "tags": "Tags",
@@ -436,7 +436,7 @@
     "favoriteProjects": "Projets Favoris",
     "archivedProjects": "Projets Archivés",
     "organizeByTags": "Organiser par Tags",
-    "allProjects": "Tous les Projets",
+    "allProjects": "Pages de destination",
     "account": "Compte",
     "deleteProject": "Supprimer le projet ?",
     "deleteProjectDesc": "Cette action est irréversible. Le projet \"{{name}}\" sera définitivement supprimé.",

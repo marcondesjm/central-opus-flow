@@ -239,7 +239,7 @@
     "bannerDesc": "Esta es una vista previa completa del panel Pro.",
     "createAccount": "Crear cuenta gratis",
     "planPro": "Plan Pro",
-    "allProjects": "Todos los Proyectos",
+    "allProjects": "Páginas de destino",
     "favorites": "Favoritos",
     "archived": "Archivados",
     "tags": "Etiquetas",
@@ -343,7 +343,7 @@
     "daysAgo": "hace {{count}} días"
   },
   "sidebar": {
-    "allProjects": "Todos los Proyectos",
+    "allProjects": "Páginas de destino",
     "favorites": "Favoritos",
     "archived": "Archivados",
     "tags": "Etiquetas",
@@ -436,7 +436,7 @@
     "favoriteProjects": "Proyectos Favoritos",
     "archivedProjects": "Proyectos Archivados",
     "organizeByTags": "Organizar por Etiquetas",
-    "allProjects": "Todos los Proyectos",
+    "allProjects": "Páginas de destino",
     "account": "Cuenta",
     "deleteProject": "¿Eliminar proyecto?",
     "deleteProjectDesc": "Esta acción no se puede deshacer. El proyecto \"{{name}}\" será eliminado permanentemente.",

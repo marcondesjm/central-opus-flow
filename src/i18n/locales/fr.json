@@ -343,7 +343,7 @@
     "daysAgo": "il y a {{count}} jours"
   },
   "sidebar": {
-    "allProjects": "Tous les Projets",
+    "allProjects": "Pages de destination",
     "favorites": "Favoris",
     "archived": "Archivés",
     "tags": "Tags",

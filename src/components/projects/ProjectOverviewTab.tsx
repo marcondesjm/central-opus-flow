@@ -67,8 +67,8 @@ export function ProjectOverviewTab({ project, onSendVersion }: ProjectOverviewTa
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Pendentes</p>
         </div>
         <div className="p-3 rounded-lg border bg-card text-center">
-          <p className={cn('text-2xl font-bold', versions.length >= (project as any).max_revisions ? 'text-destructive' : '')}>
-            {versions.length}/{(project as any).max_revisions || 3}
+          <p className={cn('text-2xl font-bold', versions.length >= (project.max_revisions || 3) ? 'text-destructive' : '')}>
+            {versions.length}/{project.max_revisions || 3}
           </p>
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Revisões</p>
         </div>

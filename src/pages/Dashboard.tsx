@@ -866,6 +866,15 @@ export default function Dashboard() {
       progress: p.progress ?? 0,
     }));
 
+  useEffect(() => {
+    if (!editingProject) return;
+
+    const freshProject = projects.find(project => project.id === editingProject.id);
+    if (freshProject) {
+      setEditingProject(freshProject as Project);
+    }
+  }, [projects, editingProject?.id]);
+
   const transformedAccounts = accounts.map(a => ({
     ...a,
     color: a.color as 'blue' | 'emerald' | 'amber' | 'rose' | 'violet',

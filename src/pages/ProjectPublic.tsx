@@ -445,43 +445,6 @@ export default function ProjectPublic() {
               className="bg-muted/30"
               maxLength={1000}
             />
-            <input
-              ref={commentFileRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => handleAddImages(e.target.files, 'comment')}
-            />
-            {commentPreviews.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {commentPreviews.map((src, i) => (
-                  <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border">
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i, 'comment')}
-                      className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl p-0.5"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => commentFileRef.current?.click()}
-                className="gap-1.5"
-              >
-                <ImagePlus className="w-4 h-4" />
-                Anexar imagem
-              </Button>
-              <span className="text-[10px] text-muted-foreground self-center">Máx. 5 imagens</span>
-            </div>
             <Button
               onClick={handleSubmitFeedback}
               disabled={submitting || !comment.trim() || !authorName.trim()}

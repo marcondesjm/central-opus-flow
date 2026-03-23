@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Project } from '@/types/project';
+import { Project as ProjectDB } from '@/hooks/useProjects';
 import { ProjectOverviewTab } from './ProjectOverviewTab';
 import { ProjectVersionsTab } from './ProjectVersionsTab';
 import { ProjectFeedbackTab } from './ProjectFeedbackTab';

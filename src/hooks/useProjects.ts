@@ -323,11 +323,10 @@ export function useUpdateProject() {
         .from('projects')
         .update(updates)
         .eq('id', id)
-        .select()
-        .single();
-      
+        .maybeSingle();
+
       if (error) throw error;
-      
+      const updatedProject = data ?? { id, ...updates };
       // Update tags if provided
       if (tagIds !== undefined) {
         // Remove existing tags
@@ -390,7 +389,7 @@ export function useUpdateProject() {
         }
       }
       
-      return data;
+      return updatedProject;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });

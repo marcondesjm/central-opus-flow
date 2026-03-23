@@ -613,6 +613,18 @@ export default function Dashboard() {
       );
     }
 
+    // Action center stats filter
+    if (actionStatsFilter === 'review') {
+      filtered = filtered.filter(p => p.status === 'review');
+    } else if (actionStatsFilter === 'waiting') {
+      filtered = filtered.filter(p => p.is_favorite);
+    } else if (actionStatsFilter === 'overdue') {
+      const now2 = new Date();
+      filtered = filtered.filter(p => p.deadline && new Date(p.deadline) < now2 && p.status !== 'published' && p.status !== 'archived' && p.status !== 'approved');
+    } else if (actionStatsFilter === 'approved') {
+      filtered = filtered.filter(p => p.status === 'approved');
+    }
+
     // View filter
     if (activeView === 'favorites') {
       filtered = filtered.filter(p => p.is_favorite);

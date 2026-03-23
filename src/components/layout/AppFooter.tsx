@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useSystemVersion, getFormattedVersion, getFormattedReleaseDate } from '@/hooks/useSystemVersion';
+import { useMemo, useState } from 'react';
+import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { useLatestVersion } from '@/hooks/useChangelog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info, History } from 'lucide-react';
+import { History } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClearCacheButton } from '@/components/settings/ClearCacheButton';
 import { FeedbackButton } from '@/components/support/FeedbackButton';
@@ -12,16 +12,27 @@ import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const LOCAL_VERSION_KEY = 'centralopusflow-app-version';
+const INSTALLED_AT_KEY = 'centralopusflow-installed-at';
+
 export function AppFooter() {
   const { data: systemVersion, isLoading } = useSystemVersion();
   const { data: latestVersion } = useLatestVersion();
   const [changelogOpen, setChangelogOpen] = useState(false);
 
-  // Use latest version from changelog if available, fallback to system_config
-  const version = latestVersion?.version || systemVersion?.version || '1.0.0';
-  const updatedAt = latestVersion?.created_at 
-    ? new Date(latestVersion.created_at) 
-    : systemVersion?.updatedAt;
+  const { version, updatedAt } = useMemo(() => {
+    const installedVersion = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_VERSION_KEY) : null;
+    const installedAt = typeof window !== 'undefined' ? localStorage.getItem(INSTALLED_AT_KEY) : null;
+
+    return {
+      version: installedVersion || latestVersion?.version || systemVersion?.version || '1.0.0',
+      updatedAt: installedAt
+        ? new Date(installedAt)
+        : latestVersion?.created_at
+          ? new Date(latestVersion.created_at)
+          : systemVersion?.updatedAt,
+    };
+  }, [latestVersion?.created_at, latestVersion?.version, systemVersion?.updatedAt, systemVersion?.version]);
 
   return (
     <>

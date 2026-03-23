@@ -388,13 +388,95 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       </div>
     </div>
 
-    {/* Screenshot Preview Dialog */}
+    {/* Project Release Preview Dialog */}
     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden">
-        <DialogTitle className="sr-only">Preview de {project.name}</DialogTitle>
-        {project.screenshot && (
-          <img src={project.screenshot} alt={project.name} className="w-full h-auto object-contain" />
-        )}
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+        <DialogTitle className="sr-only">Release de {project.name}</DialogTitle>
+        <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr] gap-0">
+          {/* Left: Screenshot */}
+          <div className="relative bg-muted min-h-[200px] sm:min-h-[300px]">
+            {project.screenshot ? (
+              <img src={project.screenshot} alt={project.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-accent/10">
+                <div className="w-20 h-20 rounded-2xl bg-primary/15 flex items-center justify-center">
+                  <span className="text-4xl font-bold text-primary/70">{project.name?.charAt(0)?.toUpperCase() || 'P'}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Release Info */}
+          <div className="p-5 space-y-4">
+            <div>
+              <h2 className="text-lg font-bold text-foreground leading-tight">{project.name}</h2>
+              {account && (
+                <p className="text-xs text-muted-foreground mt-0.5">{account.name}</p>
+              )}
+            </div>
+
+            {/* Status + Type badges */}
+            <div className="flex flex-wrap gap-1.5">
+              {statusCfg && (
+                <Badge variant="outline" className={cn('text-[10px] px-2 py-0.5 border', statusCfg.className)}>
+                  {t(statusCfg.key)}
+                </Badge>
+              )}
+              <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
+                {project.type}
+              </Badge>
+            </div>
+
+            {/* Progress */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">{t('cards.progress')}</span>
+                <span className="font-medium text-foreground">{project.progress}%</span>
+              </div>
+              <Progress value={project.progress} className="h-2" />
+            </div>
+
+            {/* Description */}
+            {project.description && (
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{project.description}</p>
+            )}
+
+            {/* Deadline */}
+            {project.deadline && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Calendar className="w-3 h-3" />
+                <span>{t('cards.deadline')}: {format(new Date(project.deadline), "dd MMM yyyy", { locale: ptBR })}</span>
+              </div>
+            )}
+
+            {/* Notes */}
+            {project.notes && (
+              <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2.5 border border-border/50">
+                <p className="line-clamp-2">{project.notes}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              {project.url && (
+                <button
+                  onClick={() => window.open(project.url!, '_blank')}
+                  className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  {t('cards.open')}
+                </button>
+              )}
+              <button
+                onClick={() => { setPreviewOpen(false); onEdit?.(project.id); }}
+                className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                {t('cards.edit')}
+              </button>
+            </div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
 

@@ -784,6 +784,8 @@ export default function Dashboard() {
 
   const handleViewChange = (view: string) => {
     setActiveView(view);
+    setStatsFilter('all');
+    setActionStatsFilter(null);
     if (view === 'tags') {
       setTagsManagerOpen(true);
     } else if (view === 'wordpress') {

@@ -100,9 +100,9 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
             </TabsList>
 
             <TabsContent value="overview">
-              <ProjectOverviewTab 
+              <ProjectEditForm 
                 project={project} 
-                onSendVersion={() => setActiveTab('versions')} 
+                onSaved={() => onOpenChange(false)} 
               />
             </TabsContent>
 

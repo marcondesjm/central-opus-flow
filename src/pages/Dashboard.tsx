@@ -699,6 +699,7 @@ export default function Dashboard() {
     setSearchParams(prev => { prev.set('view', 'favorites'); return prev; });
   };
 
+  const handleShowHistory = (projectId: string) => {
     setHistoryProjectId(projectId);
     setHistoryModalOpen(true);
   };

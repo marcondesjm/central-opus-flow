@@ -16,9 +16,10 @@ import { toast } from 'sonner';
 interface ProjectEditFormProps {
   project: Project;
   onSaved?: () => void;
+  onStatusChange?: (status: string) => void;
 }
 
-export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
+export function ProjectEditForm({ project, onSaved, onStatusChange }: ProjectEditFormProps) {
   const updateProject = useUpdateProject();
   const { data: accounts = [] } = useAccounts();
   const [copied, setCopied] = useState(false);
@@ -72,6 +73,7 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
       }
       await updateProject.mutateAsync(updateData);
       toast.success('Projeto atualizado!');
+      onStatusChange?.(status);
       onSaved?.();
     } catch (err) {
       console.error('Erro ao atualizar projeto:', err);

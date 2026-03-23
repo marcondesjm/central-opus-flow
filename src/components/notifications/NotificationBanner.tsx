@@ -68,7 +68,6 @@ export function NotificationBanner({ notifications, onMarkAsRead }: Notification
 
   const handleDismiss = (id: string) => {
     setDismissedIds(prev => new Set(prev).add(id));
-    onMarkAsRead(id);
     const timer = timerRefs.current.get(id);
     if (timer) {
       clearTimeout(timer);

@@ -55,10 +55,15 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {dayStats.map((stat) => {
           const Icon = stat.icon;
+          const isActive = activeStatsFilter === stat.key;
           return (
             <div
               key={stat.label}
-              className="rounded-xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:shadow-md"
+              onClick={() => onStatsFilterChange?.(isActive ? null : stat.key)}
+              className={cn(
+                'rounded-xl border bg-card p-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-[0.98]',
+                isActive ? 'border-primary ring-2 ring-primary/20' : 'border-border'
+              )}
             >
               <div className="flex items-center gap-3 mb-2">
                 <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', stat.bg)}>

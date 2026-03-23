@@ -6,7 +6,7 @@ const steps = [
     icon: Send,
     number: '01',
     title: 'Envie sua versão',
-    description: 'Compartilhe o link da landing page com seu cliente.',
+    description: 'Compartilhe o link do projeto com seu cliente.',
   },
   {
     icon: MessageSquare,

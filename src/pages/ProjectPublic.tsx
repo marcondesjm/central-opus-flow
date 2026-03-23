@@ -200,7 +200,11 @@ export default function ProjectPublic() {
 
       let imageUrls: string[] = [];
       if (changesImages.length > 0) {
-        imageUrls = await uploadImages(changesImages);
+        try {
+          imageUrls = await uploadImages(changesImages);
+        } catch (uploadErr) {
+          console.error('Image upload failed:', uploadErr);
+        }
       }
       const fullComment = imageUrls.length > 0
         ? `⚠️ Ajustes solicitados: ${changesReason.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.join('\n')}`
@@ -219,7 +223,8 @@ export default function ProjectPublic() {
       setChangesPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });
       toast.success('📝 Ajustes solicitados!');
-    } catch {
+    } catch (err) {
+      console.error('handleRequestChanges error:', err);
       toast.error('Erro ao solicitar ajustes');
     } finally {
       setSubmitting(false);

@@ -857,7 +857,7 @@ export default function Dashboard() {
           onSearchChange={setSearchQuery}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onNewProject={() => setAddProjectOpen(true)}
+          onNewProject={handleNewProject}
           mobileMenuTrigger={<MobileSidebar {...sidebarProps} />}
           onOpenSearch={() => setGlobalSearchOpen(true)}
           notifications={notifications}

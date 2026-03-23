@@ -119,15 +119,13 @@ export default function ProjectPublic() {
       }
 
       // Add approval feedback
-      if (authorName.trim()) {
-        await supabase.from('project_feedback').insert({
-          project_id: project.id,
-          version_id: currentVersion?.id || null,
-          author_name: authorName.trim() || 'Cliente',
-          author_type: 'client',
-          comment: '✅ Projeto aprovado pelo cliente.',
-        });
-      }
+      await supabase.from('project_feedback').insert({
+        project_id: project.id,
+        version_id: currentVersion?.id || null,
+        author_name: authorName.trim() || 'Cliente',
+        author_type: 'client',
+        comment: '✅ Projeto aprovado pelo cliente.',
+      });
 
       setActionDone('approved');
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });

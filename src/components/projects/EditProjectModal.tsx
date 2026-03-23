@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -63,6 +64,9 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
         <div className="p-6 pb-4 border-b bg-muted/30">
           <DialogHeader className="mb-3">
             <DialogTitle className="text-lg font-bold">{project.name}</DialogTitle>
+            <DialogDescription className="sr-only">
+              Edite status, progresso, prazo e demais informações do projeto.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -110,7 +114,6 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
                 project={project} 
                 onSaved={(updatedProject) => {
                   setLocalStatus(updatedProject.status);
-                  onOpenChange(false);
                 }} 
                 onStatusChange={(s: string) => setLocalStatus(s)}
               />

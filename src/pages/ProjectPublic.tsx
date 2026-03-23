@@ -158,7 +158,7 @@ export default function ProjectPublic() {
     try {
       const { error: projError } = await publicSupabase
         .from('projects')
-        .update({ status: 'published' } as never)
+        .update({ status: 'approved' } as never)
         .eq('id', project.id);
       if (projError) throw projError;
 

@@ -43,7 +43,7 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden max-h-[85vh]">
+      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden max-h-[92vh]">
         <DialogTitle className="sr-only">{project.name}</DialogTitle>
         
         {/* Close button */}
@@ -103,7 +103,7 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
             </TabsList>
           </div>
 
-          <div className="overflow-y-auto max-h-[calc(85vh-140px)] px-5 pb-5">
+          <div className="overflow-y-auto max-h-[calc(92vh-140px)] px-5 pb-5">
             <TabsContent value="overview" className="mt-0">
               <ProjectOverviewTab 
                 project={{

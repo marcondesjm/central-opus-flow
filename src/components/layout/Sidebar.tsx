@@ -123,11 +123,13 @@ export function Sidebar({
   onAddAccount,
   onEditAccount,
 }: SidebarProps) {
-  const [accountsOpen, setAccountsOpen] = useState(true);
+  const [accountsOpen, setAccountsOpen] = useState(false);
   const [accountPage, setAccountPage] = useState(0);
   const ACCOUNTS_PER_PAGE = 3;
   const [spacesOpen, setSpacesOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(false);
+  const [managementOpen, setManagementOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
@@ -258,7 +260,7 @@ export function Sidebar({
             onClick={() => navigate('/dashboard?newProject=true')}
           >
             <Plus className="w-4 h-4" />
-            Novo Projeto
+            Nova Landing Page
           </Button>
 
           {/* Aprovações - HERO item */}
@@ -269,15 +271,14 @@ export function Sidebar({
               'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
               'active:scale-[0.97]',
-              'bg-gradient-to-r from-amber-500/15 to-primary/10 border border-amber-500/30',
               isViewActive('favorites')
-                ? 'text-amber-600 dark:text-amber-400 border-amber-500/60 shadow-sm shadow-amber-500/10'
-                : 'text-amber-600 dark:text-amber-400 hover:border-amber-500/50 hover:shadow-sm hover:shadow-amber-500/10'
+                ? 'bg-primary/15 text-primary border border-primary/40 shadow-sm shadow-primary/10'
+                : 'bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/30 hover:shadow-sm hover:shadow-primary/10'
             )}
           >
-            <Star className="w-4 h-4 fill-amber-500 text-amber-500 flex-shrink-0" aria-hidden="true" />
+            <Star className="w-4 h-4 fill-primary text-primary flex-shrink-0" aria-hidden="true" />
             <span className="flex-1 text-left">{t('sidebar.approvals')}</span>
-            <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0 h-5 hover:bg-amber-600">⭐</Badge>
+            <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0 h-5 hover:bg-primary/90">⭐</Badge>
           </button>
 
           <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />
@@ -360,15 +361,17 @@ export function Sidebar({
           </div>
         )}
 
-        {/* ── GESTÃO (collapsible group) ── */}
-        <SectionLabel>{t('sidebar.management')}</SectionLabel>
-        <Collapsible>
-          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md">
+        {/* ── Separator ── */}
+        <div className="my-3 mx-2 border-t border-sidebar-border" />
+
+        {/* ── GESTÃO (collapsible, closed by default) ── */}
+        <Collapsible open={managementOpen} onOpenChange={setManagementOpen}>
+          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
             <div className="flex items-center gap-3">
-              <Settings2 className="w-4 h-4" aria-hidden="true" />
-              <span>{t('sidebar.management')}</span>
+              <Receipt className="w-4 h-4" aria-hidden="true" />
+              <span>💼 {t('sidebar.management')}</span>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+            <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', managementOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
             {sidebarVisibility.proposals && (
@@ -387,14 +390,14 @@ export function Sidebar({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* ── MAIS (collapsible group) ── */}
-        <Collapsible>
-          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md mt-0.5">
+        {/* ── MAIS (collapsible, closed by default) ── */}
+        <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
+          <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary mt-0.5">
             <div className="flex items-center gap-3">
-              <Plus className="w-4 h-4" aria-hidden="true" />
-              <span>{t('sidebar.more')}</span>
+              <Settings2 className="w-4 h-4" aria-hidden="true" />
+              <span>⚙️ {t('sidebar.more')}</span>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+            <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', moreOpen ? 'rotate-0' : '-rotate-90')} aria-hidden="true" />
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
             <NavItem icon={Sparkles} label={t('sidebar.ideas')} onClick={() => navigate('/ideas')} active={isRouteActive('/ideas')} />

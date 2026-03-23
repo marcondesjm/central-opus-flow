@@ -60,7 +60,7 @@ export function DashboardActivitySection({ hasProjects, onNewProject }: Dashboar
           </p>
           <Button onClick={() => onNewProject()} className="rounded-xl gap-2 px-6">
             <Plus className="w-4 h-4" />
-            Novo Projeto
+            Nova Landing Page
           </Button>
         </div>
 

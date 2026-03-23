@@ -966,19 +966,25 @@ export default function Dashboard() {
               <p className="text-sm text-muted-foreground">{t('dashboardPage.loadingProjects')}</p>
             </div>
           ) : filteredProjects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <span className="text-2xl">🔍</span>
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                <span className="text-3xl">🚀</span>
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-1">
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 {projects.length === 0 ? t('dashboardPage.noProjectsYet') : t('dashboardPage.noProjectsFound')}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-6 max-w-md">
                 {projects.length === 0 
                   ? t('dashboardPage.addAccountStart')
                   : t('dashboardPage.adjustFilters')
                 }
               </p>
+              {projects.length === 0 && (
+                <Button onClick={() => setAddProjectOpen(true)} size="lg" className="rounded-xl gap-2 px-8">
+                  <span className="text-lg">+</span>
+                  Nova Landing Page
+                </Button>
+              )}
             </div>
           ) : viewMode === 'grid' ? (
             (() => {

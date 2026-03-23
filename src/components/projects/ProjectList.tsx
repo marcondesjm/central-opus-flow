@@ -30,10 +30,13 @@ const accountColorMap = {
   violet: 'bg-account-violet',
 };
 
-const statusConfig = {
+const statusConfig: Record<string, { label: string; className: string }> = {
   published: { label: 'Publicado', className: 'bg-status-published/10 text-status-published border-status-published/20' },
   draft: { label: 'Rascunho', className: 'bg-status-draft/10 text-status-draft border-status-draft/20' },
   archived: { label: 'Arquivado', className: 'bg-status-archived/10 text-status-archived border-status-archived/20' },
+  review: { label: 'Em revisão', className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+  approved: { label: 'Aprovado', className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+  changes: { label: 'Ajustes', className: 'bg-destructive/10 text-destructive border-destructive/20' },
 };
 
 export function ProjectList({ projects, accounts, onToggleFavorite, onEdit, onDelete, onArchive }: ProjectListProps) {

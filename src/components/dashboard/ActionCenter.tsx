@@ -15,12 +15,16 @@ interface ActionProject {
   accountName?: string;
 }
 
+type StatsFilterKey = 'review' | 'waiting' | 'overdue' | 'approved';
+
 interface ActionCenterProps {
   projects: ActionProject[];
   onOpenProject: (projectId: string) => void;
   onNewProject: () => void;
   onSendVersion: () => void;
   onViewApprovals: () => void;
+  activeStatsFilter?: StatsFilterKey | null;
+  onStatsFilterChange?: (filter: StatsFilterKey | null) => void;
 }
 
 export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals }: ActionCenterProps) {

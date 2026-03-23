@@ -389,7 +389,7 @@ export function useUpdateProject() {
         }
       }
       
-      return data;
+      return updatedProject;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });

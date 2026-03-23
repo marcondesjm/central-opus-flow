@@ -43,7 +43,7 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden max-h-[85vh]">
+      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden max-h-[92vh]">
         <DialogTitle className="sr-only">{project.name}</DialogTitle>
         
         {/* Close button */}

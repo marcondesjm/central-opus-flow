@@ -488,6 +488,40 @@ export default function ProjectPublic() {
                 maxLength={1000}
                 autoFocus
               />
+              <input
+                ref={changesFileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => handleAddImages(e.target.files, 'changes')}
+              />
+              {changesPreviews.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {changesPreviews.map((src, i) => (
+                    <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                      <img src={src} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i, 'changes')}
+                        className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => changesFileRef.current?.click()}
+                className="gap-1.5 w-fit"
+              >
+                <ImagePlus className="w-4 h-4" />
+                Anexar imagem
+              </Button>
               <div className="flex gap-2">
                 <Button
                   onClick={handleRequestChanges}
@@ -497,7 +531,7 @@ export default function ProjectPublic() {
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertTriangle className="w-4 h-4" />}
                   Enviar ajustes
                 </Button>
-                <Button variant="outline" onClick={() => { setShowChangesForm(false); setChangesReason(''); }}>
+                <Button variant="outline" onClick={() => { setShowChangesForm(false); setChangesReason(''); setChangesImages([]); setChangesPreviews([]); }}>
                   Cancelar
                 </Button>
               </div>

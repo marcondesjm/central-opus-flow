@@ -78,6 +78,7 @@ export function VersionUpdateModal() {
     if (ver) {
       localStorage.setItem(LAST_SEEN_KEY, ver);
       localStorage.setItem(LOCAL_VERSION_KEY, ver);
+      localStorage.setItem('centralopusflow-installed-at', new Date().toISOString());
     }
     window.location.reload();
   }, [pendingVersion, systemVersion?.version]);

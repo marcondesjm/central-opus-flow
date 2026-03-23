@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers } from 'lucide-react';
+import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers, ImagePlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -73,6 +73,46 @@ export default function ProjectPublic() {
   const [submitting, setSubmitting] = useState(false);
   const [actionDone, setActionDone] = useState<'approved' | 'changes' | null>(null);
   const [showChangesForm, setShowChangesForm] = useState(false);
+  const [commentImages, setCommentImages] = useState<File[]>([]);
+  const [changesImages, setChangesImages] = useState<File[]>([]);
+  const [commentPreviews, setCommentPreviews] = useState<string[]>([]);
+  const [changesPreviews, setChangesPreviews] = useState<string[]>([]);
+  const commentFileRef = useRef<HTMLInputElement>(null);
+  const changesFileRef = useRef<HTMLInputElement>(null);
+
+  const handleAddImages = (files: FileList | null, target: 'comment' | 'changes') => {
+    if (!files) return;
+    const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (newFiles.length === 0) { toast.error('Selecione apenas imagens'); return; }
+    const setImages = target === 'comment' ? setCommentImages : setChangesImages;
+    const setPreviews = target === 'comment' ? setCommentPreviews : setChangesPreviews;
+    const current = target === 'comment' ? commentImages : changesImages;
+    const combined = [...current, ...newFiles].slice(0, 5);
+    setImages(combined);
+    setPreviews(combined.map(f => URL.createObjectURL(f)));
+  };
+
+  const removeImage = (index: number, target: 'comment' | 'changes') => {
+    const setImages = target === 'comment' ? setCommentImages : setChangesImages;
+    const setPreviews = target === 'comment' ? setCommentPreviews : setChangesPreviews;
+    const current = target === 'comment' ? commentImages : changesImages;
+    const updated = current.filter((_, i) => i !== index);
+    setImages(updated);
+    setPreviews(updated.map(f => URL.createObjectURL(f)));
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const file of files) {
+      const ext = file.name.split('.').pop();
+      const path = `public-feedback/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('user-files').upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from('user-files').getPublicUrl(path);
+      urls.push(urlData.publicUrl);
+    }
+    return urls;
+  };
 
   const currentVersion = versions[0];
   const isApproved = project?.status === 'approved' || actionDone === 'approved';
@@ -81,16 +121,25 @@ export default function ProjectPublic() {
     if (!comment.trim() || !authorName.trim() || !project) return;
     setSubmitting(true);
     try {
+      let imageUrls: string[] = [];
+      if (commentImages.length > 0) {
+        imageUrls = await uploadImages(commentImages);
+      }
+      const fullComment = imageUrls.length > 0
+        ? `${comment.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.map(u => u).join('\n')}`
+        : comment.trim();
       const { error: fbError } = await supabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim(),
         author_type: 'client',
-        comment: comment.trim(),
+        comment: fullComment,
       });
       if (fbError) throw fbError;
       toast.success('✅ Comentário enviado!');
       setComment('');
+      setCommentImages([]);
+      setCommentPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-feedback', project.id] });
     } catch {
       toast.error('Erro ao enviar comentário');
@@ -144,14 +193,12 @@ export default function ProjectPublic() {
     }
     setSubmitting(true);
     try {
-      // Update project status
       const { error: projError } = await supabase
         .from('projects')
         .update({ status: 'changes' } as any)
         .eq('id', project.id);
       if (projError) throw projError;
 
-      // Update current version status
       if (currentVersion) {
         await supabase
           .from('project_versions')
@@ -159,16 +206,25 @@ export default function ProjectPublic() {
           .eq('id', currentVersion.id);
       }
 
-      // Add changes feedback with reason
+      let imageUrls: string[] = [];
+      if (changesImages.length > 0) {
+        imageUrls = await uploadImages(changesImages);
+      }
+      const fullComment = imageUrls.length > 0
+        ? `⚠️ Ajustes solicitados: ${changesReason.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.join('\n')}`
+        : `⚠️ Ajustes solicitados: ${changesReason.trim()}`;
+
       await supabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim() || 'Cliente',
         author_type: 'client',
-        comment: `⚠️ Ajustes solicitados: ${changesReason.trim()}`,
+        comment: fullComment,
       });
 
       setActionDone('changes');
+      setChangesImages([]);
+      setChangesPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });
       toast.success('📝 Ajustes solicitados!');
     } catch {
@@ -314,7 +370,25 @@ export default function ProjectPublic() {
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Cliente</Badge>
                     )}
                   </div>
-                  <p className="text-muted-foreground text-xs">{f.comment}</p>
+                  {(() => {
+                    const parts = f.comment.split('\n\n📎 Imagens anexadas:\n');
+                    const text = parts[0];
+                    const imageLinks = parts[1]?.split('\n').filter(Boolean) || [];
+                    return (
+                      <>
+                        <p className="text-muted-foreground text-xs whitespace-pre-wrap">{text}</p>
+                        {imageLinks.length > 0 && (
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {imageLinks.map((url, i) => (
+                              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border hover:opacity-80 transition" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
@@ -337,6 +411,43 @@ export default function ProjectPublic() {
               className="bg-muted/30"
               maxLength={1000}
             />
+            <input
+              ref={commentFileRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handleAddImages(e.target.files, 'comment')}
+            />
+            {commentPreviews.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {commentPreviews.map((src, i) => (
+                  <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i, 'comment')}
+                      className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => commentFileRef.current?.click()}
+                className="gap-1.5"
+              >
+                <ImagePlus className="w-4 h-4" />
+                Anexar imagem
+              </Button>
+              <span className="text-[10px] text-muted-foreground self-center">Máx. 5 imagens</span>
+            </div>
             <Button
               onClick={handleSubmitFeedback}
               disabled={submitting || !comment.trim() || !authorName.trim()}
@@ -395,6 +506,40 @@ export default function ProjectPublic() {
                 maxLength={1000}
                 autoFocus
               />
+              <input
+                ref={changesFileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => handleAddImages(e.target.files, 'changes')}
+              />
+              {changesPreviews.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {changesPreviews.map((src, i) => (
+                    <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                      <img src={src} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i, 'changes')}
+                        className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => changesFileRef.current?.click()}
+                className="gap-1.5 w-fit"
+              >
+                <ImagePlus className="w-4 h-4" />
+                Anexar imagem
+              </Button>
               <div className="flex gap-2">
                 <Button
                   onClick={handleRequestChanges}
@@ -404,7 +549,7 @@ export default function ProjectPublic() {
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertTriangle className="w-4 h-4" />}
                   Enviar ajustes
                 </Button>
-                <Button variant="outline" onClick={() => { setShowChangesForm(false); setChangesReason(''); }}>
+                <Button variant="outline" onClick={() => { setShowChangesForm(false); setChangesReason(''); setChangesImages([]); setChangesPreviews([]); }}>
                   Cancelar
                 </Button>
               </div>

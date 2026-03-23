@@ -665,10 +665,10 @@ export default function Dashboard() {
     }
 
     return filtered;
-  }, [projects, activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter]);
+  }, [projects, activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter, actionStatsFilter]);
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter]);
+  useEffect(() => { setCurrentPage(1); }, [activeView, selectedAccount, statusFilter, typeFilter, tagFilter, searchQuery, statsFilter, actionStatsFilter]);
 
   const handleToggleFavorite = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);

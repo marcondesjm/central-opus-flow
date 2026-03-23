@@ -68,6 +68,7 @@ export interface Project {
   updated_at: string;
   deadline: string | null;
   repository_url?: string | null;
+  share_token?: string | null;
   tags?: Tag[];
 }
 

@@ -42,11 +42,11 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
   const hasActions = overdueProjects.length > 0 || reviewProjects.length > 0 || changesProjects.length > 0;
 
   // "Seu dia" stats
-  const dayStats = [
-    { label: 'Em revisão', count: reviewProjects.length, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', icon: Clock },
-    { label: 'Aguardando cliente', count: approvalProjects.length, color: 'text-primary', bg: 'bg-primary/10', icon: Star },
-    { label: 'Atrasados', count: overdueProjects.length, color: 'text-destructive', bg: 'bg-destructive/10', icon: AlertTriangle },
-    { label: 'Aprovados', count: approvedProjects.length, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
+  const dayStats: { key: StatsFilterKey; label: string; count: number; color: string; bg: string; icon: typeof Clock }[] = [
+    { key: 'review', label: 'Em revisão', count: reviewProjects.length, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', icon: Clock },
+    { key: 'waiting', label: 'Aguardando cliente', count: approvalProjects.length, color: 'text-primary', bg: 'bg-primary/10', icon: Star },
+    { key: 'overdue', label: 'Atrasados', count: overdueProjects.length, color: 'text-destructive', bg: 'bg-destructive/10', icon: AlertTriangle },
+    { key: 'approved', label: 'Aprovados', count: approvedProjects.length, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
   ];
 
   return (

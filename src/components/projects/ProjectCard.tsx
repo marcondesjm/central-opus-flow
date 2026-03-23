@@ -134,15 +134,13 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
         {/* Overlay Actions */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           {/* Ver Preview button */}
-          {project.screenshot && !imgError && (
-            <button
-              onClick={() => setPreviewOpen(true)}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"
-            >
-              <Eye className="w-4 h-4" />
-              {t('cards.viewPreview')}
-            </button>
-          )}
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"
+          >
+            <Eye className="w-4 h-4" />
+            {t('cards.viewPreview')}
+          </button>
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
             {project.url ? (
               <button

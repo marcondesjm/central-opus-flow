@@ -58,8 +58,7 @@ export interface Project {
   description: string | null;
   url: string | null;
   screenshot: string | null;
-  status: 'published' | 'draft' | 'archived';
-  // Extended statuses used by the approval flow
+  status: 'published' | 'draft' | 'archived' | 'review' | 'approved' | 'changes';
   type: 'website' | 'landing' | 'app' | 'funnel' | 'other';
   is_favorite: boolean;
   notes: string | null;

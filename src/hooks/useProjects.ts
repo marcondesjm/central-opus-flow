@@ -210,7 +210,9 @@ export function useProjects() {
   return useQuery({
     queryKey: ['projects', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Always filter by user's own projects + collaborated projects
+      // Even admins should only see their own projects in the dashboard
+      const { data: ownProjects, error } = await supabase
         .from('projects')
         .select(`
           *,
@@ -219,12 +221,39 @@ export function useProjects() {
             tags (*)
           )
         `)
+        .eq('user_id', user!.id)
         .order('updated_at', { ascending: false });
       
       if (error) throw error;
-      
-      // Transform data to include tags array
-      return data.map(project => ({
+
+      // Also fetch projects where user is a collaborator
+      const { data: collabProjects } = await supabase
+        .from('project_collaborators')
+        .select('project_id')
+        .eq('user_id', user!.id)
+        .not('accepted_at', 'is', null);
+
+      let allProjects = ownProjects || [];
+
+      if (collabProjects && collabProjects.length > 0) {
+        const collabIds = collabProjects.map(c => c.project_id);
+        const ownIds = new Set((ownProjects || []).map(p => p.id));
+        const missingIds = collabIds.filter(id => !ownIds.has(id));
+
+        if (missingIds.length > 0) {
+          const { data: extraProjects } = await supabase
+            .from('projects')
+            .select(`*, project_tags ( tag_id, tags (*) )`)
+            .in('id', missingIds)
+            .order('updated_at', { ascending: false });
+
+          if (extraProjects) {
+            allProjects = [...allProjects, ...extraProjects];
+          }
+        }
+      }
+
+      return allProjects.map(project => ({
         ...project,
         tags: project.project_tags?.map((pt: any) => pt.tags) || [],
       })) as Project[];

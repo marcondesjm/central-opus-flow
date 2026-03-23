@@ -436,7 +436,7 @@
     "favoriteProjects": "Lieblingsprojekte",
     "archivedProjects": "Archivierte Projekte",
     "organizeByTags": "Nach Tags organisieren",
-    "allProjects": "Alle Projekte",
+    "allProjects": "Landingpages",
     "account": "Konto",
     "deleteProject": "Projekt löschen?",
     "deleteProjectDesc": "Diese Aktion kann nicht rückgängig gemacht werden. Das Projekt \"{{name}}\" wird dauerhaft gelöscht.",

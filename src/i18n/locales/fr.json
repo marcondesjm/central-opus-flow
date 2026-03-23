@@ -436,7 +436,7 @@
     "favoriteProjects": "Projets Favoris",
     "archivedProjects": "Projets Archivés",
     "organizeByTags": "Organiser par Tags",
-    "allProjects": "Tous les Projets",
+    "allProjects": "Pages de destination",
     "account": "Compte",
     "deleteProject": "Supprimer le projet ?",
     "deleteProjectDesc": "Cette action est irréversible. Le projet \"{{name}}\" sera définitivement supprimé.",

@@ -68,6 +68,7 @@ export interface Project {
   updated_at: string;
   deadline: string | null;
   repository_url?: string | null;
+  share_token?: string | null;
   tags?: Tag[];
 }
 
@@ -270,9 +271,12 @@ export function useCreateProject() {
       
       console.log('Creating project:', { ...projectData, user_id: user.id });
       
+      // Generate share token
+      const shareToken = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+
       const { data, error } = await supabase
         .from('projects')
-        .insert({ ...projectData, user_id: user.id })
+        .insert({ ...projectData, user_id: user.id, share_token: shareToken })
         .select()
         .single();
       

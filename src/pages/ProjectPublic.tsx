@@ -240,7 +240,7 @@ export default function ProjectPublic() {
               className="h-14 text-base gap-2 bg-emerald-600 hover:bg-emerald-700"
             >
               <CheckCircle2 className="w-5 h-5" />
-              Aprovar landing page
+              Aprovar projeto
             </Button>
             <Button
               size="lg"

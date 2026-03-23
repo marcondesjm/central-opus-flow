@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useUpdateProject, Project, useAccounts } from '@/hooks/useProjects';
-import { CalendarIcon, Save, Loader2 } from 'lucide-react';
+import { CalendarIcon, Save, Loader2, ExternalLink, Copy, Check, Link } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ interface ProjectEditFormProps {
 export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
   const updateProject = useUpdateProject();
   const { data: accounts = [] } = useAccounts();
+  const [copied, setCopied] = useState(false);
 
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description || '');
@@ -147,6 +148,63 @@ export function ProjectEditForm({ project, onSaved }: ProjectEditFormProps) {
         <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." />
       </div>
 
+      {/* Share Link */}
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium flex items-center gap-1">
+          <Link className="w-3 h-3" />
+          Link de aprovação do cliente
+        </Label>
+        {project.share_token ? (
+          <div className="flex gap-2">
+            <Input 
+              readOnly 
+              value={`${window.location.origin}/p/${project.share_token}`}
+              className="text-xs bg-muted/50"
+            />
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="shrink-0"
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/p/${project.share_token}`);
+                setCopied(true);
+                toast.success('Link copiado!');
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="shrink-0"
+              onClick={() => window.open(`${window.location.origin}/p/${project.share_token}`, '_blank')}
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            variant="outline" 
+            className="w-full text-xs gap-2"
+            onClick={async () => {
+              const shareToken = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+              try {
+                await updateProject.mutateAsync({
+                  id: project.id,
+                  share_token: shareToken,
+                } as any);
+                toast.success('Link de aprovação gerado!');
+              } catch {
+                toast.error('Erro ao gerar link');
+              }
+            }}
+          >
+            <Link className="w-3.5 h-3.5" />
+            Gerar link de aprovação
+          </Button>
+        )}
+      </div>
       {/* Deadline */}
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Prazo</Label>

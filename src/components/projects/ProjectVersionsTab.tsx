@@ -28,9 +28,16 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
   const { data: versions = [], isLoading } = useProjectVersions(projectId);
   const { data: feedback = [] } = useProjectFeedback(projectId);
   const addVersion = useAddVersion();
+  const paywall = usePaywall();
   const [showForm, setShowForm] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
   const [notes, setNotes] = useState('');
+
+  const handleShowForm = () => {
+    if (paywall.checkRevisionLimit(versions.length)) {
+      setShowForm(true);
+    }
+  };
 
   const handleAddVersion = async () => {
     if (!previewUrl.trim()) {

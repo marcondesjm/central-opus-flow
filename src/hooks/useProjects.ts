@@ -392,7 +392,17 @@ export function useUpdateProject() {
       
       return updatedProject;
     },
-    onSuccess: () => {
+    onSuccess: (updatedProject) => {
+      queryClient.setQueriesData({ queryKey: ['projects'] }, (currentProjects: Project[] | undefined) => {
+        if (!currentProjects) return currentProjects;
+
+        return currentProjects.map(project =>
+          project.id === updatedProject.id
+            ? { ...project, ...updatedProject }
+            : project
+        );
+      });
+
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });
@@ -436,7 +446,17 @@ export function useToggleFavorite() {
       
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      queryClient.setQueriesData({ queryKey: ['projects'] }, (currentProjects: Project[] | undefined) => {
+        if (!currentProjects) return currentProjects;
+
+        return currentProjects.map(project =>
+          project.id === variables.id
+            ? { ...project, is_favorite: variables.isFavorite }
+            : project
+        );
+      });
+
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });

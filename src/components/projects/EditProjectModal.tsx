@@ -17,6 +17,7 @@ import { ProjectEditForm } from './ProjectEditForm';
 import { ProjectVersionsTab } from './ProjectVersionsTab';
 import { ProjectFeedbackTab } from './ProjectFeedbackTab';
 import { ProjectHistoryPanel } from './ProjectHistoryPanel';
+import { normalizeProjectStatus } from '@/lib/project-status';
 
 interface EditProjectModalProps {
   open: boolean;
@@ -50,7 +51,7 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
   if (!project) return null;
 
   const account = accounts.find(a => a.id === project.account_id);
-  const config = statusConfig[localStatus] || statusConfig.draft;
+  const config = statusConfig[normalizeProjectStatus(localStatus)] || statusConfig.draft;
   const StatusIcon = config.icon;
   const maxRevisions = (project as any).max_revisions || 3;
   const clientName = (project as any).client_name || account?.name || '—';
@@ -107,8 +108,8 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
             <TabsContent value="overview">
               <ProjectEditForm 
                 project={project} 
-                onSaved={() => {
-                  // Refresh local status from query cache
+                onSaved={(updatedProject) => {
+                  setLocalStatus(updatedProject.status);
                   onOpenChange(false);
                 }} 
                 onStatusChange={(s: string) => setLocalStatus(s)}

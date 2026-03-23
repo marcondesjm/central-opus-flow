@@ -53,6 +53,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, ZoomIn, ZoomOut, Maximize2, AlertTriangle, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { isApprovedStatus, isOverdueProject } from '@/lib/project-status';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
@@ -605,12 +606,10 @@ export default function Dashboard() {
     if (statsFilter === 'favorites') {
       filtered = filtered.filter(p => p.is_favorite);
     } else if (statsFilter === 'published') {
-      filtered = filtered.filter(p => p.status === 'published');
+      filtered = filtered.filter(p => isApprovedStatus(p.status));
     } else if (statsFilter === 'overdue') {
       const now = new Date();
-      filtered = filtered.filter(p => 
-        p.deadline && new Date(p.deadline) < now && p.status !== 'published' && p.status !== 'archived'
-      );
+      filtered = filtered.filter(p => isOverdueProject(p, now));
     }
 
     // Action center stats filter
@@ -620,9 +619,9 @@ export default function Dashboard() {
       filtered = filtered.filter(p => p.is_favorite);
     } else if (actionStatsFilter === 'overdue') {
       const now2 = new Date();
-      filtered = filtered.filter(p => p.deadline && new Date(p.deadline) < now2 && p.status !== 'published' && p.status !== 'archived' && (p.status as string) !== 'approved');
+      filtered = filtered.filter(p => isOverdueProject(p, now2));
     } else if (actionStatsFilter === 'approved') {
-      filtered = filtered.filter(p => (p.status as string) === 'approved');
+      filtered = filtered.filter(p => isApprovedStatus(p.status));
     }
 
     // View filter
@@ -699,7 +698,7 @@ export default function Dashboard() {
 
   const handleSendVersion = () => {
     // Open the first review/active project on the versions tab
-    const target = projects.find(p => (p.status as string) === 'review') || projects.find(p => p.status === 'draft' || p.status === 'published') || projects[0];
+    const target = projects.find(p => (p.status as string) === 'review') || projects.find(p => p.status === 'draft' || isApprovedStatus(p.status)) || projects[0];
     if (target) {
       setEditingProject(target as Project);
       setEditProjectInitialTab('versions');
@@ -797,14 +796,12 @@ export default function Dashboard() {
   const hasActiveFilters = statusFilter !== 'all' || typeFilter !== 'all' || tagFilter !== null;
 
   const now = new Date();
-  const overdueProjects = projects.filter(p => 
-    p.deadline && new Date(p.deadline) < now && p.status !== 'published' && p.status !== 'archived'
-  );
+  const overdueProjects = projects.filter(p => isOverdueProject(p, now));
 
   const stats = {
     totalProjects: projects.length,
     favorites: projects.filter(p => p.is_favorite).length,
-    published: projects.filter(p => p.status === 'published').length,
+    published: projects.filter(p => isApprovedStatus(p.status)).length,
     archived: projects.filter(p => p.status === 'archived').length,
     overdue: overdueProjects.length,
   };

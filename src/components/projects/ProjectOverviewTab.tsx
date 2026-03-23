@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { normalizeProjectStatus } from '@/lib/project-status';
 
 interface ProjectOverviewTabProps {
   project: {
@@ -23,7 +24,7 @@ interface ProjectOverviewTabProps {
 
 const statusLabels: Record<string, { label: string; color: string; icon: typeof Clock }> = {
   draft: { label: 'Rascunho', color: 'text-muted-foreground bg-muted', icon: Clock },
-  published: { label: 'Publicado', color: 'text-emerald-600 bg-emerald-500/10', icon: CheckCircle2 },
+  published: { label: 'Aprovado', color: 'text-emerald-600 bg-emerald-500/10', icon: CheckCircle2 },
   review: { label: 'Em revisão', color: 'text-amber-600 bg-amber-500/10', icon: Clock },
   approved: { label: 'Aprovado', color: 'text-emerald-600 bg-emerald-500/10', icon: CheckCircle2 },
   changes: { label: 'Ajustes solicitados', color: 'text-red-600 bg-red-500/10', icon: AlertTriangle },
@@ -36,7 +37,7 @@ export function ProjectOverviewTab({ project, onSendVersion }: ProjectOverviewTa
 
   const currentVersion = versions[0];
   const pendingFeedback = feedback.filter(f => !f.is_resolved).length;
-  const config = statusLabels[project.status] || statusLabels.draft;
+  const config = statusLabels[normalizeProjectStatus(project.status)] || statusLabels.draft;
   const StatusIcon = config.icon;
 
   const shareUrl = project.share_token 

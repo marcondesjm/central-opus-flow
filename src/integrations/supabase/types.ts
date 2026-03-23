@@ -1536,6 +1536,54 @@ export type Database = {
           },
         ]
       }
+      project_feedback: {
+        Row: {
+          author_name: string
+          author_type: string
+          comment: string
+          created_at: string
+          id: string
+          is_resolved: boolean
+          project_id: string
+          version_id: string | null
+        }
+        Insert: {
+          author_name: string
+          author_type?: string
+          comment: string
+          created_at?: string
+          id?: string
+          is_resolved?: boolean
+          project_id: string
+          version_id?: string | null
+        }
+        Update: {
+          author_name?: string
+          author_type?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          is_resolved?: boolean
+          project_id?: string
+          version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_feedback_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_feedback_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "project_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_files: {
         Row: {
           created_at: string
@@ -1713,20 +1761,67 @@ export type Database = {
           },
         ]
       }
+      project_versions: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          preview_url: string | null
+          project_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preview_url?: string | null
+          project_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          version_number?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preview_url?: string | null
+          project_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_versions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           account_id: string
+          client_name: string | null
           created_at: string
           deadline: string | null
           description: string | null
           id: string
           is_favorite: boolean
           last_accessed_at: string | null
+          max_revisions: number
           name: string
           notes: string | null
           progress: number
           repository_url: string | null
           screenshot: string | null
+          share_token: string | null
           status: string
           type: string
           updated_at: string
@@ -1736,17 +1831,20 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          client_name?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
           id?: string
           is_favorite?: boolean
           last_accessed_at?: string | null
+          max_revisions?: number
           name: string
           notes?: string | null
           progress?: number
           repository_url?: string | null
           screenshot?: string | null
+          share_token?: string | null
           status?: string
           type?: string
           updated_at?: string
@@ -1756,17 +1854,20 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          client_name?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
           id?: string
           is_favorite?: boolean
           last_accessed_at?: string | null
+          max_revisions?: number
           name?: string
           notes?: string | null
           progress?: number
           repository_url?: string | null
           screenshot?: string | null
+          share_token?: string | null
           status?: string
           type?: string
           updated_at?: string

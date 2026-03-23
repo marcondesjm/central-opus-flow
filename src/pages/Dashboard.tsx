@@ -797,6 +797,8 @@ export default function Dashboard() {
     setStatusFilter('all');
     setTypeFilter('all');
     setTagFilter(null);
+    setStatsFilter('all');
+    setActionStatsFilter(null);
   };
 
   const hasActiveFilters = statusFilter !== 'all' || typeFilter !== 'all' || tagFilter !== null;

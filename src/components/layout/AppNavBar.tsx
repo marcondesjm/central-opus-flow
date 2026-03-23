@@ -13,13 +13,11 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const NAV_ITEMS = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/kanban', label: 'Kanban', icon: Kanban },
+  { path: '/dashboard', label: 'Landing Pages', icon: LayoutDashboard },
   { path: '/proposals', label: 'Propostas', icon: FileText },
-  { path: '/ideas', label: 'Ideias', icon: Sparkles },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/billing', label: 'Faturamento', icon: Receipt },
-  { path: '/files', label: 'Arquivos', icon: FolderOpen },
+  { path: '/files', label: 'Versões', icon: FolderOpen },
   { path: '/teams', label: 'Equipes', icon: UsersRound },
 ];
 

@@ -192,7 +192,7 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
       {/* Content */}
       <div className="p-3">
         <div className="flex items-start justify-between gap-1.5 mb-1.5">
-          <h3 className="font-semibold text-sm text-card-foreground line-clamp-1">{project.name}</h3>
+          <h3 className="font-semibold text-sm text-card-foreground line-clamp-1 cursor-pointer hover:text-primary transition-colors" onClick={() => setDetailOpen(true)}>{project.name}</h3>
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>

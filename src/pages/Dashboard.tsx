@@ -191,6 +191,12 @@ export default function Dashboard() {
     showTour,
   } = useOnboarding();
 
+  const handleNewProject = useCallback(() => {
+    if (paywall.checkProjectLimit()) {
+      setAddProjectOpen(true);
+    }
+  }, [paywall]);
+
   const { resetDemoData, hasCompleteDemoData, seeding: demoResetting } = useSeedDemoData();
   const { acceptProjectInvitation, acceptAccountInvitation, pendingInvitations } = useCollaboration();
   const [_demoSeeded, _setDemoSeeded] = useState(false);

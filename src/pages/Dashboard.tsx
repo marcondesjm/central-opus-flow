@@ -33,8 +33,7 @@ import { ExportBackupButton } from '@/components/export/ExportBackupButton';
 import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
-import { DashboardActivitySection } from '@/components/dashboard/DashboardActivitySection';
-import { NewsFeedWidget } from '@/components/dashboard/NewsFeedWidget';
+import { ActionCenter } from '@/components/dashboard/ActionCenter';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
@@ -882,29 +881,23 @@ export default function Dashboard() {
           </div>
           
           {/* Dashboard Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">{t('dashboardPage.subtitle', 'Visão geral dos seus projetos e atividades')}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Visão Geral</h1>
+              <p className="text-sm text-muted-foreground mt-1">Veja o que precisa da sua atenção hoje</p>
+            </div>
           </div>
 
-
-
-
-          {/* Overdue Alert Banner */}
-          {overdueProjects.length > 0 && (
-            <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-destructive/20 bg-destructive/[0.06] text-[hsl(0,86%,80%)] dark:text-[hsl(0,86%,80%)] text-sm font-medium animate-fade-in">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{overdueProjects.length} {overdueProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}</span>
-            </div>
-          )}
-
-          {/* Stats */}
-          <StatsCards {...stats} activeFilter={statsFilter} onFilterChange={(f) => { setStatsFilter(f); setActiveView('all'); setStatusFilter('all'); }} />
-
-          {/* Activity + Growth Chart side by side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <DashboardActivitySection hasProjects={projects.length > 0} onNewProject={(template) => { setProjectTemplate(template || null); setAddProjectOpen(true); }} />
-            <ProjectCharts projects={projects} />
+          {/* Action Center */}
+          <div className="mb-8">
+            <ActionCenter
+              projects={transformedProjects.map(p => ({
+                ...p,
+                accountName: getAccount(p.accountId)?.name,
+              }))}
+              onOpenProject={handleEditProject}
+              onNewProject={() => setAddProjectOpen(true)}
+            />
           </div>
 
           {/* Collaborated Projects Section */}
@@ -1078,10 +1071,7 @@ export default function Dashboard() {
           </div>
           </div>
 
-          {/* News Feed */}
-          <div className="mb-6">
-            <NewsFeedWidget />
-          </div>
+          {/* spacer */}
 
           {/* Footer com versão */}
           <AppFooter />

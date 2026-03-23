@@ -120,6 +120,20 @@ export function useNotifications() {
     };
   }, [user]);
 
+  // Ref for addNotification to avoid circular dependency
+  const addNotificationRef = useCallback((
+    notification: Omit<Notification, 'id' | 'read' | 'createdAt'>
+  ) => {
+    const newNotification: Notification = {
+      ...notification,
+      id: generateId(),
+      read: false,
+      createdAt: new Date(),
+    };
+    setLocalNotifications(prev => [newNotification, ...prev].slice(0, 50));
+    return newNotification;
+  }, []);
+
   // Listen for new project feedback
   useEffect(() => {
     if (!user) return;
@@ -144,7 +158,7 @@ export function useNotifications() {
 
           if (project && project.user_id === user.id) {
             const typeLabel = fb.author_type === 'client' ? 'Cliente' : 'Equipe';
-            addNotification({
+            addNotificationRef({
               title: `💬 Novo feedback em "${project.name}"`,
               message: `${fb.author_name} (${typeLabel}): ${fb.comment?.substring(0, 100)}${fb.comment?.length > 100 ? '...' : ''}`,
               type: 'info',
@@ -157,7 +171,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, addNotification]);
+  }, [user, addNotificationRef]);
 
   // Add welcome notification on first visit
   useEffect(() => {
@@ -248,19 +262,7 @@ export function useNotifications() {
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 50);
 
-  const addNotification = useCallback((
-    notification: Omit<Notification, 'id' | 'read' | 'createdAt'>
-  ) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: generateId(),
-      read: false,
-      createdAt: new Date(),
-    };
-    
-    setLocalNotifications(prev => [newNotification, ...prev].slice(0, 50));
-    return newNotification;
-  }, []);
+  const addNotification = addNotificationRef;
 
   const markAsRead = useCallback((id: string) => {
     if (id.startsWith('collab-')) {

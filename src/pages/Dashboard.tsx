@@ -921,6 +921,8 @@ export default function Dashboard() {
               }))}
               onOpenProject={handleEditProject}
               onNewProject={handleNewProject}
+              onSendVersion={handleSendVersion}
+              onViewApprovals={handleViewApprovals}
             />
           </div>
 

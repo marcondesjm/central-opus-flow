@@ -27,7 +27,7 @@ interface ActionCenterProps {
   onStatsFilterChange?: (filter: StatsFilterKey | null) => void;
 }
 
-export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals }: ActionCenterProps) {
+export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals, activeStatsFilter, onStatsFilterChange }: ActionCenterProps) {
   const now = new Date();
 
   const overdueProjects = projects.filter(

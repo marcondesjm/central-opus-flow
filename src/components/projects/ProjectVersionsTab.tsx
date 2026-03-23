@@ -176,6 +176,12 @@ export function ProjectVersionsTab({ projectId, maxRevisions }: ProjectVersionsT
           })}
         </div>
       )}
+      <UpgradeModal
+        open={paywall.paywallOpen}
+        onOpenChange={paywall.closePaywall}
+        trigger={paywall.paywallTrigger}
+        triggerMessage={paywall.triggerMessage}
+      />
     </div>
   );
 }

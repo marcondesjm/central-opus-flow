@@ -15,15 +15,19 @@ interface ActionProject {
   accountName?: string;
 }
 
+type StatsFilterKey = 'review' | 'waiting' | 'overdue' | 'approved';
+
 interface ActionCenterProps {
   projects: ActionProject[];
   onOpenProject: (projectId: string) => void;
   onNewProject: () => void;
   onSendVersion: () => void;
   onViewApprovals: () => void;
+  activeStatsFilter?: StatsFilterKey | null;
+  onStatsFilterChange?: (filter: StatsFilterKey | null) => void;
 }
 
-export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals }: ActionCenterProps) {
+export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals, activeStatsFilter, onStatsFilterChange }: ActionCenterProps) {
   const now = new Date();
 
   const overdueProjects = projects.filter(
@@ -38,11 +42,11 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
   const hasActions = overdueProjects.length > 0 || reviewProjects.length > 0 || changesProjects.length > 0;
 
   // "Seu dia" stats
-  const dayStats = [
-    { label: 'Em revisão', count: reviewProjects.length, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', icon: Clock },
-    { label: 'Aguardando cliente', count: approvalProjects.length, color: 'text-primary', bg: 'bg-primary/10', icon: Star },
-    { label: 'Atrasados', count: overdueProjects.length, color: 'text-destructive', bg: 'bg-destructive/10', icon: AlertTriangle },
-    { label: 'Aprovados', count: approvedProjects.length, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
+  const dayStats: { key: StatsFilterKey; label: string; count: number; color: string; bg: string; icon: typeof Clock }[] = [
+    { key: 'review', label: 'Em revisão', count: reviewProjects.length, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', icon: Clock },
+    { key: 'waiting', label: 'Aguardando cliente', count: approvalProjects.length, color: 'text-primary', bg: 'bg-primary/10', icon: Star },
+    { key: 'overdue', label: 'Atrasados', count: overdueProjects.length, color: 'text-destructive', bg: 'bg-destructive/10', icon: AlertTriangle },
+    { key: 'approved', label: 'Aprovados', count: approvedProjects.length, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
   ];
 
   return (
@@ -51,10 +55,15 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {dayStats.map((stat) => {
           const Icon = stat.icon;
+          const isActive = activeStatsFilter === stat.key;
           return (
             <div
               key={stat.label}
-              className="rounded-xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:shadow-md"
+              onClick={() => onStatsFilterChange?.(isActive ? null : stat.key)}
+              className={cn(
+                'rounded-xl border bg-card p-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-[0.98]',
+                isActive ? 'border-primary ring-2 ring-primary/20' : 'border-border'
+              )}
             >
               <div className="flex items-center gap-3 mb-2">
                 <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', stat.bg)}>

@@ -122,25 +122,16 @@ export default function ProjectPublic() {
     if (!comment.trim() || !authorName.trim() || !project) return;
     setSubmitting(true);
     try {
-      let imageUrls: string[] = [];
-      if (commentImages.length > 0) {
-        imageUrls = await uploadImages(commentImages);
-      }
-      const fullComment = imageUrls.length > 0
-        ? `${comment.trim()}\n\n📎 Imagens anexadas:\n${imageUrls.map(u => u).join('\n')}`
-        : comment.trim();
       const { error: fbError } = await supabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim(),
         author_type: 'client',
-        comment: fullComment,
+        comment: comment.trim(),
       });
       if (fbError) throw fbError;
       toast.success('✅ Comentário enviado!');
       setComment('');
-      setCommentImages([]);
-      setCommentPreviews([]);
       queryClient.invalidateQueries({ queryKey: ['public-feedback', project.id] });
     } catch {
       toast.error('Erro ao enviar comentário');
@@ -445,43 +436,6 @@ export default function ProjectPublic() {
               className="bg-muted/30"
               maxLength={1000}
             />
-            <input
-              ref={commentFileRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => handleAddImages(e.target.files, 'comment')}
-            />
-            {commentPreviews.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {commentPreviews.map((src, i) => (
-                  <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border">
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i, 'comment')}
-                      className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl p-0.5"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => commentFileRef.current?.click()}
-                className="gap-1.5"
-              >
-                <ImagePlus className="w-4 h-4" />
-                Anexar imagem
-              </Button>
-              <span className="text-[10px] text-muted-foreground self-center">Máx. 5 imagens</span>
-            </div>
             <Button
               onClick={handleSubmitFeedback}
               disabled={submitting || !comment.trim() || !authorName.trim()}

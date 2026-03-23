@@ -73,6 +73,46 @@ export default function ProjectPublic() {
   const [submitting, setSubmitting] = useState(false);
   const [actionDone, setActionDone] = useState<'approved' | 'changes' | null>(null);
   const [showChangesForm, setShowChangesForm] = useState(false);
+  const [commentImages, setCommentImages] = useState<File[]>([]);
+  const [changesImages, setChangesImages] = useState<File[]>([]);
+  const [commentPreviews, setCommentPreviews] = useState<string[]>([]);
+  const [changesPreviews, setChangesPreviews] = useState<string[]>([]);
+  const commentFileRef = useRef<HTMLInputElement>(null);
+  const changesFileRef = useRef<HTMLInputElement>(null);
+
+  const handleAddImages = (files: FileList | null, target: 'comment' | 'changes') => {
+    if (!files) return;
+    const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (newFiles.length === 0) { toast.error('Selecione apenas imagens'); return; }
+    const setImages = target === 'comment' ? setCommentImages : setChangesImages;
+    const setPreviews = target === 'comment' ? setCommentPreviews : setChangesPreviews;
+    const current = target === 'comment' ? commentImages : changesImages;
+    const combined = [...current, ...newFiles].slice(0, 5);
+    setImages(combined);
+    setPreviews(combined.map(f => URL.createObjectURL(f)));
+  };
+
+  const removeImage = (index: number, target: 'comment' | 'changes') => {
+    const setImages = target === 'comment' ? setCommentImages : setChangesImages;
+    const setPreviews = target === 'comment' ? setCommentPreviews : setChangesPreviews;
+    const current = target === 'comment' ? commentImages : changesImages;
+    const updated = current.filter((_, i) => i !== index);
+    setImages(updated);
+    setPreviews(updated.map(f => URL.createObjectURL(f)));
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const file of files) {
+      const ext = file.name.split('.').pop();
+      const path = `public-feedback/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('user-files').upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from('user-files').getPublicUrl(path);
+      urls.push(urlData.publicUrl);
+    }
+    return urls;
+  };
 
   const currentVersion = versions[0];
   const isApproved = project?.status === 'approved' || actionDone === 'approved';

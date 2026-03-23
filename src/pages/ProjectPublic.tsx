@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send } from 'lucide-react';
+import { Loader2, FileX, CheckCircle2, AlertTriangle, ExternalLink, MessageCircle, Send, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ function usePublicProject(token: string | undefined) {
         .from('projects')
         .select('*')
         .eq('share_token', token!)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -52,7 +52,7 @@ function usePublicFeedback(projectId: string | undefined) {
         .from('project_feedback')
         .select('*')
         .eq('project_id', projectId!)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
       if (error) throw error;
       return data || [];
     },
@@ -69,8 +69,10 @@ export default function ProjectPublic() {
 
   const [comment, setComment] = useState('');
   const [authorName, setAuthorName] = useState('');
+  const [changesReason, setChangesReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [actionDone, setActionDone] = useState<'approved' | 'changes' | null>(null);
+  const [showChangesForm, setShowChangesForm] = useState(false);
 
   const currentVersion = versions[0];
   const isApproved = project?.status === 'approved' || actionDone === 'approved';
@@ -79,38 +81,100 @@ export default function ProjectPublic() {
     if (!comment.trim() || !authorName.trim() || !project) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('project_feedback').insert({
+      const { error: fbError } = await supabase.from('project_feedback').insert({
         project_id: project.id,
         version_id: currentVersion?.id || null,
         author_name: authorName.trim(),
         author_type: 'client',
         comment: comment.trim(),
       });
-      if (error) throw error;
-      toast.success('✅ Feedback enviado com sucesso!');
+      if (fbError) throw fbError;
+      toast.success('✅ Comentário enviado!');
       setComment('');
       queryClient.invalidateQueries({ queryKey: ['public-feedback', project.id] });
     } catch {
-      toast.error('Erro ao enviar feedback');
+      toast.error('Erro ao enviar comentário');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleAction = async (action: 'approved' | 'changes') => {
+  const handleApprove = async () => {
     if (!project) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      // Update project status
+      const { error: projError } = await supabase
         .from('projects')
-        .update({ status: action } as any)
+        .update({ status: 'approved' } as any)
         .eq('id', project.id);
-      if (error) throw error;
-      setActionDone(action);
+      if (projError) throw projError;
+
+      // Update current version status
+      if (currentVersion) {
+        await supabase
+          .from('project_versions')
+          .update({ status: 'approved' } as any)
+          .eq('id', currentVersion.id);
+      }
+
+      // Add approval feedback
+      if (authorName.trim()) {
+        await supabase.from('project_feedback').insert({
+          project_id: project.id,
+          version_id: currentVersion?.id || null,
+          author_name: authorName.trim() || 'Cliente',
+          author_type: 'client',
+          comment: '✅ Projeto aprovado pelo cliente.',
+        });
+      }
+
+      setActionDone('approved');
       queryClient.invalidateQueries({ queryKey: ['public-project', token] });
-      toast.success(action === 'approved' ? '🎉 Projeto aprovado!' : '📝 Ajustes solicitados');
+      toast.success('🎉 Projeto aprovado com sucesso!');
     } catch {
-      toast.error('Erro ao realizar ação');
+      toast.error('Erro ao aprovar projeto');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRequestChanges = async () => {
+    if (!project || !changesReason.trim()) {
+      toast.error('Descreva os ajustes necessários');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      // Update project status
+      const { error: projError } = await supabase
+        .from('projects')
+        .update({ status: 'changes' } as any)
+        .eq('id', project.id);
+      if (projError) throw projError;
+
+      // Update current version status
+      if (currentVersion) {
+        await supabase
+          .from('project_versions')
+          .update({ status: 'changes' } as any)
+          .eq('id', currentVersion.id);
+      }
+
+      // Add changes feedback with reason
+      await supabase.from('project_feedback').insert({
+        project_id: project.id,
+        version_id: currentVersion?.id || null,
+        author_name: authorName.trim() || 'Cliente',
+        author_type: 'client',
+        comment: `⚠️ Ajustes solicitados: ${changesReason.trim()}`,
+      });
+
+      setActionDone('changes');
+      queryClient.invalidateQueries({ queryKey: ['public-project', token] });
+      toast.success('📝 Ajustes solicitados!');
+    } catch {
+      toast.error('Erro ao solicitar ajustes');
     } finally {
       setSubmitting(false);
     }
@@ -118,30 +182,29 @@ export default function ProjectPublic() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (error || !project) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4">
-        <FileX className="w-16 h-16 text-gray-300 mb-4" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Projeto não encontrado</h1>
-        <p className="text-gray-500">Este link pode ter expirado ou o projeto não está mais disponível.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-center px-4">
+        <FileX className="w-16 h-16 text-muted-foreground/30 mb-4" />
+        <h1 className="text-2xl font-bold text-foreground mb-2">Projeto não encontrado</h1>
+        <p className="text-muted-foreground">Este link pode ter expirado ou o projeto não está mais disponível.</p>
       </div>
     );
   }
 
-  // Success state after approval
   if (isApproved) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-center px-4">
+        <div className="bg-card rounded-2xl shadow-xl p-10 max-w-md w-full border">
           <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">🎉 Projeto aprovado!</h1>
-          <p className="text-gray-500 text-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-2">🎉 Projeto aprovado!</h1>
+          <p className="text-muted-foreground text-sm">
             Agora o responsável pode finalizar e enviar para produção.
           </p>
         </div>
@@ -151,11 +214,11 @@ export default function ProjectPublic() {
 
   if (actionDone === 'changes') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-center px-4">
+        <div className="bg-card rounded-2xl shadow-xl p-10 max-w-md w-full border">
           <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">📝 Ajustes solicitados</h1>
-          <p className="text-gray-500 text-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-2">📝 Ajustes solicitados</h1>
+          <p className="text-muted-foreground text-sm">
             Seu feedback foi enviado. Uma nova versão será preparada em breve.
           </p>
         </div>
@@ -164,25 +227,78 @@ export default function ProjectPublic() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4">
+    <div className="min-h-screen bg-background py-6 px-4">
       <div className="max-w-[700px] mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 border">
-          <h1 className="text-xl font-bold text-gray-800 mb-1">{project.name}</h1>
+        <div className="bg-card rounded-2xl shadow-sm p-6 border">
+          <h1 className="text-xl font-bold text-foreground mb-1">{project.name}</h1>
           {project.description && (
-            <p className="text-sm text-gray-500 mb-3">{project.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
           )}
-          {currentVersion?.preview_url && (
-            <a href={currentVersion.preview_url} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition">
-              <ExternalLink className="w-4 h-4" /> Ver preview
-            </a>
+          
+          {/* Current version info */}
+          {currentVersion && (
+            <div className="flex items-center gap-3 flex-wrap">
+              {currentVersion.preview_url && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    let url = currentVersion.preview_url!;
+                    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition"
+                >
+                  <ExternalLink className="w-4 h-4" /> Ver preview
+                </button>
+              )}
+              <Badge variant="outline" className="text-xs gap-1">
+                <Layers className="w-3 h-3" />
+                Versão {currentVersion.version_number}
+              </Badge>
+            </div>
           )}
         </div>
 
+        {/* All versions */}
+        {versions.length > 1 && (
+          <div className="bg-card rounded-2xl shadow-sm p-6 border">
+            <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Layers className="w-4 h-4" />
+              Versões anteriores
+            </h2>
+            <div className="space-y-2">
+              {versions.slice(1).map(v => (
+                <div key={v.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">V{v.version_number}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(v.created_at), "dd MMM", { locale: ptBR })}
+                    </span>
+                    {v.notes && <span className="text-xs text-muted-foreground">— {v.notes}</span>}
+                  </div>
+                  {v.preview_url && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        let url = v.preview_url!;
+                        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Preview
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Feedback section */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 border">
-          <h2 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-2xl shadow-sm p-6 border">
+          <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
             Comentários
           </h2>
@@ -190,14 +306,17 @@ export default function ProjectPublic() {
           {feedback.length > 0 && (
             <div className="space-y-3 mb-6">
               {feedback.map(f => (
-                <div key={f.id} className="p-3 rounded-lg bg-gray-50 border text-sm">
+                <div key={f.id} className="p-3 rounded-lg bg-muted/30 border text-sm">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-gray-700">{f.author_name}</span>
-                    <span className="text-[10px] text-gray-400">
+                    <span className="font-medium text-foreground">{f.author_name}</span>
+                    <span className="text-[10px] text-muted-foreground">
                       {format(new Date(f.created_at), "dd MMM HH:mm", { locale: ptBR })}
                     </span>
+                    {f.author_type === 'client' && (
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Cliente</Badge>
+                    )}
                   </div>
-                  <p className="text-gray-600 text-xs">"{f.comment}"</p>
+                  <p className="text-muted-foreground text-xs">{f.comment}</p>
                 </div>
               ))}
             </div>
@@ -209,14 +328,16 @@ export default function ProjectPublic() {
               placeholder="Seu nome"
               value={authorName}
               onChange={(e) => setAuthorName(e.target.value)}
-              className="bg-gray-50"
+              className="bg-muted/30"
+              maxLength={100}
             />
             <Textarea
               placeholder="Adicionar comentário..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
-              className="bg-gray-50"
+              className="bg-muted/30"
+              maxLength={1000}
             />
             <Button
               onClick={handleSubmitFeedback}
@@ -230,29 +351,67 @@ export default function ProjectPublic() {
         </div>
 
         {/* Approval actions */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 border">
-          <h2 className="text-sm font-semibold text-gray-800 mb-4">O que deseja fazer?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Button
-              size="lg"
-              onClick={() => handleAction('approved')}
-              disabled={submitting}
-              className="h-14 text-base gap-2 bg-emerald-600 hover:bg-emerald-700"
-            >
-              <CheckCircle2 className="w-5 h-5" />
-              Aprovar projeto
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => handleAction('changes')}
-              disabled={submitting}
-              className="h-14 text-base gap-2 border-red-200 text-red-600 hover:bg-red-50"
-            >
-              <AlertTriangle className="w-5 h-5" />
-              Pedir ajustes
-            </Button>
-          </div>
+        <div className="bg-card rounded-2xl shadow-sm p-6 border">
+          <h2 className="text-sm font-semibold text-foreground mb-4">O que deseja fazer?</h2>
+          
+          {!showChangesForm ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                size="lg"
+                onClick={handleApprove}
+                disabled={submitting}
+                className="h-14 text-base gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+                Aprovar projeto
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setShowChangesForm(true)}
+                disabled={submitting}
+                className="h-14 text-base gap-2 border-destructive/30 text-destructive hover:bg-destructive/5"
+              >
+                <AlertTriangle className="w-5 h-5" />
+                Pedir ajustes
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Descreva os ajustes necessários:</p>
+              {!authorName.trim() && (
+                <Input
+                  placeholder="Seu nome"
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  className="bg-muted/30"
+                  maxLength={100}
+                />
+              )}
+              <Textarea
+                placeholder="Ex: Mudar a cor do botão, ajustar o texto do banner..."
+                value={changesReason}
+                onChange={(e) => setChangesReason(e.target.value)}
+                rows={4}
+                className="bg-muted/30"
+                maxLength={1000}
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleRequestChanges}
+                  disabled={submitting || !changesReason.trim()}
+                  className="flex-1 gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                >
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertTriangle className="w-4 h-4" />}
+                  Enviar ajustes
+                </Button>
+                <Button variant="outline" onClick={() => { setShowChangesForm(false); setChangesReason(''); }}>
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

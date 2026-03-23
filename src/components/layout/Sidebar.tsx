@@ -123,11 +123,13 @@ export function Sidebar({
   onAddAccount,
   onEditAccount,
 }: SidebarProps) {
-  const [accountsOpen, setAccountsOpen] = useState(true);
+  const [accountsOpen, setAccountsOpen] = useState(false);
   const [accountPage, setAccountPage] = useState(0);
   const ACCOUNTS_PER_PAGE = 3;
   const [spacesOpen, setSpacesOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(false);
+  const [managementOpen, setManagementOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);

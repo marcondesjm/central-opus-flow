@@ -37,7 +37,7 @@ export function TestimonialsSection() {
         >
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">Depoimentos</p>
           <h2 className="text-3xl md:text-[2.75rem] font-extrabold tracking-[-0.03em]">
-            Designers já estão simplificando seus projetos
+            Profissionais já estão simplificando suas entregas
           </h2>
         </motion.div>
 

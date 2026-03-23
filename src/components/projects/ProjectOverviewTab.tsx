@@ -39,8 +39,8 @@ export function ProjectOverviewTab({ project, onSendVersion }: ProjectOverviewTa
   const config = statusLabels[project.status] || statusLabels.draft;
   const StatusIcon = config.icon;
 
-  const shareUrl = (project as any).share_token 
-    ? `${window.location.origin}/p/${(project as any).share_token}` 
+  const shareUrl = project.share_token 
+    ? `${window.location.origin}/p/${project.share_token}` 
     : null;
 
   const copyShareLink = () => {

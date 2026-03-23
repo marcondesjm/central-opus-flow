@@ -351,37 +351,42 @@ export function useUpdateProject() {
 
       // Log history if we have previous data to compare
       if (previousData && user) {
-        // Get user profile for name
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, avatar_url')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, avatar_url')
+            .eq('user_id', user.id)
+            .maybeSingle();
 
-        const fieldsToTrack = ['name', 'status', 'type', 'url', 'description', 'notes', 'deadline', 'progress'] as const;
-        const historyEntries = [];
+          const fieldsToTrack = ['name', 'status', 'type', 'url', 'description', 'notes', 'deadline', 'progress'] as const;
+          const historyEntries = [];
 
-        for (const field of fieldsToTrack) {
-          const oldVal = previousData[field as keyof Project];
-          const newVal = updates[field as keyof Project];
-          
-          if (newVal !== undefined && oldVal !== newVal) {
-            historyEntries.push({
-              project_id: id,
-              user_id: user.id,
-              action: 'updated',
-              field_name: field,
-              old_value: oldVal?.toString() || null,
-              new_value: newVal?.toString() || null,
-              user_name: profile?.full_name || user.email || 'Usuário',
-              user_avatar: profile?.avatar_url || null,
-            });
+          for (const field of fieldsToTrack) {
+            const oldVal = previousData[field as keyof Project];
+            const newVal = updates[field as keyof Project];
+            
+            if (newVal !== undefined && oldVal !== newVal) {
+              historyEntries.push({
+                project_id: id,
+                user_id: user.id,
+                action: 'updated',
+                field_name: field,
+                old_value: oldVal?.toString() || null,
+                new_value: newVal?.toString() || null,
+                user_name: profile?.full_name || user.email || 'Usuário',
+                user_avatar: profile?.avatar_url || null,
+              });
+            }
           }
-        }
 
-        // Insert all history entries
-        if (historyEntries.length > 0) {
-          await supabase.from('project_history').insert(historyEntries);
+          if (historyEntries.length > 0) {
+            const { error: historyError } = await supabase.from('project_history').insert(historyEntries);
+            if (historyError) {
+              console.error('Erro ao salvar histórico do projeto:', historyError);
+            }
+          }
+        } catch (historyError) {
+          console.error('Erro ao processar histórico do projeto:', historyError);
         }
       }
       

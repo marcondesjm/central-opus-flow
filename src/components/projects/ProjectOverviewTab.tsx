@@ -10,7 +10,14 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 interface ProjectOverviewTabProps {
-  project: Project;
+  project: {
+    id: string;
+    status: string;
+    description?: string | null;
+    notes?: string | null;
+    share_token?: string | null;
+    max_revisions?: number;
+  };
   onSendVersion: () => void;
 }
 

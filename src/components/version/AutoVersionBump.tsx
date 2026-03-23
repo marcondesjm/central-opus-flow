@@ -15,6 +15,20 @@ export function AutoVersionBump() {
 
   useEffect(() => {
     if (!user || hasRun.current) return;
+
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const isPreviewOrLocalEnvironment =
+        hostname.startsWith('id-preview--') ||
+        hostname.includes('lovableproject.com') ||
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1';
+
+      if (isPreviewOrLocalEnvironment) {
+        return;
+      }
+    }
+
     hasRun.current = true;
 
     const currentBuild = __BUILD_TIMESTAMP__;
@@ -41,12 +55,18 @@ export function AutoVersionBump() {
         }
 
         // Save build timestamp immediately (dedup across users)
-        await supabase
+        const nowIso = new Date().toISOString();
+        const { error: buildTimestampError } = await supabase
           .from('system_config')
           .upsert(
-            { key: 'last_build_timestamp', value: currentBuild, updated_at: new Date().toISOString() },
+            { key: 'last_build_timestamp', value: currentBuild, updated_at: nowIso },
             { onConflict: 'key' }
           );
+
+        if (buildTimestampError) {
+          console.error('[AutoVersionBump] Erro ao salvar build timestamp:', buildTimestampError.message);
+          return;
+        }
 
         // Check if enough time passed since last bump
         if (lastBumpAt) {
@@ -71,12 +91,16 @@ export function AutoVersionBump() {
         }
 
         // Save bump timestamp
-        await supabase
+        const { error: bumpTimestampError } = await supabase
           .from('system_config')
           .upsert(
-            { key: 'last_bump_at', value: new Date().toISOString(), updated_at: new Date().toISOString() },
+            { key: 'last_bump_at', value: nowIso, updated_at: nowIso },
             { onConflict: 'key' }
           );
+
+        if (bumpTimestampError) {
+          console.error('[AutoVersionBump] Erro ao salvar last_bump_at:', bumpTimestampError.message);
+        }
 
         console.log('[AutoVersionBump] Versão incrementada (pacote):', data);
       } catch (err) {

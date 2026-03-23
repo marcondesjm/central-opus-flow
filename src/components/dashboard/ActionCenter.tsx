@@ -23,7 +23,7 @@ interface ActionCenterProps {
   onViewApprovals: () => void;
 }
 
-export function ActionCenter({ projects, onOpenProject, onNewProject }: ActionCenterProps) {
+export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVersion, onViewApprovals }: ActionCenterProps) {
   const now = new Date();
 
   const overdueProjects = projects.filter(

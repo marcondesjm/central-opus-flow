@@ -128,7 +128,7 @@ export default function ProjectPublic() {
   };
 
   const currentVersion = versions[0];
-  const isApproved = project?.status === 'approved' || actionDone === 'approved';
+  const isApproved = project?.status === 'published' || actionDone === 'approved';
 
   const handleSubmitFeedback = async () => {
     if (!comment.trim() || !authorName.trim() || !project) return;
@@ -158,7 +158,7 @@ export default function ProjectPublic() {
     try {
       const { error: projError } = await publicSupabase
         .from('projects')
-        .update({ status: 'approved' } as never)
+        .update({ status: 'published' } as never)
         .eq('id', project.id);
       if (projError) throw projError;
 
@@ -199,14 +199,14 @@ export default function ProjectPublic() {
     try {
       const { error: projError } = await publicSupabase
         .from('projects')
-        .update({ status: 'changes' } as never)
+        .update({ status: 'draft' } as never)
         .eq('id', project.id);
       if (projError) throw projError;
 
       if (currentVersion) {
         const { error: versionError } = await publicSupabase
           .from('project_versions')
-          .update({ status: 'changes' } as never)
+          .update({ status: 'changes_requested' } as never)
           .eq('id', currentVersion.id);
         if (versionError) throw versionError;
       }

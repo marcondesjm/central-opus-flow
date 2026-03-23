@@ -128,7 +128,7 @@ export default function ProjectPublic() {
   };
 
   const currentVersion = versions[0];
-  const isApproved = project?.status === 'published' || actionDone === 'approved';
+  const isApproved = project?.status === 'approved' || project?.status === 'published' || actionDone === 'approved';
 
   const handleSubmitFeedback = async () => {
     if (!comment.trim() || !authorName.trim() || !project) return;

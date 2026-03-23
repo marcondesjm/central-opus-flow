@@ -507,11 +507,15 @@ export default function Dashboard() {
   const handleSelectAccount = useCallback((accountId: string) => {
     setSelectedAccount(accountId);
     setActiveView('all');
+    setStatsFilter('all');
+    setActionStatsFilter(null);
   }, []);
 
   const handleSelectTag = useCallback((tagName: string) => {
     setTagFilter(tagName);
     setActiveView('all');
+    setStatsFilter('all');
+    setActionStatsFilter(null);
   }, []);
 
   // Handle accepting invite from notification

@@ -1195,7 +1195,7 @@ export default function Dashboard() {
           hasConnectedAccount={onboarding.has_connected_account || accounts.length > 0}
           hasCreatedProject={onboarding.has_created_project || projects.length > 0}
           onConnectAccount={() => setAddAccountOpen(true)}
-          onCreateProject={() => setAddProjectOpen(true)}
+          onCreateProject={handleNewProject}
           onDismiss={completeOnboarding}
         />
       )}

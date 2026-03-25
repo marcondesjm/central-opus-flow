@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Check, ArrowRight, Crown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Check, ArrowRight, Crown, CheckCircle2, X, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -15,43 +17,9 @@ export function PricingSection() {
   const annual = pricing?.annual_price ?? 73.9;
   const discount = Math.round((1 - annual / (monthly * 12)) * 100);
 
-  const plans = [
-    {
-      name: 'Teste Grátis',
-      price: 'R$0',
-      period: '/7 dias',
-      subtitle: 'Experimente tudo por 7 dias',
-      features: [
-        'Acesso completo ao Pro por 7 dias',
-        'Projetos ilimitados (7 dias)',
-        'Sem cartão de crédito',
-      ],
-      cta: 'Começar grátis',
-      href: '/auth',
-      highlight: false,
-    },
-    {
-      name: 'Pro',
-      price: formatBRL(monthly),
-      period: '/mês',
-      annualPrice: formatBRL(annual),
-      annualDiscount: `${discount}%`,
-      subtitle: 'Tudo para entregar mais rápido',
-      features: [
-        'Projetos ilimitados',
-        'Controle de revisões',
-        'Histórico de versões',
-        'Fluxo profissional de aprovação',
-        'Suporte prioritário',
-      ],
-      cta: 'Fazer upgrade',
-      href: '/pricing',
-      highlight: true,
-    },
-  ];
   return (
     <section id="pricing" className="py-20 md:py-28 px-4 relative">
-      <div className="container mx-auto max-w-3xl">
+      <div className="container mx-auto max-w-4xl">
         <motion.div
           className="text-center mb-14"
           initial={{ opacity: 0, y: 20 }}
@@ -59,95 +27,171 @@ export function PricingSection() {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-card/50 text-[11px] font-medium text-muted-foreground mb-5">
-            Preços
-          </div>
-          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mb-3">
-            Simples e{' '}
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>justo</span>
+          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            Pare de perder tempo com{' '}
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
+              feedback desorganizado
+            </span>
           </h2>
-          <p className="text-sm text-muted-foreground">Um único projeto já paga a ferramenta</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Entregue projetos mais rápido com aprovações profissionais.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {plans.map((plan, i) => (
-            <motion.div
-              key={plan.name}
-              className={cn(
-                'relative rounded-2xl border p-7 flex flex-col transition-all duration-300 hover:-translate-y-1',
-                plan.highlight
-                  ? 'border-primary/40 bg-card shadow-lg shadow-primary/5'
-                  : 'border-border/50 bg-card/60 hover:border-border'
-              )}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-            >
-              {plan.highlight && (
-                <>
-                  <div className="absolute -top-px left-4 right-4 h-[2px] rounded-b-full" style={{ background: 'var(--gradient-primary)' }} />
-                  <div className="absolute top-4 right-4">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-primary/10 text-primary">
-                      <Crown className="w-3 h-3" />
-                      Recomendado
-                    </span>
-                  </div>
-                </>
-              )}
-
-              <div className="flex-1">
-                <h3 className="text-base font-semibold mb-0.5">{plan.name}</h3>
-                <p className="text-xs text-muted-foreground mb-5">{plan.subtitle}</p>
-
-                <div className="mb-2">
-                  <span className={cn(
-                    'text-4xl font-bold',
-                    plan.highlight && 'bg-clip-text text-transparent'
-                  )} style={plan.highlight ? { backgroundImage: 'var(--gradient-primary)' } : undefined}>
-                    {plan.price}
-                  </span>
-                  <span className="text-sm text-muted-foreground ml-0.5">{plan.period}</span>
-                </div>
-                {plan.annualPrice && (
-                  <div className="flex items-center gap-1.5 mb-5">
-                    <span className="text-xs text-muted-foreground">
-                      ou <strong className="text-foreground">{plan.annualPrice}</strong>/ano
-                    </span>
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
-                      {plan.annualDiscount} off
-                    </span>
-                  </div>
-                )}
-                {!plan.annualPrice && <div className="mb-5" />}
-
-                <ul className="space-y-3 mb-7">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-foreground/80">
-                      <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      <span className="text-[13px]">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link to={plan.href}>
-                  <Button
-                    className={cn(
-                      'w-full rounded-xl h-11 text-sm font-medium transition-all duration-300',
-                      plan.highlight
-                        ? 'bg-foreground text-background hover:bg-foreground/90'
-                        : ''
-                    )}
-                    variant={plan.highlight ? 'default' : 'outline'}
-                  >
-                    {plan.cta}
-                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                  </Button>
-                </Link>
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+          {/* FREE Plan */}
+          <motion.div
+            className="relative bg-card border border-border rounded-3xl p-8 overflow-hidden shadow-lg"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-muted/30 via-transparent to-transparent" />
+            <div className="relative">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold mb-1">Teste Grátis</h3>
+                <p className="text-muted-foreground text-sm">Experimente tudo por 7 dias</p>
               </div>
-            </motion.div>
-          ))}
+
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl md:text-5xl font-bold">R$0</span>
+                <span className="text-muted-foreground">/7 dias</span>
+              </div>
+
+              <p className="text-xs text-emerald-600 font-medium mb-6">
+                ✨ Acesso completo ao Pro por 7 dias
+              </p>
+
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Projetos ilimitados (7 dias)',
+                  'Comentários ilimitados',
+                  'Aprovações básicas',
+                  'Controle de revisões',
+                  'Relatórios e estatísticas',
+                  'Sem cartão de crédito',
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    </div>
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link to="/auth">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-12 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Começar grátis
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+
+              <p className="text-center text-[11px] text-muted-foreground mt-3">
+                Após 7 dias, continue com o plano gratuito limitado ou faça upgrade
+              </p>
+            </div>
+          </motion.div>
+
+          {/* PRO Plan */}
+          <motion.div
+            className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 overflow-hidden shadow-xl"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+            style={{ boxShadow: 'var(--shadow-glow)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+
+            <div className="absolute top-6 right-6">
+              <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground border-0 shadow-lg">
+                <Crown className="w-3 h-3 mr-1" />
+                Recomendado
+              </Badge>
+            </div>
+
+            <div className="relative">
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Crown className="w-5 h-5 text-primary" />
+                  <h3 className="text-xl font-bold">Pro</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">Tudo para entregar projetos mais rápido</p>
+              </div>
+
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
+                  {formatBRL(monthly)}
+                </span>
+                <span className="text-muted-foreground">/mês</span>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm text-muted-foreground">
+                  ou <strong className="text-foreground">{formatBRL(annual)}</strong>/ano
+                </span>
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] px-1.5 py-0">
+                  {discount}% off
+                </Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-6">
+                7 dias grátis • Cancele quando quiser
+              </p>
+
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Projetos ilimitados',
+                  'Comentários ilimitados',
+                  'Controle de revisões',
+                  'Histórico de versões',
+                  'Fluxo profissional de aprovação',
+                  'Link de aprovação para clientes',
+                  'Relatórios e estatísticas',
+                  'Suporte prioritário',
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link to="/pricing">
+                <Button
+                  size="lg"
+                  className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Upgrade
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
+
+        <motion.div
+          className="text-center mt-10"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="inline-flex items-center gap-2 bg-card border border-border rounded-full px-6 py-3 shadow-sm">
+            <Shield className="w-5 h-5 text-primary" />
+            <span className="text-sm">
+              Garantia de 7 dias após o pagamento. Não gostou? Devolvemos seu dinheiro.
+            </span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1067,6 +1067,38 @@ export type Database = {
           },
         ]
       }
+      kanban_space_shares: {
+        Row: {
+          created_at: string
+          id: string
+          shared_by: string
+          shared_with: string
+          space_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          shared_by: string
+          shared_with: string
+          space_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          shared_by?: string
+          shared_with?: string
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_space_shares_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kanban_spaces: {
         Row: {
           color: string
@@ -1074,6 +1106,7 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
+          is_shared: boolean
           name: string
           position: number
           updated_at: string
@@ -1085,6 +1118,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_shared?: boolean
           name: string
           position?: number
           updated_at?: string
@@ -1096,6 +1130,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_shared?: boolean
           name?: string
           position?: number
           updated_at?: string

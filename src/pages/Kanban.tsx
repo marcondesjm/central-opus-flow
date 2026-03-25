@@ -8,7 +8,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, GripHorizontal, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  Users, X, AlertTriangle, ChevronLeft, ChevronRight, Palette,
+  Users, X, AlertTriangle, ChevronLeft, ChevronRight, Palette, Lock, Unlock, Share2,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,7 @@ import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import { CalendarView } from '@/components/kanban/CalendarView';
 import { TimelineView } from '@/components/kanban/TimelineView';
 import TaskDetailFullModal from '@/components/kanban/TaskDetailFullModal';
+import { ShareSpaceModal } from '@/components/kanban/ShareSpaceModal';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
 function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -1217,7 +1218,7 @@ export default function KanbanPage() {
 
     checkScheduled();
   }, [user, autoDispatchEnabled, toast]);
-
+  const [sharingSpaceId, setSharingSpaceId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showScheduledList) return;
@@ -1684,6 +1685,11 @@ export default function KanbanPage() {
                   >
                     <span className="w-5 h-5 rounded flex-shrink-0" style={{ backgroundColor: space.color }} />
                     <span className="truncate flex-1">{space.name}</span>
+                    {space.is_shared ? (
+                      <Unlock className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                    ) : (
+                      <Lock className="w-3 h-3 text-muted-foreground/40 flex-shrink-0" />
+                    )}
                   </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -1725,6 +1731,12 @@ export default function KanbanPage() {
                           </div>
                         </div>
                       )}
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        setSharingSpaceId(space.id);
+                      }}>
+                        <Share2 className="w-4 h-4 mr-2" /> Compartilhar
+                      </DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => {
                         e.preventDefault();
                         setDeletingSpaceId(space.id);
@@ -2604,6 +2616,13 @@ export default function KanbanPage() {
           )}
         </DialogContent>
       </Dialog>
+      {sharingSpaceId && spaces && (
+        <ShareSpaceModal
+          open={!!sharingSpaceId}
+          onOpenChange={(v) => { if (!v) setSharingSpaceId(null); }}
+          space={spaces.find(s => s.id === sharingSpaceId)!}
+        />
+      )}
       </div>
       </div>
     </AppLayout>

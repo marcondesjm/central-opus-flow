@@ -315,25 +315,72 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
               <LayoutGrid className="w-3.5 h-3.5" />
               Vincular ao Kanban
             </Label>
-            <Select value={selectedSpaceId} onValueChange={(v) => setSelectedSpaceId(v === 'none' ? '' : v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um espaço (opcional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Nenhum</SelectItem>
-                {spaces.map((space) => (
-                  <SelectItem key={space.id} value={space.id}>
-                    <span className="flex items-center gap-2">
-                      <span
-                        className="w-3 h-3 rounded-sm shrink-0"
-                        style={{ backgroundColor: space.color }}
-                      />
-                      {space.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {spaces.length > 0 ? (
+              <Select value={selectedSpaceId} onValueChange={(v) => setSelectedSpaceId(v === 'none' ? '' : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um espaço (opcional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {spaces.map((space) => (
+                    <SelectItem key={space.id} value={space.id}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="w-3 h-3 rounded-sm shrink-0"
+                          style={{ backgroundColor: space.color }}
+                        />
+                        {space.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : isCreatingSpace ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Nome do espaço"
+                  value={newSpaceName}
+                  onChange={(e) => setNewSpaceName(e.target.value)}
+                  className="flex-1"
+                  autoFocus
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!newSpaceName.trim() || createSpace.isPending}
+                  onClick={async () => {
+                    try {
+                      const space = await createSpace.mutateAsync({
+                        name: newSpaceName.trim(),
+                        color: '#3b82f6',
+                        position: 0,
+                      });
+                      setSelectedSpaceId(space.id);
+                      setNewSpaceName('');
+                      setIsCreatingSpace(false);
+                      toast({ title: 'Espaço criado!', description: `"${space.name}" foi criado com sucesso.` });
+                    } catch {
+                      toast({ title: 'Erro ao criar espaço', variant: 'destructive' });
+                    }
+                  }}
+                >
+                  {createSpace.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Criar'}
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => { setIsCreatingSpace(false); setNewSpaceName(''); }}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-start gap-2 text-muted-foreground"
+                onClick={() => setIsCreatingSpace(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Criar primeiro espaço Kanban
+              </Button>
+            )}
             <p className="text-xs text-muted-foreground">
               Cria automaticamente uma tarefa no espaço selecionado.
             </p>

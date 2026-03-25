@@ -37,7 +37,6 @@ import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
 import { ActionCenter } from '@/components/dashboard/ActionCenter';
 import { UnifiedStatsCarousel } from '@/components/dashboard/UnifiedStatsCarousel';
-import { isOverdueProject, isApprovedStatus } from '@/lib/project-status';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';

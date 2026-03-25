@@ -35,12 +35,11 @@ export function HeroSection() {
           <br className="hidden sm:block" />
           de clientes no{' '}
           <span className="relative">
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
+            <span className="text-[#25D366] font-extrabold">
               WhatsApp
             </span>
             <motion.span
-              className="absolute -bottom-1 left-0 right-0 h-[3px] rounded-full origin-left"
-              style={{ background: 'var(--gradient-primary)' }}
+              className="absolute -bottom-1 left-0 right-0 h-[3px] rounded-full origin-left bg-[#25D366]"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 0.6, delay: 0.5 }}

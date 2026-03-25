@@ -78,30 +78,32 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <div className="px-5 pt-2 border-b">
-            <TabsList className="bg-transparent h-auto p-0 gap-0 w-full justify-start">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2 text-xs gap-1.5">
+          <div className="px-5 pt-3 pb-1">
+            <TabsList className="bg-muted/50 h-10 p-1 gap-1 w-full rounded-xl">
+              <TabsTrigger value="overview" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
                 <Eye className="w-3.5 h-3.5" />
                 Visão Geral
               </TabsTrigger>
-              <TabsTrigger value="versions" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2 text-xs gap-1.5">
+              <TabsTrigger value="versions" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
                 <Layers className="w-3.5 h-3.5" />
                 Versões
               </TabsTrigger>
-              <TabsTrigger value="feedback" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2 text-xs gap-1.5">
+              <TabsTrigger value="feedback" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
                 <MessageCircle className="w-3.5 h-3.5" />
                 Feedback
               </TabsTrigger>
-              <TabsTrigger value="activity" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2 text-xs gap-1.5">
+              <TabsTrigger value="activity" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
                 <History className="w-3.5 h-3.5" />
                 Atividade
               </TabsTrigger>
-              <TabsTrigger value="keys" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2 text-xs gap-1.5">
+              <TabsTrigger value="keys" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
                 <Key className="w-3.5 h-3.5" />
-                API Keys
+                Keys
               </TabsTrigger>
             </TabsList>
           </div>
+
+          <div className="border-b mx-5" />
 
           <div className="overflow-y-auto max-h-[calc(92vh-140px)] px-5 pb-5">
             <TabsContent value="overview" className="mt-0">

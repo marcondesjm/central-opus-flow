@@ -202,19 +202,19 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <RefreshCw className={cn("h-3.5 w-3.5", (isRefreshing || isFetching) && "animate-spin")} />
               {isRefreshing || isFetching ? 'Atualizando...' : 'Atualizar'}
             </Button>
-            {hasUpdate && downloadPhase === 'idle' && (
+            {downloadPhase === 'idle' && (
               <Button
                 size="sm"
                 onClick={handleStartDownload}
                 className="gap-2 h-8 px-3 text-xs"
               >
                 <Download className="h-3.5 w-3.5" />
-                Baixar v{targetVersion}
+                {hasUpdate ? `Baixar v${targetVersion}` : `Reinstalar v${targetVersion}`}
               </Button>
             )}
           </div>
           {/* Download progress bar */}
-          {hasUpdate && downloadPhase === 'downloading' && (
+          {downloadPhase === 'downloading' && (
             <div className="mt-3 space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground flex items-center gap-1.5">
@@ -229,8 +229,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <p className="text-[10px] text-muted-foreground text-right">{downloadProgress}%</p>
             </div>
           )}
-          {/* Ready to install */}
-          {hasUpdate && downloadPhase === 'ready' && (
+          {downloadPhase === 'ready' && (
             <div className="mt-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />

@@ -1295,7 +1295,7 @@ export default function KanbanPage() {
   const visibleColumns = useMemo(() => {
     if (!columns) return [];
     if (!activeSpaceId) return columns;
-    return columns.filter(c => (c as any).space_id === activeSpaceId || (c as any).space_id === null);
+    return columns.filter(c => c.space_id === activeSpaceId);
   }, [columns, activeSpaceId]);
 
   // Optimistic local state for drag-and-drop

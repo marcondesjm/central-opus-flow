@@ -202,14 +202,14 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <RefreshCw className={cn("h-3.5 w-3.5", (isRefreshing || isFetching) && "animate-spin")} />
               {isRefreshing || isFetching ? 'Atualizando...' : 'Atualizar'}
             </Button>
-            {hasUpdate && downloadPhase === 'idle' && (
+            {downloadPhase === 'idle' && (
               <Button
                 size="sm"
                 onClick={handleStartDownload}
                 className="gap-2 h-8 px-3 text-xs"
               >
                 <Download className="h-3.5 w-3.5" />
-                Baixar v{targetVersion}
+                {hasUpdate ? `Baixar v${targetVersion}` : `Reinstalar v${targetVersion}`}
               </Button>
             )}
           </div>

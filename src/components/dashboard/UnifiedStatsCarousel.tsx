@@ -171,8 +171,22 @@ export function UnifiedStatsCarousel({
   ];
 
   const totalSlides = 2;
-  const next = useCallback(() => setActiveSlide(p => (p + 1) % totalSlides), []);
-  const prev = useCallback(() => setActiveSlide(p => (p - 1 + totalSlides) % totalSlides), []);
+  const autoRef = useRef<ReturnType<typeof setInterval>>();
+
+  const startAutoRotate = useCallback(() => {
+    clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      setActiveSlide(p => (p + 1) % totalSlides);
+    }, 7000);
+  }, []);
+
+  useEffect(() => {
+    startAutoRotate();
+    return () => clearInterval(autoRef.current);
+  }, [startAutoRotate]);
+
+  const next = useCallback(() => { setActiveSlide(p => (p + 1) % totalSlides); startAutoRotate(); }, [startAutoRotate]);
+  const prev = useCallback(() => { setActiveSlide(p => (p - 1 + totalSlides) % totalSlides); startAutoRotate(); }, [startAutoRotate]);
 
   const slideTitles = [
     { icon: BarChart3, title: 'Visão Geral de Projetos' },

@@ -1,0 +1,297 @@
+import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useRoles';
+
+/**
+ * Global component that auto-seeds example data (accounts, projects, ideas, kanban)
+ * for new users who have zero projects. Runs once per session regardless of which
+ * page the user visits first.
+ */
+export function AutoSeedNewUser() {
+  const { user } = useAuth();
+  const isAdminRole = useIsAdmin();
+  const queryClient = useQueryClient();
+  const seedTriggeredRef = useRef(false);
+
+  const isDemoAccount = user?.email === 'usercentral@gmail.com';
+  const isAdminUser = isAdminRole || user?.email === 'marcondesgestaotrafego@gmail.com';
+
+  useEffect(() => {
+    if (!user?.id || isDemoAccount || isAdminUser) return;
+    if (seedTriggeredRef.current) return;
+
+    const seedKey = `example_data_seeding_${user.id}`;
+    if (sessionStorage.getItem(seedKey) === 'done') return;
+    if (sessionStorage.getItem(seedKey) === 'running') return;
+
+    let cancelled = false;
+
+    const seedExampleData = async () => {
+      try {
+        // Check server-side: verify no projects exist for this user
+        const { count: projectCount } = await supabase
+          .from('projects')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if ((projectCount ?? 0) > 0 || cancelled) {
+          sessionStorage.setItem(seedKey, 'done');
+          return;
+        }
+
+        sessionStorage.setItem(seedKey, 'running');
+        seedTriggeredRef.current = true;
+
+        // Check if accounts already exist, if not create them
+        let accountIds: string[];
+        const { data: existingAccounts } = await supabase
+          .from('lovable_accounts')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(3);
+
+        if (existingAccounts && existingAccounts.length > 0) {
+          accountIds = existingAccounts.map(a => a.id);
+          while (accountIds.length < 3) accountIds.push(accountIds[0]);
+        } else {
+          const accountsData = [
+            { name: 'Minha Empresa', email: user.email || 'contato@empresa.com', color: 'blue', credits: 50 },
+            { name: 'Cliente Premium', email: 'premium@cliente.com', color: 'green', credits: 30 },
+            { name: 'Agência Digital', email: 'contato@agencia.com', color: 'purple', credits: 80 },
+          ];
+
+          const { data: createdAccounts, error: accError } = await supabase
+            .from('lovable_accounts')
+            .insert(accountsData.map(a => ({ ...a, user_id: user.id })))
+            .select();
+
+          if (accError || !createdAccounts?.length || cancelled) {
+            sessionStorage.removeItem(seedKey);
+            return;
+          }
+          accountIds = createdAccounts.map(a => a.id);
+        }
+
+        if (cancelled) return;
+
+        // Create 3 example projects
+        const projectsData = [
+          {
+            name: 'Meu Primeiro Projeto',
+            description: 'Projeto de exemplo para você conhecer a plataforma. Edite ou exclua quando quiser!',
+            status: 'draft',
+            type: 'landing',
+            progress: 25,
+            account_id: accountIds[0],
+            url: 'https://exemplo.com',
+            screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+            view_count: 3,
+            notes: 'Este é um projeto de exemplo. Explore as funcionalidades!',
+          },
+          {
+            name: 'Landing Page - Campanha',
+            description: 'Página de vendas para aprovação do cliente. Aguardando feedback.',
+            status: 'review',
+            type: 'landing',
+            progress: 80,
+            account_id: accountIds[1],
+            url: 'https://exemplo.com/campanha',
+            screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+            is_favorite: true,
+            view_count: 5,
+            notes: 'Enviada para aprovação do cliente.',
+          },
+          {
+            name: 'Site Institucional',
+            description: 'Website corporativo finalizado e publicado.',
+            status: 'published',
+            type: 'website',
+            progress: 100,
+            account_id: accountIds[2],
+            url: 'https://exemplo.com/institucional',
+            screenshot: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
+            view_count: 12,
+            notes: 'Projeto concluído e entregue ao cliente.',
+          },
+        ];
+
+        await supabase
+          .from('projects')
+          .insert(projectsData.map(p => ({ ...p, user_id: user.id })));
+
+        if (cancelled) return;
+
+        // Create activity logs
+        const now = new Date();
+        await supabase
+          .from('activity_logs')
+          .insert([
+            {
+              user_id: user.id,
+              action: 'create',
+              entity_type: 'account',
+              entity_name: 'Minha Empresa',
+              created_at: new Date(now.getTime() - 2 * 60000).toISOString(),
+            },
+            {
+              user_id: user.id,
+              action: 'create',
+              entity_type: 'project',
+              entity_name: 'Meu Primeiro Projeto',
+              created_at: new Date(now.getTime() - 1 * 60000).toISOString(),
+            },
+            {
+              user_id: user.id,
+              action: 'update',
+              entity_type: 'project',
+              entity_name: 'Meu Primeiro Projeto',
+              created_at: now.toISOString(),
+            },
+          ]);
+
+        // Create example ideas
+        await supabase
+          .from('ideas')
+          .insert([
+            {
+              user_id: user.id,
+              title: 'Criar página de captura para lançamento',
+              description: 'Desenvolver uma landing page otimizada para capturar leads antes do lançamento do produto.',
+              theme: 'marketing',
+              theme_color: '#3b82f6',
+              impact: 4,
+              effort: 2,
+              roadmap: 'now',
+              progress: 30,
+              position: 0,
+            },
+            {
+              user_id: user.id,
+              title: 'Integrar sistema de pagamentos PIX',
+              description: 'Adicionar opção de pagamento via PIX automático para aumentar a conversão de vendas.',
+              theme: 'tecnologia',
+              theme_color: '#10b981',
+              impact: 5,
+              effort: 3,
+              roadmap: 'next',
+              progress: 0,
+              position: 1,
+            },
+            {
+              user_id: user.id,
+              title: 'Campanha de remarketing no Instagram',
+              description: 'Criar sequência de anúncios para reconquistar visitantes que não converteram.',
+              theme: 'marketing',
+              theme_color: '#f59e0b',
+              impact: 3,
+              effort: 2,
+              roadmap: 'later',
+              progress: 0,
+              position: 2,
+            },
+          ]);
+
+        // Create example kanban column + deal + scheduled messages
+        const { data: colData } = await supabase
+          .from('kanban_columns')
+          .insert({
+            user_id: user.id,
+            name: 'Em Andamento',
+            color: '#3b82f6',
+            position: 0,
+          })
+          .select()
+          .single();
+
+        if (colData && !cancelled) {
+          const { data: dealData } = await supabase
+            .from('kanban_deals')
+            .insert({
+              user_id: user.id,
+              client_name: 'Maria Silva',
+              company_name: 'Studio Design',
+              phase: colData.id,
+              position: 0,
+              priority: 'medium',
+              client_whatsapp: '5511999999999',
+              description: 'Cliente de exemplo para demonstração de mensagens agendadas.',
+            })
+            .select()
+            .single();
+
+          if (dealData) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const templates = [
+              'Olá! Tudo bem? Passando para lembrar sobre nosso projeto. 😊',
+              'Bom dia! Como estão as coisas por aí? Alguma novidade?',
+              'Oi! Só confirmando nossa reunião. Pode me dar um retorno?',
+              'Olá! Gostaria de saber se recebeu a proposta que enviei.',
+              'Bom dia! Segue o link do material atualizado do projeto.',
+              'Oi! Lembrando que o prazo de entrega está se aproximando. ⏰',
+              'Olá! Já finalizei as alterações solicitadas. Pode conferir?',
+              'Bom dia! Preciso de sua aprovação para seguir com a próxima etapa.',
+              'Oi! Temos novidades incríveis sobre o projeto. Vamos conversar?',
+              'Olá! Enviando o relatório mensal de progresso. 📊',
+              'Bom dia! Confirma o horário da nossa call de amanhã?',
+              'Oi! O pagamento referente ao mês anterior já está disponível?',
+              'Olá! Preparei uma prévia do layout para sua análise. 🎨',
+              'Bom dia! Gostaria de agendar uma reunião para esta semana.',
+              'Oi! Segue a fatura atualizada conforme combinamos.',
+              'Olá! Estou disponível para tirar qualquer dúvida. 💬',
+              'Bom dia! Lembrete: a campanha começa na próxima segunda!',
+              'Oi! Finalizei o briefing. Pode dar uma olhada quando puder?',
+              'Olá! Preciso dos arquivos para dar continuidade ao trabalho.',
+              'Bom dia! Tudo certo para o lançamento? Confirme por favor. 🚀',
+              'Oi! Estou enviando as métricas da semana passada.',
+              'Olá! Que tal agendarmos um café para alinhar os próximos passos? ☕',
+              'Bom dia! Atualizei o cronograma conforme solicitado.',
+              'Oi! Lembrete amigável sobre o feedback pendente.',
+              'Olá! Nova versão do projeto disponível para revisão.',
+              'Bom dia! Confirmando o envio do contrato para assinatura. ✍️',
+              'Oi! Gostaria de apresentar uma ideia nova para o projeto.',
+              'Olá! Segue o resumo da reunião de hoje.',
+              'Bom dia! Última chamada para aprovação antes da entrega final.',
+              'Oi! Obrigado pela parceria este mês! Até o próximo. 🤝',
+            ];
+
+            const scheduledMessages = [];
+            for (let day = 1; day <= daysInMonth; day++) {
+              const date = new Date(year, month, day);
+              const dateStr = date.toISOString().split('T')[0];
+              scheduledMessages.push({
+                user_id: user.id,
+                deal_id: dealData.id,
+                message: templates[(day - 1) % templates.length],
+                scheduled_date: dateStr,
+                scheduled_time: '09:00',
+                sent: day < today.getDate(),
+              });
+            }
+
+            await supabase.from('kanban_scheduled_messages').insert(scheduledMessages);
+          }
+        }
+
+        if (!cancelled) {
+          sessionStorage.setItem(seedKey, 'done');
+          await queryClient.invalidateQueries();
+        }
+      } catch (err) {
+        console.error('Error seeding example data:', err);
+        sessionStorage.removeItem(seedKey);
+      }
+    };
+
+    void seedExampleData();
+
+    return () => { cancelled = true; };
+  }, [user?.id, isDemoAccount, isAdminUser, queryClient]);
+
+  return null;
+}

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Settings2, BarChart3, FolderKanban, Star, Wrench, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Settings2, BarChart3, FolderKanban, Star, Wrench, Clock, AlertTriangle, CheckCircle2, Layers } from 'lucide-react';
 
 export interface CarouselVisibility {
   slideOverview: boolean;
@@ -14,6 +14,7 @@ export interface CarouselVisibility {
   statAtrasados: boolean;
   statAprovados: boolean;
   highlightProjects: boolean;
+  kanbanSpaces: boolean;
 }
 
 const STORAGE_KEY = 'carousel-visibility';
@@ -27,6 +28,7 @@ const DEFAULT_VISIBILITY: CarouselVisibility = {
   statAtrasados: true,
   statAprovados: true,
   highlightProjects: true,
+  kanbanSpaces: true,
 };
 
 export function getCarouselVisibility(): CarouselVisibility {
@@ -56,6 +58,7 @@ const STAT_ITEMS: { key: keyof CarouselVisibility; label: string; icon: React.El
 
 const EXTRA_ITEMS: { key: keyof CarouselVisibility; label: string; icon: React.ElementType }[] = [
   { key: 'highlightProjects', label: 'Projetos em destaque', icon: Star },
+  { key: 'kanbanSpaces', label: 'Espaços do Kanban', icon: Layers },
 ];
 
 interface Props {

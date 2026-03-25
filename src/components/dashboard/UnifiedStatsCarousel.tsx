@@ -341,7 +341,7 @@ export function UnifiedStatsCarousel({
             })}
           </div>
 
-          {spaceStats.length > 0 && (
+          {carouselVis.kanbanSpaces && spaceStats.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {spaceStats.map((space) => (
                 <button

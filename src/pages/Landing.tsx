@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
+import { DashboardPreview } from '@/components/landing/DashboardPreview';
 import { ProblemSection } from '@/components/landing/ProblemSection';
 import { SolutionSection } from '@/components/landing/SolutionSection';
 import { BenefitsSection } from '@/components/landing/BenefitsSection';
@@ -31,6 +32,7 @@ export default function Landing() {
       <LandingHeader />
 
       <HeroSection />
+      <DashboardPreview />
       <ProblemSection />
       <SolutionSection />
       <BenefitsSection />

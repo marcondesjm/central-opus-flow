@@ -1,19 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, LayoutDashboard, FileText, DollarSign, Lightbulb, Columns3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, FileText, DollarSign, Lightbulb, Columns3, List } from 'lucide-react';
 
 import slideDashboard from '@/assets/slides/slide-dashboard.png';
 import slidePropostas from '@/assets/slides/slide-propostas.png';
 import slideFaturamento from '@/assets/slides/slide-faturamento.png';
 import slideIdeias from '@/assets/slides/slide-ideias.png';
 import slideKanban from '@/assets/slides/slide-kanban.png';
+import slideFaturamento2 from '@/assets/slides/slide-faturamento2.png';
+import slideIdeias2 from '@/assets/slides/slide-ideias2.png';
+import slidePropostas2 from '@/assets/slides/slide-propostas2.png';
+import slideKanban2 from '@/assets/slides/slide-kanban2.png';
 
 const slides = [
   { src: slideDashboard, label: 'Dashboard', icon: LayoutDashboard, desc: 'Visão geral de todos os seus projetos' },
   { src: slidePropostas, label: 'Propostas', icon: FileText, desc: 'Propostas comerciais com identidade visual' },
+  { src: slidePropostas2, label: 'Editor de Propostas', icon: FileText, desc: 'Edite propostas com preview em tempo real' },
   { src: slideFaturamento, label: 'Faturamento', icon: DollarSign, desc: 'Controle financeiro completo' },
+  { src: slideFaturamento2, label: 'Receitas & Despesas', icon: DollarSign, desc: 'Relatórios detalhados de faturamento' },
   { src: slideIdeias, label: 'Ideias', icon: Lightbulb, desc: 'Gerencie ideias com impacto e esforço' },
+  { src: slideIdeias2, label: 'Roteiro de Ideias', icon: Lightbulb, desc: 'Organize ideias no board de priorização' },
   { src: slideKanban, label: 'Kanban', icon: Columns3, desc: 'Pipeline visual com drag & drop' },
+  { src: slideKanban2, label: 'Lista de Tarefas', icon: List, desc: 'Visualize tarefas em formato de lista' },
 ];
 
 export function FeaturesSlideshow() {

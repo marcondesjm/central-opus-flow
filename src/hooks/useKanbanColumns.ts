@@ -342,12 +342,15 @@ export function useKanbanColumns() {
       let sharedColumns: KanbanColumn[] = [];
       if (shares && shares.length > 0) {
         const sharedSpaceIds = shares.map(s => (s as any).space_id);
-        const { data: sCols } = await supabase
-          .from('kanban_columns')
-          .select('*')
-          .in('space_id', sharedSpaceIds)
-          .order('position', { ascending: true });
-        if (sCols) sharedColumns = sCols as KanbanColumn[];
+        // Fetch each shared space's columns individually to avoid RLS conflicts
+        for (const spaceId of sharedSpaceIds) {
+          const { data: sCols } = await supabase
+            .from('kanban_columns')
+            .select('*')
+            .eq('space_id', spaceId)
+            .order('position', { ascending: true });
+          if (sCols) sharedColumns.push(...(sCols as KanbanColumn[]));
+        }
       }
 
       const ownIds = new Set((data || []).map(c => c.id));

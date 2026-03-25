@@ -60,12 +60,14 @@ export function useKanbanDeals() {
       let sharedDeals: KanbanDeal[] = [];
       if (shares && shares.length > 0) {
         const sharedSpaceIds = shares.map(s => (s as any).space_id);
-        const { data: sDeals } = await supabase
-          .from('kanban_deals')
-          .select('*')
-          .in('space_id', sharedSpaceIds)
-          .order('position', { ascending: true });
-        if (sDeals) sharedDeals = sDeals as KanbanDeal[];
+        for (const spaceId of sharedSpaceIds) {
+          const { data: sDeals } = await supabase
+            .from('kanban_deals')
+            .select('*')
+            .eq('space_id', spaceId)
+            .order('position', { ascending: true });
+          if (sDeals) sharedDeals.push(...(sDeals as KanbanDeal[]));
+        }
       }
 
       const ownIds = new Set((data || []).map(d => d.id));

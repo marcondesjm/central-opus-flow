@@ -1064,6 +1064,18 @@ export default function Dashboard() {
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />
 
+          {/* Active ActionCenter filter indicator */}
+          {actionStatsFilter && (
+            <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg border border-primary/20 bg-primary/5">
+              <span className="text-sm text-foreground font-medium">
+                Filtrando por: <strong>{actionStatsFilter === 'review' ? 'Em revisão' : actionStatsFilter === 'waiting' ? 'Aguardando cliente' : actionStatsFilter === 'overdue' ? 'Atrasados' : 'Aprovados'}</strong>
+              </span>
+              <Button variant="ghost" size="sm" className="h-6 px-2 text-xs ml-auto" onClick={() => handleActionStatsFilterChange(null)}>
+                Limpar filtro
+              </Button>
+            </div>
+          )}
+
           {/* Title */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-4">
             <h2 className="text-lg sm:text-xl font-semibold text-foreground truncate">{getViewTitle()}</h2>

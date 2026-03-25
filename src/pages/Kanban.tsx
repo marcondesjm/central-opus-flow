@@ -2616,6 +2616,13 @@ export default function KanbanPage() {
           )}
         </DialogContent>
       </Dialog>
+      {sharingSpaceId && spaces && (
+        <ShareSpaceModal
+          open={!!sharingSpaceId}
+          onOpenChange={(v) => { if (!v) setSharingSpaceId(null); }}
+          space={spaces.find(s => s.id === sharingSpaceId)!}
+        />
+      )}
       </div>
       </div>
     </AppLayout>

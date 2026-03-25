@@ -158,7 +158,11 @@ export function UnifiedStatsCarousel({
 
   const uniqueHighlightProjects = useMemo(() => {
     const seen = new Set<string>();
-    return [...favoriteProjects, ...approvedList].filter(p => {
+    const sources = [
+      ...favoriteProjects,
+      ...(carouselVis.statAprovados ? approvedList : []),
+    ];
+    return sources.filter(p => {
       if (seen.has(p.id)) return false;
       seen.add(p.id);
       return true;

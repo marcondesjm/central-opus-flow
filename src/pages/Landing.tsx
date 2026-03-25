@@ -32,6 +32,7 @@ export default function Landing() {
       <LandingHeader />
 
       <HeroSection />
+      <DashboardPreview />
       <ProblemSection />
       <SolutionSection />
       <BenefitsSection />

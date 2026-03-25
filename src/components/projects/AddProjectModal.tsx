@@ -291,6 +291,36 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
             />
           </div>
           
+          {/* Kanban Space */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <LayoutGrid className="w-3.5 h-3.5" />
+              Vincular ao Kanban
+            </Label>
+            <Select value={selectedSpaceId} onValueChange={setSelectedSpaceId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um espaço (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum</SelectItem>
+                {spaces.map((space) => (
+                  <SelectItem key={space.id} value={space.id}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-3 h-3 rounded-sm shrink-0"
+                        style={{ backgroundColor: space.color }}
+                      />
+                      {space.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Cria automaticamente uma tarefa no espaço selecionado.
+            </p>
+          </div>
+
           {/* Tags Selection */}
           <div className="space-y-2">
             <Label className="flex items-center justify-between">

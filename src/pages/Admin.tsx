@@ -178,9 +178,16 @@ export default function Admin() {
 
   const handleRefreshAll = useCallback(async () => {
     setRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setRefreshing(false), 600);
-  }, [queryClient]);
+    try {
+      await queryClient.invalidateQueries();
+      await queryClient.refetchQueries({ type: 'active' });
+      toast({ title: 'Dados atualizados com sucesso!' });
+    } catch {
+      toast({ title: 'Erro ao atualizar dados', variant: 'destructive' });
+    } finally {
+      setTimeout(() => setRefreshing(false), 600);
+    }
+  }, [queryClient, toast]);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [planFilter, setPlanFilter] = useState<'all' | SubscriptionPlan>('all');

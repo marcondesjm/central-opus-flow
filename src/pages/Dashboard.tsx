@@ -1051,9 +1051,19 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Kanban Monitor */}
+          {/* Unified Stats Carousel (Kanban + Projects) */}
           <div className="mb-8">
-            <KanbanMonitor />
+            <UnifiedStatsCarousel
+              projectStats={{
+                review: allTransformedProjects.filter(p => p.status === 'review').length,
+                waiting: allTransformedProjects.filter(p => p.isFavorite).length,
+                overdue: allTransformedProjects.filter(p => isOverdueProject(p, new Date())).length,
+                approved: allTransformedProjects.filter(p => isApprovedStatus(p.status)).length,
+              }}
+              activeStatsFilter={actionStatsFilter}
+              onStatsFilterChange={handleActionStatsFilterChange}
+              onNavigateKanban={() => navigate('/kanban')}
+            />
           </div>
 
           {/* Collaborated Projects Section */}

@@ -278,53 +278,64 @@ export default function Dashboard() {
 
     const seedExampleData = async () => {
       try {
-        // Create 1 example account
-        const { data: account, error: accError } = await supabase
+        // Create 3 example accounts
+        const accountsData = [
+          { name: 'Minha Empresa', email: user.email || 'contato@empresa.com', color: 'blue', credits: 50 },
+          { name: 'Cliente Premium', email: 'premium@cliente.com', color: 'green', credits: 30 },
+          { name: 'Agência Digital', email: 'contato@agencia.com', color: 'purple', credits: 80 },
+        ];
+
+        const { data: createdAccounts, error: accError } = await supabase
           .from('lovable_accounts')
-          .insert({
-            name: 'Minha Empresa',
-            email: user.email || 'contato@empresa.com',
-            color: 'blue',
-            credits: 50,
-            user_id: user.id,
-          })
-          .select()
-          .single();
+          .insert(accountsData.map(a => ({ ...a, user_id: user.id })))
+          .select();
 
-        if (accError || !account || cancelled) return;
+        if (accError || !createdAccounts?.length || cancelled) return;
 
-        // Create example projects
+        // Create 3 example projects, one per account, with varied statuses
+        const projectsData = [
+          {
+            name: 'Meu Primeiro Projeto',
+            description: 'Projeto de exemplo para você conhecer a plataforma. Edite ou exclua quando quiser!',
+            status: 'draft',
+            type: 'landing',
+            progress: 25,
+            account_id: createdAccounts[0].id,
+            url: 'https://exemplo.com',
+            screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+            view_count: 3,
+            notes: 'Este é um projeto de exemplo. Explore as funcionalidades!',
+          },
+          {
+            name: 'Landing Page - Campanha',
+            description: 'Página de vendas para aprovação do cliente. Aguardando feedback.',
+            status: 'review',
+            type: 'landing',
+            progress: 80,
+            account_id: createdAccounts[1].id,
+            url: 'https://exemplo.com/campanha',
+            screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+            is_favorite: true,
+            view_count: 5,
+            notes: 'Enviada para aprovação do cliente.',
+          },
+          {
+            name: 'Site Institucional',
+            description: 'Website corporativo finalizado e publicado.',
+            status: 'published',
+            type: 'website',
+            progress: 100,
+            account_id: createdAccounts[2].id,
+            url: 'https://exemplo.com/institucional',
+            screenshot: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
+            view_count: 12,
+            notes: 'Projeto concluído e entregue ao cliente.',
+          },
+        ];
+
         await supabase
           .from('projects')
-          .insert([
-            {
-              name: 'Meu Primeiro Projeto',
-              description: 'Projeto de exemplo para você conhecer a plataforma. Edite ou exclua quando quiser!',
-              status: 'draft',
-              type: 'landing',
-              progress: 25,
-              user_id: user.id,
-              account_id: account.id,
-              url: 'https://exemplo.com',
-              screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
-              view_count: 3,
-              notes: 'Este é um projeto de exemplo. Explore as funcionalidades e personalize como quiser!',
-            },
-            {
-              name: 'Landing Page - Campanha',
-              description: 'Página de vendas para aprovação do cliente. Aguardando feedback.',
-              status: 'review',
-              type: 'landing',
-              progress: 80,
-              user_id: user.id,
-              account_id: account.id,
-              url: 'https://exemplo.com/campanha',
-              screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
-              is_favorite: true,
-              view_count: 5,
-              notes: 'Enviada para aprovação do cliente. Marque como favorito para acompanhar aqui!',
-            },
-          ]);
+          .insert(projectsData.map(p => ({ ...p, user_id: user.id })));
 
         // Create 3 example activity logs
         const now = new Date();

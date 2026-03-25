@@ -340,14 +340,14 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 )}
               >
                 <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                  22% off
+                  {Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100)}% off
                 </span>
                 <p className="text-xs text-muted-foreground mb-1">Anual</p>
                 <div className="flex items-baseline justify-center gap-0.5">
                   <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">73,90</span>
+                  <span className="text-2xl font-bold text-foreground">{annualPrice.toFixed(2).replace('.', ',')}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R$94,80</span></p>
+                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R${(monthlyPrice * 12).toFixed(2).replace('.', ',')}</span></p>
               </button>
             </div>
 

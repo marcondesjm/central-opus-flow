@@ -1,4 +1,4 @@
-import { AlertTriangle, Clock, Star, CheckCircle2, ArrowRight, Send, Plus, Eye } from 'lucide-react';
+import { AlertTriangle, Clock, Star, CheckCircle2, ArrowRight, Send, Plus, Eye, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -124,66 +124,121 @@ export function ActionCenter({ projects, onOpenProject, onNewProject, onSendVers
         </div>
       )}
 
-      {/* Aprovações pendentes */}
+      {/* Aprovações pendentes e ajustes */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Star className="w-4 h-4 text-primary fill-primary" />
-          📩 Aprovações pendentes
+          📩 Aprovações pendentes e ajustes
         </h3>
-        {approvalProjects.length === 0 ? (
+        {approvalProjects.length === 0 && changesProjects.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border/60 bg-card/50 p-8 text-center">
             <div className="mx-auto w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
               <CheckCircle2 className="w-6 h-6 text-emerald-500" />
             </div>
-            <p className="text-sm font-medium text-foreground mb-1">Nenhuma aprovação pendente 🎉</p>
+            <p className="text-sm font-medium text-foreground mb-1">Nenhuma aprovação ou ajuste pendente 🎉</p>
             <p className="text-xs text-muted-foreground">Envie uma versão para seu cliente revisar.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {approvalProjects.slice(0, 4).map((project) => {
-              const normalizedStatus = normalizeProjectStatus(project.status);
-              const statusColor = normalizedStatus === 'review'
-                ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-                : normalizedStatus === 'approved'
-                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                  : 'bg-primary/10 text-primary border-primary/20';
-              const statusLabel = normalizedStatus === 'review'
-                ? '🟡 Aguardando aprovação'
-                : normalizedStatus === 'approved'
-                  ? '🟢 Aprovado'
-                  : '📋 Em análise';
+          <div className="space-y-4">
+            {/* Projetos com ajustes solicitados */}
+            {changesProjects.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-destructive flex items-center gap-1.5 uppercase tracking-wider">
+                  <Wrench className="w-3.5 h-3.5" />
+                  Ajustes solicitados ({changesProjects.length})
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {changesProjects.slice(0, 4).map((project) => (
+                    <button
+                      key={project.id}
+                      onClick={() => onOpenProject(project.id)}
+                      className="rounded-xl border border-destructive/30 bg-destructive/[0.04] p-4 text-left transition-all hover:shadow-md hover:border-destructive/50 hover:-translate-y-0.5 active:scale-[0.98] group"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="text-sm font-semibold text-foreground group-hover:text-destructive transition-colors line-clamp-1">
+                          {project.name}
+                        </h4>
+                        <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" />
+                      </div>
+                      {project.accountName && (
+                        <p className="text-xs text-muted-foreground mb-2">Cliente: {project.accountName}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/20">
+                          🔴 Ajustes necessários
+                        </Badge>
+                        {project.deadline && (
+                          <span className={cn(
+                            'text-[10px] font-medium',
+                            new Date(project.deadline) < now ? 'text-destructive' : 'text-muted-foreground'
+                          )}>
+                            Prazo: {formatDistanceToNow(new Date(project.deadline), { locale: ptBR, addSuffix: true })}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-              return (
-                <button
-                  key={project.id}
-                  onClick={() => onOpenProject(project.id)}
-                  className="rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 active:scale-[0.98] group"
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                      {project.name}
-                    </h4>
-                    <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" />
-                  </div>
-                  {project.accountName && (
-                    <p className="text-xs text-muted-foreground mb-2">Cliente: {project.accountName}</p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className={cn('text-[10px]', statusColor)}>
-                      {statusLabel}
-                    </Badge>
-                    {project.deadline && (
-                      <span className={cn(
-                        'text-[10px] font-medium',
-                        new Date(project.deadline) < now ? 'text-destructive' : 'text-muted-foreground'
-                      )}>
-                        Prazo: {formatDistanceToNow(new Date(project.deadline), { locale: ptBR, addSuffix: true })}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+            {/* Aprovações pendentes */}
+            {approvalProjects.length > 0 && (
+              <div className="space-y-2">
+                {changesProjects.length > 0 && (
+                  <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
+                    <Star className="w-3.5 h-3.5" />
+                    Aguardando aprovação ({approvalProjects.length})
+                  </p>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {approvalProjects.slice(0, 4).map((project) => {
+                    const normalizedStatus = normalizeProjectStatus(project.status);
+                    const statusColor = normalizedStatus === 'review'
+                      ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                      : normalizedStatus === 'approved'
+                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                        : 'bg-primary/10 text-primary border-primary/20';
+                    const statusLabel = normalizedStatus === 'review'
+                      ? '🟡 Aguardando aprovação'
+                      : normalizedStatus === 'approved'
+                        ? '🟢 Aprovado'
+                        : '📋 Em análise';
+
+                    return (
+                      <button
+                        key={project.id}
+                        onClick={() => onOpenProject(project.id)}
+                        className="rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 active:scale-[0.98] group"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                            {project.name}
+                          </h4>
+                          <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" />
+                        </div>
+                        {project.accountName && (
+                          <p className="text-xs text-muted-foreground mb-2">Cliente: {project.accountName}</p>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline" className={cn('text-[10px]', statusColor)}>
+                            {statusLabel}
+                          </Badge>
+                          {project.deadline && (
+                            <span className={cn(
+                              'text-[10px] font-medium',
+                              new Date(project.deadline) < now ? 'text-destructive' : 'text-muted-foreground'
+                            )}>
+                              Prazo: {formatDistanceToNow(new Date(project.deadline), { locale: ptBR, addSuffix: true })}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

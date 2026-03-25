@@ -3,43 +3,52 @@ import { Check, ArrowRight, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { usePricingSettings } from '@/hooks/useSystemSettings';
 
-const plans = [
-  {
-    name: 'Livre',
-    price: 'R$0',
-    period: '',
-    subtitle: 'Para começar a organizar',
-    features: [
-      'Até 2 projetos',
-      'Comentários ilimitados',
-      'Aprovações básicas',
-    ],
-    cta: 'Começar grátis',
-    href: '/auth',
-    highlight: false,
-  },
-  {
-    name: 'Pro',
-    price: 'R$7,90',
-    period: '/mês',
-    annualPrice: 'R$73,90',
-    annualDiscount: '22%',
-    subtitle: 'Tudo para entregar mais rápido',
-    features: [
-      'Projetos ilimitados',
-      'Controle de revisões',
-      'Histórico de versões',
-      'Fluxo profissional de aprovação',
-      'Suporte prioritário',
-    ],
-    cta: 'Fazer upgrade',
-    href: '/pricing',
-    highlight: true,
-  },
-];
+function formatBRL(value: number) {
+  return `R$${value.toFixed(2).replace('.', ',')}`;
+}
 
 export function PricingSection() {
+  const { data: pricing } = usePricingSettings();
+  const monthly = pricing?.monthly_price ?? 7.9;
+  const annual = pricing?.annual_price ?? 73.9;
+  const discount = Math.round((1 - annual / (monthly * 12)) * 100);
+
+  const plans = [
+    {
+      name: 'Livre',
+      price: 'R$0',
+      period: '',
+      subtitle: 'Para começar a organizar',
+      features: [
+        'Até 2 projetos',
+        'Comentários ilimitados',
+        'Aprovações básicas',
+      ],
+      cta: 'Começar grátis',
+      href: '/auth',
+      highlight: false,
+    },
+    {
+      name: 'Pro',
+      price: formatBRL(monthly),
+      period: '/mês',
+      annualPrice: formatBRL(annual),
+      annualDiscount: `${discount}%`,
+      subtitle: 'Tudo para entregar mais rápido',
+      features: [
+        'Projetos ilimitados',
+        'Controle de revisões',
+        'Histórico de versões',
+        'Fluxo profissional de aprovação',
+        'Suporte prioritário',
+      ],
+      cta: 'Fazer upgrade',
+      href: '/pricing',
+      highlight: true,
+    },
+  ];
   return (
     <section id="pricing" className="py-20 md:py-28 px-4 relative">
       <div className="container mx-auto max-w-3xl">

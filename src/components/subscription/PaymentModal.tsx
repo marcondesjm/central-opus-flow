@@ -84,11 +84,16 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [pixLoading, setPixLoading] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
   const submitReceipt = useSubmitPaymentReceipt();
   const { data: trial } = useTrial();
+
+  const selectedPrice = billingCycle === 'monthly' ? 7.9 : 73.9;
+  const selectedPriceLabel = billingCycle === 'monthly' ? '7,90' : '73,90';
+  const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
 
   // Fetch PIX data from backend when modal opens
   useEffect(() => {
@@ -212,8 +217,9 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
       return;
     }
 
+    const cycleLabel = billingCycle === 'monthly' ? 'mensal' : 'anual';
     const message = encodeURIComponent(
-      `Olá! Estou enviando meu comprovante de pagamento da assinatura mensal (R$19,90).\n\n` +
+      `Olá! Estou enviando meu comprovante de pagamento da assinatura ${cycleLabel} (R$${selectedPriceLabel}).\n\n` +
       `📎 Comprovante: ${receiptUrl}\n\n` +
       `${notes ? `📝 Observação: ${notes}\n\n` : ''}` +
       `Aguardo a confirmação!`
@@ -284,37 +290,70 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
         <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
-            Assinatura Mensal
+            Assinatura PRO
           </DialogTitle>
           <DialogDescription>
-            Acesso completo a todas as funcionalidades por apenas R$19,90/mês
+            Acesso completo a todas as funcionalidades
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-6">
-            {/* Price Card */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-              <p className="text-sm text-muted-foreground mb-1">Valor mensal</p>
-              <div className="flex items-baseline justify-center gap-1">
-                <span className="text-sm text-muted-foreground">R$</span>
-                <span className="text-4xl font-bold text-foreground">19,90</span>
-                <span className="text-sm text-muted-foreground">/mês</span>
-              </div>
-              <div className="mt-3 flex flex-wrap justify-center gap-2">
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  ✓ Projetos ilimitados
+            {/* Billing Cycle Toggle */}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setBillingCycle('monthly')}
+                className={cn(
+                  'relative rounded-xl border-2 p-4 text-center transition-all',
+                  billingCycle === 'monthly'
+                    ? 'border-primary bg-primary/5 shadow-sm'
+                    : 'border-border hover:border-border/80'
+                )}
+              >
+                <p className="text-xs text-muted-foreground mb-1">Mensal</p>
+                <div className="flex items-baseline justify-center gap-0.5">
+                  <span className="text-xs text-muted-foreground">R$</span>
+                  <span className="text-2xl font-bold text-foreground">7,90</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingCycle('annual')}
+                className={cn(
+                  'relative rounded-xl border-2 p-4 text-center transition-all',
+                  billingCycle === 'annual'
+                    ? 'border-primary bg-primary/5 shadow-sm'
+                    : 'border-border hover:border-border/80'
+                )}
+              >
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                  22% off
                 </span>
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  ✓ Contas ilimitadas
-                </span>
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  ✓ Exportação de dados
-                </span>
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  ✓ Logs de atividade
-                </span>
-              </div>
+                <p className="text-xs text-muted-foreground mb-1">Anual</p>
+                <div className="flex items-baseline justify-center gap-0.5">
+                  <span className="text-xs text-muted-foreground">R$</span>
+                  <span className="text-2xl font-bold text-foreground">73,90</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R$94,80</span></p>
+              </button>
+            </div>
+
+            {/* Features */}
+            <div className="flex flex-wrap justify-center gap-2">
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                ✓ Projetos ilimitados
+              </span>
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                ✓ Contas ilimitadas
+              </span>
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                ✓ Exportação de dados
+              </span>
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                ✓ Logs de atividade
+              </span>
             </div>
 
             {/* PIX Payment */}

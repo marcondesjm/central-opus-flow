@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, BarChart3, FolderKanban, ArrowRight, Eye, Wrench, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, BarChart3, FolderKanban, ArrowRight, Eye, Wrench, ChevronLeft, ChevronRight, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { isApprovedStatus, normalizeProjectStatus } from '@/lib/project-status';
+import { CarouselCustomizeModal, getCarouselVisibility, type CarouselVisibility } from './CarouselCustomizeModal';
 
 type StatsFilterKey = 'review' | 'waiting' | 'overdue' | 'approved';
 

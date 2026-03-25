@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, BarChart3, FolderKanban, ArrowRight, Eye, Wrench, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, BarChart3, FolderKanban, ArrowRight, Eye, Wrench, ChevronLeft, ChevronRight, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { isApprovedStatus, normalizeProjectStatus } from '@/lib/project-status';
+import { CarouselCustomizeModal, getCarouselVisibility, type CarouselVisibility } from './CarouselCustomizeModal';
 
 type StatsFilterKey = 'review' | 'waiting' | 'overdue' | 'approved';
 
@@ -121,6 +122,8 @@ export function UnifiedStatsCarousel({
   const { data: deals = [] } = useKanbanDeals();
   const { data: spaces = [] } = useKanbanSpaces();
   const [activeSlide, setActiveSlide] = useState(0);
+  const [carouselVis, setCarouselVis] = useState<CarouselVisibility>(getCarouselVisibility);
+  const [showCustomize, setShowCustomize] = useState(false);
 
   const now = new Date();
 
@@ -162,41 +165,62 @@ export function UnifiedStatsCarousel({
     }).slice(0, 6);
   }, [favoriteProjects, approvedList]);
 
-  const unifiedStats = [
-    { label: 'Ajustes', value: changesProjects.length, icon: Wrench, color: 'text-destructive', bg: 'bg-destructive/10' },
-    { label: 'Em revisão', value: projectStats.review, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', filterKey: 'review' as StatsFilterKey },
-    { label: 'Aguardando', value: projectStats.waiting, icon: Star, color: 'text-primary', bg: 'bg-primary/10', filterKey: 'waiting' as StatsFilterKey },
-    { label: 'Atrasados', value: projectStats.overdue, icon: AlertTriangle, color: 'text-destructive', bg: 'bg-destructive/10', filterKey: 'overdue' as StatsFilterKey },
-    { label: 'Aprovados', value: projectStats.approved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', filterKey: 'approved' as StatsFilterKey },
+  const allUnifiedStats = [
+    { label: 'Ajustes', value: changesProjects.length, icon: Wrench, color: 'text-destructive', bg: 'bg-destructive/10', visKey: 'statAjustes' as keyof CarouselVisibility },
+    { label: 'Em revisão', value: projectStats.review, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', filterKey: 'review' as StatsFilterKey, visKey: 'statRevisao' as keyof CarouselVisibility },
+    { label: 'Aguardando', value: projectStats.waiting, icon: Star, color: 'text-primary', bg: 'bg-primary/10', filterKey: 'waiting' as StatsFilterKey, visKey: 'statAguardando' as keyof CarouselVisibility },
+    { label: 'Atrasados', value: projectStats.overdue, icon: AlertTriangle, color: 'text-destructive', bg: 'bg-destructive/10', filterKey: 'overdue' as StatsFilterKey, visKey: 'statAtrasados' as keyof CarouselVisibility },
+    { label: 'Aprovados', value: projectStats.approved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', filterKey: 'approved' as StatsFilterKey, visKey: 'statAprovados' as keyof CarouselVisibility },
   ];
 
-  const totalSlides = 2;
+  const unifiedStats = allUnifiedStats.filter(s => carouselVis[s.visKey]);
+
+  const allSlideTitles = [
+    { icon: BarChart3, title: 'Visão Geral de Projetos', visKey: 'slideOverview' as keyof CarouselVisibility },
+    { icon: FolderKanban, title: 'Monitor Kanban', visKey: 'slideKanban' as keyof CarouselVisibility },
+  ];
+
+  const slideTitles = allSlideTitles.filter(s => carouselVis[s.visKey]);
+  const totalSlides = slideTitles.length;
+
   const autoRef = useRef<ReturnType<typeof setInterval>>();
   const isHovering = useRef(false);
 
   const startAutoRotate = useCallback(() => {
     clearInterval(autoRef.current);
+    if (totalSlides <= 1) return;
     autoRef.current = setInterval(() => {
       if (!isHovering.current) {
         setActiveSlide(p => (p + 1) % totalSlides);
       }
     }, 7000);
-  }, []);
+  }, [totalSlides]);
 
   useEffect(() => {
     startAutoRotate();
     return () => clearInterval(autoRef.current);
   }, [startAutoRotate]);
 
-  const next = useCallback(() => { setActiveSlide(p => (p + 1) % totalSlides); startAutoRotate(); }, [startAutoRotate]);
-  const prev = useCallback(() => { setActiveSlide(p => (p - 1 + totalSlides) % totalSlides); startAutoRotate(); }, [startAutoRotate]);
+  useEffect(() => {
+    if (activeSlide >= totalSlides && totalSlides > 0) setActiveSlide(0);
+  }, [totalSlides, activeSlide]);
 
-  const slideTitles = [
-    { icon: BarChart3, title: 'Visão Geral de Projetos' },
-    { icon: FolderKanban, title: 'Monitor Kanban' },
-  ];
+  const next = useCallback(() => { if (totalSlides <= 1) return; setActiveSlide(p => (p + 1) % totalSlides); startAutoRotate(); }, [startAutoRotate, totalSlides]);
+  const prev = useCallback(() => { if (totalSlides <= 1) return; setActiveSlide(p => (p - 1 + totalSlides) % totalSlides); startAutoRotate(); }, [startAutoRotate, totalSlides]);
 
-  const CurrentIcon = slideTitles[activeSlide].icon;
+  const currentSlide = slideTitles[activeSlide] || slideTitles[0];
+  if (!currentSlide) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowCustomize(true)}>
+          <Settings2 className="w-4 h-4" /> Configurar Visão Geral
+        </Button>
+        <CarouselCustomizeModal open={showCustomize} onOpenChange={setShowCustomize} onUpdate={setCarouselVis} />
+      </div>
+    );
+  }
+  const CurrentIcon = currentSlide.icon;
+  const currentSlideKey = currentSlide.visKey;
 
   return (
     <div
@@ -208,7 +232,7 @@ export function UnifiedStatsCarousel({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CurrentIcon className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">{slideTitles[activeSlide].title}</h3>
+          <h3 className="text-sm font-semibold text-foreground">{currentSlide.title}</h3>
         </div>
         <div className="flex items-center gap-2">
           {/* Dots */}
@@ -230,18 +254,21 @@ export function UnifiedStatsCarousel({
           <button onClick={next} className="p-1 rounded-lg hover:bg-muted transition-colors">
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
-          {activeSlide === 1 && (
+          {currentSlideKey === 'slideKanban' && (
             <Button variant="ghost" size="sm" className="text-xs gap-1 h-7 ml-1" onClick={onNavigateKanban}>
               Ver Kanban <ArrowRight className="w-3 h-3" />
             </Button>
           )}
+          <button onClick={() => setShowCustomize(true)} className="p-1 rounded-lg hover:bg-muted transition-colors" title="Personalizar">
+            <Settings2 className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
       </div>
 
-      {/* ===== Slide 0: Visão Geral ===== */}
-      {activeSlide === 0 && (
+      {/* ===== Slide: Visão Geral ===== */}
+      {currentSlideKey === 'slideOverview' && (
         <div className="space-y-3 animate-in fade-in-50 duration-200">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className={cn('grid gap-3', unifiedStats.length <= 3 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5')}>
             {unifiedStats.map((stat) => {
               const Icon = stat.icon;
               const isFilterable = !!stat.filterKey;
@@ -272,7 +299,7 @@ export function UnifiedStatsCarousel({
             })}
           </div>
 
-          {hasApprovalContent && uniqueHighlightProjects.length > 0 && (
+          {carouselVis.highlightProjects && hasApprovalContent && uniqueHighlightProjects.length > 0 && (
             <HighlightProjectsPaginated
               projects={uniqueHighlightProjects}
               onOpenProject={onOpenProject}
@@ -281,8 +308,8 @@ export function UnifiedStatsCarousel({
         </div>
       )}
 
-      {/* ===== Slide 1: Monitor Kanban ===== */}
-      {activeSlide === 1 && (
+      {/* ===== Slide: Monitor Kanban ===== */}
+      {currentSlideKey === 'slideKanban' && (
         <div className="space-y-3 animate-in fade-in-50 duration-200">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
@@ -331,9 +358,10 @@ export function UnifiedStatsCarousel({
               ))}
             </div>
           )}
-
         </div>
       )}
+
+      <CarouselCustomizeModal open={showCustomize} onOpenChange={setShowCustomize} onUpdate={setCarouselVis} />
     </div>
   );
 }

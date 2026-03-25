@@ -1084,6 +1084,10 @@ export default function KanbanPage() {
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
   const [scheduledFilter, setScheduledFilter] = useState<'all' | 'pending' | 'sent'>('all');
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
+  const [editMsgText, setEditMsgText] = useState('');
+  const [editMsgDate, setEditMsgDate] = useState('');
+  const [editMsgTime, setEditMsgTime] = useState('');
   
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
     try {
@@ -2615,28 +2619,79 @@ export default function KanbanPage() {
                           )}
                         </div>
                       )}
-                      <p className="text-xs bg-muted/50 rounded p-2 whitespace-pre-wrap line-clamp-3">{msg.message}</p>
-                      {!msg.sent && (
-                        <div className="flex gap-2 pt-1">
-                          {deal?.client_whatsapp && (
-                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={async () => {
-                              const phone = deal.client_whatsapp.replace(/\D/g, '');
-                              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
-                              await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
-                              setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
-                              toast({ title: '✅ Mensagem enviada e removida' });
+                      {editingMsgId === msg.id ? (
+                        <div className="space-y-2">
+                          <Textarea
+                            value={editMsgText}
+                            onChange={(e) => setEditMsgText(e.target.value)}
+                            className="text-xs min-h-[60px]"
+                          />
+                          <div className="flex gap-2">
+                            <Input
+                              type="date"
+                              value={editMsgDate}
+                              onChange={(e) => setEditMsgDate(e.target.value)}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              type="time"
+                              value={editMsgTime}
+                              onChange={(e) => setEditMsgTime(e.target.value)}
+                              className="text-xs h-7 w-28"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" className="h-7 text-xs" onClick={async () => {
+                              await supabase.from('kanban_scheduled_messages').update({
+                                message: editMsgText,
+                                scheduled_date: editMsgDate,
+                                scheduled_time: editMsgTime,
+                              }).eq('id', msg.id);
+                              setScheduledMessages(prev => prev.map(m => m.id === msg.id ? { ...m, message: editMsgText, scheduled_date: editMsgDate, scheduled_time: editMsgTime } : m));
+                              setEditingMsgId(null);
+                              toast({ title: '✅ Mensagem atualizada' });
                             }}>
-                              <MessageCircle className="w-3 h-3 mr-1" /> Enviar agora
+                              Salvar
                             </Button>
-                          )}
-                          <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive hover:text-destructive" onClick={async () => {
-                            await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
-                            setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
-                            toast({ title: 'Mensagem removida' });
-                          }}>
-                            <Trash2 className="w-3 h-3 mr-1" /> Remover
-                          </Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditingMsgId(null)}>
+                              Cancelar
+                            </Button>
+                          </div>
                         </div>
+                      ) : (
+                        <>
+                          <p className="text-xs bg-muted/50 rounded p-2 whitespace-pre-wrap line-clamp-3">{msg.message}</p>
+                          {!msg.sent && (
+                            <div className="flex gap-2 pt-1">
+                              {deal?.client_whatsapp && (
+                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={async () => {
+                                  const phone = deal.client_whatsapp.replace(/\D/g, '');
+                                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.message)}`, '_blank');
+                                  await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
+                                  setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
+                                  toast({ title: '✅ Mensagem enviada e removida' });
+                                }}>
+                                  <MessageCircle className="w-3 h-3 mr-1" /> Enviar agora
+                                </Button>
+                              )}
+                              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
+                                setEditingMsgId(msg.id);
+                                setEditMsgText(msg.message);
+                                setEditMsgDate(msg.scheduled_date);
+                                setEditMsgTime(msg.scheduled_time || '09:00');
+                              }}>
+                                <Pencil className="w-3 h-3 mr-1" /> Editar
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive hover:text-destructive" onClick={async () => {
+                                await supabase.from('kanban_scheduled_messages').delete().eq('id', msg.id);
+                                setScheduledMessages(prev => prev.filter(m => m.id !== msg.id));
+                                toast({ title: 'Mensagem removida' });
+                              }}>
+                                <Trash2 className="w-3 h-3 mr-1" /> Remover
+                              </Button>
+                            </div>
+                          )}
+                        </>
                       )}
                     </CardContent>
                   </Card>

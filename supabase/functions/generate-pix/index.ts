@@ -142,10 +142,16 @@ Deno.serve(async (req) => {
 
     const brCode = generatePixBRCode(pixKey, pixName, amount, city, txid);
     
+    // Mask the PIX key for display
+    const maskedKey = pixKey.length > 6
+      ? pixKey.substring(0, 3) + '•'.repeat(pixKey.length - 6) + pixKey.substring(pixKey.length - 3)
+      : '•••••••••••';
+
     return new Response(
       JSON.stringify({
         brCode,
         pixKey,
+        maskedKey,
         name: pixName,
         amount,
         city,

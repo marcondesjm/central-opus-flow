@@ -172,11 +172,14 @@ export function UnifiedStatsCarousel({
 
   const totalSlides = 2;
   const autoRef = useRef<ReturnType<typeof setInterval>>();
+  const isHovering = useRef(false);
 
   const startAutoRotate = useCallback(() => {
     clearInterval(autoRef.current);
     autoRef.current = setInterval(() => {
-      setActiveSlide(p => (p + 1) % totalSlides);
+      if (!isHovering.current) {
+        setActiveSlide(p => (p + 1) % totalSlides);
+      }
     }, 7000);
   }, []);
 
@@ -196,7 +199,11 @@ export function UnifiedStatsCarousel({
   const CurrentIcon = slideTitles[activeSlide].icon;
 
   return (
-    <div className="space-y-3">
+    <div
+      className="space-y-3"
+      onMouseEnter={() => { isHovering.current = true; }}
+      onMouseLeave={() => { isHovering.current = false; }}
+    >
       {/* Header with arrows */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

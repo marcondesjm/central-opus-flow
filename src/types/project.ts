@@ -28,6 +28,7 @@ export interface Project {
   notes?: string;
   viewCount: number;
   progress: number;
+  share_token?: string | null;
 }
 
 export interface Tag {

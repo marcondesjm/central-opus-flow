@@ -1083,6 +1083,7 @@ export default function KanbanPage() {
   const [showScheduledList, setShowScheduledList] = useState(false);
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
+  const [scheduledFilter, setScheduledFilter] = useState<'all' | 'pending' | 'sent'>('all');
   
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
     try {
@@ -2520,6 +2521,33 @@ export default function KanbanPage() {
               </div>
             </div>
           </DialogHeader>
+          {/* Filter bar */}
+          <div className="flex gap-1 border rounded-lg p-1 bg-muted/30">
+            <Button
+              size="sm"
+              variant={scheduledFilter === 'all' ? 'default' : 'ghost'}
+              className="h-7 text-xs flex-1"
+              onClick={() => setScheduledFilter('all')}
+            >
+              Todas ({scheduledMessages.length})
+            </Button>
+            <Button
+              size="sm"
+              variant={scheduledFilter === 'pending' ? 'default' : 'ghost'}
+              className="h-7 text-xs flex-1"
+              onClick={() => setScheduledFilter('pending')}
+            >
+              ⏰ Pendente ({scheduledMessages.filter(m => !m.sent).length})
+            </Button>
+            <Button
+              size="sm"
+              variant={scheduledFilter === 'sent' ? 'default' : 'ghost'}
+              className="h-7 text-xs flex-1"
+              onClick={() => setScheduledFilter('sent')}
+            >
+              ✅ Enviada ({scheduledMessages.filter(m => m.sent).length})
+            </Button>
+          </div>
           {loadingScheduled ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -2531,7 +2559,9 @@ export default function KanbanPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {scheduledMessages.map((msg: any) => {
+              {scheduledMessages
+                .filter(msg => scheduledFilter === 'all' ? true : scheduledFilter === 'sent' ? msg.sent : !msg.sent)
+                .map((msg: any) => {
                 const deal = msg.kanban_deals;
                 const isOverdue = msg.scheduled_date < format(new Date(), 'yyyy-MM-dd');
                 const isToday = msg.scheduled_date === format(new Date(), 'yyyy-MM-dd');

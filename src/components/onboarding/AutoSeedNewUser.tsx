@@ -122,9 +122,11 @@ export function AutoSeedNewUser() {
           },
         ];
 
-        await supabase
+        const { error: projError } = await supabase
           .from('projects')
           .insert(projectsData.map(p => ({ ...p, user_id: user.id })));
+
+        console.log('[AutoSeed] Projects created. Error:', projError);
 
         if (cancelled) return;
 

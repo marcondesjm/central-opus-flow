@@ -115,6 +115,11 @@ export function AutoSeedNewUser() {
             );
 
           console.log('[AutoSeed] Projects created. Error:', projError);
+
+          if (projError) {
+            seedTriggeredRef.current = false;
+            return;
+          }
         }
 
         if (cancelled) return;

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Play, Star, CheckCircle2, Users, FolderKanban, BarChart3, MessageSquare } from 'lucide-react';
+import { ArrowRight, Play, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 

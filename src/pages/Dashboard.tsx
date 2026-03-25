@@ -532,7 +532,8 @@ export default function Dashboard() {
     void seedExampleData();
 
     return () => { cancelled = true; };
-  }, [user?.id, isDemoAccount, isAdminUser, accounts.length, projects.length, accountsLoading, projectsLoading, queryClient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, isDemoAccount, isAdminUser, projects.length, accountsLoading, projectsLoading, queryClient]);
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

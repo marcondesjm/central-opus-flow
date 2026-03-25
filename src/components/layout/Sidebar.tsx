@@ -267,22 +267,8 @@ export function Sidebar({
             Nova Landing Page
           </Button>
 
-          {/* Aprovações - HERO item */}
-          <button
-            onClick={() => { onViewChange('favorites'); onAccountChange(null); }}
-            aria-current={isViewActive('favorites') ? 'page' : undefined}
-            className={cn(
-              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
-              'active:scale-[0.97]',
-              isViewActive('favorites')
-                ? 'bg-primary/15 text-primary border border-primary/40 shadow-sm shadow-primary/10'
-                : 'bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 hover:border-primary/30 hover:shadow-sm hover:shadow-primary/10'
-            )}
-          >
-            <Star className="w-4 h-4 fill-primary text-primary flex-shrink-0" aria-hidden="true" />
-            <span className="flex-1 text-left">{t('sidebar.approvals')}</span>
-          </button>
+
+
 
           <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />
         </div>

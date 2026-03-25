@@ -8,7 +8,7 @@ import {
   Plus, Pencil, Trash2, ArrowLeft, Building2, User, FileText, DollarSign,
   Loader2, BarChart3, Receipt, Calendar, Flag, CheckSquare, Filter,
   MoreHorizontal, Search, Clock, Tag, Mail, Phone, GripVertical, GripHorizontal, MessageCircle, ZoomIn, ZoomOut, Maximize2,
-  Users, X, AlertTriangle, ChevronLeft, ChevronRight, Palette,
+  Users, X, AlertTriangle, ChevronLeft, ChevronRight, Palette, Lock, Unlock, Share2,
 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button } from '@/components/ui/button';

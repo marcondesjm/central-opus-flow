@@ -96,9 +96,9 @@ export function AutoSeedNewUser() {
         // Ensure we have 3 account IDs (pad if needed)
         while (accountIds.length < 3) accountIds.push(accountIds[0]);
 
-        // 3. Create projects if missing
+        // 3. Create projects if missing (with retry — RLS needs account ownership to propagate)
         if (counts.projects === 0) {
-          const { error } = await supabase.from('projects').insert([
+          const projectRows = [
             {
               user_id: user.id, account_id: accountIds[0],
               name: 'Central Opus Flow',
@@ -129,12 +129,27 @@ export function AutoSeedNewUser() {
               is_favorite: true, view_count: 32,
               notes: 'Projeto entregue e aprovado! 🎉',
             },
-          ]);
+          ];
 
-          if (error) {
-            console.error('[AutoSeed] ❌ Erro projetos:', error.message);
-          } else {
-            console.log('[AutoSeed] ✅ 3 projetos criados');
+          // Try up to 3 times with increasing delay (RLS ownership propagation)
+          let projectError: any = null;
+          for (let attempt = 0; attempt < 3; attempt++) {
+            if (attempt > 0) {
+              console.log(`[AutoSeed] 🔄 Tentativa ${attempt + 1} de criar projetos...`);
+              await new Promise(r => setTimeout(r, 1000 * attempt));
+            }
+            const { error } = await supabase.from('projects').insert(projectRows);
+            if (!error) {
+              console.log('[AutoSeed] ✅ 3 projetos criados');
+              projectError = null;
+              break;
+            }
+            projectError = error;
+            console.warn(`[AutoSeed] ⚠️ Tentativa ${attempt + 1} falhou:`, error.message);
+          }
+
+          if (projectError) {
+            console.error('[AutoSeed] ❌ Erro projetos após 3 tentativas:', projectError.message);
           }
         }
 

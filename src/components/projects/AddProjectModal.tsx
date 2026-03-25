@@ -122,15 +122,28 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
         tagIds: selectedTags,
       });
 
-      // Create linked Kanban deal if a space is selected
+      // Create linked Kanban column + deal if a space is selected
       if (selectedSpaceId) {
         const selectedAccount = accounts.find(a => a.id === accountId);
         try {
+          // Count existing columns in this space to set position
+          const spaceColumns = columns.filter(c => c.space_id === selectedSpaceId);
+          const newPosition = spaceColumns.length;
+
+          // Create a new column with the project name
+          const newColumn = await createColumn.mutateAsync({
+            name: name.trim(),
+            color: '#3b82f6',
+            position: newPosition,
+            space_id: selectedSpaceId,
+          });
+
+          // Create the deal inside the new column
           await createDeal.mutateAsync({
             company_name: name.trim(),
             client_name: selectedAccount?.name || 'Cliente',
             description: description.trim() || undefined,
-            phase: 'proposta',
+            phase: newColumn.id,
             priority: 'medium',
             revenue: 0,
             progress: 0,
@@ -138,7 +151,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
             space_id: selectedSpaceId,
           } as any);
         } catch {
-          console.warn('Falha ao criar tarefa no Kanban');
+          console.warn('Falha ao criar coluna/tarefa no Kanban');
         }
       }
       

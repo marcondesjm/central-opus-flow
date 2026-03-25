@@ -317,12 +317,13 @@ export function AutoSeedNewUser() {
         }
 
         if (!cancelled) {
-          sessionStorage.setItem(seedKey, 'done');
+          console.log('[AutoSeed] ✅ All example data seeded successfully!');
+          localStorage.setItem(seedKey, 'done');
           await queryClient.invalidateQueries();
         }
       } catch (err) {
-        console.error('Error seeding example data:', err);
-        sessionStorage.removeItem(seedKey);
+        console.error('[AutoSeed] Error seeding example data:', err);
+        seedTriggeredRef.current = false;
       }
     };
 

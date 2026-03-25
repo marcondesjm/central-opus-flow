@@ -361,7 +361,7 @@ export default function Ideas() {
                             <td className="px-3 py-3">
                               <div className="flex items-center gap-2">
                                 <span className="text-base">{theme.icon}</span>
-                                <span className="font-medium text-sm truncate max-w-[220px] group-hover/row:text-primary transition-colors">{idea.title}</span>
+                                <span className="font-medium text-sm truncate max-w-[220px] group-hover/row:text-primary transition-colors" title={idea.title}>{idea.title}</span>
                               </div>
                             </td>
                             <td className="px-3 py-3">
@@ -466,7 +466,7 @@ export default function Ideas() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1.5">
                               <span className="text-base">{theme.icon}</span>
-                              <p className="font-medium text-sm truncate flex-1">{idea.title}</p>
+                              <p className="font-medium text-sm truncate flex-1" title={idea.title}>{idea.title}</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
                               <Badge

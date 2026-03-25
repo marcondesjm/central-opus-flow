@@ -333,7 +333,7 @@ export default function Dashboard() {
             status: 'review',
             type: 'landing',
             progress: 80,
-            account_id: createdAccounts[1].id,
+            account_id: accountIds[1],
             url: 'https://exemplo.com/campanha',
             screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
             is_favorite: true,

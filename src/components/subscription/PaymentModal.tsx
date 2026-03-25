@@ -43,12 +43,14 @@ interface PixData {
 const PIX_MAX_RETRIES = 3;
 const PIX_RETRY_DELAY_MS = 1200;
 
-async function loadPixDataWithRetry(): Promise<PixData> {
+async function loadPixDataWithRetry(amount: number): Promise<PixData> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= PIX_MAX_RETRIES; attempt++) {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-pix');
+      const { data, error } = await supabase.functions.invoke('generate-pix', {
+        body: { amount },
+      });
       if (error) throw error;
 
       const parsed = data as Partial<PixData> | null;
@@ -61,7 +63,7 @@ async function loadPixDataWithRetry(): Promise<PixData> {
         maskedKey: parsed.maskedKey || '•••••••••••',
         pixKey: parsed.pixKey,
         name: parsed.name,
-        amount: typeof parsed.amount === 'number' ? parsed.amount : 19.9,
+        amount: typeof parsed.amount === 'number' ? parsed.amount : amount,
       };
     } catch (err) {
       lastError = err;
@@ -95,13 +97,14 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const selectedPriceLabel = billingCycle === 'monthly' ? '7,90' : '73,90';
   const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
 
-  // Fetch PIX data from backend when modal opens
+  // Fetch PIX data from backend when modal opens or billing cycle changes
   useEffect(() => {
     let isCancelled = false;
 
     if (open) {
       setPixLoading(true);
-      loadPixDataWithRetry()
+      setPixData(null);
+      loadPixDataWithRetry(selectedPrice)
         .then((data) => {
           if (!isCancelled) setPixData(data);
         })
@@ -123,7 +126,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
     return () => {
       isCancelled = true;
     };
-  }, [open, toast]);
+  }, [open, billingCycle, toast]);
 
   const handleCopyPix = async () => {
     if (!pixData) return;

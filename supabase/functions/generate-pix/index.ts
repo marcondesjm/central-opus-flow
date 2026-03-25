@@ -6,7 +6,7 @@ const corsHeaders = {
 // Default fallback values (used for subscription payments)
 const DEFAULT_PIX_KEY = '+5548996029392';
 const DEFAULT_PIX_NAME = 'Marcondes Jorge Machado';
-const DEFAULT_PIX_AMOUNT = 19.90;
+const DEFAULT_PIX_AMOUNT = 7.90;
 
 /**
  * CRC16-CCITT (0xFFFF) — required by PIX EMV BR Code spec
@@ -142,10 +142,16 @@ Deno.serve(async (req) => {
 
     const brCode = generatePixBRCode(pixKey, pixName, amount, city, txid);
     
+    // Mask the PIX key for display
+    const maskedKey = pixKey.length > 6
+      ? pixKey.substring(0, 3) + '•'.repeat(pixKey.length - 6) + pixKey.substring(pixKey.length - 3)
+      : '•••••••••••';
+
     return new Response(
       JSON.stringify({
         brCode,
         pixKey,
+        maskedKey,
         name: pixName,
         amount,
         city,

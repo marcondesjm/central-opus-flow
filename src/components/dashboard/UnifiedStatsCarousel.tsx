@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, BarChart3, FolderKanban, ArrowRight, Eye, Wrench, Send } from 'lucide-react';
+import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, BarChart3, FolderKanban, ArrowRight, Eye, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

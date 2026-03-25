@@ -38,6 +38,7 @@ export default function Landing() {
       <SolutionSection />
       <BenefitsSection />
       <DifferentiationSection />
+      <FeaturesSlideshow />
       <PricingSection />
       <TestimonialsSection />
       <FinalCTASection />

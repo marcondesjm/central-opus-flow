@@ -49,7 +49,7 @@ export function SeedExampleButton({ module, label }: SeedExampleButtonProps) {
       if (attempt > 0) await new Promise(r => setTimeout(r, 1000 * attempt));
       const { error } = await supabase.from('projects').insert([
         { user_id: userId, account_id: accountId, name: 'Central Opus Flow', description: 'Landing page principal da marca. Design moderno com seções de hero, benefícios, depoimentos e CTA de conversão.', status: 'review', type: 'landing', progress: 75, url: 'https://central-opus-flow.lovable.app', screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80', is_favorite: true, view_count: 15 },
-        { user_id: userId, account_id: accountId, name: 'Campanha Black Friday', description: 'Página de vendas com countdown, ofertas exclusivas e integração com gateway de pagamento.', status: 'draft', type: 'landing', progress: 40, screenshot: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&q=80', view_count: 8 },
+        { user_id: userId, account_id: accountId, name: 'Campanha Black Friday', description: 'Página de vendas com countdown, ofertas exclusivas e integração com gateway de pagamento.', status: 'draft', type: 'landing', progress: 40, screenshot: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&q=80', is_favorite: false, view_count: 8 },
         { user_id: userId, account_id: accountId, name: 'Portfolio Agência Digital', description: 'Website institucional com portfólio de trabalhos, equipe, serviços e formulário de contato.', status: 'published', type: 'website', progress: 100, screenshot: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80', is_favorite: true, view_count: 32 },
       ]);
       if (!error) return;

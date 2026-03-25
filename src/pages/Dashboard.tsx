@@ -897,10 +897,13 @@ export default function Dashboard() {
                 }
               </p>
               {projects.length === 0 && (
-                <Button onClick={handleNewProject} size="lg" className="rounded-xl gap-2 px-8">
-                  <span className="text-lg">+</span>
-                  Nova Landing Page
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={handleNewProject} size="lg" className="rounded-xl gap-2 px-8">
+                    <span className="text-lg">+</span>
+                    Nova Landing Page
+                  </Button>
+                  <SeedExampleButton module="projects" label="Ver exemplos preenchidos" />
+                </div>
               )}
             </div>
           ) : viewMode === 'grid' ? (

@@ -178,8 +178,15 @@ export default function Admin() {
 
   const handleRefreshAll = useCallback(async () => {
     setRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setRefreshing(false), 600);
+    try {
+      await queryClient.invalidateQueries();
+      await queryClient.refetchQueries({ type: 'active' });
+      toast.success('Dados atualizados com sucesso!');
+    } catch {
+      toast.error('Erro ao atualizar dados');
+    } finally {
+      setTimeout(() => setRefreshing(false), 600);
+    }
   }, [queryClient]);
   
   const [searchQuery, setSearchQuery] = useState('');

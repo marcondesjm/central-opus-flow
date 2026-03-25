@@ -22,27 +22,28 @@ export function AutoSeedNewUser() {
     if (!user?.id || isDemoAccount || isAdminUser) return;
     if (seedTriggeredRef.current) return;
 
-    const seedKey = `example_data_seeding_${user.id}`;
-    if (sessionStorage.getItem(seedKey) === 'done') return;
-    if (sessionStorage.getItem(seedKey) === 'running') return;
+    const seedKey = `example_data_seeded_v2_${user.id}`;
+    if (localStorage.getItem(seedKey) === 'done') return;
 
     let cancelled = false;
+    seedTriggeredRef.current = true;
 
     const seedExampleData = async () => {
       try {
+        console.log('[AutoSeed] Starting seed check for user:', user.id);
+        
         // Check server-side: verify no projects exist for this user
-        const { count: projectCount } = await supabase
+        const { count: projectCount, error: countError } = await supabase
           .from('projects')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id);
 
+        console.log('[AutoSeed] Project count:', projectCount, 'Error:', countError);
+
         if ((projectCount ?? 0) > 0 || cancelled) {
-          sessionStorage.setItem(seedKey, 'done');
+          localStorage.setItem(seedKey, 'done');
           return;
         }
-
-        sessionStorage.setItem(seedKey, 'running');
-        seedTriggeredRef.current = true;
 
         // Check if accounts already exist, if not create them
         let accountIds: string[];

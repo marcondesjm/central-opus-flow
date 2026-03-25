@@ -1280,9 +1280,9 @@ export default function KanbanPage() {
     }
     if (filterAssignee !== 'all') {
       if (filterAssignee === '_unassigned') {
-        result = result.filter(d => !d.assignee_name && !(d as any).assignee_id);
+        result = result.filter(d => !d.assignee_name && !d.assignee_id);
       } else {
-        result = result.filter(d => (d as any).assignee_id === filterAssignee);
+        result = result.filter(d => d.assignee_id === filterAssignee || d.user_id === filterAssignee);
       }
     }
     if (filterTag !== 'all') {

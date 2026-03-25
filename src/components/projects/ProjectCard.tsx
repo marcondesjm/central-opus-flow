@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ProjectDetailModal } from './ProjectDetailModal';
 import { useNavigate } from 'react-router-dom';
-import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3, FileArchive } from 'lucide-react';
+import { Star, ExternalLink, MoreHorizontal, Copy, Edit, Trash2, Eye, Archive, Coins, AlertTriangle, Calendar, History, CheckSquare, ListChecks, Share2, Columns3, FileArchive, Link } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Project } from '@/types/project';
 import { LovableAccount } from '@/hooks/useProjects';
@@ -24,6 +24,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { isOverdueProject, normalizeProjectStatus } from '@/lib/project-status';
+import { toast } from 'sonner';
 
 import { ProjectCardOnlineUsers } from './ProjectCardOnlineUsers';
 import { ProjectUserPresence } from '@/hooks/useProjectPresence';
@@ -354,6 +355,22 @@ export function ProjectCard({ project, account, onlineUsers = [], checklistProgr
             <Calendar className="w-3.5 h-3.5" />
             <span>{t('cards.deadline')}: {format(new Date(project.deadline), "dd/MM/yyyy", { locale: ptBR })}</span>
           </div>
+        )}
+
+        {/* Approval link */}
+        {project.share_token && (
+          <button
+            onClick={() => {
+              const link = `${window.location.origin}/p/${project.share_token}`;
+              navigator.clipboard.writeText(link);
+              toast.success('Link de aprovação copiado!');
+            }}
+            className="flex items-center gap-1.5 text-xs mb-2 p-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-full"
+          >
+            <Link className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">Link de aprovação do cliente</span>
+            <Copy className="w-3 h-3 ml-auto flex-shrink-0" />
+          </button>
         )}
 
         {/* Footer */}

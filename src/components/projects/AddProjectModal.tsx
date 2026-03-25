@@ -77,6 +77,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();
+  const { data: spaces = [] } = useKanbanSpaces();
   const createProject = useCreateProject();
   const createDeal = useCreateDeal();
   const { toast } = useToast();

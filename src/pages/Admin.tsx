@@ -140,6 +140,25 @@ export default function Admin() {
   const updateUserStatus = useUpdateUserStatus();
   const deleteUser = useDeleteUser();
 
+  // Fetch temp passwords (visible for 7 days after reset)
+  const { data: tempPasswords = [] } = useQuery({
+    queryKey: ['admin-temp-passwords'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('admin_temp_passwords')
+        .select('*')
+        .gte('expires_at', new Date().toISOString());
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isAdmin,
+    refetchInterval: 30000,
+  });
+
+  const getTempPassword = (userId: string) => {
+    return tempPasswords.find((tp: any) => tp.user_id === userId);
+  };
+
   // Fetch all projects for monitoring charts
   const { data: allProjects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ['admin-all-projects'],

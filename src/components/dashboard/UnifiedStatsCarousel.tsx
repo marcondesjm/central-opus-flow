@@ -126,12 +126,21 @@ export function UnifiedStatsCarousel({
         {/* Approval detail lists - single row */}
         {hasApprovalContent && (
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
-              <Star className="w-3.5 h-3.5" />
-              Projetos em destaque ({favoriteProjects.length + approvedList.length})
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {[...favoriteProjects.slice(0, 4), ...approvedList.slice(0, 4)].slice(0, 6).map((project) => {
+            {(() => {
+              const seen = new Set<string>();
+              const uniqueProjects = [...favoriteProjects, ...approvedList].filter(p => {
+                if (seen.has(p.id)) return false;
+                seen.add(p.id);
+                return true;
+              }).slice(0, 6);
+              return (
+                <>
+                  <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
+                    <Star className="w-3.5 h-3.5" />
+                    Projetos em destaque ({uniqueProjects.length})
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {uniqueProjects.map((project) => {
                 const isApproved = isApprovedStatus(project.status);
                 const normalizedStatus = normalizeProjectStatus(project.status);
                 const statusColor = isApproved
@@ -158,8 +167,11 @@ export function UnifiedStatsCarousel({
                     <Badge variant="outline" className={cn('text-[10px]', statusColor)}>{statusLabel}</Badge>
                   </button>
                 );
-              })}
-            </div>
+                    })}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
       </div>

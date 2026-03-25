@@ -262,8 +262,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
 
-    // Only seed if user has zero accounts AND zero projects (from queries)
-    if (accounts.length > 0 || projects.length > 0) return;
+    // Only seed if user has zero projects
+    if (projects.length > 0) return;
 
     // Prevent multiple concurrent runs in the same session
     const seedKey = `example_data_seeding_${user.id}`;

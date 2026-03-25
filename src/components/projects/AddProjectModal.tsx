@@ -73,6 +73,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   const [type, setType] = useState<'website' | 'landing' | 'app' | 'funnel' | 'other'>('website');
   const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedSpaceId, setSelectedSpaceId] = useState<string>('');
   
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();

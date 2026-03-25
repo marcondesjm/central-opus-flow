@@ -1040,6 +1040,14 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Kanban Monitor */}
+          <div className="mb-8">
+            <KanbanMonitor />
+          </div>
+
+          {/* Collaborated Projects Section */}
+          <CollaboratedProjectsSection onEditProject={handleEditProject} />
+
           {/* Action Center */}
           <div className="mb-8">
             <ActionCenter
@@ -1055,14 +1063,6 @@ export default function Dashboard() {
               onStatsFilterChange={handleActionStatsFilterChange}
             />
           </div>
-
-          {/* Kanban Monitor */}
-          <div className="mb-8">
-            <KanbanMonitor />
-          </div>
-
-          {/* Collaborated Projects Section */}
-          <CollaboratedProjectsSection onEditProject={handleEditProject} />
 
           {/* Active ActionCenter filter indicator */}
           {actionStatsFilter && (

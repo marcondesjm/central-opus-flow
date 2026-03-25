@@ -44,14 +44,17 @@ interface PixData {
 const PIX_MAX_RETRIES = 3;
 const PIX_RETRY_DELAY_MS = 1200;
 
-async function loadPixDataWithRetry(amount: number): Promise<PixData> {
+async function loadPixDataWithRetry(amount: number, pixKeyOverride?: string, pixNameOverride?: string, cityOverride?: string): Promise<PixData> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= PIX_MAX_RETRIES; attempt++) {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-pix', {
-        body: { amount },
-      });
+      const body: Record<string, unknown> = { amount };
+      if (pixKeyOverride) body.pixKey = pixKeyOverride;
+      if (pixNameOverride) body.pixName = pixNameOverride;
+      if (cityOverride) body.city = cityOverride;
+
+      const { data, error } = await supabase.functions.invoke('generate-pix', { body });
       if (error) throw error;
 
       const parsed = data as Partial<PixData> | null;

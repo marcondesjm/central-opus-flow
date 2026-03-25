@@ -850,10 +850,20 @@ export default function Dashboard() {
     setActiveView(view);
     setStatsFilter('all');
     setActionStatsFilter(null);
+    setStatusFilter('all');
+    setTypeFilter('all');
+    setTagFilter(null);
+    setCurrentPage(1);
     if (view === 'tags') {
       setTagsManagerOpen(true);
     } else if (view === 'wordpress') {
       setWordpressOpen(true);
+    }
+    // Scroll to projects section
+    if (view !== 'tags' && view !== 'wordpress') {
+      setTimeout(() => {
+        projectsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 

@@ -262,12 +262,13 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
 
-    // Only seed if user has zero accounts AND zero projects
+    // Only seed if user has zero accounts AND zero projects (from queries)
     if (accounts.length > 0 || projects.length > 0) return;
 
-    // Use localStorage to ensure we only seed once per user per session
-    const seedKey = `example_data_seeded_${user.id}`;
-    if (localStorage.getItem(seedKey) === 'true') return;
+    // Prevent multiple concurrent runs in the same session
+    const seedKey = `example_data_seeding_${user.id}`;
+    if (sessionStorage.getItem(seedKey) === 'running') return;
+    sessionStorage.setItem(seedKey, 'running');
 
     let cancelled = false;
 

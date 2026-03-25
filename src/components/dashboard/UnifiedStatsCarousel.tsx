@@ -262,8 +262,13 @@ export function UnifiedStatsCarousel({
           <button onClick={() => setShowCustomize(true)} className="p-1 rounded-lg hover:bg-muted transition-colors" title="Personalizar">
             <Settings2 className="w-4 h-4 text-muted-foreground" />
           </button>
+        </div>
+      </div>
+
+      {/* ===== Slide: Visão Geral ===== */}
+      {currentSlideKey === 'slideOverview' && (
         <div className="space-y-3 animate-in fade-in-50 duration-200">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className={cn('grid gap-3', unifiedStats.length <= 3 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5')}>
             {unifiedStats.map((stat) => {
               const Icon = stat.icon;
               const isFilterable = !!stat.filterKey;
@@ -294,7 +299,7 @@ export function UnifiedStatsCarousel({
             })}
           </div>
 
-          {hasApprovalContent && uniqueHighlightProjects.length > 0 && (
+          {carouselVis.highlightProjects && hasApprovalContent && uniqueHighlightProjects.length > 0 && (
             <HighlightProjectsPaginated
               projects={uniqueHighlightProjects}
               onOpenProject={onOpenProject}
@@ -303,8 +308,8 @@ export function UnifiedStatsCarousel({
         </div>
       )}
 
-      {/* ===== Slide 1: Monitor Kanban ===== */}
-      {activeSlide === 1 && (
+      {/* ===== Slide: Monitor Kanban ===== */}
+      {currentSlideKey === 'slideKanban' && (
         <div className="space-y-3 animate-in fade-in-50 duration-200">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
@@ -353,9 +358,10 @@ export function UnifiedStatsCarousel({
               ))}
             </div>
           )}
-
         </div>
       )}
+
+      <CarouselCustomizeModal open={showCustomize} onOpenChange={setShowCustomize} onUpdate={setCarouselVis} />
     </div>
   );
 }

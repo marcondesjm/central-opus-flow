@@ -20,8 +20,9 @@ import {
 } from '@/components/ui/select';
 import { useCreateProject, useAccounts, useTags } from '@/hooks/useProjects';
 import { useCreateDeal } from '@/hooks/useKanban';
+import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, X, Plus } from 'lucide-react';
+import { Loader2, X, Plus, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { CoverUpload } from './CoverUpload';
@@ -72,9 +73,11 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   const [type, setType] = useState<'website' | 'landing' | 'app' | 'funnel' | 'other'>('website');
   const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedSpaceId, setSelectedSpaceId] = useState<string>('');
   
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();
+  const { data: spaces = [] } = useKanbanSpaces();
   const createProject = useCreateProject();
   const createDeal = useCreateDeal();
   const { toast } = useToast();
@@ -116,22 +119,24 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
         tagIds: selectedTags,
       });
 
-      // Create linked Kanban deal
-      const selectedAccount = accounts.find(a => a.id === accountId);
-      try {
-        await createDeal.mutateAsync({
-          company_name: name.trim(),
-          client_name: selectedAccount?.name || 'Cliente',
-          description: description.trim() || undefined,
-          phase: 'proposta',
-          priority: 'medium',
-          revenue: 0,
-          progress: 0,
-          tags: [type],
-        });
-      } catch {
-        // Don't block project creation if kanban deal fails
-        console.warn('Falha ao criar tarefa no Kanban');
+      // Create linked Kanban deal if a space is selected
+      if (selectedSpaceId) {
+        const selectedAccount = accounts.find(a => a.id === accountId);
+        try {
+          await createDeal.mutateAsync({
+            company_name: name.trim(),
+            client_name: selectedAccount?.name || 'Cliente',
+            description: description.trim() || undefined,
+            phase: 'proposta',
+            priority: 'medium',
+            revenue: 0,
+            progress: 0,
+            tags: [type],
+            space_id: selectedSpaceId,
+          } as any);
+        } catch {
+          console.warn('Falha ao criar tarefa no Kanban');
+        }
       }
       
       toast({
@@ -148,6 +153,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
       setType('website');
       setStatus('draft');
       setSelectedTags([]);
+      setSelectedSpaceId('');
       onOpenChange(false);
     } catch (error: any) {
       toast({
@@ -285,6 +291,36 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
             />
           </div>
           
+          {/* Kanban Space */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <LayoutGrid className="w-3.5 h-3.5" />
+              Vincular ao Kanban
+            </Label>
+            <Select value={selectedSpaceId} onValueChange={(v) => setSelectedSpaceId(v === 'none' ? '' : v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um espaço (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Nenhum</SelectItem>
+                {spaces.map((space) => (
+                  <SelectItem key={space.id} value={space.id}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-3 h-3 rounded-sm shrink-0"
+                        style={{ backgroundColor: space.color }}
+                      />
+                      {space.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Cria automaticamente uma tarefa no espaço selecionado.
+            </p>
+          </div>
+
           {/* Tags Selection */}
           <div className="space-y-2">
             <Label className="flex items-center justify-between">

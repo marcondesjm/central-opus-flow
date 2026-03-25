@@ -8,6 +8,7 @@ import { CheckCircle2, Zap, Crown, Coffee, ArrowRight, Shield, X } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 import { PaywallTrigger } from '@/hooks/usePaywall';
 import { cn } from '@/lib/utils';
+import { usePricingSettings } from '@/hooks/useSystemSettings';
 
 interface UpgradeModalProps {
   open: boolean;
@@ -27,6 +28,11 @@ const features = [
 
 export function UpgradeModal({ open, onOpenChange, trigger, triggerMessage }: UpgradeModalProps) {
   const navigate = useNavigate();
+  const { data: pricingSettings } = usePricingSettings();
+  const monthly = pricingSettings?.monthly_price ?? 7.9;
+  const annual = pricingSettings?.annual_price ?? 73.9;
+  const discount = Math.round((1 - annual / (monthly * 12)) * 100);
+  const fmt = (v: number) => `R$${v.toFixed(2).replace('.', ',')}`;
 
   const handleUpgrade = () => {
     onOpenChange(false);
@@ -91,12 +97,12 @@ export function UpgradeModal({ open, onOpenChange, trigger, triggerMessage }: Up
           <div className="flex items-center justify-between">
             <div>
               <div>
-                <span className="text-2xl font-bold">R$7,90</span>
+                <span className="text-2xl font-bold">{fmt(monthly)}</span>
                 <span className="text-muted-foreground text-sm">/mês</span>
               </div>
               <div className="text-xs text-muted-foreground">
-                ou <strong className="text-foreground">R$73,90</strong>/ano
-                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">22% off</Badge>
+                ou <strong className="text-foreground">{fmt(annual)}</strong>/ano
+                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{discount}% off</Badge>
               </div>
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">

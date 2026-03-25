@@ -93,6 +93,7 @@ import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
 import { RssFeedManager } from '@/components/admin/RssFeedManager';
 import { Rss, Key } from 'lucide-react';
 import { LicenseKeyManager } from '@/components/admin/LicenseKeyManager';
+import { PricingSettingsManager } from '@/components/admin/PricingSettingsManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',
@@ -960,6 +961,10 @@ export default function Admin() {
                 <Key className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Chaves
               </TabsTrigger>
+              <TabsTrigger value="pricing-settings" className="gap-1.5 text-xs sm:text-sm">
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Valores
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -1489,6 +1494,10 @@ export default function Admin() {
                 <LicenseKeyManager />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="pricing-settings">
+            <PricingSettingsManager />
           </TabsContent>
         </Tabs>
       </main>

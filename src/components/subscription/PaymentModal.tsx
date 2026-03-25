@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSubmitPaymentReceipt, useTrial } from '@/hooks/useTrial';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '@/integrations/supabase/client';
+import { usePricingSettings, usePixSettings } from '@/hooks/useSystemSettings';
 import { 
   Copy, 
   Check, 
@@ -43,14 +44,17 @@ interface PixData {
 const PIX_MAX_RETRIES = 3;
 const PIX_RETRY_DELAY_MS = 1200;
 
-async function loadPixDataWithRetry(amount: number): Promise<PixData> {
+async function loadPixDataWithRetry(amount: number, pixKeyOverride?: string, pixNameOverride?: string, cityOverride?: string): Promise<PixData> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= PIX_MAX_RETRIES; attempt++) {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-pix', {
-        body: { amount },
-      });
+      const body: Record<string, unknown> = { amount };
+      if (pixKeyOverride) body.pixKey = pixKeyOverride;
+      if (pixNameOverride) body.pixName = pixNameOverride;
+      if (cityOverride) body.city = cityOverride;
+
+      const { data, error } = await supabase.functions.invoke('generate-pix', { body });
       if (error) throw error;
 
       const parsed = data as Partial<PixData> | null;
@@ -92,9 +96,13 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const { toast } = useToast();
   const submitReceipt = useSubmitPaymentReceipt();
   const { data: trial } = useTrial();
+  const { data: pricingSettings } = usePricingSettings();
+  const { data: pixSettings } = usePixSettings();
 
-  const selectedPrice = billingCycle === 'monthly' ? 7.9 : 73.9;
-  const selectedPriceLabel = billingCycle === 'monthly' ? '7,90' : '73,90';
+  const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
+  const annualPrice = pricingSettings?.annual_price ?? 73.9;
+  const selectedPrice = billingCycle === 'monthly' ? monthlyPrice : annualPrice;
+  const selectedPriceLabel = selectedPrice.toFixed(2).replace('.', ',');
   const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
 
   // Fetch PIX data from backend when modal opens or billing cycle changes
@@ -104,7 +112,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
     if (open) {
       setPixLoading(true);
       setPixData(null);
-      loadPixDataWithRetry(selectedPrice)
+      loadPixDataWithRetry(selectedPrice, pixSettings?.pix_key, pixSettings?.pix_name, pixSettings?.pix_city)
         .then((data) => {
           if (!isCancelled) setPixData(data);
         })
@@ -317,7 +325,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 <p className="text-xs text-muted-foreground mb-1">Mensal</p>
                 <div className="flex items-baseline justify-center gap-0.5">
                   <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">7,90</span>
+                  <span className="text-2xl font-bold text-foreground">{monthlyPrice.toFixed(2).replace('.', ',')}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
               </button>
@@ -332,14 +340,14 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 )}
               >
                 <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                  22% off
+                  {Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100)}% off
                 </span>
                 <p className="text-xs text-muted-foreground mb-1">Anual</p>
                 <div className="flex items-baseline justify-center gap-0.5">
                   <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">73,90</span>
+                  <span className="text-2xl font-bold text-foreground">{annualPrice.toFixed(2).replace('.', ',')}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R$94,80</span></p>
+                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R${(monthlyPrice * 12).toFixed(2).replace('.', ',')}</span></p>
               </button>
             </div>
 

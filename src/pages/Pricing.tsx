@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { usePricingSettings } from '@/hooks/useSystemSettings';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,11 @@ export default function Pricing() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const redeemCoupon = useRedeemCoupon();
+  const { data: pricingSettings } = usePricingSettings();
+  const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
+  const annualPrice = pricingSettings?.annual_price ?? 73.9;
+  const discount = Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100);
+  const formatBRL = (v: number) => `R$${v.toFixed(2).replace('.', ',')}`;
 
   const handleSelectPlan = (planId: PlanType) => {
     if (planId === 'free') {
@@ -168,17 +174,17 @@ export default function Pricing() {
               
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-                  R$7,90
+                  {formatBRL(monthlyPrice)}
                 </span>
                 <span className="text-muted-foreground">/mês</span>
               </div>
 
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm text-muted-foreground">
-                  ou <strong className="text-foreground">R$73,90</strong>/ano
+                  ou <strong className="text-foreground">{formatBRL(annualPrice)}</strong>/ano
                 </span>
                 <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] px-1.5 py-0">
-                  22% off
+                  {discount}% off
                 </Badge>
               </div>
               

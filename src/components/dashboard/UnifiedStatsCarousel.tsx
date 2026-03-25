@@ -167,8 +167,11 @@ export function UnifiedStatsCarousel({
                     <Badge variant="outline" className={cn('text-[10px]', statusColor)}>{statusLabel}</Badge>
                   </button>
                 );
-              })}
-            </div>
+                    })}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
       </div>

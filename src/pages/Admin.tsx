@@ -140,6 +140,25 @@ export default function Admin() {
   const updateUserStatus = useUpdateUserStatus();
   const deleteUser = useDeleteUser();
 
+  // Fetch temp passwords (visible for 7 days after reset)
+  const { data: tempPasswords = [] } = useQuery({
+    queryKey: ['admin-temp-passwords'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('admin_temp_passwords')
+        .select('*')
+        .gte('expires_at', new Date().toISOString());
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isAdmin,
+    refetchInterval: 30000,
+  });
+
+  const getTempPassword = (userId: string) => {
+    return tempPasswords.find((tp: any) => tp.user_id === userId);
+  };
+
   // Fetch all projects for monitoring charts
   const { data: allProjects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ['admin-all-projects'],
@@ -419,6 +438,15 @@ export default function Admin() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+
+      // Save temp password for 7 days visibility
+      await supabase.from('admin_temp_passwords').delete().eq('user_id', resetPasswordUser.user_id);
+      await supabase.from('admin_temp_passwords').insert({
+        user_id: resetPasswordUser.user_id,
+        temp_password: newPassword,
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-temp-passwords'] });
+
       toast({
         title: 'Senha redefinida',
         description: `A senha de ${resetPasswordUser.email} foi atualizada com sucesso.`,
@@ -1137,6 +1165,22 @@ export default function Admin() {
                                       )}
                                     </p>
                                     <p className="text-xs text-muted-foreground">{user.email}</p>
+                                    {(() => {
+                                      const tp = getTempPassword(user.user_id);
+                                      if (!tp) return null;
+                                      const daysLeft = Math.ceil((new Date(tp.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                                      return (
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-orange-500/30 bg-orange-500/10 text-orange-600 font-mono">
+                                            <KeyRound className="w-2.5 h-2.5 mr-1" />
+                                            {tp.temp_password}
+                                          </Badge>
+                                          <span className="text-[9px] text-muted-foreground">
+                                            {daysLeft}d restantes
+                                          </span>
+                                        </div>
+                                      );
+                                    })()}
                                   </div>
                                 </div>
                               </TableCell>

@@ -274,6 +274,16 @@ export default function Dashboard() {
 
     const seedExampleData = async () => {
       try {
+        // Double-check server-side: verify no accounts exist for this user
+        const { count: accountCount } = await supabase
+          .from('lovable_accounts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        if ((accountCount ?? 0) > 0 || cancelled) {
+          sessionStorage.removeItem(seedKey);
+          return;
+        }
         // Create 3 example accounts
         const accountsData = [
           { name: 'Minha Empresa', email: user.email || 'contato@empresa.com', color: 'blue', credits: 50 },

@@ -93,6 +93,7 @@ import { AssistantFaqManager } from '@/components/admin/AssistantFaqManager';
 import { RssFeedManager } from '@/components/admin/RssFeedManager';
 import { Rss, Key } from 'lucide-react';
 import { LicenseKeyManager } from '@/components/admin/LicenseKeyManager';
+import { PricingSettingsManager } from '@/components/admin/PricingSettingsManager';
 
 const planColors: Record<SubscriptionPlan, string> = {
   free: 'bg-muted text-muted-foreground',

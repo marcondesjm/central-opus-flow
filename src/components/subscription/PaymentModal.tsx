@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSubmitPaymentReceipt, useTrial } from '@/hooks/useTrial';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '@/integrations/supabase/client';
+import { usePricingSettings, usePixSettings } from '@/hooks/useSystemSettings';
 import { 
   Copy, 
   Check, 

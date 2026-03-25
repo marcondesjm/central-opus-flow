@@ -325,7 +325,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 <p className="text-xs text-muted-foreground mb-1">Mensal</p>
                 <div className="flex items-baseline justify-center gap-0.5">
                   <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">7,90</span>
+                  <span className="text-2xl font-bold text-foreground">{monthlyPrice.toFixed(2).replace('.', ',')}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
               </button>

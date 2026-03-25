@@ -321,7 +321,7 @@ export default function Dashboard() {
             status: 'draft',
             type: 'landing',
             progress: 25,
-            account_id: createdAccounts[0].id,
+            account_id: accountIds[0],
             url: 'https://exemplo.com',
             screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
             view_count: 3,

@@ -8,6 +8,7 @@ import { ProblemSection } from '@/components/landing/ProblemSection';
 import { SolutionSection } from '@/components/landing/SolutionSection';
 import { BenefitsSection } from '@/components/landing/BenefitsSection';
 import { DifferentiationSection } from '@/components/landing/DifferentiationSection';
+import { FeaturesSlideshow } from '@/components/landing/FeaturesSlideshow';
 import { PricingSection } from '@/components/landing/PricingSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
@@ -37,6 +38,7 @@ export default function Landing() {
       <SolutionSection />
       <BenefitsSection />
       <DifferentiationSection />
+      <FeaturesSlideshow />
       <PricingSection />
       <TestimonialsSection />
       <FinalCTASection />

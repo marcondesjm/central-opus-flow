@@ -84,11 +84,16 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [pixLoading, setPixLoading] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
   const submitReceipt = useSubmitPaymentReceipt();
   const { data: trial } = useTrial();
+
+  const selectedPrice = billingCycle === 'monthly' ? 7.9 : 73.9;
+  const selectedPriceLabel = billingCycle === 'monthly' ? '7,90' : '73,90';
+  const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
 
   // Fetch PIX data from backend when modal opens
   useEffect(() => {

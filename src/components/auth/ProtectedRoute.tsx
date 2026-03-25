@@ -102,6 +102,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   const userStatus = subStatus?.user_status || 'active';
+  const autoSeed = <AutoSeedNewUser />;
 
   // Check if subscription expired (ALL plans including free/trial)
   const now = new Date();
@@ -123,66 +124,72 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     const whatsappUrl = `https://wa.me/5548996029392?text=${whatsappMessage}`;
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-              <AlertTriangle className="w-8 h-8 text-destructive" />
-            </div>
-            <CardTitle className="text-xl">Assinatura Expirada</CardTitle>
-            <CardDescription className="text-base mt-2">
-              Seu plano expirou. Renove sua assinatura para continuar utilizando todos os recursos do sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full gap-2">
-                <MessageCircle className="w-4 h-4" />
-                Renovar via WhatsApp
+      <>
+        {autoSeed}
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md text-center">
+            <CardHeader>
+              <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                <AlertTriangle className="w-8 h-8 text-destructive" />
+              </div>
+              <CardTitle className="text-xl">Assinatura Expirada</CardTitle>
+              <CardDescription className="text-base mt-2">
+                Seu plano expirou. Renove sua assinatura para continuar utilizando todos os recursos do sistema.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="w-full gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Renovar via WhatsApp
+                </Button>
+              </a>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => signOut()}
+              >
+                Sair
               </Button>
-            </a>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => signOut()}
-            >
-              Sair
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
   // Check if user is pending approval
   if (userStatus === 'pending_approval') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mb-4">
-              <Clock className="w-8 h-8 text-amber-600" />
-            </div>
-            <CardTitle className="text-xl">Conta Aguardando Aprovação</CardTitle>
-            <CardDescription className="text-base mt-2">
-              Sua conta foi criada com sucesso! Um administrador precisa aprovar seu acesso antes que você possa utilizar o sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2 justify-center text-sm text-muted-foreground">
-              <Mail className="w-4 h-4" />
-              <span>Você será notificado quando sua conta for aprovada.</span>
-            </div>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => signOut()}
-            >
-              Sair
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        {autoSeed}
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md text-center">
+            <CardHeader>
+              <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mb-4">
+                <Clock className="w-8 h-8 text-amber-600" />
+              </div>
+              <CardTitle className="text-xl">Conta Aguardando Aprovação</CardTitle>
+              <CardDescription className="text-base mt-2">
+                Sua conta foi criada com sucesso! Um administrador precisa aprovar seu acesso antes que você possa utilizar o sistema.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-2 justify-center text-sm text-muted-foreground">
+                <Mail className="w-4 h-4" />
+                <span>Você será notificado quando sua conta for aprovada.</span>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => signOut()}
+              >
+                Sair
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
@@ -194,34 +201,37 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     const whatsappUrl = `https://wa.me/5548996029392?text=${whatsappMessage}`;
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-              <AlertTriangle className="w-8 h-8 text-destructive" />
-            </div>
-            <CardTitle className="text-xl text-destructive">Conta Congelada</CardTitle>
-            <CardDescription className="text-base mt-2">
-              Sua conta foi congelada pelo administrador. Entre em contato para mais informações.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full gap-2">
-                <MessageCircle className="w-4 h-4" />
-                Falar com o Administrador
+      <>
+        {autoSeed}
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md text-center">
+            <CardHeader>
+              <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                <AlertTriangle className="w-8 h-8 text-destructive" />
+              </div>
+              <CardTitle className="text-xl text-destructive">Conta Congelada</CardTitle>
+              <CardDescription className="text-base mt-2">
+                Sua conta foi congelada pelo administrador. Entre em contato para mais informações.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="w-full gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Falar com o Administrador
+                </Button>
+              </a>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => signOut()}
+              >
+                Sair
               </Button>
-            </a>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => signOut()}
-            >
-              Sair
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
@@ -235,13 +245,16 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     const isAdmin = user.email === 'marcondesgestaotrafego@gmail.com';
     if (!isAdmin) {
       return (
-        <CompleteProfileGate
-          missingName={missingName}
-          missingWhatsapp={missingWhatsapp}
-          missingAvatar={missingAvatar}
-          currentName={profileData?.full_name || ''}
-          currentWhatsapp={profileData?.whatsapp || ''}
-        />
+        <>
+          {autoSeed}
+          <CompleteProfileGate
+            missingName={missingName}
+            missingWhatsapp={missingWhatsapp}
+            missingAvatar={missingAvatar}
+            currentName={profileData?.full_name || ''}
+            currentWhatsapp={profileData?.whatsapp || ''}
+          />
+        </>
       );
     }
   }
@@ -254,7 +267,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <VersionUpdateModal />
       <VersionChecker />
       <ActivitySync />
-      <AutoSeedNewUser />
+      {autoSeed}
     </>
   );
 }

@@ -48,6 +48,7 @@ import DealPaymentsModal from '@/components/kanban/DealPaymentsModal';
 import { CalendarView } from '@/components/kanban/CalendarView';
 import { TimelineView } from '@/components/kanban/TimelineView';
 import TaskDetailFullModal from '@/components/kanban/TaskDetailFullModal';
+import { ShareSpaceModal } from '@/components/kanban/ShareSpaceModal';
 
 // ─── Task Detail Modal with Checklist ──────────────────────────
 function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open: boolean; onOpenChange: (v: boolean) => void }) {

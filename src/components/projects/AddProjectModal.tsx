@@ -119,22 +119,24 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
         tagIds: selectedTags,
       });
 
-      // Create linked Kanban deal
-      const selectedAccount = accounts.find(a => a.id === accountId);
-      try {
-        await createDeal.mutateAsync({
-          company_name: name.trim(),
-          client_name: selectedAccount?.name || 'Cliente',
-          description: description.trim() || undefined,
-          phase: 'proposta',
-          priority: 'medium',
-          revenue: 0,
-          progress: 0,
-          tags: [type],
-        });
-      } catch {
-        // Don't block project creation if kanban deal fails
-        console.warn('Falha ao criar tarefa no Kanban');
+      // Create linked Kanban deal if a space is selected
+      if (selectedSpaceId) {
+        const selectedAccount = accounts.find(a => a.id === accountId);
+        try {
+          await createDeal.mutateAsync({
+            company_name: name.trim(),
+            client_name: selectedAccount?.name || 'Cliente',
+            description: description.trim() || undefined,
+            phase: 'proposta',
+            priority: 'medium',
+            revenue: 0,
+            progress: 0,
+            tags: [type],
+            space_id: selectedSpaceId,
+          } as any);
+        } catch {
+          console.warn('Falha ao criar tarefa no Kanban');
+        }
       }
       
       toast({

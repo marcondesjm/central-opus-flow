@@ -262,8 +262,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
 
-    // Only seed if user has zero accounts AND zero projects (from queries)
-    if (accounts.length > 0 || projects.length > 0) return;
+    // Only seed if user has zero projects
+    if (projects.length > 0) return;
 
     // Prevent multiple concurrent runs in the same session
     const seedKey = `example_data_seeding_${user.id}`;
@@ -274,29 +274,44 @@ export default function Dashboard() {
 
     const seedExampleData = async () => {
       try {
-        // Double-check server-side: verify no accounts exist for this user
-        const { count: accountCount } = await supabase
-          .from('lovable_accounts')
+        // Double-check server-side: verify no projects exist for this user
+        const { count: projectCount } = await supabase
+          .from('projects')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id);
         
-        if ((accountCount ?? 0) > 0 || cancelled) {
+        if ((projectCount ?? 0) > 0 || cancelled) {
           sessionStorage.removeItem(seedKey);
           return;
         }
-        // Create 3 example accounts
-        const accountsData = [
-          { name: 'Minha Empresa', email: user.email || 'contato@empresa.com', color: 'blue', credits: 50 },
-          { name: 'Cliente Premium', email: 'premium@cliente.com', color: 'green', credits: 30 },
-          { name: 'Agência Digital', email: 'contato@agencia.com', color: 'purple', credits: 80 },
-        ];
 
-        const { data: createdAccounts, error: accError } = await supabase
+        // Check if accounts already exist, if not create them
+        let accountIds: string[];
+        const { data: existingAccounts } = await supabase
           .from('lovable_accounts')
-          .insert(accountsData.map(a => ({ ...a, user_id: user.id })))
-          .select();
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(3);
 
-        if (accError || !createdAccounts?.length || cancelled) return;
+        if (existingAccounts && existingAccounts.length > 0) {
+          accountIds = existingAccounts.map(a => a.id);
+          // Pad to 3 if less
+          while (accountIds.length < 3) accountIds.push(accountIds[0]);
+        } else {
+          const accountsData = [
+            { name: 'Minha Empresa', email: user.email || 'contato@empresa.com', color: 'blue', credits: 50 },
+            { name: 'Cliente Premium', email: 'premium@cliente.com', color: 'green', credits: 30 },
+            { name: 'Agência Digital', email: 'contato@agencia.com', color: 'purple', credits: 80 },
+          ];
+
+          const { data: createdAccounts, error: accError } = await supabase
+            .from('lovable_accounts')
+            .insert(accountsData.map(a => ({ ...a, user_id: user.id })))
+            .select();
+
+          if (accError || !createdAccounts?.length || cancelled) return;
+          accountIds = createdAccounts.map(a => a.id);
+        }
 
         // Create 3 example projects, one per account, with varied statuses
         const projectsData = [
@@ -306,7 +321,7 @@ export default function Dashboard() {
             status: 'draft',
             type: 'landing',
             progress: 25,
-            account_id: createdAccounts[0].id,
+            account_id: accountIds[0],
             url: 'https://exemplo.com',
             screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
             view_count: 3,
@@ -318,7 +333,7 @@ export default function Dashboard() {
             status: 'review',
             type: 'landing',
             progress: 80,
-            account_id: createdAccounts[1].id,
+            account_id: accountIds[1],
             url: 'https://exemplo.com/campanha',
             screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
             is_favorite: true,
@@ -331,7 +346,7 @@ export default function Dashboard() {
             status: 'published',
             type: 'website',
             progress: 100,
-            account_id: createdAccounts[2].id,
+            account_id: accountIds[2],
             url: 'https://exemplo.com/institucional',
             screenshot: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
             view_count: 12,

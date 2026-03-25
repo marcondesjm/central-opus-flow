@@ -264,9 +264,12 @@ export default function Ideas() {
                   <h3 className="font-semibold mb-1">Nenhuma ideia encontrada</h3>
                   <p className="text-sm text-muted-foreground">Comece registrando suas ideias de produto</p>
                 </div>
-                <Button onClick={() => handleCreate()} className="gap-2">
-                  <Plus className="w-4 h-4" /> Criar primeira ideia
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={() => handleCreate()} className="gap-2">
+                    <Plus className="w-4 h-4" /> Criar primeira ideia
+                  </Button>
+                  <SeedExampleButton module="ideas" label="Ver exemplos preenchidos" />
+                </div>
               </div>
             ) : viewMode === 'board' ? (
               <IdeasBoardView

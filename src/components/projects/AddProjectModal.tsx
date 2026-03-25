@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCreateProject, useAccounts, useTags } from '@/hooks/useProjects';
+import { useCreateDeal } from '@/hooks/useKanban';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';

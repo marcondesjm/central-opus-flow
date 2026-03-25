@@ -293,22 +293,38 @@ export default function Dashboard() {
 
         if (accError || !account || cancelled) return;
 
-        // Create 1 example project with a professional screenshot
+        // Create example projects
         await supabase
           .from('projects')
-          .insert({
-            name: 'Meu Primeiro Projeto',
-            description: 'Projeto de exemplo para você conhecer a plataforma. Edite ou exclua quando quiser!',
-            status: 'draft',
-            type: 'website',
-            progress: 25,
-            user_id: user.id,
-            account_id: account.id,
-            url: 'https://exemplo.com',
-            screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
-            view_count: 3,
-            notes: 'Este é um projeto de exemplo. Explore as funcionalidades e personalize como quiser!',
-          });
+          .insert([
+            {
+              name: 'Meu Primeiro Projeto',
+              description: 'Projeto de exemplo para você conhecer a plataforma. Edite ou exclua quando quiser!',
+              status: 'draft',
+              type: 'website',
+              progress: 25,
+              user_id: user.id,
+              account_id: account.id,
+              url: 'https://exemplo.com',
+              screenshot: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+              view_count: 3,
+              notes: 'Este é um projeto de exemplo. Explore as funcionalidades e personalize como quiser!',
+            },
+            {
+              name: 'Landing Page - Campanha',
+              description: 'Página de vendas para aprovação do cliente. Aguardando feedback.',
+              status: 'review',
+              type: 'website',
+              progress: 80,
+              user_id: user.id,
+              account_id: account.id,
+              url: 'https://exemplo.com/campanha',
+              screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+              is_favorite: true,
+              view_count: 5,
+              notes: 'Enviada para aprovação do cliente. Marque como favorito para acompanhar aqui!',
+            },
+          ]);
 
         // Create 3 example activity logs
         const now = new Date();

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, TrendingUp, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { useMemo, useState, useCallback } from 'react';
+import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, TrendingUp, ArrowRight, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -38,9 +38,13 @@ export function KanbanMonitor() {
   const urgentDeals = useMemo(() => {
     return deals
       .filter(d => !d.completed_at && d.due_date && new Date(d.due_date) < now)
-      .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())
-      .slice(0, 3);
+      .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime());
   }, [deals, now]);
+
+  const URGENT_PAGE_SIZE = 3;
+  const [urgentPage, setUrgentPage] = useState(0);
+  const urgentTotalPages = Math.ceil(urgentDeals.length / URGENT_PAGE_SIZE);
+  const paginatedUrgentDeals = urgentDeals.slice(urgentPage * URGENT_PAGE_SIZE, (urgentPage + 1) * URGENT_PAGE_SIZE);
 
   const kanbanStats = [
     { label: 'Total', value: stats.total, icon: LayoutGrid, color: 'text-primary', bg: 'bg-primary/10' },
@@ -145,11 +149,38 @@ export function KanbanMonitor() {
           {/* Urgent/overdue deals */}
           {urgentDeals.length > 0 && (
             <div className="rounded-xl border border-destructive/20 bg-destructive/[0.04] p-3 space-y-1.5">
-              <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 mb-2">
+              <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
-                Tarefas atrasadas
+                Tarefas atrasadas ({urgentDeals.length})
               </p>
-              {urgentDeals.map((deal) => (
+              {urgentTotalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    disabled={urgentPage <= 0}
+                    onClick={() => setUrgentPage(p => p - 1)}
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </Button>
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                    {urgentPage + 1}/{urgentTotalPages}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    disabled={urgentPage >= urgentTotalPages - 1}
+                    onClick={() => setUrgentPage(p => p + 1)}
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              )}
+              </div>
+              {paginatedUrgentDeals.map((deal) => (
                 <button
                   key={deal.id}
                   onClick={() => navigate(`/kanban?space=${deal.space_id || ''}`)}

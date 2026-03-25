@@ -15,6 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Plus, Lightbulb, Search, Filter, Loader2, List, LayoutGrid, Calendar, Trash2, X, TrendingUp, Zap, Clock, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SeedExampleButton } from '@/components/onboarding/SeedExampleButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';

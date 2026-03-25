@@ -232,7 +232,7 @@ export function UnifiedStatsCarousel({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CurrentIcon className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">{slideTitles[activeSlide].title}</h3>
+          <h3 className="text-sm font-semibold text-foreground">{currentSlide.title}</h3>
         </div>
         <div className="flex items-center gap-2">
           {/* Dots */}

@@ -42,6 +42,7 @@ export function useKanbanDeals() {
   return useQuery({
     queryKey: ['kanban-deals', user?.id],
     queryFn: async () => {
+      // Get own deals
       const { data, error } = await supabase
         .from('kanban_deals')
         .select('*')
@@ -49,7 +50,29 @@ export function useKanbanDeals() {
         .order('position', { ascending: true });
 
       if (error) throw error;
-      return data as KanbanDeal[];
+
+      // Also get deals from shared spaces
+      const { data: shares } = await supabase
+        .from('kanban_space_shares')
+        .select('space_id')
+        .eq('shared_with', user!.id);
+
+      let sharedDeals: KanbanDeal[] = [];
+      if (shares && shares.length > 0) {
+        const sharedSpaceIds = shares.map(s => (s as any).space_id);
+        const { data: sDeals } = await supabase
+          .from('kanban_deals')
+          .select('*')
+          .in('space_id', sharedSpaceIds)
+          .order('position', { ascending: true });
+        if (sDeals) sharedDeals = sDeals as KanbanDeal[];
+      }
+
+      const ownIds = new Set((data || []).map(d => d.id));
+      return [
+        ...(data || []) as KanbanDeal[],
+        ...sharedDeals.filter(d => !ownIds.has(d.id)),
+      ];
     },
     enabled: !!user,
   });

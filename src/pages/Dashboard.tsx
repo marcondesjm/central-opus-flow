@@ -58,6 +58,7 @@ import { isApprovedStatus, isOverdueProject } from '@/lib/project-status';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
+import { SeedExampleButton } from '@/components/onboarding/SeedExampleButton';
 import { DailyScheduledMessagesReport } from '@/components/kanban/DailyScheduledMessagesReport';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
@@ -897,10 +898,13 @@ export default function Dashboard() {
                 }
               </p>
               {projects.length === 0 && (
-                <Button onClick={handleNewProject} size="lg" className="rounded-xl gap-2 px-8">
-                  <span className="text-lg">+</span>
-                  Nova Landing Page
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={handleNewProject} size="lg" className="rounded-xl gap-2 px-8">
+                    <span className="text-lg">+</span>
+                    Nova Landing Page
+                  </Button>
+                  <SeedExampleButton module="projects" label="Ver exemplos preenchidos" />
+                </div>
               )}
             </div>
           ) : viewMode === 'grid' ? (

@@ -297,7 +297,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
               <LayoutGrid className="w-3.5 h-3.5" />
               Vincular ao Kanban
             </Label>
-            <Select value={selectedSpaceId} onValueChange={setSelectedSpaceId}>
+            <Select value={selectedSpaceId} onValueChange={(v) => setSelectedSpaceId(v === 'none' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um espaço (opcional)" />
               </SelectTrigger>

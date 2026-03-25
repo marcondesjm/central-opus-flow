@@ -98,31 +98,35 @@ export default function Pricing() {
             
             <div className="relative">
               <div className="mb-6">
-                <h3 className="text-xl font-bold mb-1">Livre</h3>
-                <p className="text-muted-foreground text-sm">Para começar a organizar</p>
+                <h3 className="text-xl font-bold mb-1">Teste Grátis</h3>
+                <p className="text-muted-foreground text-sm">Experimente tudo por 7 dias</p>
               </div>
               
-              <div className="flex items-baseline gap-1 mb-6">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-4xl md:text-5xl font-bold">R$0</span>
-                <span className="text-muted-foreground">/mês</span>
+                <span className="text-muted-foreground">/7 dias</span>
               </div>
+
+              <p className="text-xs text-emerald-600 font-medium mb-6">
+                ✨ Acesso completo ao Pro por 7 dias
+              </p>
               
               <ul className="space-y-3 mb-8">
                 {[
-                  { text: 'Até 2 projetos', included: true },
+                  { text: 'Projetos ilimitados (7 dias)', included: true },
                   { text: 'Comentários ilimitados', included: true },
                   { text: 'Aprovações básicas', included: true },
-                  { text: 'Controle de revisões', included: false },
-                  { text: 'Histórico de versões', included: false },
-                  { text: 'Fluxo profissional de aprovação', included: false },
+                  { text: 'Controle de revisões', included: true },
+                  { text: 'Relatórios e estatísticas', included: true },
+                  { text: 'Sem cartão de crédito', included: true },
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <div className={cn(
                       "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                      feature.included ? "bg-primary/10" : "bg-muted"
+                      feature.included ? "bg-emerald-500/10" : "bg-muted"
                     )}>
                       {feature.included ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       ) : (
                         <X className="w-3 h-3 text-muted-foreground" />
                       )}
@@ -143,6 +147,10 @@ export default function Pricing() {
                 Começar grátis
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
+
+              <p className="text-center text-[11px] text-muted-foreground mt-3">
+                Após 7 dias, continue com o plano gratuito limitado ou faça upgrade
+              </p>
             </div>
           </motion.div>
 

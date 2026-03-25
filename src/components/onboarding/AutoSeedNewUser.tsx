@@ -68,8 +68,11 @@ export function AutoSeedNewUser() {
             .insert(accountsData.map(a => ({ ...a, user_id: user.id })))
             .select();
 
+          console.log('[AutoSeed] Accounts created:', createdAccounts?.length, 'Error:', accError);
+
           if (accError || !createdAccounts?.length || cancelled) {
-            sessionStorage.removeItem(seedKey);
+            console.error('[AutoSeed] Failed to create accounts:', accError);
+            seedTriggeredRef.current = false;
             return;
           }
           accountIds = createdAccounts.map(a => a.id);

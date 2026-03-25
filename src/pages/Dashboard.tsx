@@ -259,16 +259,21 @@ export default function Dashboard() {
   // Auto-seed example data for users without any accounts/projects (not demo, not admin)
   const isAdminRole = useIsAdmin();
   const isAdminUser = isAdminRole || user?.email === 'marcondesgestaotrafego@gmail.com';
+  const seedTriggeredRef = useRef(false);
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
 
     // Only seed if user has zero projects
     if (projects.length > 0) return;
 
+    // Prevent re-triggering after accounts are created (which changes accounts.length)
+    if (seedTriggeredRef.current) return;
+
     // Prevent multiple concurrent runs in the same session
     const seedKey = `example_data_seeding_${user.id}`;
     if (sessionStorage.getItem(seedKey) === 'running') return;
     sessionStorage.setItem(seedKey, 'running');
+    seedTriggeredRef.current = true;
 
     let cancelled = false;
 

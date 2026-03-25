@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, TrendingUp, ArrowRight, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +45,25 @@ export function KanbanMonitor() {
   const [urgentPage, setUrgentPage] = useState(0);
   const urgentTotalPages = Math.ceil(urgentDeals.length / URGENT_PAGE_SIZE);
   const paginatedUrgentDeals = urgentDeals.slice(urgentPage * URGENT_PAGE_SIZE, (urgentPage + 1) * URGENT_PAGE_SIZE);
+
+  // Auto-rotate urgent deals pages every 5 seconds
+  const autoRotateRef = useRef<ReturnType<typeof setInterval>>();
+  useEffect(() => {
+    if (urgentTotalPages <= 1) return;
+    autoRotateRef.current = setInterval(() => {
+      setUrgentPage(p => (p + 1) % urgentTotalPages);
+    }, 5000);
+    return () => clearInterval(autoRotateRef.current);
+  }, [urgentTotalPages]);
+
+  // Reset auto-rotate on manual navigation
+  const handlePageChange = (newPage: number) => {
+    setUrgentPage(newPage);
+    clearInterval(autoRotateRef.current);
+    autoRotateRef.current = setInterval(() => {
+      setUrgentPage(p => (p + 1) % urgentTotalPages);
+    }, 5000);
+  };
 
   const kanbanStats = [
     { label: 'Total', value: stats.total, icon: LayoutGrid, color: 'text-primary', bg: 'bg-primary/10' },

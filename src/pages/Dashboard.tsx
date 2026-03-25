@@ -346,7 +346,7 @@ export default function Dashboard() {
             status: 'published',
             type: 'website',
             progress: 100,
-            account_id: createdAccounts[2].id,
+            account_id: accountIds[2],
             url: 'https://exemplo.com/institucional',
             screenshot: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
             view_count: 12,

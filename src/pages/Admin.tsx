@@ -419,6 +419,15 @@ export default function Admin() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+
+      // Save temp password for 7 days visibility
+      await supabase.from('admin_temp_passwords').delete().eq('user_id', resetPasswordUser.user_id);
+      await supabase.from('admin_temp_passwords').insert({
+        user_id: resetPasswordUser.user_id,
+        temp_password: newPassword,
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-temp-passwords'] });
+
       toast({
         title: 'Senha redefinida',
         description: `A senha de ${resetPasswordUser.email} foi atualizada com sucesso.`,

@@ -1,0 +1,1 @@
+UPDATE kanban_spaces SET is_shared = true WHERE id = '553997ff-11be-47d3-a6b6-6b1413201f0a';

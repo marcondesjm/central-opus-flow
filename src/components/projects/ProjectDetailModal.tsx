@@ -78,32 +78,70 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <div className="px-5 pt-3 pb-1">
-            <TabsList className="bg-muted/50 h-10 p-1 gap-1 w-full rounded-xl">
-              <TabsTrigger value="overview" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
+          <div className="px-4 pt-3 pb-0">
+            <div className="flex gap-2 p-1.5 bg-muted/60 rounded-2xl border border-border/50">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
+                  activeTab === 'overview'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                )}
+              >
                 <Eye className="w-3.5 h-3.5" />
                 Visão Geral
-              </TabsTrigger>
-              <TabsTrigger value="versions" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
+              </button>
+              <button
+                onClick={() => setActiveTab('versions')}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
+                  activeTab === 'versions'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                )}
+              >
                 <Layers className="w-3.5 h-3.5" />
                 Versões
-              </TabsTrigger>
-              <TabsTrigger value="feedback" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
+              </button>
+              <button
+                onClick={() => setActiveTab('feedback')}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
+                  activeTab === 'feedback'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                )}
+              >
                 <MessageCircle className="w-3.5 h-3.5" />
                 Feedback
-              </TabsTrigger>
-              <TabsTrigger value="activity" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
+              </button>
+              <button
+                onClick={() => setActiveTab('activity')}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
+                  activeTab === 'activity'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                )}
+              >
                 <History className="w-3.5 h-3.5" />
                 Atividade
-              </TabsTrigger>
-              <TabsTrigger value="keys" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
+              </button>
+              <button
+                onClick={() => setActiveTab('keys')}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
+                  activeTab === 'keys'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                )}
+              >
                 <Key className="w-3.5 h-3.5" />
                 Keys
-              </TabsTrigger>
-            </TabsList>
+              </button>
+            </div>
           </div>
-
-          <div className="border-b mx-5" />
 
           <div className="overflow-y-auto max-h-[calc(92vh-140px)] px-5 pb-5">
             <TabsContent value="overview" className="mt-0">

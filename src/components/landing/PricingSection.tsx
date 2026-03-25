@@ -21,8 +21,10 @@ const plans = [
   },
   {
     name: 'Pro',
-    price: 'R$29',
+    price: 'R$7,90',
     period: '/mês',
+    annualPrice: 'R$73,90',
+    annualDiscount: '22%',
     subtitle: 'Tudo para entregar mais rápido',
     features: [
       'Projetos ilimitados',

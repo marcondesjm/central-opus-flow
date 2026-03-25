@@ -25,10 +25,14 @@ export function FeaturesSlideshow() {
     setCurrent((prev) => (prev + dir + slides.length) % slides.length);
   }, []);
 
+  // Auto-play: reset timer on every slide change
   useEffect(() => {
-    const timer = setInterval(() => go(1), 5000);
+    const timer = setInterval(() => {
+      setDirection(1);
+      setCurrent((prev) => (prev + 1) % slides.length);
+    }, 4000);
     return () => clearInterval(timer);
-  }, [go]);
+  }, [current]);
 
   return (
     <section className="py-16 md:py-24 px-4 relative overflow-hidden">

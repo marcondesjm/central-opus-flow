@@ -29,6 +29,11 @@ export default function Pricing() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const redeemCoupon = useRedeemCoupon();
+  const { data: pricingSettings } = usePricingSettings();
+  const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
+  const annualPrice = pricingSettings?.annual_price ?? 73.9;
+  const discount = Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100);
+  const formatBRL = (v: number) => `R$${v.toFixed(2).replace('.', ',')}`;
 
   const handleSelectPlan = (planId: PlanType) => {
     if (planId === 'free') {

@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Idea, ROADMAP_OPTIONS, THEME_PRESETS } from '@/hooks/useIdeas';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronUp, ChevronDown } from 'lucide-react';
+
+const PAGE_SIZE = 5;
 
 interface IdeasBoardViewProps {
   ideas: Idea[];
@@ -11,11 +14,21 @@ interface IdeasBoardViewProps {
 }
 
 export function IdeasBoardView({ ideas, onSelectIdea, selectedIdeaId, onCreateInRoadmap }: IdeasBoardViewProps) {
+  const [pageMap, setPageMap] = useState<Record<string, number>>({});
+
+  const getPage = (roadmapId: string) => pageMap[roadmapId] || 0;
+  const setPage = (roadmapId: string, page: number) =>
+    setPageMap(prev => ({ ...prev, [roadmapId]: page }));
+
   return (
     <div className="flex-1 overflow-x-auto p-3 md:p-4">
       <div className="flex gap-3 md:gap-4 min-w-max md:min-w-0 md:grid md:grid-cols-4">
         {ROADMAP_OPTIONS.map(roadmap => {
           const columnIdeas = ideas.filter(i => i.roadmap === roadmap.id);
+          const page = getPage(roadmap.id);
+          const totalPages = Math.ceil(columnIdeas.length / PAGE_SIZE);
+          const visibleIdeas = columnIdeas.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
           return (
             <div key={roadmap.id} className="w-72 md:w-auto flex flex-col">
               {/* Column Header */}
@@ -36,7 +49,7 @@ export function IdeasBoardView({ ideas, onSelectIdea, selectedIdeaId, onCreateIn
 
               {/* Cards */}
               <div className="space-y-2 flex-1">
-                {columnIdeas.map(idea => {
+                {visibleIdeas.map(idea => {
                   const theme = THEME_PRESETS.find(t => t.id === idea.theme) || THEME_PRESETS[5];
                   const score = idea.impact * (6 - idea.effort);
 
@@ -65,6 +78,29 @@ export function IdeasBoardView({ ideas, onSelectIdea, selectedIdeaId, onCreateIn
                   );
                 })}
               </div>
+
+              {/* Pagination Arrows */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-3 pt-2 border-t">
+                  <button
+                    onClick={() => setPage(roadmap.id, page - 1)}
+                    disabled={page === 0}
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                    {page + 1}/{totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage(roadmap.id, page + 1)}
+                    disabled={page >= totalPages - 1}
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}

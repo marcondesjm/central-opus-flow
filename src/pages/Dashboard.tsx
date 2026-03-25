@@ -1051,7 +1051,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Unified Stats Carousel (Kanban + Projects) */}
+          {/* Unified Stats Carousel (Kanban + Projects + Approvals) */}
           <div className="mb-8">
             <UnifiedStatsCarousel
               projectStats={{
@@ -1060,16 +1060,21 @@ export default function Dashboard() {
                 overdue: allTransformedProjects.filter(p => isOverdueProject(p, new Date())).length,
                 approved: allTransformedProjects.filter(p => isApprovedStatus(p.status)).length,
               }}
+              approvalProjects={allTransformedProjects.map(p => ({
+                ...p,
+                accountName: getAccount(p.accountId)?.name,
+              }))}
               activeStatsFilter={actionStatsFilter}
               onStatsFilterChange={handleActionStatsFilterChange}
               onNavigateKanban={() => navigate('/kanban')}
+              onOpenProject={handleEditProject}
             />
           </div>
 
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />
 
-          {/* Action Center */}
+          {/* Action Center (actions + quick buttons only) */}
           <div className="mb-8">
             <ActionCenter
               projects={allTransformedProjects.map(p => ({

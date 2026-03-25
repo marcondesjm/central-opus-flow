@@ -1728,6 +1728,12 @@ export default function KanbanPage() {
                       )}
                       <DropdownMenuItem onSelect={(e) => {
                         e.preventDefault();
+                        setSharingSpaceId(space.id);
+                      }}>
+                        <Share2 className="w-4 h-4 mr-2" /> Compartilhar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
                         setDeletingSpaceId(space.id);
                       }} className="text-destructive focus:text-destructive">
                         <Trash2 className="w-4 h-4 mr-2" /> Excluir

@@ -123,71 +123,43 @@ export function UnifiedStatsCarousel({
           })}
         </div>
 
-        {/* Approval detail lists */}
+        {/* Approval detail lists - single row */}
         {hasApprovalContent && (
-          <div className="space-y-3">
-            {favoriteProjects.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
-                  <Star className="w-3.5 h-3.5" />
-                  Aguardando aprovação ({favoriteProjects.length})
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {favoriteProjects.slice(0, 4).map((project) => {
-                    const normalizedStatus = normalizeProjectStatus(project.status);
-                    const statusColor = normalizedStatus === 'review'
-                      ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-                      : normalizedStatus === 'approved'
-                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                        : 'bg-primary/10 text-primary border-primary/20';
-                    const statusLabel = normalizedStatus === 'review'
-                      ? '🟡 Aguardando'
-                      : normalizedStatus === 'approved'
-                        ? '🟢 Aprovado'
-                        : '📋 Em análise';
-                    return (
-                      <button
-                        key={project.id}
-                        onClick={() => onOpenProject?.(project.id)}
-                        className="rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 active:scale-[0.98] group"
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{project.name}</h4>
-                          <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" />
-                        </div>
-                        {project.accountName && <p className="text-xs text-muted-foreground mb-2">Cliente: {project.accountName}</p>}
-                        <Badge variant="outline" className={cn('text-[10px]', statusColor)}>{statusLabel}</Badge>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {approvedList.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Já aprovados ({approvedList.length})
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {approvedList.slice(0, 4).map((project) => (
-                    <button
-                      key={project.id}
-                      onClick={() => onOpenProject?.(project.id)}
-                      className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.04] p-4 text-left transition-all hover:shadow-md hover:border-emerald-500/50 hover:-translate-y-0.5 active:scale-[0.98] group"
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h4 className="text-sm font-semibold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">{project.name}</h4>
-                        <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" />
-                      </div>
-                      {project.accountName && <p className="text-xs text-muted-foreground mb-2">Cliente: {project.accountName}</p>}
-                      <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">🟢 Aprovado</Badge>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
+              <Star className="w-3.5 h-3.5" />
+              Projetos em destaque ({favoriteProjects.length + approvedList.length})
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {[...favoriteProjects.slice(0, 4), ...approvedList.slice(0, 4)].slice(0, 6).map((project) => {
+                const isApproved = isApprovedStatus(project.status);
+                const normalizedStatus = normalizeProjectStatus(project.status);
+                const statusColor = isApproved
+                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                  : normalizedStatus === 'review'
+                    ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                    : 'bg-primary/10 text-primary border-primary/20';
+                const statusLabel = isApproved
+                  ? '🟢 Aprovado'
+                  : normalizedStatus === 'review'
+                    ? '🟡 Aguardando'
+                    : '📋 Em análise';
+                return (
+                  <button
+                    key={project.id}
+                    onClick={() => onOpenProject?.(project.id)}
+                    className={cn(
+                      'rounded-xl border p-3 text-left transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] group',
+                      isApproved ? 'border-emerald-500/30 bg-emerald-500/[0.04] hover:border-emerald-500/50' : 'border-border bg-card hover:border-primary/30'
+                    )}
+                  >
+                    <h4 className={cn('text-sm font-semibold text-foreground line-clamp-1 mb-1 transition-colors', isApproved ? 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400' : 'group-hover:text-primary')}>{project.name}</h4>
+                    {project.accountName && <p className="text-xs text-muted-foreground mb-1.5">Cliente: {project.accountName}</p>}
+                    <Badge variant="outline" className={cn('text-[10px]', statusColor)}>{statusLabel}</Badge>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

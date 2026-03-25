@@ -28,6 +28,7 @@ const DEFAULT_VISIBILITY: CarouselVisibility = {
   statAtrasados: true,
   statAprovados: true,
   highlightProjects: true,
+  kanbanSpaces: true,
 };
 
 export function getCarouselVisibility(): CarouselVisibility {

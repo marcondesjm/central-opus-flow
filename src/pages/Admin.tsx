@@ -181,13 +181,13 @@ export default function Admin() {
     try {
       await queryClient.invalidateQueries();
       await queryClient.refetchQueries({ type: 'active' });
-      toast.success('Dados atualizados com sucesso!');
+      toast({ title: 'Dados atualizados com sucesso!' });
     } catch {
-      toast.error('Erro ao atualizar dados');
+      toast({ title: 'Erro ao atualizar dados', variant: 'destructive' });
     } finally {
       setTimeout(() => setRefreshing(false), 600);
     }
-  }, [queryClient]);
+  }, [queryClient, toast]);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [planFilter, setPlanFilter] = useState<'all' | SubscriptionPlan>('all');

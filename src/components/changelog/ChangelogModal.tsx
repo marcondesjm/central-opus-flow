@@ -214,7 +214,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
             )}
           </div>
           {/* Download progress bar */}
-          {hasUpdate && downloadPhase === 'downloading' && (
+          {downloadPhase === 'downloading' && (
             <div className="mt-3 space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground flex items-center gap-1.5">
@@ -229,8 +229,7 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
               <p className="text-[10px] text-muted-foreground text-right">{downloadProgress}%</p>
             </div>
           )}
-          {/* Ready to install */}
-          {hasUpdate && downloadPhase === 'ready' && (
+          {downloadPhase === 'ready' && (
             <div className="mt-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 p-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />

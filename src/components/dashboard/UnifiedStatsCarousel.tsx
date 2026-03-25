@@ -325,27 +325,6 @@ export function UnifiedStatsCarousel({
             </div>
           )}
 
-          {urgentDeals.length > 0 && (
-            <div className="rounded-xl border border-destructive/20 bg-destructive/[0.04] p-3 space-y-1.5">
-              <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 mb-2">
-                <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
-                Tarefas atrasadas ({urgentDeals.length})
-              </p>
-              {urgentDeals.map((deal) => (
-                <button
-                  key={deal.id}
-                  onClick={onNavigateKanban}
-                  className="w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-xs text-foreground hover:bg-background/60 transition-colors text-left"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-destructive flex-shrink-0" />
-                  <span className="flex-1 truncate font-medium">{deal.company_name}</span>
-                  <Badge variant="outline" className="text-[9px] px-1 border-destructive/30 text-destructive">
-                    {formatDistanceToNow(new Date(deal.due_date!), { locale: ptBR, addSuffix: true })}
-                  </Badge>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>

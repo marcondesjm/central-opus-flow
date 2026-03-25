@@ -153,6 +153,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
       setType('website');
       setStatus('draft');
       setSelectedTags([]);
+      setSelectedSpaceId('');
       onOpenChange(false);
     } catch (error: any) {
       toast({

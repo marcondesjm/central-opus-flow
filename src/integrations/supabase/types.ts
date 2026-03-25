@@ -146,6 +146,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_temp_passwords: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          temp_password: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          temp_password: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          temp_password?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       api_tokens: {
         Row: {
           created_at: string

@@ -936,6 +936,7 @@ export default function Dashboard() {
       notes: p.notes,
       viewCount: p.view_count,
       progress: p.progress ?? 0,
+      share_token: p.share_token,
     }));
 
   useEffect(() => {

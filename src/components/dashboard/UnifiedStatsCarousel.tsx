@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, ChevronLeft, ChevronRight, BarChart3, FolderKanban } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { LayoutGrid, CheckCircle2, Clock, AlertTriangle, Star, ChevronLeft, ChevronRight, BarChart3, FolderKanban, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useKanbanDeals } from '@/hooks/useKanban';
-import { useMemo } from 'react';
+import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type StatsFilterKey = 'review' | 'waiting' | 'overdue' | 'approved';
 
@@ -13,12 +17,6 @@ interface StatItem {
   color: string;
   bg: string;
   filterKey?: StatsFilterKey;
-}
-
-interface SlideConfig {
-  title: string;
-  icon: typeof BarChart3;
-  stats: StatItem[];
 }
 
 interface UnifiedStatsCarouselProps {
@@ -40,7 +38,9 @@ export function UnifiedStatsCarousel({
   onNavigateKanban,
 }: UnifiedStatsCarouselProps) {
   const { data: deals = [] } = useKanbanDeals();
+  const { data: spaces = [] } = useKanbanSpaces();
   const [activeSlide, setActiveSlide] = useState(0);
+  const autoRef = useRef<ReturnType<typeof setInterval>>();
 
   const now = new Date();
 
@@ -52,7 +52,23 @@ export function UnifiedStatsCarousel({
     return { total, completed, overdue, inProgress };
   }, [deals]);
 
-  const slides: SlideConfig[] = [
+  const spaceStats = useMemo(() => {
+    return spaces.map(space => {
+      const spaceDeals = deals.filter(d => d.space_id === space.id);
+      const active = spaceDeals.filter(d => !d.completed_at).length;
+      const done = spaceDeals.filter(d => d.completed_at).length;
+      return { ...space, active, done, total: spaceDeals.length };
+    }).filter(s => s.total > 0).slice(0, 4);
+  }, [spaces, deals]);
+
+  const urgentDeals = useMemo(() => {
+    return deals
+      .filter(d => !d.completed_at && d.due_date && new Date(d.due_date) < now)
+      .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())
+      .slice(0, 3);
+  }, [deals]);
+
+  const slides: { title: string; icon: typeof BarChart3; stats: StatItem[] }[] = [
     {
       title: 'Monitor Kanban',
       icon: FolderKanban,
@@ -77,35 +93,49 @@ export function UnifiedStatsCarousel({
 
   const totalSlides = slides.length;
 
-  const next = useCallback(() => setActiveSlide(p => (p + 1) % totalSlides), [totalSlides]);
-  const prev = useCallback(() => setActiveSlide(p => (p - 1 + totalSlides) % totalSlides), [totalSlides]);
+  const startAutoRotate = useCallback(() => {
+    clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      setActiveSlide(p => (p + 1) % totalSlides);
+    }, 6000);
+  }, [totalSlides]);
+
+  const next = useCallback(() => {
+    setActiveSlide(p => (p + 1) % totalSlides);
+    startAutoRotate();
+  }, [totalSlides, startAutoRotate]);
+
+  const prev = useCallback(() => {
+    setActiveSlide(p => (p - 1 + totalSlides) % totalSlides);
+    startAutoRotate();
+  }, [totalSlides, startAutoRotate]);
 
   useEffect(() => {
-    const interval = setInterval(next, 6000);
-    return () => clearInterval(interval);
-  }, [next]);
+    startAutoRotate();
+    return () => clearInterval(autoRef.current);
+  }, [startAutoRotate]);
 
   const currentSlide = slides[activeSlide];
   const SlideIcon = currentSlide.icon;
 
   return (
     <div className="space-y-3">
-      {/* Header with title + navigation */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SlideIcon className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">{currentSlide.title}</h3>
         </div>
-        <div className="flex items-center gap-1.5">
-          {/* Dots indicator */}
+        <div className="flex items-center gap-2">
+          {/* Dots */}
           <div className="flex items-center gap-1 mr-1">
             {slides.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setActiveSlide(i)}
+                onClick={() => { setActiveSlide(i); startAutoRotate(); }}
                 className={cn(
-                  'w-1.5 h-1.5 rounded-full transition-all duration-300',
-                  i === activeSlide ? 'w-4 bg-primary' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  'h-1.5 rounded-full transition-all duration-300',
+                  i === activeSlide ? 'w-4 bg-primary' : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
                 )}
               />
             ))}
@@ -116,11 +146,16 @@ export function UnifiedStatsCarousel({
           <button onClick={next} className="p-1 rounded-lg hover:bg-muted transition-colors">
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
+          {activeSlide === 0 && (
+            <Button variant="ghost" size="sm" className="text-xs gap-1 h-7 ml-1" onClick={onNavigateKanban}>
+              Ver Kanban <ArrowRight className="w-3 h-3" />
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Stats grid with slide transition */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 transition-all duration-300">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {currentSlide.stats.map((stat) => {
           const Icon = stat.icon;
           const isFilterable = !!stat.filterKey;
@@ -152,6 +187,57 @@ export function UnifiedStatsCarousel({
           );
         })}
       </div>
+
+      {/* Kanban extras (spaces + urgent) - only on kanban slide */}
+      {activeSlide === 0 && (
+        <>
+          {spaceStats.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {spaceStats.map((space) => (
+                <button
+                  key={space.id}
+                  onClick={onNavigateKanban}
+                  className="rounded-lg border border-border bg-card/50 p-2.5 text-left hover:bg-accent/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: space.color }} />
+                    <span className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                      {space.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <span>{space.active} ativas</span>
+                    <span>·</span>
+                    <span>{space.done} feitas</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {urgentDeals.length > 0 && (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/[0.04] p-3 space-y-1.5">
+              <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 mb-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
+                Tarefas atrasadas ({urgentDeals.length})
+              </p>
+              {urgentDeals.map((deal) => (
+                <button
+                  key={deal.id}
+                  onClick={onNavigateKanban}
+                  className="w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-xs text-foreground hover:bg-background/60 transition-colors text-left"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive flex-shrink-0" />
+                  <span className="flex-1 truncate font-medium">{deal.company_name}</span>
+                  <Badge variant="outline" className="text-[9px] px-1 border-destructive/30 text-destructive">
+                    {formatDistanceToNow(new Date(deal.due_date!), { locale: ptBR, addSuffix: true })}
+                  </Badge>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

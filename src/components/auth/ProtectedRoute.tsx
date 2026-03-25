@@ -254,6 +254,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <VersionUpdateModal />
       <VersionChecker />
       <ActivitySync />
+      <AutoSeedNewUser />
     </>
   );
 }

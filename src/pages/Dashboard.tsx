@@ -36,6 +36,7 @@ import { ImportBackupButton } from '@/components/export/ImportBackupButton';
 import { RefreshButton } from '@/components/dashboard/RefreshButton';
 import { CollaboratedProjectsSection } from '@/components/dashboard/CollaboratedProjectsSection';
 import { ActionCenter } from '@/components/dashboard/ActionCenter';
+import { KanbanMonitor } from '@/components/dashboard/KanbanMonitor';
 import { useAccounts, useProjects, useTags, useToggleFavorite, useUpdateProject, useDeleteProject, LovableAccount, Project } from '@/hooks/useProjects';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { useCollaboratedProjects } from '@/hooks/useCollaboratedProjects';
@@ -994,6 +995,11 @@ export default function Dashboard() {
               activeStatsFilter={actionStatsFilter}
               onStatsFilterChange={handleActionStatsFilterChange}
             />
+          </div>
+
+          {/* Kanban Monitor */}
+          <div className="mb-8">
+            <KanbanMonitor />
           </div>
 
           {/* Collaborated Projects Section */}

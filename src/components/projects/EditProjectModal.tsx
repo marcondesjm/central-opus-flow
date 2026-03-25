@@ -114,6 +114,7 @@ export function EditProjectModal({ open, onOpenChange, project, initialTab = 've
                 project={project} 
                 onSaved={(updatedProject) => {
                   setLocalStatus(updatedProject.status);
+                  onOpenChange(false);
                 }} 
                 onStatusChange={(s: string) => setLocalStatus(s)}
               />

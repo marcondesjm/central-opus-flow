@@ -11,6 +11,82 @@ import { isApprovedStatus, normalizeProjectStatus } from '@/lib/project-status';
 
 type StatsFilterKey = 'review' | 'waiting' | 'overdue' | 'approved';
 
+const HIGHLIGHT_PAGE_SIZE = 4;
+
+function HighlightProjectsPaginated({
+  projects,
+  onOpenProject,
+}: {
+  projects: ApprovalProject[];
+  onOpenProject?: (id: string) => void;
+}) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(projects.length / HIGHLIGHT_PAGE_SIZE);
+  const visible = projects.slice(page * HIGHLIGHT_PAGE_SIZE, (page + 1) * HIGHLIGHT_PAGE_SIZE);
+  const hasPrev = page > 0;
+  const hasNext = page < totalPages - 1;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
+          <Star className="w-3.5 h-3.5" />
+          Projetos em destaque ({projects.length})
+        </p>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => p - 1)}
+              disabled={!hasPrev}
+              className={cn('p-1 rounded-lg transition-colors', hasPrev ? 'hover:bg-muted text-muted-foreground' : 'text-muted-foreground/30 cursor-default')}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[10px] text-muted-foreground tabular-nums">{page + 1}/{totalPages}</span>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={!hasNext}
+              className={cn('p-1 rounded-lg transition-colors', hasNext ? 'hover:bg-muted text-muted-foreground' : 'text-muted-foreground/30 cursor-default')}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {visible.map((project) => {
+          const isApproved = isApprovedStatus(project.status);
+          const normalizedStatus = normalizeProjectStatus(project.status);
+          const statusColor = isApproved
+            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+            : normalizedStatus === 'review'
+              ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+              : 'bg-primary/10 text-primary border-primary/20';
+          const statusLabel = isApproved
+            ? '🟢 Aprovado'
+            : normalizedStatus === 'review'
+              ? '🟡 Aguardando'
+              : '📋 Em análise';
+          return (
+            <button
+              key={project.id}
+              onClick={() => onOpenProject?.(project.id)}
+              className={cn(
+                'rounded-xl border p-3 text-left transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] group',
+                isApproved ? 'border-emerald-500/30 bg-emerald-500/[0.04] hover:border-emerald-500/50' : 'border-border bg-card hover:border-primary/30'
+              )}
+            >
+              <h4 className={cn('text-sm font-semibold text-foreground line-clamp-1 mb-1 transition-colors', isApproved ? 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400' : 'group-hover:text-primary')}>{project.name}</h4>
+              {project.accountName && <p className="text-xs text-muted-foreground mb-1.5">Cliente: {project.accountName}</p>}
+              <Badge variant="outline" className={cn('text-[10px]', statusColor)}>{statusLabel}</Badge>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 interface ApprovalProject {
   id: string;
   name: string;
@@ -176,42 +252,10 @@ export function UnifiedStatsCarousel({
           </div>
 
           {hasApprovalContent && uniqueHighlightProjects.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-primary flex items-center gap-1.5 uppercase tracking-wider">
-                <Star className="w-3.5 h-3.5" />
-                Projetos em destaque ({uniqueHighlightProjects.length})
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {uniqueHighlightProjects.map((project) => {
-                  const isApproved = isApprovedStatus(project.status);
-                  const normalizedStatus = normalizeProjectStatus(project.status);
-                  const statusColor = isApproved
-                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                    : normalizedStatus === 'review'
-                      ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-                      : 'bg-primary/10 text-primary border-primary/20';
-                  const statusLabel = isApproved
-                    ? '🟢 Aprovado'
-                    : normalizedStatus === 'review'
-                      ? '🟡 Aguardando'
-                      : '📋 Em análise';
-                  return (
-                    <button
-                      key={project.id}
-                      onClick={() => onOpenProject?.(project.id)}
-                      className={cn(
-                        'rounded-xl border p-3 text-left transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] group',
-                        isApproved ? 'border-emerald-500/30 bg-emerald-500/[0.04] hover:border-emerald-500/50' : 'border-border bg-card hover:border-primary/30'
-                      )}
-                    >
-                      <h4 className={cn('text-sm font-semibold text-foreground line-clamp-1 mb-1 transition-colors', isApproved ? 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400' : 'group-hover:text-primary')}>{project.name}</h4>
-                      {project.accountName && <p className="text-xs text-muted-foreground mb-1.5">Cliente: {project.accountName}</p>}
-                      <Badge variant="outline" className={cn('text-[10px]', statusColor)}>{statusLabel}</Badge>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <HighlightProjectsPaginated
+              projects={uniqueHighlightProjects}
+              onOpenProject={onOpenProject}
+            />
           )}
         </div>
       )}

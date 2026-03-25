@@ -113,7 +113,7 @@ export function IdeasTimelineView({ ideas, onSelectIdea, selectedIdeaId, rangeSt
                       borderLeftColor: theme.color,
                     }}
                   >
-                    <span className="text-xs font-medium truncate">{idea.title}</span>
+                    <span className="text-xs font-medium truncate" title={idea.title}>{idea.title}</span>
                   </div>
                 </div>
               ))}

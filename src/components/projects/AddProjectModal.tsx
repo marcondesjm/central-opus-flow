@@ -101,7 +101,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
     }
 
     try {
-      await createProject.mutateAsync({
+      const newProject = await createProject.mutateAsync({
         name: name.trim(),
         description: description.trim() || null,
         url: url.trim() || null,
@@ -115,6 +115,24 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
         deadline: null,
         tagIds: selectedTags,
       });
+
+      // Create linked Kanban deal
+      const selectedAccount = accounts.find(a => a.id === accountId);
+      try {
+        await createDeal.mutateAsync({
+          company_name: name.trim(),
+          client_name: selectedAccount?.name || 'Cliente',
+          description: description.trim() || undefined,
+          phase: 'proposta',
+          priority: 'medium',
+          revenue: 0,
+          progress: 0,
+          tags: [type],
+        });
+      } catch {
+        // Don't block project creation if kanban deal fails
+        console.warn('Falha ao criar tarefa no Kanban');
+      }
       
       toast({
         title: 'Projeto criado!',

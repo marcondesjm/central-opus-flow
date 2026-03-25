@@ -81,6 +81,8 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   const { data: spaces = [] } = useKanbanSpaces();
   const createProject = useCreateProject();
   const createDeal = useCreateDeal();
+  const createColumn = useCreateColumn();
+  const { data: columns = [] } = useKanbanColumns();
   const { toast } = useToast();
 
   // Pre-fill from template

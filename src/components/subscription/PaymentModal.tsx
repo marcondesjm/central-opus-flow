@@ -93,9 +93,13 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const { toast } = useToast();
   const submitReceipt = useSubmitPaymentReceipt();
   const { data: trial } = useTrial();
+  const { data: pricingSettings } = usePricingSettings();
+  const { data: pixSettings } = usePixSettings();
 
-  const selectedPrice = billingCycle === 'monthly' ? 7.9 : 73.9;
-  const selectedPriceLabel = billingCycle === 'monthly' ? '7,90' : '73,90';
+  const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
+  const annualPrice = pricingSettings?.annual_price ?? 73.9;
+  const selectedPrice = billingCycle === 'monthly' ? monthlyPrice : annualPrice;
+  const selectedPriceLabel = selectedPrice.toFixed(2).replace('.', ',');
   const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
 
   // Fetch PIX data from backend when modal opens or billing cycle changes

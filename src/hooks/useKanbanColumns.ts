@@ -327,6 +327,7 @@ export function useKanbanColumns() {
       const { data, error } = await supabase
         .from('kanban_columns')
         .select('*')
+        .eq('user_id', user!.id)
         .order('position', { ascending: true });
 
       if (error) throw error;

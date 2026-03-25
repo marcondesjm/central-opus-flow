@@ -45,6 +45,7 @@ export function useKanbanDeals() {
       const { data, error } = await supabase
         .from('kanban_deals')
         .select('*')
+        .eq('user_id', user!.id)
         .order('position', { ascending: true });
 
       if (error) throw error;

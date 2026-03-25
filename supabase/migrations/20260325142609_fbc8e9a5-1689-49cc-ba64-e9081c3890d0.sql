@@ -1,0 +1,1 @@
+DELETE FROM kanban_columns WHERE id IN ('d8c5946f-4099-48ad-8926-4d018efef74c', '205c257e-ffdc-4823-9c03-16185b50d53f')

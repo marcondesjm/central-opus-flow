@@ -165,41 +165,62 @@ export function UnifiedStatsCarousel({
     }).slice(0, 6);
   }, [favoriteProjects, approvedList]);
 
-  const unifiedStats = [
-    { label: 'Ajustes', value: changesProjects.length, icon: Wrench, color: 'text-destructive', bg: 'bg-destructive/10' },
-    { label: 'Em revisão', value: projectStats.review, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', filterKey: 'review' as StatsFilterKey },
-    { label: 'Aguardando', value: projectStats.waiting, icon: Star, color: 'text-primary', bg: 'bg-primary/10', filterKey: 'waiting' as StatsFilterKey },
-    { label: 'Atrasados', value: projectStats.overdue, icon: AlertTriangle, color: 'text-destructive', bg: 'bg-destructive/10', filterKey: 'overdue' as StatsFilterKey },
-    { label: 'Aprovados', value: projectStats.approved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', filterKey: 'approved' as StatsFilterKey },
+  const allUnifiedStats = [
+    { label: 'Ajustes', value: changesProjects.length, icon: Wrench, color: 'text-destructive', bg: 'bg-destructive/10', visKey: 'statAjustes' as keyof CarouselVisibility },
+    { label: 'Em revisão', value: projectStats.review, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', filterKey: 'review' as StatsFilterKey, visKey: 'statRevisao' as keyof CarouselVisibility },
+    { label: 'Aguardando', value: projectStats.waiting, icon: Star, color: 'text-primary', bg: 'bg-primary/10', filterKey: 'waiting' as StatsFilterKey, visKey: 'statAguardando' as keyof CarouselVisibility },
+    { label: 'Atrasados', value: projectStats.overdue, icon: AlertTriangle, color: 'text-destructive', bg: 'bg-destructive/10', filterKey: 'overdue' as StatsFilterKey, visKey: 'statAtrasados' as keyof CarouselVisibility },
+    { label: 'Aprovados', value: projectStats.approved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', filterKey: 'approved' as StatsFilterKey, visKey: 'statAprovados' as keyof CarouselVisibility },
   ];
 
-  const totalSlides = 2;
+  const unifiedStats = allUnifiedStats.filter(s => carouselVis[s.visKey]);
+
+  const allSlideTitles = [
+    { icon: BarChart3, title: 'Visão Geral de Projetos', visKey: 'slideOverview' as keyof CarouselVisibility },
+    { icon: FolderKanban, title: 'Monitor Kanban', visKey: 'slideKanban' as keyof CarouselVisibility },
+  ];
+
+  const slideTitles = allSlideTitles.filter(s => carouselVis[s.visKey]);
+  const totalSlides = slideTitles.length;
+
   const autoRef = useRef<ReturnType<typeof setInterval>>();
   const isHovering = useRef(false);
 
   const startAutoRotate = useCallback(() => {
     clearInterval(autoRef.current);
+    if (totalSlides <= 1) return;
     autoRef.current = setInterval(() => {
       if (!isHovering.current) {
         setActiveSlide(p => (p + 1) % totalSlides);
       }
     }, 7000);
-  }, []);
+  }, [totalSlides]);
 
   useEffect(() => {
     startAutoRotate();
     return () => clearInterval(autoRef.current);
   }, [startAutoRotate]);
 
-  const next = useCallback(() => { setActiveSlide(p => (p + 1) % totalSlides); startAutoRotate(); }, [startAutoRotate]);
-  const prev = useCallback(() => { setActiveSlide(p => (p - 1 + totalSlides) % totalSlides); startAutoRotate(); }, [startAutoRotate]);
+  useEffect(() => {
+    if (activeSlide >= totalSlides && totalSlides > 0) setActiveSlide(0);
+  }, [totalSlides, activeSlide]);
 
-  const slideTitles = [
-    { icon: BarChart3, title: 'Visão Geral de Projetos' },
-    { icon: FolderKanban, title: 'Monitor Kanban' },
-  ];
+  const next = useCallback(() => { if (totalSlides <= 1) return; setActiveSlide(p => (p + 1) % totalSlides); startAutoRotate(); }, [startAutoRotate, totalSlides]);
+  const prev = useCallback(() => { if (totalSlides <= 1) return; setActiveSlide(p => (p - 1 + totalSlides) % totalSlides); startAutoRotate(); }, [startAutoRotate, totalSlides]);
 
-  const CurrentIcon = slideTitles[activeSlide].icon;
+  const currentSlide = slideTitles[activeSlide] || slideTitles[0];
+  if (!currentSlide) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowCustomize(true)}>
+          <Settings2 className="w-4 h-4" /> Configurar Visão Geral
+        </Button>
+        <CarouselCustomizeModal open={showCustomize} onOpenChange={setShowCustomize} onUpdate={setCarouselVis} />
+      </div>
+    );
+  }
+  const CurrentIcon = currentSlide.icon;
+  const currentSlideKey = currentSlide.visKey;
 
   return (
     <div

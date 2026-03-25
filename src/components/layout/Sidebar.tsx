@@ -282,7 +282,6 @@ export function Sidebar({
           >
             <Star className="w-4 h-4 fill-primary text-primary flex-shrink-0" aria-hidden="true" />
             <span className="flex-1 text-left">{t('sidebar.approvals')}</span>
-            <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0 h-5 hover:bg-primary/90">⭐</Badge>
           </button>
 
           <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />

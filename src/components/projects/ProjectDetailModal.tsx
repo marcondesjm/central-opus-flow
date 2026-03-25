@@ -96,6 +96,10 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
                 <History className="w-3.5 h-3.5" />
                 Atividade
               </TabsTrigger>
+              <TabsTrigger value="keys" className="flex-1 rounded-lg text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium transition-all">
+                <Key className="w-3.5 h-3.5" />
+                Keys
+              </TabsTrigger>
             </TabsList>
           </div>
 

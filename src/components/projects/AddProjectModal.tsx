@@ -21,6 +21,7 @@ import {
 import { useCreateProject, useAccounts, useTags } from '@/hooks/useProjects';
 import { useCreateDeal } from '@/hooks/useKanban';
 import { useKanbanSpaces } from '@/hooks/useKanbanSpaces';
+import { useCreateColumn, useKanbanColumns } from '@/hooks/useKanbanColumns';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, X, Plus, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';

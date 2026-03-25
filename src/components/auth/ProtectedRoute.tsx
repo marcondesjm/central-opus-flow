@@ -13,6 +13,7 @@ import { VersionUpdateModal } from '@/components/version/VersionUpdateModal';
 import { VersionChecker } from '@/components/version/VersionChecker';
 import { AutoVersionBump } from '@/components/version/AutoVersionBump';
 import { ActivitySync } from '@/components/activity/ActivitySync';
+import { AutoSeedNewUser } from '@/components/onboarding/AutoSeedNewUser';
 import { useGlobalSync } from '@/hooks/useGlobalSync';
 
 interface ProtectedRouteProps {

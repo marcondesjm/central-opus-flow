@@ -2,6 +2,30 @@ import type { ChangelogEntry } from '@/hooks/useChangelog';
 
 export const codeChangelogEntries: ChangelogEntry[] = [
   {
+    id: 'code-carousel-customize-001',
+    version: '1.13.88',
+    title: 'Personalização da Visão Geral',
+    description: 'Agora é possível ativar e desativar painéis, cards de estatísticas e projetos em destaque pelo botão de engrenagem no cabeçalho do carrossel.',
+    type: 'feature',
+    created_at: '2026-03-25T14:45:00.000Z',
+    created_by: null,
+    is_public: true,
+    contributor_name: null,
+    contributor_email: null,
+  },
+  {
+    id: 'code-carousel-hover-pause-001',
+    version: '1.13.87',
+    title: 'Carrossel pausa ao passar o mouse',
+    description: 'O carrossel de Visão Geral e Monitor Kanban agora pausa a rotação automática enquanto o mouse estiver sobre o componente.',
+    type: 'improvement',
+    created_at: '2026-03-25T14:30:00.000Z',
+    created_by: null,
+    is_public: true,
+    contributor_name: null,
+    contributor_email: null,
+  },
+  {
     id: 'code-carousel-unified-001',
     version: '1.13.86',
     title: 'Carrossel unificado no Dashboard',

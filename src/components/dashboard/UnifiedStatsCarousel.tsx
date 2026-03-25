@@ -254,16 +254,14 @@ export function UnifiedStatsCarousel({
           <button onClick={next} className="p-1 rounded-lg hover:bg-muted transition-colors">
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
-          {activeSlide === 1 && (
+          {currentSlideKey === 'slideKanban' && (
             <Button variant="ghost" size="sm" className="text-xs gap-1 h-7 ml-1" onClick={onNavigateKanban}>
               Ver Kanban <ArrowRight className="w-3 h-3" />
             </Button>
           )}
-        </div>
-      </div>
-
-      {/* ===== Slide 0: Visão Geral ===== */}
-      {activeSlide === 0 && (
+          <button onClick={() => setShowCustomize(true)} className="p-1 rounded-lg hover:bg-muted transition-colors" title="Personalizar">
+            <Settings2 className="w-4 h-4 text-muted-foreground" />
+          </button>
         <div className="space-y-3 animate-in fade-in-50 duration-200">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {unifiedStats.map((stat) => {

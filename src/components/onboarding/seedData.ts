@@ -1,7 +1,7 @@
 export const demoAccounts = [
   { name: 'Minha Empresa', email: 'contato@empresa.com', color: 'blue', credits: 50 },
-  { name: 'Cliente Premium', email: 'premium@cliente.com', color: 'green', credits: 30 },
-  { name: 'Agência Digital', email: 'contato@agencia.com', color: 'purple', credits: 80 },
+  { name: 'Cliente Premium', email: 'premium@cliente.com', color: 'emerald', credits: 30 },
+  { name: 'Agência Digital', email: 'contato@agencia.com', color: 'rose', credits: 80 },
 ];
 
 export const demoProjects = [

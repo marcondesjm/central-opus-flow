@@ -262,17 +262,28 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.id || isDemoAccount || isAdminUser || accountsLoading || projectsLoading) return;
 
-    // Only seed if user has zero accounts AND zero projects
+    // Only seed if user has zero accounts AND zero projects (from queries)
     if (accounts.length > 0 || projects.length > 0) return;
 
-    // Use localStorage to ensure we only seed once per user per session
-    const seedKey = `example_data_seeded_${user.id}`;
-    if (localStorage.getItem(seedKey) === 'true') return;
+    // Prevent multiple concurrent runs in the same session
+    const seedKey = `example_data_seeding_${user.id}`;
+    if (sessionStorage.getItem(seedKey) === 'running') return;
+    sessionStorage.setItem(seedKey, 'running');
 
     let cancelled = false;
 
     const seedExampleData = async () => {
       try {
+        // Double-check server-side: verify no accounts exist for this user
+        const { count: accountCount } = await supabase
+          .from('lovable_accounts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        if ((accountCount ?? 0) > 0 || cancelled) {
+          sessionStorage.removeItem(seedKey);
+          return;
+        }
         // Create 3 example accounts
         const accountsData = [
           { name: 'Minha Empresa', email: user.email || 'contato@empresa.com', color: 'blue', credits: 50 },
@@ -488,14 +499,13 @@ export default function Dashboard() {
           }
         }
 
-        // Mark as seeded so it won't run again
-        localStorage.setItem(seedKey, 'true');
-
         if (!cancelled) {
           await queryClient.invalidateQueries();
         }
       } catch (err) {
         console.error('Error seeding example data:', err);
+      } finally {
+        sessionStorage.removeItem(seedKey);
       }
     };
 

@@ -180,7 +180,7 @@ export function KanbanMonitor() {
                     size="sm"
                     className="h-6 w-6 p-0"
                     disabled={urgentPage <= 0}
-                    onClick={() => setUrgentPage(p => p - 1)}
+                    onClick={() => handlePageChange(urgentPage - 1)}
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                   </Button>
@@ -192,7 +192,7 @@ export function KanbanMonitor() {
                     size="sm"
                     className="h-6 w-6 p-0"
                     disabled={urgentPage >= urgentTotalPages - 1}
-                    onClick={() => setUrgentPage(p => p + 1)}
+                    onClick={() => handlePageChange(urgentPage + 1)}
                   >
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Button>

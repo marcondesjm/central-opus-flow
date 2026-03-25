@@ -1083,6 +1083,7 @@ export default function KanbanPage() {
   const [showScheduledList, setShowScheduledList] = useState(false);
   const [scheduledMessages, setScheduledMessages] = useState<any[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
+  const [scheduledFilter, setScheduledFilter] = useState<'all' | 'pending' | 'sent'>('all');
   
   const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(() => {
     try {

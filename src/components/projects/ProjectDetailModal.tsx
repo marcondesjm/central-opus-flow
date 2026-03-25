@@ -79,14 +79,14 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
           <div className="px-4 pt-3 pb-0">
-            <div className="flex gap-2 p-1.5 bg-muted/60 rounded-2xl border border-border/50">
+            <div className="flex gap-1.5 p-1.5 bg-muted/40 rounded-2xl border border-border/40">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={cn(
                   'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
                   activeTab === 'overview'
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                    : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30'
                 )}
               >
                 <Eye className="w-3.5 h-3.5" />
@@ -97,8 +97,8 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
                 className={cn(
                   'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
                   activeTab === 'versions'
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                    ? 'bg-violet-600 text-white shadow-md shadow-violet-600/30'
+                    : 'text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950/30'
                 )}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -109,8 +109,8 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
                 className={cn(
                   'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
                   activeTab === 'feedback'
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                    ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30'
+                    : 'text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30'
                 )}
               >
                 <MessageCircle className="w-3.5 h-3.5" />
@@ -121,8 +121,8 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
                 className={cn(
                   'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
                   activeTab === 'activity'
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                    : 'text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
                 )}
               >
                 <History className="w-3.5 h-3.5" />
@@ -133,8 +133,8 @@ export function ProjectDetailModal({ project, open, onOpenChange }: ProjectDetai
                 className={cn(
                   'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
                   activeTab === 'keys'
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                    ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
+                    : 'text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30'
                 )}
               >
                 <Key className="w-3.5 h-3.5" />

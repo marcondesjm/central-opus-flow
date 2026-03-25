@@ -17,14 +17,14 @@ export function PricingSection() {
 
   const plans = [
     {
-      name: 'Livre',
+      name: 'Teste Grátis',
       price: 'R$0',
-      period: '',
-      subtitle: 'Para começar a organizar',
+      period: '/7 dias',
+      subtitle: 'Experimente tudo por 7 dias',
       features: [
-        'Até 2 projetos',
-        'Comentários ilimitados',
-        'Aprovações básicas',
+        'Acesso completo ao Pro por 7 dias',
+        'Projetos ilimitados (7 dias)',
+        'Sem cartão de crédito',
       ],
       cta: 'Começar grátis',
       href: '/auth',

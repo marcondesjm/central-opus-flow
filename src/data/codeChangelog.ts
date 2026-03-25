@@ -2,6 +2,18 @@ import type { ChangelogEntry } from '@/hooks/useChangelog';
 
 export const codeChangelogEntries: ChangelogEntry[] = [
   {
+    id: 'code-carousel-unified-001',
+    version: '1.13.86',
+    title: 'Carrossel unificado no Dashboard',
+    description: 'Visão Geral de Projetos e Monitor Kanban agora alternam automaticamente a cada 7 segundos em um carrossel com setas e indicadores. Projetos em destaque exibidos 4 por vez com paginação.',
+    type: 'improvement',
+    created_at: '2026-03-25T14:12:00.000Z',
+    created_by: null,
+    is_public: true,
+    contributor_name: null,
+    contributor_email: null,
+  },
+  {
     id: 'code-approved-section-001',
     version: '1.13.85',
     title: 'Projetos aprovados agora aparecem na Visão Geral',

@@ -152,47 +152,78 @@ export function AutoSeedNewUser() {
             },
           ]);
 
-        // Create example ideas
-        await supabase
+        // Create example ideas (check first to avoid duplicates)
+        const { count: ideasCount } = await supabase
           .from('ideas')
-          .insert([
-            {
-              user_id: user.id,
-              title: 'Criar página de captura para lançamento',
-              description: 'Desenvolver uma landing page otimizada para capturar leads antes do lançamento do produto.',
-              theme: 'marketing',
-              theme_color: '#3b82f6',
-              impact: 4,
-              effort: 2,
-              roadmap: 'now',
-              progress: 30,
-              position: 0,
-            },
-            {
-              user_id: user.id,
-              title: 'Integrar sistema de pagamentos PIX',
-              description: 'Adicionar opção de pagamento via PIX automático para aumentar a conversão de vendas.',
-              theme: 'tecnologia',
-              theme_color: '#10b981',
-              impact: 5,
-              effort: 3,
-              roadmap: 'next',
-              progress: 0,
-              position: 1,
-            },
-            {
-              user_id: user.id,
-              title: 'Campanha de remarketing no Instagram',
-              description: 'Criar sequência de anúncios para reconquistar visitantes que não converteram.',
-              theme: 'marketing',
-              theme_color: '#f59e0b',
-              impact: 3,
-              effort: 2,
-              roadmap: 'later',
-              progress: 0,
-              position: 2,
-            },
-          ]);
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if ((ideasCount ?? 0) === 0 && !cancelled) {
+          await supabase
+            .from('ideas')
+            .insert([
+              {
+                user_id: user.id,
+                title: 'Novo programa de recompensas para clientes fiéis',
+                description: 'Criar um sistema de pontos e recompensas para fidelizar clientes recorrentes, oferecendo descontos progressivos e acesso antecipado a novos produtos.',
+                theme: 'Aumentar a receita',
+                theme_color: '#f59e0b',
+                impact: 5,
+                effort: 4,
+                roadmap: 'next',
+                progress: 35,
+                position: 0,
+              },
+              {
+                user_id: user.id,
+                title: 'Finalização de compra expressa com 1 clique',
+                description: 'Implementar checkout simplificado que permite ao cliente finalizar a compra com apenas um clique, salvando dados de pagamento de forma segura.',
+                theme: 'Conquistar clientes',
+                theme_color: '#10b981',
+                impact: 5,
+                effort: 3,
+                roadmap: 'now',
+                progress: 65,
+                position: 1,
+              },
+              {
+                user_id: user.id,
+                title: 'Melhore a experiência da lista de desejos',
+                description: 'Redesenhar a funcionalidade de wishlist com notificações de preço, compartilhamento social e sugestões inteligentes baseadas nos itens salvos.',
+                theme: 'Atrair os usuários',
+                theme_color: '#ef4444',
+                impact: 4,
+                effort: 2,
+                roadmap: 'next',
+                progress: 15,
+                position: 2,
+              },
+              {
+                user_id: user.id,
+                title: 'Refatore os dados do perfil do usuário',
+                description: 'Reestruturar o módulo de perfil para incluir preferências de comunicação, histórico de interações e painel de atividade personalizado.',
+                theme: 'Atrair os usuários',
+                theme_color: '#ef4444',
+                impact: 3,
+                effort: 3,
+                roadmap: 'later',
+                progress: 5,
+                position: 3,
+              },
+              {
+                user_id: user.id,
+                title: 'Explore as funções de viagem e hospedagem',
+                description: 'Pesquisar e validar a viabilidade de integrar funcionalidades de reservas e roteiros de viagem como novo vertical de negócio.',
+                theme: 'Expandir horizontes',
+                theme_color: '#8b5cf6',
+                impact: 1,
+                effort: 5,
+                roadmap: 'wont',
+                progress: 0,
+                position: 4,
+              },
+            ]);
+        }
 
         // Create example kanban column + deal + scheduled messages
         const { data: colData } = await supabase

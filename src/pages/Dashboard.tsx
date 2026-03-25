@@ -997,6 +997,11 @@ export default function Dashboard() {
             />
           </div>
 
+          {/* Kanban Monitor */}
+          <div className="mb-8">
+            <KanbanMonitor />
+          </div>
+
           {/* Collaborated Projects Section */}
           <CollaboratedProjectsSection onEditProject={handleEditProject} />
 

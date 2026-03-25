@@ -58,6 +58,7 @@ import { isApprovedStatus, isOverdueProject } from '@/lib/project-status';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { WordPressManager } from '@/components/admin/WordPressManager';
+import { SeedExampleButton } from '@/components/onboarding/SeedExampleButton';
 import { DailyScheduledMessagesReport } from '@/components/kanban/DailyScheduledMessagesReport';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {

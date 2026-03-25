@@ -960,6 +960,10 @@ export default function Admin() {
                 <Key className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Chaves
               </TabsTrigger>
+              <TabsTrigger value="pricing-settings" className="gap-1.5 text-xs sm:text-sm">
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Valores
+              </TabsTrigger>
             </TabsList>
           </div>
 

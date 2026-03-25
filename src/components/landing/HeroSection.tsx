@@ -101,7 +101,7 @@ export function HeroSection() {
             <span className="text-xs text-muted-foreground ml-1.5">Aprovado por freelancers</span>
           </div>
           <p className="text-xs text-muted-foreground/50">
-            Grátis para até 2 projetos · Sem cartão de crédito
+            Grátis plano completo por 7 dias · Sem cartão de crédito
           </p>
         </motion.div>
 

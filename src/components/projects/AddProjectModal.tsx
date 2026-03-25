@@ -75,7 +75,8 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<string>('');
-  
+  const [newSpaceName, setNewSpaceName] = useState('');
+  const [isCreatingSpace, setIsCreatingSpace] = useState(false);
   const { data: accounts = [] } = useAccounts();
   const { data: tags = [] } = useTags();
   const { data: spaces = [] } = useKanbanSpaces();

@@ -166,11 +166,20 @@ export default function Pricing() {
                 <p className="text-muted-foreground text-sm">Tudo para entregar projetos mais rápido</p>
               </div>
               
-              <div className="flex items-baseline gap-1 mb-2">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-                  R$29
+                  R$7,90
                 </span>
                 <span className="text-muted-foreground">/mês</span>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm text-muted-foreground">
+                  ou <strong className="text-foreground">R$73,90</strong>/ano
+                </span>
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] px-1.5 py-0">
+                  22% off
+                </Badge>
               </div>
               
               <p className="text-xs text-muted-foreground mb-6">

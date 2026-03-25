@@ -21,8 +21,10 @@ const plans = [
   },
   {
     name: 'Pro',
-    price: 'R$29',
+    price: 'R$7,90',
     period: '/mês',
+    annualPrice: 'R$73,90',
+    annualDiscount: '22%',
     subtitle: 'Tudo para entregar mais rápido',
     features: [
       'Projetos ilimitados',
@@ -89,7 +91,7 @@ export function PricingSection() {
                 <h3 className="text-base font-semibold mb-0.5">{plan.name}</h3>
                 <p className="text-xs text-muted-foreground mb-5">{plan.subtitle}</p>
 
-                <div className="mb-6">
+                <div className="mb-2">
                   <span className={cn(
                     'text-4xl font-bold',
                     plan.highlight && 'bg-clip-text text-transparent'
@@ -98,6 +100,17 @@ export function PricingSection() {
                   </span>
                   <span className="text-sm text-muted-foreground ml-0.5">{plan.period}</span>
                 </div>
+                {plan.annualPrice && (
+                  <div className="flex items-center gap-1.5 mb-5">
+                    <span className="text-xs text-muted-foreground">
+                      ou <strong className="text-foreground">{plan.annualPrice}</strong>/ano
+                    </span>
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                      {plan.annualDiscount} off
+                    </span>
+                  </div>
+                )}
+                {!plan.annualPrice && <div className="mb-5" />}
 
                 <ul className="space-y-3 mb-7">
                   {plan.features.map((f) => (

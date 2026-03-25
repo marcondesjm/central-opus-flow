@@ -90,8 +90,14 @@ export function UpgradeModal({ open, onOpenChange, trigger, triggerMessage }: Up
         <div className="px-6 pb-6 space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-2xl font-bold">R$29</span>
-              <span className="text-muted-foreground text-sm">/mês</span>
+              <div>
+                <span className="text-2xl font-bold">R$7,90</span>
+                <span className="text-muted-foreground text-sm">/mês</span>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                ou <strong className="text-foreground">R$73,90</strong>/ano
+                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">22% off</Badge>
+              </div>
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Coffee className="w-3.5 h-3.5" />

@@ -324,6 +324,7 @@ export function useKanbanColumns() {
   return useQuery({
     queryKey: ['kanban-columns', user?.id],
     queryFn: async () => {
+      // Get own columns
       const { data, error } = await supabase
         .from('kanban_columns')
         .select('*')
@@ -332,10 +333,33 @@ export function useKanbanColumns() {
 
       if (error) throw error;
 
+      // Also get columns from shared spaces
+      const { data: shares } = await supabase
+        .from('kanban_space_shares')
+        .select('space_id')
+        .eq('shared_with', user!.id);
+
+      let sharedColumns: KanbanColumn[] = [];
+      if (shares && shares.length > 0) {
+        const sharedSpaceIds = shares.map(s => (s as any).space_id);
+        const { data: sCols } = await supabase
+          .from('kanban_columns')
+          .select('*')
+          .in('space_id', sharedSpaceIds)
+          .order('position', { ascending: true });
+        if (sCols) sharedColumns = sCols as KanbanColumn[];
+      }
+
+      const ownIds = new Set((data || []).map(c => c.id));
+      const merged = [
+        ...(data || []) as KanbanColumn[],
+        ...sharedColumns.filter(c => !ownIds.has(c.id)),
+      ];
+
       let columns: KanbanColumn[];
 
       // If no columns exist, create defaults
-      if (data.length === 0 && user) {
+      if (merged.length === 0 && user) {
         const { data: newCols, error: insertError } = await supabase
           .from('kanban_columns')
           .insert(DEFAULT_COLUMNS.map(c => ({ ...c, user_id: user.id })))
@@ -344,7 +368,7 @@ export function useKanbanColumns() {
         if (insertError) throw insertError;
         columns = (newCols as KanbanColumn[]).sort((a, b) => a.position - b.position);
       } else {
-        columns = data as KanbanColumn[];
+        columns = merged;
       }
 
       // Always check if deals need seeding (covers existing users with empty boards)

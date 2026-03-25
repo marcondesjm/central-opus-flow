@@ -12,16 +12,16 @@ interface Buyer {
 }
 
 const buyers: Buyer[] = [
-  { name: 'Mariana R.', location: 'Brasília, DF', plan: 'Plano Pro Mensal', price: 'R$19,90/mês', timeAgo: '2 min' },
-  { name: 'Lucas S.', location: 'São Paulo, SP', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '5 min', badge: 'Melhor custo-benefício' },
-  { name: 'Ana C.', location: 'Rio de Janeiro, RJ', plan: 'Oferta de Lançamento', price: 'R$9,90/mês', timeAgo: '8 min', badge: '-50% OFF' },
-  { name: 'Pedro M.', location: 'Curitiba, PR', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '12 min', badge: 'Melhor custo-benefício' },
-  { name: 'Julia F.', location: 'Belo Horizonte, MG', plan: 'Plano Pro Mensal', price: 'R$19,90/mês', timeAgo: '15 min' },
-  { name: 'Rafael B.', location: 'Porto Alegre, RS', plan: 'Oferta de Lançamento', price: 'R$9,90/mês', timeAgo: '18 min', badge: '-50% OFF' },
-  { name: 'Camila L.', location: 'Salvador, BA', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '22 min', badge: 'Melhor custo-benefício' },
-  { name: 'Thiago A.', location: 'Florianópolis, SC', plan: 'Plano Pro Mensal', price: 'R$19,90/mês', timeAgo: '25 min' },
-  { name: 'Fernanda D.', location: 'Recife, PE', plan: 'Oferta de Lançamento', price: 'R$9,90/mês', timeAgo: '30 min', badge: '-50% OFF' },
-  { name: 'Gabriel N.', location: 'Fortaleza, CE', plan: 'Plano Pro Anual', price: 'R$199/ano', timeAgo: '35 min', badge: 'Melhor custo-benefício' },
+  { name: 'Mariana R.', location: 'Brasília, DF', plan: 'Plano Pro Mensal', price: 'R$7,90/mês', timeAgo: '2 min' },
+  { name: 'Lucas S.', location: 'São Paulo, SP', plan: 'Plano Pro Anual', price: 'R$73,90/ano', timeAgo: '5 min', badge: 'Melhor custo-benefício' },
+  { name: 'Ana C.', location: 'Rio de Janeiro, RJ', plan: 'Plano Pro Mensal', price: 'R$7,90/mês', timeAgo: '8 min' },
+  { name: 'Pedro M.', location: 'Curitiba, PR', plan: 'Plano Pro Anual', price: 'R$73,90/ano', timeAgo: '12 min', badge: 'Melhor custo-benefício' },
+  { name: 'Julia F.', location: 'Belo Horizonte, MG', plan: 'Plano Pro Mensal', price: 'R$7,90/mês', timeAgo: '15 min' },
+  { name: 'Rafael B.', location: 'Porto Alegre, RS', plan: 'Plano Pro Anual', price: 'R$73,90/ano', timeAgo: '18 min', badge: 'Melhor custo-benefício' },
+  { name: 'Camila L.', location: 'Salvador, BA', plan: 'Plano Pro Mensal', price: 'R$7,90/mês', timeAgo: '22 min' },
+  { name: 'Thiago A.', location: 'Florianópolis, SC', plan: 'Plano Pro Anual', price: 'R$73,90/ano', timeAgo: '25 min', badge: 'Melhor custo-benefício' },
+  { name: 'Fernanda D.', location: 'Recife, PE', plan: 'Plano Pro Mensal', price: 'R$7,90/mês', timeAgo: '30 min' },
+  { name: 'Gabriel N.', location: 'Fortaleza, CE', plan: 'Plano Pro Anual', price: 'R$73,90/ano', timeAgo: '35 min', badge: 'Melhor custo-benefício' },
 ];
 
 const DISMISSED_KEY = 'centralopusflow-social-proof-dismissed';

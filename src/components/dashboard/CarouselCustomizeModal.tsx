@@ -58,6 +58,7 @@ const STAT_ITEMS: { key: keyof CarouselVisibility; label: string; icon: React.El
 
 const EXTRA_ITEMS: { key: keyof CarouselVisibility; label: string; icon: React.ElementType }[] = [
   { key: 'highlightProjects', label: 'Projetos em destaque', icon: Star },
+  { key: 'kanbanSpaces', label: 'Espaços do Kanban', icon: Layers },
 ];
 
 interface Props {

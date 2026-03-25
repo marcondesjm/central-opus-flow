@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Settings2, BarChart3, FolderKanban, Star, Wrench, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Settings2, BarChart3, FolderKanban, Star, Wrench, Clock, AlertTriangle, CheckCircle2, Layers } from 'lucide-react';
 
 export interface CarouselVisibility {
   slideOverview: boolean;
@@ -14,6 +14,7 @@ export interface CarouselVisibility {
   statAtrasados: boolean;
   statAprovados: boolean;
   highlightProjects: boolean;
+  kanbanSpaces: boolean;
 }
 
 const STORAGE_KEY = 'carousel-visibility';

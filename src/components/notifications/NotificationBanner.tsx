@@ -27,18 +27,22 @@ const AUTO_DISMISS_MS = 8000;
 const MAX_VISIBLE = 2;
 
 export function NotificationBanner({ notifications, onMarkAsRead }: NotificationBannerProps) {
-  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
-  const [seenIds, setSeenIds] = useState<Set<string>>(new Set());
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = sessionStorage.getItem('banner_dismissed_ids');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
   const timerRefs = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const initialIdsRef = useRef<Set<string>>(new Set(notifications.map(n => n.id)));
 
-  // Track which notifications existed on mount so we only show NEW ones
+  // Persist dismissed IDs to sessionStorage so page navigation doesn't re-show them
   useEffect(() => {
-    setSeenIds(new Set(notifications.map(n => n.id)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only on mount
+    sessionStorage.setItem('banner_dismissed_ids', JSON.stringify([...dismissedIds]));
+  }, [dismissedIds]);
 
   const visibleNotifications = notifications.filter(
-    n => !n.read && !dismissedIds.has(n.id) && !seenIds.has(n.id)
+    n => !n.read && !dismissedIds.has(n.id) && !initialIdsRef.current.has(n.id)
   );
 
   // Auto-dismiss each visible notification after a few seconds

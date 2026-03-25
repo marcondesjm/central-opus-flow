@@ -28,6 +28,11 @@ const features = [
 
 export function UpgradeModal({ open, onOpenChange, trigger, triggerMessage }: UpgradeModalProps) {
   const navigate = useNavigate();
+  const { data: pricingSettings } = usePricingSettings();
+  const monthly = pricingSettings?.monthly_price ?? 7.9;
+  const annual = pricingSettings?.annual_price ?? 73.9;
+  const discount = Math.round((1 - annual / (monthly * 12)) * 100);
+  const fmt = (v: number) => `R$${v.toFixed(2).replace('.', ',')}`;
 
   const handleUpgrade = () => {
     onOpenChange(false);

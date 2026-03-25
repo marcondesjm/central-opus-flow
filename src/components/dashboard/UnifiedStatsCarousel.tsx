@@ -122,6 +122,8 @@ export function UnifiedStatsCarousel({
   const { data: deals = [] } = useKanbanDeals();
   const { data: spaces = [] } = useKanbanSpaces();
   const [activeSlide, setActiveSlide] = useState(0);
+  const [carouselVis, setCarouselVis] = useState<CarouselVisibility>(getCarouselVisibility);
+  const [showCustomize, setShowCustomize] = useState(false);
 
   const now = new Date();
 

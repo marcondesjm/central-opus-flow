@@ -1685,6 +1685,11 @@ export default function KanbanPage() {
                   >
                     <span className="w-5 h-5 rounded flex-shrink-0" style={{ backgroundColor: space.color }} />
                     <span className="truncate flex-1">{space.name}</span>
+                    {space.is_shared ? (
+                      <Unlock className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                    ) : (
+                      <Lock className="w-3 h-3 text-muted-foreground/40 flex-shrink-0" />
+                    )}
                   </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

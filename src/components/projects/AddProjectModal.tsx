@@ -83,6 +83,7 @@ export function AddProjectModal({ open, onOpenChange, template }: AddProjectModa
   const createProject = useCreateProject();
   const createDeal = useCreateDeal();
   const createColumn = useCreateColumn();
+  const createSpace = useCreateSpace();
   const { data: columns = [] } = useKanbanColumns();
   const { toast } = useToast();
 

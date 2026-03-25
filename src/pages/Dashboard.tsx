@@ -782,6 +782,12 @@ export default function Dashboard() {
       prev.delete('account');
       return prev;
     }, { replace: true });
+    // Scroll to projects section so user sees the filtered results
+    if (filter) {
+      setTimeout(() => {
+        projectsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
   };
 
   const handleViewApprovals = () => {

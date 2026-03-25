@@ -1494,6 +1494,10 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="pricing-settings">
+            <PricingSettingsManager />
+          </TabsContent>
         </Tabs>
       </main>
 

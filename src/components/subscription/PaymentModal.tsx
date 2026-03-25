@@ -112,7 +112,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
     if (open) {
       setPixLoading(true);
       setPixData(null);
-      loadPixDataWithRetry(selectedPrice)
+      loadPixDataWithRetry(selectedPrice, pixSettings?.pix_key, pixSettings?.pix_name, pixSettings?.pix_city)
         .then((data) => {
           if (!isCancelled) setPixData(data);
         })

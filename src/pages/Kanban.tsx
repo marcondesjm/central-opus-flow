@@ -1218,7 +1218,7 @@ export default function KanbanPage() {
 
     checkScheduled();
   }, [user, autoDispatchEnabled, toast]);
-
+  const [sharingSpaceId, setSharingSpaceId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showScheduledList) return;

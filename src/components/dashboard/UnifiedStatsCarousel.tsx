@@ -76,67 +76,40 @@ export function UnifiedStatsCarousel({
   const approvedList = approvalProjects.filter(p => isApprovedStatus(p.status));
   const hasApprovalContent = changesProjects.length > 0 || favoriteProjects.length > 0 || approvedList.length > 0;
 
-  const projectStatsItems = [
+  const unifiedStats = [
+    { label: 'Ajustes', value: changesProjects.length, icon: Wrench, color: 'text-destructive', bg: 'bg-destructive/10' },
     { label: 'Em revisão', value: projectStats.review, icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', filterKey: 'review' as StatsFilterKey },
     { label: 'Aguardando', value: projectStats.waiting, icon: Star, color: 'text-primary', bg: 'bg-primary/10', filterKey: 'waiting' as StatsFilterKey },
     { label: 'Atrasados', value: projectStats.overdue, icon: AlertTriangle, color: 'text-destructive', bg: 'bg-destructive/10', filterKey: 'overdue' as StatsFilterKey },
     { label: 'Aprovados', value: projectStats.approved, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', filterKey: 'approved' as StatsFilterKey },
   ];
 
-  const approvalStatsItems = [
-    { label: 'Ajustes', value: changesProjects.length, icon: Wrench, color: 'text-destructive', bg: 'bg-destructive/10' },
-    { label: 'Aguardando', value: favoriteProjects.length, icon: Star, color: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Aprovados', value: approvedList.length, icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10' },
-    { label: 'Total', value: changesProjects.length + favoriteProjects.length + approvedList.length, icon: LayoutGrid, color: 'text-foreground', bg: 'bg-muted' },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* ===== Visão Geral de Projetos ===== */}
+      {/* ===== Visão Geral & Aprovações unificadas ===== */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">Visão Geral de Projetos</h3>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {projectStatsItems.map((stat) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {unifiedStats.map((stat) => {
             const Icon = stat.icon;
-            const isActive = activeStatsFilter === stat.filterKey;
+            const isFilterable = !!stat.filterKey;
+            const isActive = stat.filterKey && activeStatsFilter === stat.filterKey;
             return (
               <div
                 key={stat.label}
-                onClick={() => onStatsFilterChange?.(isActive ? null : stat.filterKey)}
+                onClick={() => {
+                  if (isFilterable && stat.filterKey) {
+                    onStatsFilterChange?.(isActive ? null : stat.filterKey);
+                  }
+                }}
                 className={cn(
-                  'rounded-xl border bg-card p-3 sm:p-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-[0.98]',
+                  'rounded-xl border bg-card p-3 sm:p-4 transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]',
+                  isFilterable ? 'cursor-pointer' : '',
                   isActive ? 'border-primary ring-2 ring-primary/20' : 'border-border'
                 )}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <div className={cn('w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center', stat.bg)}>
-                    <Icon className={cn('w-3.5 h-3.5 sm:w-4 sm:h-4', stat.color)} />
-                  </div>
-                </div>
-                <p className={cn('text-2xl sm:text-3xl font-bold tabular-nums', stat.color)}>{stat.value}</p>
-                <p className="text-[10px] font-medium text-muted-foreground mt-0.5 uppercase tracking-wider">{stat.label}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ===== Aprovações e Ajustes ===== */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Send className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">Aprovações e Ajustes</h3>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {approvalStatsItems.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={stat.label}
-                className="rounded-xl border border-border bg-card p-3 sm:p-4 transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <div className={cn('w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center', stat.bg)}>

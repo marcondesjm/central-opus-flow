@@ -8,6 +8,7 @@ import { CheckCircle2, Zap, Crown, Coffee, ArrowRight, Shield, X } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 import { PaywallTrigger } from '@/hooks/usePaywall';
 import { cn } from '@/lib/utils';
+import { usePricingSettings } from '@/hooks/useSystemSettings';
 
 interface UpgradeModalProps {
   open: boolean;

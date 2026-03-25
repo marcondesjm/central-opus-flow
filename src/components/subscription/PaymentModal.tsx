@@ -217,8 +217,9 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
       return;
     }
 
+    const cycleLabel = billingCycle === 'monthly' ? 'mensal' : 'anual';
     const message = encodeURIComponent(
-      `Olá! Estou enviando meu comprovante de pagamento da assinatura mensal (R$19,90).\n\n` +
+      `Olá! Estou enviando meu comprovante de pagamento da assinatura ${cycleLabel} (R$${selectedPriceLabel}).\n\n` +
       `📎 Comprovante: ${receiptUrl}\n\n` +
       `${notes ? `📝 Observação: ${notes}\n\n` : ''}` +
       `Aguardo a confirmação!`

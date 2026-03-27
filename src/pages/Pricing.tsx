@@ -29,9 +29,10 @@ export default function Pricing() {
   const [teamBilling, setTeamBilling] = useState<'mensal' | 'anual'>('mensal');
   const redeemCoupon = useRedeemCoupon();
   const { data: pricingSettings } = usePricingSettings();
-  const monthly = pricingSettings?.monthly_price ?? 39.90;
-  const annual = pricingSettings?.annual_price ?? 29.90;
-  const annualTotal = annual * 12;
+  const { data: teamSettings } = useTeamPricingSettings();
+  const monthly = pricingSettings?.monthly_price ?? 7.90;
+  const annual = pricingSettings?.annual_price ?? 73.90;
+  const annualTotal = annual;
   const monthlyTotal = monthly * 12;
   const discount = Math.round((1 - annual / monthly) * 100);
 

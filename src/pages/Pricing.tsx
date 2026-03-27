@@ -244,8 +244,9 @@ export default function Pricing() {
                   subtitle: 'Ideal para pequenas equipes',
                   monthlyPrice: 79,
                   annualPrice: 59.25,
+                  annualTotal: 711,
                   members: 3,
-                  features: [
+                  featuresMonthly: [
                     'Até 3 membros na equipe',
                     'Todas as funcionalidades do plano individual',
                     'Gestão de permissões por colaborador',
@@ -253,15 +254,24 @@ export default function Pricing() {
                     'Dashboard do time',
                     'Domínio próprio',
                   ],
-                  highlight: false,
+                  featuresAnnual: [
+                    'Até 3 membros na equipe',
+                    'Todas as funcionalidades do plano individual',
+                    'Gestão de permissões por colaborador',
+                    'Kanban compartilhado',
+                    'Dashboard do time',
+                    '25% de desconto',
+                    'Domínio próprio',
+                  ],
                 },
                 {
                   name: 'Business',
                   subtitle: 'Para equipes em crescimento',
                   monthlyPrice: 129,
                   annualPrice: 96.75,
+                  annualTotal: 1161,
                   members: 6,
-                  features: [
+                  featuresMonthly: [
                     'Até 6 membros na equipe',
                     'Todas as funcionalidades do plano individual',
                     'Gestão de permissões por colaborador',
@@ -270,15 +280,25 @@ export default function Pricing() {
                     'Relatórios avançados',
                     'Domínio próprio',
                   ],
-                  highlight: true,
+                  featuresAnnual: [
+                    'Até 6 membros na equipe',
+                    'Todas as funcionalidades do plano individual',
+                    'Gestão de permissões por colaborador',
+                    'Kanban compartilhado',
+                    'Dashboard do time',
+                    'Relatórios avançados',
+                    '25% de desconto',
+                    'Domínio próprio',
+                  ],
                 },
                 {
                   name: 'Enterprise',
                   subtitle: 'Para grandes operações',
                   monthlyPrice: 249,
                   annualPrice: 186.75,
+                  annualTotal: 2241,
                   members: 20,
-                  features: [
+                  featuresMonthly: [
                     'Até 20 membros na equipe',
                     'Todas as funcionalidades do plano individual',
                     'Gestão de permissões por colaborador',
@@ -288,49 +308,69 @@ export default function Pricing() {
                     'Suporte prioritário',
                     'Domínio próprio',
                   ],
-                  highlight: false,
+                  featuresAnnual: [
+                    'Até 20 membros na equipe',
+                    'Todas as funcionalidades do plano individual',
+                    'Gestão de permissões por colaborador',
+                    'Kanban compartilhado',
+                    'Dashboard do time',
+                    'Relatórios avançados',
+                    'Suporte prioritário',
+                    '25% de desconto',
+                    'Domínio próprio',
+                  ],
                 },
               ].map((plan, idx) => {
-                const price = teamBilling === 'mensal' ? plan.monthlyPrice : plan.annualPrice;
+                const isAnnual = teamBilling === 'anual';
+                const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+                const features = isAnnual ? plan.featuresAnnual : plan.featuresMonthly;
+                const displayName = isAnnual ? `${plan.name} Anual` : plan.name;
+                const displaySubtitle = isAnnual ? 'Economize 25% no plano anual' : plan.subtitle;
                 return (
                   <motion.div
-                    key={plan.name}
-                    className={`relative bg-card rounded-3xl p-8 overflow-hidden shadow-lg ${
-                      plan.highlight
-                        ? 'border-2 border-primary/50 shadow-xl'
-                        : 'border border-border'
-                    }`}
+                    key={plan.name + teamBilling}
+                    className="relative bg-card rounded-3xl p-8 overflow-hidden shadow-lg border-2 border-primary/30 shadow-xl"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    style={plan.highlight ? { boxShadow: 'var(--shadow-glow)' } : undefined}
+                    style={{ boxShadow: 'var(--shadow-glow)' }}
                   >
+                    {/* Badge */}
+                    <div className="flex justify-center mb-4">
+                      <Badge className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-0 shadow-lg text-xs font-bold px-3 py-1">
+                        <Crown className="w-3 h-3 mr-1" />
+                        Mais Popular
+                      </Badge>
+                    </div>
+
                     <div className="relative">
-                      <h3 className="text-xl font-bold mb-1 text-center">{plan.name}</h3>
-                      <p className="text-muted-foreground text-sm text-center mb-6">{plan.subtitle}</p>
+                      <h3 className="text-xl font-bold mb-1 text-center">{displayName}</h3>
+                      <p className="text-muted-foreground text-sm text-center mb-6">{displaySubtitle}</p>
                       <div className="text-center mb-1">
-                        <span className={`text-4xl md:text-5xl font-bold ${plan.highlight ? 'bg-clip-text text-transparent' : ''}`} style={plan.highlight ? { backgroundImage: 'var(--gradient-primary)' } : undefined}>
+                        <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
                           R$ {price.toFixed(2).replace('.', ',')}
                         </span>
                         <span className="text-muted-foreground text-lg">/mês</span>
                       </div>
+                      {isAnnual && (
+                        <div className="text-center mb-1">
+                          <span className="text-sm text-primary font-medium">
+                            R$ {plan.annualTotal.toFixed(2).replace('.', ',')}/ano
+                          </span>
+                        </div>
+                      )}
                       <p className="text-xs text-muted-foreground text-center mb-8">Até {plan.members} membros</p>
                       <ul className="space-y-3 mb-8">
-                        {plan.features.map((feature, i) => (
+                        {features.map((feature, i) => (
                           <li key={i} className="flex items-center gap-3">
-                            <Check className={`w-4 h-4 shrink-0 ${plan.highlight ? 'text-primary' : 'text-[#25D366]'}`} />
+                            <Check className="w-4 h-4 shrink-0 text-[#25D366]" />
                             <span className="text-sm">{feature}</span>
                           </li>
                         ))}
                       </ul>
                       <Button
                         size="lg"
-                        className={`w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 ${
-                          plan.highlight
-                            ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl'
-                            : ''
-                        }`}
-                        variant={plan.highlight ? 'default' : 'outline'}
+                        className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl"
                         onClick={() => handleSelectPlan('pro')}
                       >
                         Assinar Agora

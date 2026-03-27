@@ -367,12 +367,25 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
               </span>
             </div>
 
-            {/* PIX Payment */}
+            {/* PIX Payment - Nubank */}
             <div className="space-y-4">
-              <h4 className="font-medium flex items-center gap-2">
-                <QrCode className="w-4 h-4" />
-                Pagamento via PIX
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium flex items-center gap-2">
+                  <QrCode className="w-4 h-4" />
+                  Pagamento via PIX
+                </h4>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#820AD1]/10 text-[#820AD1] border border-[#820AD1]/20">
+                  Nubank
+                </span>
+              </div>
+
+              {/* Account info */}
+              <div className="bg-[#820AD1]/5 border border-[#820AD1]/20 rounded-xl p-3 space-y-1">
+                <p className="text-xs text-muted-foreground">Titular da conta</p>
+                <p className="text-sm font-semibold">{pixData?.name || 'Marcondes Jorge Machado'}</p>
+                <p className="text-xs text-muted-foreground">Banco: <strong>Nu Pagamentos S.A. (Nubank)</strong></p>
+                <p className="text-xs text-muted-foreground">Tipo de chave: <strong>Celular</strong></p>
+              </div>
 
               {/* QR Code from backend */}
               <div className="flex justify-center">
@@ -450,7 +463,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Favorecido: <strong>{pixData?.name || '...'}</strong>
+                    Favorecido: <strong>{pixData?.name || 'Marcondes Jorge Machado'}</strong>
                   </p>
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Shield className="w-3 h-3" />

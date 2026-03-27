@@ -735,11 +735,10 @@ export default function ClientsPage() {
 
       {showCadastrar && <CadastrarClienteModal open={showCadastrar} onOpenChange={setShowCadastrar} editClient={editingClient} />}
       
-      {selectedClient && !showFichaTecnica && (
+      {selectedClient && (
         <ClientDetailView 
           client={selectedClient} 
           onBack={() => setSelectedClient(null)} 
-          onFichaTecnica={() => setShowFichaTecnica(true)} 
         />
       )}
     </AppLayout>

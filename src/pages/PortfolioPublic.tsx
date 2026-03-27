@@ -279,6 +279,7 @@ function ContactModal({ page, services, open, onClose }: { page: PortfolioPage; 
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState('');
+  const [sent, setSent] = useState(false);
 
   const toggleService = (name: string) => {
     setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);

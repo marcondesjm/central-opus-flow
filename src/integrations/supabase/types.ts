@@ -637,6 +637,111 @@ export type Database = {
           },
         ]
       }
+      briefing_templates: {
+        Row: {
+          briefing_type: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          questions: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          briefing_type: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          questions?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          briefing_type?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          questions?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      briefings: {
+        Row: {
+          briefing_type: string
+          client_company: string | null
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          description: string | null
+          id: string
+          project_id: string | null
+          proposal_id: string | null
+          responded_at: string | null
+          responses: Json | null
+          share_token: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          briefing_type?: string
+          client_company?: string | null
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          project_id?: string | null
+          proposal_id?: string | null
+          responded_at?: string | null
+          responses?: Json | null
+          share_token?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          briefing_type?: string
+          client_company?: string | null
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          project_id?: string | null
+          proposal_id?: string | null
+          responded_at?: string | null
+          responses?: Json | null
+          share_token?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "briefings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "briefings_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       changelog_entries: {
         Row: {
           contributor_email: string | null

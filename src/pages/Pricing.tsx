@@ -375,7 +375,10 @@ export default function Pricing() {
                       <Button
                         size="lg"
                         className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl"
-                        onClick={() => handleSelectPlan('pro')}
+                        onClick={() => {
+                          const totalPrice = isAnnual ? plan.annualTotal : plan.monthlyPrice;
+                          handleSelectPlan(`${displayName}`, totalPrice, isAnnual ? 'annual' : 'monthly');
+                        }}
                       >
                         Assinar Agora
                       </Button>

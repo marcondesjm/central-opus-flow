@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, Search, Pencil, Trash2, Loader2, LayoutGrid, List,
-  ShoppingCart, FileText, Eye, EyeOff, Repeat, X,
+  ShoppingCart, FileText, Eye, EyeOff, Repeat, X, Share2, Copy, ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   useFinancialServices, useFinancialCategories,
@@ -60,6 +61,7 @@ export function ServicesManager() {
   const createService = useCreateServiceFull();
   const updateService = useUpdateServiceFull();
   const deleteService = useDeleteServiceFull();
+  const { toast } = useToast();
 
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -68,6 +70,8 @@ export function ServicesManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ServiceForm>(emptyForm);
   const [activeTab, setActiveTab] = useState('servicos');
+  const [showQuoteWizard, setShowQuoteWizard] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
 
   const filtered = (services || []).filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -162,9 +166,7 @@ export function ServicesManager() {
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
               <FileText className="w-3.5 h-3.5" /> Gerenciar Categorias
             </Button>
-            <Button variant="outline" size="sm" className="gap-1.5 border-pink-500/50 text-pink-500 hover:bg-pink-500/10" onClick={() => {
-              setForm(emptyForm); setEditingId(null); setShowCreate(true);
-            }}>
+            <Button variant="outline" size="sm" className="gap-1.5 border-pink-500/50 text-pink-500 hover:bg-pink-500/10" onClick={() => setShowQuoteWizard(true)}>
               <FileText className="w-3.5 h-3.5" /> Novo Orçamento
             </Button>
             <Button size="sm" className="gap-1.5 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white" onClick={() => {
@@ -418,6 +420,53 @@ export function ServicesManager() {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* ═══ QUOTE WIZARD ═══ */}
+      <Dialog open={showQuoteWizard} onOpenChange={setShowQuoteWizard}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-6">
+          <QuoteWizardLazy
+            onClose={() => setShowQuoteWizard(false)}
+            onCreated={(token) => {
+              setShowQuoteWizard(false);
+              setShareToken(token);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ SHARE DIALOG ═══ */}
+      <Dialog open={!!shareToken} onOpenChange={() => setShareToken(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Share2 className="w-5 h-5" /> Orçamento Criado!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Compartilhe o link abaixo com o cliente para que ele possa visualizar e assinar o orçamento.</p>
+            <div className="flex items-center gap-2">
+              <Input readOnly value={`${window.location.origin}/orcamento/${shareToken}`} className="flex-1 text-xs" />
+              <Button size="icon" variant="outline" onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/orcamento/${shareToken}`);
+                toast({ title: 'Link copiado!' });
+              }}>
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 gap-1.5" onClick={() => {
+                window.open(`${window.location.origin}/orcamento/${shareToken}`, '_blank');
+              }}>
+                <ExternalLink className="w-4 h-4" /> Abrir para o Cliente
+              </Button>
+              <Button className="flex-1 gap-1.5 bg-gradient-to-r from-pink-500 to-pink-600 text-white" onClick={() => setShareToken(null)}>
+                Fechar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+// Lazy import to avoid circular deps
+import { QuoteWizard as QuoteWizardLazy } from '@/components/billing/QuoteWizard';

@@ -40,6 +40,7 @@ const BriefingPublic = lazy(() => import("./pages/BriefingPublic"));
 const Leads = lazy(() => import("./pages/Leads"));
 const Clients = lazy(() => import("./pages/Clients"));
 const ClientRegisterPublic = lazy(() => import("./pages/ClientRegisterPublic"));
+const QuotePublic = lazy(() => import("./pages/QuotePublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -328,6 +329,7 @@ function AppContent() {
               }
             />
             <Route path="/briefing/:token" element={<BriefingPublic />} />
+            <Route path="/orcamento/:token" element={<QuotePublic />} />
             <Route
               path="/leads"
               element={

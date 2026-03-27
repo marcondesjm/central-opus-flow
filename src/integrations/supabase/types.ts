@@ -1114,6 +1114,116 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_quotes: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          delivery_days: number | null
+          description: string | null
+          discount: number
+          first_payment_date: string | null
+          first_payment_days: number | null
+          first_payment_type: string | null
+          id: string
+          is_recurring: boolean
+          items: Json
+          notes: string | null
+          payment_conditions: string | null
+          payment_method: string | null
+          project_start_date: string | null
+          project_start_days: number | null
+          project_start_type: string | null
+          proposal_validity_days: number | null
+          recurring_months: number | null
+          share_token: string | null
+          signature_data: string | null
+          signed_at: string | null
+          signer_ip: string | null
+          signer_name: string | null
+          status: string
+          subtotal: number
+          title: string
+          total: number
+          updated_at: string
+          user_id: string
+          validity_days: number
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          delivery_days?: number | null
+          description?: string | null
+          discount?: number
+          first_payment_date?: string | null
+          first_payment_days?: number | null
+          first_payment_type?: string | null
+          id?: string
+          is_recurring?: boolean
+          items?: Json
+          notes?: string | null
+          payment_conditions?: string | null
+          payment_method?: string | null
+          project_start_date?: string | null
+          project_start_days?: number | null
+          project_start_type?: string | null
+          proposal_validity_days?: number | null
+          recurring_months?: number | null
+          share_token?: string | null
+          signature_data?: string | null
+          signed_at?: string | null
+          signer_ip?: string | null
+          signer_name?: string | null
+          status?: string
+          subtotal?: number
+          title: string
+          total?: number
+          updated_at?: string
+          user_id: string
+          validity_days?: number
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          delivery_days?: number | null
+          description?: string | null
+          discount?: number
+          first_payment_date?: string | null
+          first_payment_days?: number | null
+          first_payment_type?: string | null
+          id?: string
+          is_recurring?: boolean
+          items?: Json
+          notes?: string | null
+          payment_conditions?: string | null
+          payment_method?: string | null
+          project_start_date?: string | null
+          project_start_days?: number | null
+          project_start_type?: string | null
+          proposal_validity_days?: number | null
+          recurring_months?: number | null
+          share_token?: string | null
+          signature_data?: string | null
+          signed_at?: string | null
+          signer_ip?: string | null
+          signer_name?: string | null
+          status?: string
+          subtotal?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+          validity_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_recurring: {
         Row: {
           amount: number

@@ -53,8 +53,9 @@ function AgendaContent() {
   const projects = projectsQuery.data;
   const dealsQuery = useKanbanDeals();
   const deals = dealsQuery.data;
-  const { integrations } = useUserIntegrations();
-  const googleCalendar = integrations?.find((i) => i.integration_name === 'google_calendar');
+  const { integrations, toggleIntegration, isConnected: checkConnected } = useUserIntegrations();
+  const googleCalendarConnected = checkConnected('google_calendar');
+  const [connectingGoogle, setConnectingGoogle] = useState(false);
 
   // Build events
   const events = useMemo<CalendarEvent[]>(() => {

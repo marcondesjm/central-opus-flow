@@ -924,7 +924,7 @@ function ConfiguracoesTab() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label className="text-xs">Slug da URL</Label>
-              <Input value={page.slug} onChange={e => updatePage.mutate({ slug: e.target.value })} className="h-8 text-sm" />
+              <Input value={page.slug} onChange={e => updatePage.mutate({ id: page.id, slug: e.target.value })} className="h-8 text-sm" />
             </div>
             <div>
               <Label className="text-xs">Título SEO</Label>

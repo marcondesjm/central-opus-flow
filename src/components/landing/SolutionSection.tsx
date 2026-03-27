@@ -1,95 +1,96 @@
 import { motion } from 'framer-motion';
-import { Send, MessageSquare, GitBranch, CheckCircle2 } from 'lucide-react';
+import { Link2, Target, FileText, FileCheck, LayoutList, DollarSign } from 'lucide-react';
 
 const steps = [
   {
-    icon: Send,
-    number: '01',
-    title: 'Envie sua versão',
-    description: 'Compartilhe o link do projeto com seu cliente.',
+    icon: Link2,
+    title: 'Receba leads',
+    desc: 'Clientes chegam pelo link da bio, formulários ou páginas de orçamento.',
+    color: '#a78bfa', // purple
   },
   {
-    icon: MessageSquare,
-    number: '02',
-    title: 'Receba feedback organizado',
-    description: 'Comentários claros, sem bagunça.',
+    icon: Target,
+    title: 'Organize no pipeline',
+    desc: 'Os contatos entram automaticamente no funil de vendas.',
+    color: '#6366f1', // indigo
   },
   {
-    icon: GitBranch,
-    number: '03',
-    title: 'Controle revisões',
-    description: 'Defina limites e evite retrabalho.',
+    icon: FileText,
+    title: 'Envie orçamentos',
+    desc: 'Crie propostas profissionais em poucos cliques.',
+    color: '#22c55e', // green
   },
   {
-    icon: CheckCircle2,
-    number: '04',
-    title: 'Obtenha aprovação',
-    description: 'Finalize projetos com segurança.',
+    icon: FileCheck,
+    title: 'Feche com contrato',
+    desc: 'Seu cliente aprova e assina online.',
+    color: '#3b82f6', // blue
+  },
+  {
+    icon: LayoutList,
+    title: 'Execute o projeto',
+    desc: 'Tarefas aparecem automaticamente no Kanban.',
+    color: '#64748b', // slate
+  },
+  {
+    icon: DollarSign,
+    title: 'Controle pagamentos',
+    desc: 'Receitas e despesas registradas automaticamente.',
+    color: '#eab308', // yellow
   },
 ];
 
 export function SolutionSection() {
   return (
-    <section className="py-20 md:py-28 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-muted/30 dark:bg-muted/5" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
-
-      <div className="container mx-auto max-w-5xl relative">
+    <section className="py-20 md:py-28 px-4 bg-[#0a0a0a]">
+      <div className="container mx-auto max-w-6xl">
         <motion.div
-          className="text-center mb-6"
+          className="text-center mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[11px] font-medium text-primary mb-5">
-            Como funciona
-          </div>
-          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mb-3">
-            Uma forma simples de gerenciar{' '}
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              seus projetos
-            </span>
+          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] text-white">
+            Um fluxo simples para gerenciar{' '}
+            <span className="text-[#25D366] italic">todo o seu negócio</span>
           </h2>
         </motion.div>
 
-        <motion.p
-          className="text-center text-sm md:text-base text-muted-foreground mb-14 max-w-lg mx-auto"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          Com o Central Opus, você envia seu projeto, recebe feedback
-          organizado e controla aprovações — tudo em um único fluxo.
-        </motion.p>
+        {/* Timeline */}
+        <div className="relative">
+          {/* Gradient line */}
+          <div className="hidden lg:block absolute top-[52px] left-0 right-0 h-[3px] rounded-full bg-gradient-to-r from-[#a78bfa] via-[#22c55e] to-[#eab308]" />
 
-        {/* Steps */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {steps.map((step, i) => (
-            <motion.div
-              key={step.title}
-              className="group relative"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-            >
-              <div className="relative p-6 rounded-2xl border border-border/50 bg-card/80 hover:border-primary/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full">
-                {/* Number */}
-                <span className="text-[11px] font-mono font-medium text-muted-foreground/40 mb-4 block">{step.number}</span>
-
-                {/* Icon */}
-                <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center mb-4 group-hover:bg-primary/12 transition-colors">
-                  <step.icon className="w-5 h-5 text-primary" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-4">
+            {steps.map((step, i) => (
+              <motion.div
+                key={step.title}
+                className="flex flex-col items-center text-center"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+              >
+                {/* Icon circle */}
+                <div
+                  className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-4 border-2"
+                  style={{
+                    borderColor: step.color,
+                    backgroundColor: `${step.color}15`,
+                  }}
+                >
+                  <step.icon className="w-7 h-7" style={{ color: step.color }} />
                 </div>
 
-                <h3 className="font-semibold text-sm mb-1.5">{step.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
-              </div>
-            </motion.div>
-          ))}
+                <span className="text-[11px] font-medium text-gray-500 mb-1">
+                  Passo {i + 1}
+                </span>
+                <h3 className="text-sm font-bold text-white mb-1.5">{step.title}</h3>
+                <p className="text-xs text-gray-400 leading-relaxed max-w-[160px]">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

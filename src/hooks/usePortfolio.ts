@@ -84,7 +84,7 @@ export const DEFAULT_SECTION_CONTENT: Record<string, Record<string, any>> = {
   about: {
     title: 'Design com propósito e estratégia',
     description: 'Com mais de 5 anos de experiência em design, ajudo marcas a se conectarem com seu público através de soluções visuais estratégicas. Meu trabalho vai além da estética: cada projeto é pensado para gerar resultados reais.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
   },
   timeline: {
     title: 'Como Funciona',

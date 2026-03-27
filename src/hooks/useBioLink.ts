@@ -41,7 +41,7 @@ export function useBioLink() {
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
-      return data as BioLink | null;
+      return data as unknown as BioLink | null;
     },
     enabled: !!user,
   });

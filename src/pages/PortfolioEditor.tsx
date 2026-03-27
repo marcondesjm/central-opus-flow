@@ -32,6 +32,93 @@ const ICON_MAP: Record<string, any> = {
   Palette, CheckCircle, TrendingUp, Users, Award, Star,
 };
 
+// ============== LAYOUT MODELS ==============
+const LAYOUT_MODELS = [
+  {
+    name: 'Portfólio Completo',
+    desc: 'Hero + Stats + Portfólio + Depoimentos + CTA Final',
+    colors: { primary_color: '#ec4899', bg_color: '#0a0a0a', text_color: '#ffffff' },
+    steps: [
+      { type: 'hero', content: { badge: 'Designer Profissional', headline: 'Design que transforma marcas em experiências memoráveis', subheadline: 'Especialista em branding e identidade visual para marcas que querem se destacar', cta_text: 'Iniciar Projeto', cta_url: '#contato', image_url: '', bg_image_url: '' } },
+      { type: 'stats', content: { items: [{ icon: 'TrendingUp', value: '150+', label: 'Projetos Entregues' }, { icon: 'Users', value: '98%', label: 'Clientes Satisfeitos' }, { icon: 'Award', value: '8+', label: 'Anos de Experiência' }, { icon: 'Star', value: '5.0', label: 'Taxa de Satisfação' }] } },
+      { type: 'portfolio', content: { items: [{ title: 'Branding Completo', description: 'Identidade visual moderna para startup', category: 'Branding', image_url: 'https://images.unsplash.com/photo-1634942537034-2531766767d1?w=600&h=450&fit=crop' }, { title: 'Design Digital', description: 'Interface UI/UX para aplicativo', category: 'Web Design', image_url: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=600&h=450&fit=crop' }, { title: 'Campanha Visual', description: 'Artes para redes sociais', category: 'Social Media', image_url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&h=450&fit=crop' }, { title: 'Editorial', description: 'Design gráfico impresso', category: 'Design Gráfico', image_url: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=600&h=450&fit=crop' }, { title: 'Logo & Identidade', description: 'Logotipo e manual de marca', category: 'Branding', image_url: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=450&fit=crop' }, { title: 'Website', description: 'Site responsivo com foco em conversão', category: 'Web Design', image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=450&fit=crop' }] } },
+      { type: 'testimonials', content: { items: [{ name: 'Maria Silva', role: 'CEO, Café Boutique', text: 'O trabalho superou todas as expectativas. A identidade visual capturou perfeitamente a essência da nossa marca.', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop' }, { name: 'João Santos', role: 'Fundador, Tech Solutions', text: 'Profissionalismo e criatividade em cada detalhe. O design do nosso app foi fundamental para o sucesso.', image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop' }] } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Pronto para transformar sua marca?', description: 'Preencha o formulário e receba uma proposta personalizada em até 24 horas', cta_text: 'Iniciar Projeto', cta_url: '#contato', badges: ['Resposta Rápida', 'Sem Compromisso', '100% Gratuito'] } },
+    ],
+  },
+  {
+    name: 'Landing Page',
+    desc: 'Hero + Sobre + CTA + Depoimentos + CTA Final',
+    colors: { primary_color: '#6366f1', bg_color: '#0f0a1a', text_color: '#e9e0ff' },
+    steps: [
+      { type: 'hero', content: { badge: '🚀 Novo Projeto?', headline: 'Transformamos suas ideias em experiências digitais únicas', subheadline: 'Criamos soluções visuais estratégicas que geram resultados reais para o seu negócio', cta_text: 'Solicitar Orçamento', cta_url: '#contato', image_url: '', bg_image_url: '' } },
+      { type: 'about', content: { title: 'Conheça minha história', description: 'Com mais de 5 anos de experiência em design, ajudo marcas a se conectarem com seu público através de soluções visuais estratégicas. Meu trabalho vai além da estética: cada projeto é pensado para gerar resultados reais.', image_url: '' } },
+      { type: 'cta', content: { title: 'Transforme sua visão em realidade', cta_text: 'Falar Comigo', cta_url: '#contato' } },
+      { type: 'testimonials', content: { items: [{ name: 'Ana Beatriz', role: 'Diretora de Marketing, Bloom', text: 'A landing page converteu 3x mais do que a versão anterior. Resultado incrível!', image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop' }, { name: 'Rafael Costa', role: 'CEO, StartupX', text: 'Entregou antes do prazo e com qualidade excepcional. Super recomendo!', image_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop' }] } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Dê o próximo passo', description: 'Entre em contato e vamos transformar suas ideias em realidade. Respondo em até 24 horas.', cta_text: 'Solicitar Orçamento', cta_url: '#contato', badges: ['Orçamento Grátis', 'Sem Compromisso'] } },
+    ],
+  },
+  {
+    name: 'Minimalista',
+    desc: 'Hero + Portfólio + CTA Final',
+    colors: { primary_color: '#ffffff', bg_color: '#111111', text_color: '#f5f5f5' },
+    steps: [
+      { type: 'hero', content: { badge: '', headline: 'Design.', subheadline: 'Menos é mais. Cada pixel conta.', cta_text: 'Ver Trabalhos', cta_url: '#portfolio', image_url: '', bg_image_url: '' } },
+      { type: 'portfolio', content: { items: [{ title: 'Identidade Visual', description: 'Marca e papelaria completa', category: 'Branding', image_url: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&h=450&fit=crop' }, { title: 'Web Design', description: 'Sites modernos e responsivos', category: 'Digital', image_url: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&h=450&fit=crop' }, { title: 'UI/UX Design', description: 'Interfaces intuitivas e elegantes', category: 'Produto', image_url: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=600&h=450&fit=crop' }] } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Vamos criar algo incrível?', description: 'Projetos sob medida para marcas exigentes', cta_text: 'Iniciar Conversa', cta_url: '#contato', badges: ['Atendimento Premium'] } },
+    ],
+  },
+  {
+    name: 'Apresentação Profissional',
+    desc: 'Hero + Stats + Timeline + Sobre + CTA Final',
+    colors: { primary_color: '#3b82f6', bg_color: '#0c1222', text_color: '#e2e8f0' },
+    steps: [
+      { type: 'hero', content: { badge: 'Consultoria em Design', headline: 'Estratégia e Design para negócios que querem crescer', subheadline: 'Metodologia comprovada para criar marcas fortes e experiências memoráveis', cta_text: 'Agendar Reunião', cta_url: '#contato', image_url: '', bg_image_url: '' } },
+      { type: 'stats', content: { items: [{ icon: 'TrendingUp', value: '200+', label: 'Projetos' }, { icon: 'Users', value: '120+', label: 'Clientes Ativos' }, { icon: 'Award', value: '12', label: 'Prêmios' }, { icon: 'Star', value: '4.9', label: 'Avaliação' }] } },
+      { type: 'timeline', content: { title: 'Meu Processo', items: [{ title: 'Briefing', icon: 'Search', description: 'Reunião para entender seu negócio, objetivos e público-alvo em profundidade.' }, { title: 'Pesquisa', icon: 'Lightbulb', description: 'Análise de mercado, concorrentes e tendências do setor.' }, { title: 'Design', icon: 'Palette', description: 'Criação de conceitos visuais alinhados à estratégia definida.' }, { title: 'Refinamento', icon: 'CheckCircle', description: 'Ajustes finos até atingir a perfeição em cada detalhe.' }] } },
+      { type: 'about', content: { title: 'Sobre Mim', description: 'Sou designer com mais de 10 anos de experiência, especializado em criar identidades visuais que comunicam valor e geram confiança. Trabalho com empresas de todos os portes, sempre focando em resultados mensuráveis.' } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Agende uma consultoria gratuita', description: 'Vamos analisar juntos como potencializar a identidade visual do seu negócio', cta_text: 'Agendar Agora', cta_url: '#contato', badges: ['30 min grátis', 'Sem Compromisso', 'Online'] } },
+    ],
+  },
+  {
+    name: 'Fotógrafo / Artista',
+    desc: 'Hero + Galeria + Vídeo + Depoimentos + CTA',
+    colors: { primary_color: '#f59e0b', bg_color: '#0a0a0a', text_color: '#fef3c7' },
+    steps: [
+      { type: 'hero', content: { badge: '📸 Fotografia Profissional', headline: 'Capturando momentos que contam histórias', subheadline: 'Fotografia de eventos, retratos e ensaios com um olhar único e autêntico', cta_text: 'Ver Galeria', cta_url: '#portfolio', image_url: '', bg_image_url: '' } },
+      { type: 'portfolio', content: { items: [{ title: 'Casamento ao Ar Livre', description: 'Cerimônia e festa em jardim', category: 'Casamentos', image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop' }, { title: 'Ensaio Editorial', description: 'Moda e beleza em estúdio', category: 'Moda', image_url: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=450&fit=crop' }, { title: 'Produto Premium', description: 'Still life para e-commerce', category: 'Produto', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=450&fit=crop' }, { title: 'Corporativo', description: 'Headshots e eventos empresariais', category: 'Corporativo', image_url: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&h=450&fit=crop' }, { title: 'Paisagem Urbana', description: 'Fotografia de arquitetura e cidade', category: 'Paisagem', image_url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=450&fit=crop' }, { title: 'Gastronomia', description: 'Food photography para restaurantes', category: 'Gastronomia', image_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=450&fit=crop' }] } },
+      { type: 'video', content: { url: '', title: 'Bastidores' } },
+      { type: 'testimonials', content: { items: [{ name: 'Camila Rocha', role: 'Noiva', text: 'As fotos ficaram perfeitas! Cada momento especial foi capturado com sensibilidade e arte.', image_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop' }, { name: 'Pedro Lima', role: 'Chef, Restaurante Mar', text: 'As fotos dos pratos trouxeram 40% mais pedidos pelo delivery. Investimento que valeu!', image_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop' }] } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Vamos criar algo especial?', description: 'Agende sua sessão e garanta fotos que vão surpreender', cta_text: 'Agendar Sessão', cta_url: '#contato', badges: ['Orçamento Personalizado', 'Entrega Rápida'] } },
+    ],
+  },
+  {
+    name: 'Desenvolvedor / Tech',
+    desc: 'Hero + Stats + Timeline + Portfólio + CTA',
+    colors: { primary_color: '#10b981', bg_color: '#0a1a0f', text_color: '#d1fae5' },
+    steps: [
+      { type: 'hero', content: { badge: '< Desenvolvedor Full Stack />', headline: 'Código que transforma ideias em produtos digitais', subheadline: 'Desenvolvimento web e mobile com foco em performance, escalabilidade e experiência do usuário', cta_text: 'Ver Projetos', cta_url: '#portfolio', image_url: '', bg_image_url: '' } },
+      { type: 'stats', content: { items: [{ icon: 'TrendingUp', value: '50+', label: 'Apps Entregues' }, { icon: 'Users', value: '99.9%', label: 'Uptime' }, { icon: 'Award', value: '6+', label: 'Anos de Código' }, { icon: 'Star', value: '5.0', label: 'No GitHub' }] } },
+      { type: 'timeline', content: { title: 'Stack & Processo', items: [{ title: 'Planejamento', icon: 'Search', description: 'Levantamento de requisitos, wireframes e definição de arquitetura.' }, { title: 'Desenvolvimento', icon: 'Palette', description: 'Código limpo com React, Node.js, TypeScript e boas práticas.' }, { title: 'Testes', icon: 'CheckCircle', description: 'Testes automatizados, QA rigoroso e deploy contínuo.' }, { title: 'Lançamento', icon: 'Zap', description: 'Deploy, monitoramento e suporte pós-lançamento.' }] } },
+      { type: 'portfolio', content: { items: [{ title: 'SaaS Dashboard', description: 'Plataforma de analytics em tempo real', category: 'SaaS', image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=450&fit=crop' }, { title: 'E-commerce', description: 'Loja online com pagamento integrado', category: 'E-commerce', image_url: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=450&fit=crop' }, { title: 'App Mobile', description: 'Aplicativo iOS/Android multiplataforma', category: 'Mobile', image_url: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=450&fit=crop' }] } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Tem um projeto em mente?', description: 'Vamos conversar sobre como transformar sua ideia em realidade digital', cta_text: 'Iniciar Projeto', cta_url: '#contato', badges: ['Código Limpo', 'Deploy Rápido', 'Suporte Incluso'] } },
+    ],
+  },
+  {
+    name: 'Consultor / Coach',
+    desc: 'Hero + Sobre + Stats + Depoimentos + Timeline + CTA',
+    colors: { primary_color: '#8b5cf6', bg_color: '#0f0a1a', text_color: '#e9e0ff' },
+    steps: [
+      { type: 'hero', content: { badge: '🎯 Mentoria de Negócios', headline: 'Acelere o crescimento do seu negócio com estratégia', subheadline: 'Mentoria personalizada para empreendedores e líderes que buscam resultados extraordinários', cta_text: 'Agendar Mentoria', cta_url: '#contato', image_url: '', bg_image_url: '' } },
+      { type: 'about', content: { title: 'Minha Missão', description: 'Acredito que todo negócio tem potencial para crescer exponencialmente. Com mais de 15 anos de experiência em gestão e estratégia, já ajudei centenas de empresários a triplicarem seus resultados. Minha metodologia exclusiva combina planejamento estratégico, marketing digital e liderança.' } },
+      { type: 'stats', content: { items: [{ icon: 'TrendingUp', value: '500+', label: 'Mentorados' }, { icon: 'Users', value: '92%', label: 'Taxa de Sucesso' }, { icon: 'Award', value: '15+', label: 'Anos de Experiência' }, { icon: 'Star', value: 'R$2M+', label: 'Gerados p/ Clientes' }] } },
+      { type: 'testimonials', content: { items: [{ name: 'Fernanda Alves', role: 'Empresária, Studio FA', text: 'Em 6 meses de mentoria, tripliquei o faturamento da minha empresa. O método é claro e direto ao ponto.', image_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop' }, { name: 'Lucas Mendes', role: 'Founder, DigiMark', text: 'A visão estratégica mudou completamente minha forma de gerir o negócio. Investimento que se paga rápido.', image_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop' }] } },
+      { type: 'timeline', content: { title: 'Como Funciona a Mentoria', items: [{ title: 'Diagnóstico', icon: 'Search', description: 'Analisamos seu negócio, identificando gargalos e oportunidades de crescimento.' }, { title: 'Plano de Ação', icon: 'Lightbulb', description: 'Criamos um roadmap personalizado com metas claras e mensuráveis.' }, { title: 'Execução Guiada', icon: 'Palette', description: 'Acompanhamento semanal com reuniões de checkpoint e ajustes de rota.' }, { title: 'Resultados', icon: 'CheckCircle', description: 'Medimos os KPIs e celebramos as conquistas juntos.' }] } },
+      { type: 'cta_final', content: { icon: 'Zap', title: 'Pronto para o próximo nível?', description: 'Agende uma sessão estratégica gratuita e descubra o potencial do seu negócio', cta_text: 'Agendar Sessão Grátis', cta_url: '#contato', badges: ['Sessão Gratuita', 'Sem Compromisso', 'Online ou Presencial'] } },
+    ],
+  },
+];
+
 // ============== SIDEBAR ==============
 function EditorSidebar({
   sections, selectedId, onSelect, onAdd, page, onUpdatePage, onOpenLeadModal,

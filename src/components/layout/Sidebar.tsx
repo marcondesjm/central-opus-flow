@@ -259,21 +259,27 @@ export function Sidebar({
         <div className="space-y-0.5">
           <NavItem
             icon={LayoutDashboard}
-            label={t('sidebar.allProjects')}
-            onClick={() => { onViewChange('all'); onAccountChange(null); }}
-            active={isViewActive('all')}
+            label="Dashboard"
+            onClick={() => { onViewChange('all'); onAccountChange(null); navigate('/dashboard'); }}
+            active={isViewActive('all') || isRouteActive('/dashboard')}
           />
           <Button
             size="sm"
             className="w-full justify-start gap-2 rounded-xl text-sm font-medium"
-            onClick={() => navigate('/dashboard?newProject=true')}
+            onClick={() => navigate('/portfolio-editor')}
+          >
+            <Globe className="w-4 h-4" />
+            Páginas de destino
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            className="w-full justify-start gap-2 rounded-xl text-sm font-medium bg-primary"
+            onClick={() => setNewSaleOpen(true)}
           >
             <Plus className="w-4 h-4" />
-            Nova Landing Page
+            Nova Venda
           </Button>
-
-
-
 
           <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />
         </div>

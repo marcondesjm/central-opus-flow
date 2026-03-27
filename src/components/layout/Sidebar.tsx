@@ -5,6 +5,8 @@ import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { useLatestVersion } from '@/hooks/useChangelog';
 import { SidebarCustomizeModal, getSidebarVisibility, type SidebarVisibility } from '@/components/layout/SidebarCustomizeModal';
 import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
+import { NewSaleModal } from '@/components/billing/NewSaleModal';
+import { SettingsModal } from '@/components/settings/SettingsModal';
 import { 
   LayoutDashboard, 
   FolderKanban, 
@@ -134,6 +136,8 @@ export function Sidebar({
   const [managementOpen, setManagementOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [newSaleOpen, setNewSaleOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);
@@ -255,21 +259,27 @@ export function Sidebar({
         <div className="space-y-0.5">
           <NavItem
             icon={LayoutDashboard}
-            label={t('sidebar.allProjects')}
-            onClick={() => { onViewChange('all'); onAccountChange(null); }}
-            active={isViewActive('all')}
+            label="Dashboard"
+            onClick={() => { onViewChange('all'); onAccountChange(null); navigate('/dashboard'); }}
+            active={isViewActive('all') || isRouteActive('/dashboard')}
           />
           <Button
             size="sm"
             className="w-full justify-start gap-2 rounded-xl text-sm font-medium"
-            onClick={() => navigate('/dashboard?newProject=true')}
+            onClick={() => navigate('/portfolio-editor')}
+          >
+            <Globe className="w-4 h-4" />
+            Páginas de destino
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            className="w-full justify-start gap-2 rounded-xl text-sm font-medium bg-primary"
+            onClick={() => setNewSaleOpen(true)}
           >
             <Plus className="w-4 h-4" />
-            Nova Landing Page
+            Nova Venda
           </Button>
-
-
-
 
           <NavItem icon={Building2} label={t('sidebar.clients')} onClick={() => { setAccountsOpen(!accountsOpen); }} active={false} />
         </div>
@@ -415,16 +425,22 @@ export function Sidebar({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Customize */}
-        <div className="pt-3 mt-2 border-t border-sidebar-border">
-          <button onClick={() => setCustomizeOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
+        {/* Customize & Settings */}
+        <div className="pt-3 mt-2 border-t border-sidebar-border space-y-0.5">
+          <button onClick={() => setSettingsOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
             <Settings2 className="w-4 h-4" aria-hidden="true" />
+            Configurações
+          </button>
+          <button onClick={() => setCustomizeOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
+            <Pencil className="w-4 h-4" aria-hidden="true" />
             Personalizar menu
           </button>
         </div>
       </nav>
 
       <SidebarCustomizeModal open={customizeOpen} onOpenChange={setCustomizeOpen} onUpdate={setSidebarVisibility} />
+      <NewSaleModal open={newSaleOpen} onOpenChange={setNewSaleOpen} onOpenQuoteWizard={() => navigate('/billing?tab=services&action=quote')} />
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       {/* Footer */}
       <footer className="p-3 border-t border-sidebar-border space-y-1" role="contentinfo">

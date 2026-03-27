@@ -286,8 +286,12 @@ function ContactModal({ page, services, open, onClose }: { page: PortfolioPage; 
 
   const handleSubmit = () => {
     if (!form.name.trim() || !form.email.trim()) return;
+    const allServices = [...selectedServices];
+    if (selectedServices.includes('__outro__') && customService.trim()) {
+      allServices.splice(allServices.indexOf('__outro__'), 1, customService.trim());
+    }
     submit.mutate(
-      { page_id: page.id, ...form, service_interest: selectedServices.join(', ') },
+      { page_id: page.id, ...form, service_interest: allServices.join(', ') },
       {
         onSuccess: () => {
           setSent(true);

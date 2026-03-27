@@ -737,11 +737,12 @@ function PublicPageTab() {
     }
   }, [page]);
 
-  const siteUrl = page ? `centralflow.com.br/${page.slug}` : '';
+  const portfolioPublicUrl = page ? `${window.location.origin}/portfolio/${page.slug}` : '';
+  const siteUrl = page ? `central-opus-flow.lovable.app/portfolio/${page.slug}` : '';
 
   const copyLink = () => {
     if (page) {
-      navigator.clipboard.writeText(`${window.location.origin}/portfolio/${page.slug}`);
+      navigator.clipboard.writeText(portfolioPublicUrl);
       toast({ title: 'Link copiado!' });
     }
   };
@@ -760,7 +761,7 @@ function PublicPageTab() {
           <Globe className="w-4 h-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground flex-1">{siteUrl}</span>
           <button onClick={copyLink} className="text-muted-foreground hover:text-foreground"><Copy className="w-4 h-4" /></button>
-          <button onClick={() => window.open(`/portfolio/${page.slug}`, '_blank')} className="text-muted-foreground hover:text-foreground"><ExternalLink className="w-4 h-4" /></button>
+          <button onClick={() => portfolioPublicUrl && window.open(portfolioPublicUrl, '_blank', 'noopener,noreferrer')} className="text-muted-foreground hover:text-foreground"><ExternalLink className="w-4 h-4" /></button>
           <span className={cn(
             'text-xs px-2 py-0.5 rounded-full font-medium',
             page.is_published ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'
@@ -1283,12 +1284,12 @@ function ConfiguracoesTab() {
                     className="h-7 text-xs flex-1"
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/p/${page.slug}`);
+                    navigator.clipboard.writeText(`${window.location.origin}/portfolio/${page.slug}`);
                     toast({ title: 'Link copiado!' });
                   }}>
                     <Copy className="w-3.5 h-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.open(`/p/${page.slug}`, '_blank')}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.open(`${window.location.origin}/portfolio/${page.slug}`, '_blank', 'noopener,noreferrer')}>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </Button>
                 </div>

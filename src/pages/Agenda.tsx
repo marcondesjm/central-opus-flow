@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { useProjects } from '@/hooks/useProjects';
-import { useKanban } from '@/hooks/useKanban';
+import { useKanbanDeals } from '@/hooks/useKanban';
 import { useUserIntegrations } from '@/hooks/useUserIntegrations';
 import {
   Calendar as CalendarIcon, ChevronLeft, ChevronRight, Link2, Grid3X3, List, LayoutGrid

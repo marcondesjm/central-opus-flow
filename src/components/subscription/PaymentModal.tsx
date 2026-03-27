@@ -315,46 +315,57 @@ export function PaymentModal({ open, onOpenChange, planName, planPrice, planBill
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-6">
-            {/* Billing Cycle Toggle */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setBillingCycle('monthly')}
-                className={cn(
-                  'relative rounded-xl border-2 p-4 text-center transition-all',
-                  billingCycle === 'monthly'
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-border/80'
-                )}
-              >
-                <p className="text-xs text-muted-foreground mb-1">Mensal</p>
+            {/* Billing Cycle Toggle - only show when no fixed price */}
+            {planPrice ? (
+              <div className="text-center rounded-xl border-2 border-primary bg-primary/5 p-4">
+                <p className="text-xs text-muted-foreground mb-1">{displayPlanName}</p>
                 <div className="flex items-baseline justify-center gap-0.5">
                   <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">{monthlyPrice.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-2xl font-bold text-foreground">{selectedPriceLabel}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setBillingCycle('annual')}
-                className={cn(
-                  'relative rounded-xl border-2 p-4 text-center transition-all',
-                  billingCycle === 'annual'
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-border/80'
-                )}
-              >
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                  {Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100)}% off
-                </span>
-                <p className="text-xs text-muted-foreground mb-1">Anual</p>
-                <div className="flex items-baseline justify-center gap-0.5">
-                  <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">{annualPrice.toFixed(2).replace('.', ',')}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R${(monthlyPrice * 12).toFixed(2).replace('.', ',')}</span></p>
-              </button>
-            </div>
+                <p className="text-xs text-muted-foreground mt-0.5">{selectedPeriodLabel}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle('monthly')}
+                  className={cn(
+                    'relative rounded-xl border-2 p-4 text-center transition-all',
+                    billingCycle === 'monthly'
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'border-border hover:border-border/80'
+                  )}
+                >
+                  <p className="text-xs text-muted-foreground mb-1">Mensal</p>
+                  <div className="flex items-baseline justify-center gap-0.5">
+                    <span className="text-xs text-muted-foreground">R$</span>
+                    <span className="text-2xl font-bold text-foreground">{monthlyPrice.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle('annual')}
+                  className={cn(
+                    'relative rounded-xl border-2 p-4 text-center transition-all',
+                    billingCycle === 'annual'
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'border-border hover:border-border/80'
+                  )}
+                >
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                    {Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100)}% off
+                  </span>
+                  <p className="text-xs text-muted-foreground mb-1">Anual</p>
+                  <div className="flex items-baseline justify-center gap-0.5">
+                    <span className="text-xs text-muted-foreground">R$</span>
+                    <span className="text-2xl font-bold text-foreground">{annualPrice.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R${(monthlyPrice * 12).toFixed(2).replace('.', ',')}</span></p>
+                </button>
+              </div>
+            )}
 
             {/* Features */}
             <div className="flex flex-wrap justify-center gap-2">

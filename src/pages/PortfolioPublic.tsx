@@ -181,14 +181,14 @@ function PublicBlock({ section, page, onOpenContact }: { section: PortfolioSecti
       if (items.length === 0) return null;
       const current = items[testimonialIdx] || items[0];
       return (
-        <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-10 md:py-16 px-6" style={{ background: page.bg_color }}>
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
               {current.image_url && (
-                <img src={current.image_url} className="w-28 h-28 rounded-xl object-cover shadow-lg shrink-0" alt={current.name} />
+                <img src={current.image_url} className="w-20 h-20 md:w-28 md:h-28 rounded-xl object-cover shadow-lg shrink-0" alt={current.name} />
               )}
               <div>
-                <p className="text-lg italic opacity-80" style={{ color: page.text_color }}>"{current.text}"</p>
+                <p className="text-base md:text-lg italic opacity-80" style={{ color: page.text_color }}>"{current.text}"</p>
                 <p className="mt-3 font-semibold" style={{ color: page.text_color }}>{current.name}</p>
                 <p className="text-sm opacity-50" style={{ color: page.text_color }}>{current.role}</p>
               </div>

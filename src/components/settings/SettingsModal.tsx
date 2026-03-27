@@ -41,7 +41,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { toast } = useToast();
   const { resetOnboarding } = useOnboarding();
   const { data: subscription } = useSubscription();
-  const { trialInfo } = useTrial();
+  const { data: trialInfo } = useTrial();
 
   const [fullName, setFullName] = useState('');
   const [cargo, setCargo] = useState('');

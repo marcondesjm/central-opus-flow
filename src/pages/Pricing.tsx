@@ -36,7 +36,6 @@ export default function Pricing() {
   const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;
   const discount = Math.round((1 - annual / monthlyTotal) * 100);
-  const discount = Math.round((1 - annual / monthly) * 100);
 
   const handleSelectPlan = (planName: string, price?: number, billing?: 'monthly' | 'annual') => {
     if (planName === 'free') {

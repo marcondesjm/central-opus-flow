@@ -23,7 +23,7 @@ import {
   Smartphone, Bell, RotateCcw, Crown, Calendar,
   Clock, LayoutDashboard, Users, Columns3, CheckSquare,
   DollarSign, FileText, Settings, Globe, Zap, Video,
-  MessageSquare, Receipt, Webhook, Check,
+  MessageSquare, Receipt, Webhook, Check, BarChart3,
 } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';

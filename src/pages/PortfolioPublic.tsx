@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { TrackingPixels } from '@/components/tracking/TrackingPixels';
 import { usePublicPortfolio, useSubmitPortfolioLead, type PortfolioSection, type PortfolioPage } from '@/hooks/usePortfolio';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';

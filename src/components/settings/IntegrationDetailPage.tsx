@@ -775,6 +775,8 @@ export function IntegrationDetailPage({ integrationKey, onBack }: IntegrationDet
       return <MercadoPagoDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'meta_pixel':
       return <MetaPixelDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
+    case 'google_analytics':
+      return <GoogleAnalyticsDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'webhooks':
       return <WebhooksDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'whatsapp':

@@ -1103,6 +1103,105 @@ function LeadCaptureModal({
   );
 }
 
+// ============== CONTACT PREVIEW MODAL ==============
+function ContactPreviewModal({ open, onClose, page, services }: {
+  open: boolean; onClose: () => void; page: PortfolioPage;
+  services: { id: string; name: string; description: string | null; default_price: number }[];
+}) {
+  const primary = page.primary_color || '#ec4899';
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [customService, setCustomService] = useState('');
+
+  const toggleService = (name: string) => {
+    setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" style={{ background: page.bg_color || '#1a1a2e', color: page.text_color || '#fff' }}>
+        <DialogHeader>
+          <DialogTitle style={{ color: page.text_color || '#fff' }}>Vamos conversar sobre seu projeto?</DialogTitle>
+          <p className="text-xs" style={{ color: `${page.text_color || '#fff'}99` }}>Preencha o formulário e retornaremos em até 24 horas</p>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>Nome *</label>
+            <Input placeholder="Seu nome" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+              className="border-white/10 bg-white/5" style={{ color: page.text_color || '#fff' }} />
+          </div>
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>E-mail *</label>
+            <Input placeholder="seu@email.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+              className="border-white/10 bg-white/5" style={{ color: page.text_color || '#fff' }} />
+          </div>
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>Telefone</label>
+            <div className="flex gap-2">
+              <span className="flex items-center gap-1 px-2 text-xs rounded border border-white/10 bg-white/5" style={{ color: page.text_color || '#fff' }}>🇧🇷 +55</span>
+              <Input placeholder="(__)_____-____" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                className="border-white/10 bg-white/5 flex-1" style={{ color: page.text_color || '#fff' }} />
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>
+              Serviço de Interesse <span style={{ opacity: 0.5 }}>(selecione múltiplos)</span>
+            </label>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {services.map(svc => {
+                const isSelected = selectedServices.includes(svc.name);
+                return (
+                  <button key={svc.id} type="button" onClick={() => toggleService(svc.name)}
+                    className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                    style={{
+                      background: isSelected ? primary : 'rgba(255,255,255,0.03)',
+                      borderColor: isSelected ? primary : 'rgba(255,255,255,0.1)',
+                      color: isSelected ? '#fff' : `${page.text_color || '#fff'}cc`,
+                    }}>
+                    <span className="font-medium">{svc.name}</span>
+                    {svc.description && <p className="text-xs mt-0.5" style={{ opacity: isSelected ? 0.9 : 0.5 }}>{svc.description}</p>}
+                  </button>
+                );
+              })}
+              <button type="button" onClick={() => toggleService('__outro__')}
+                className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                style={{
+                  background: selectedServices.includes('__outro__') ? primary : 'rgba(255,255,255,0.03)',
+                  borderColor: selectedServices.includes('__outro__') ? primary : 'rgba(255,255,255,0.1)',
+                  color: selectedServices.includes('__outro__') ? '#fff' : `${page.text_color || '#fff'}cc`,
+                }}>
+                <span className="font-medium">Outro serviço</span>
+                <p className="text-xs mt-0.5" style={{ opacity: selectedServices.includes('__outro__') ? 0.9 : 0.5 }}>Descreva um serviço personalizado</p>
+              </button>
+              {selectedServices.includes('__outro__') && (
+                <Input placeholder="Descreva o serviço desejado..." value={customService}
+                  onChange={e => setCustomService(e.target.value)}
+                  className="border-white/10 bg-white/5 text-sm" style={{ color: page.text_color || '#fff' }} />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>Mensagem</label>
+            <Textarea placeholder="Como podemos ajudar?" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+              className="border-white/10 bg-white/5 min-h-[60px]" style={{ color: page.text_color || '#fff' }} />
+          </div>
+
+          <Button className="w-full text-white font-medium" style={{ background: primary }}
+            onClick={() => {
+              toast({ title: '✅ Prévia do formulário', description: 'Na página pública, o lead será salvo automaticamente.' });
+              onClose();
+            }}>
+            Solicitar Orçamento
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ============== MAIN EDITOR ==============
 export default function PortfolioEditor() {
   const navigate = useNavigate();

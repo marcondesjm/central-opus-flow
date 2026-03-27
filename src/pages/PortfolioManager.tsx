@@ -1506,7 +1506,7 @@ function PixelsTrackingSection() {
     supabase
       .from('user_integrations')
       .select('integration_name, config, is_connected')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .in('integration_name', ['meta_pixel', 'google_analytics'])
       .then(({ data }) => {
         if (!data) return;

@@ -679,9 +679,26 @@ function BioLinkEditor() {
 function PublicPageTab() {
   const navigate = useNavigate();
   const { data: page } = usePortfolioPage();
+  const createPage = useCreatePortfolioPage();
   const updatePage = useUpdatePortfolioPage();
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
+  const [colorsOpen, setColorsOpen] = useState(false);
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [domainOpen, setDomainOpen] = useState(false);
+  const [leadCaptureOpen, setLeadCaptureOpen] = useState(false);
+  const [localPage, setLocalPage] = useState<any>(null);
+
+  useEffect(() => {
+    if (page) setLocalPage(page);
+  }, [page]);
+
+  // Auto-create page if none exists
+  useEffect(() => {
+    if (!page && !createPage.isPending) {
+      createPage.mutate({});
+    }
+  }, [page]);
 
   const siteUrl = page ? `centralflow.com.br/${page.slug}` : '';
 
@@ -690,6 +707,12 @@ function PublicPageTab() {
       navigator.clipboard.writeText(`${window.location.origin}/portfolio/${page.slug}`);
       toast({ title: 'Link copiado!' });
     }
+  };
+
+  const savePageField = (field: string, value: any) => {
+    if (!page) return;
+    setLocalPage((prev: any) => prev ? { ...prev, [field]: value } : prev);
+    updatePage.mutate({ id: page.id, [field]: value } as any);
   };
 
   return (
@@ -718,19 +741,20 @@ function PublicPageTab() {
             <p className="text-sm font-medium text-yellow-500">Captura de leads não configurada</p>
             <p className="text-xs text-muted-foreground">Seu formulário de contato não está conectado a um pipeline. Configure para receber leads automaticamente.</p>
           </div>
-          <Button variant="outline" size="sm" className="shrink-0">Configurar</Button>
+          <Button variant="outline" size="sm" className="shrink-0" onClick={() => setLeadCaptureOpen(true)}>Configurar</Button>
         </div>
       )}
 
       {/* Quick Settings */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { icon: Palette, label: 'Cores', sub: 'Tema visual', color: 'from-pink-500/20 to-purple-500/20' },
-          { icon: Layout, label: 'Layout', sub: 'Clássico', color: 'from-blue-500/20 to-cyan-500/20' },
-          { icon: Globe, label: 'Domínio', sub: 'Personalizado', color: 'from-green-500/20 to-emerald-500/20' },
-          { icon: MousePointer, label: 'Captura de Leads', sub: 'Formulário de contato', color: 'from-purple-500/20 to-pink-500/20' },
+          { icon: Palette, label: 'Cores', sub: 'Tema visual', color: 'from-pink-500/20 to-purple-500/20', action: () => setColorsOpen(true) },
+          { icon: Layout, label: 'Layout', sub: localPage?.font_heading || 'Clássico', color: 'from-blue-500/20 to-cyan-500/20', action: () => setLayoutOpen(true) },
+          { icon: Globe, label: 'Domínio', sub: 'Personalizado', color: 'from-green-500/20 to-emerald-500/20', action: () => setDomainOpen(true) },
+          { icon: MousePointer, label: 'Captura de Leads', sub: 'Formulário de contato', color: 'from-purple-500/20 to-pink-500/20', action: () => setLeadCaptureOpen(true) },
         ].map(card => (
-          <div key={card.label} className={cn('rounded-xl p-4 bg-gradient-to-br border border-border/50 cursor-pointer hover:border-border transition-colors', card.color)}>
+          <div key={card.label} onClick={card.action}
+            className={cn('rounded-xl p-4 bg-gradient-to-br border border-border/50 cursor-pointer hover:border-border transition-colors', card.color)}>
             <card.icon className="w-5 h-5 mb-2 text-foreground/80" />
             <p className="text-sm font-medium">{card.label}</p>
             <p className="text-[10px] text-muted-foreground">{card.sub}</p>
@@ -751,6 +775,139 @@ function PublicPageTab() {
         Redefinir para Template
       </Button>
 
+      {/* ===== MODALS ===== */}
+
+      {/* Colors Modal */}
+      <Dialog open={colorsOpen} onOpenChange={setColorsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Palette className="w-5 h-5" /> Cores do Tema</DialogTitle></DialogHeader>
+          {localPage && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs">Cor Principal</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={localPage.primary_color || '#ec4899'} onChange={e => savePageField('primary_color', e.target.value)} className="w-10 h-8 rounded cursor-pointer border-0" />
+                  <Input value={localPage.primary_color || '#ec4899'} onChange={e => savePageField('primary_color', e.target.value)} className="h-8 text-sm flex-1" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Cor Secundária</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={localPage.secondary_color || '#8b5cf6'} onChange={e => savePageField('secondary_color', e.target.value)} className="w-10 h-8 rounded cursor-pointer border-0" />
+                  <Input value={localPage.secondary_color || '#8b5cf6'} onChange={e => savePageField('secondary_color', e.target.value)} className="h-8 text-sm flex-1" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Cor de Fundo</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={localPage.bg_color || '#0f172a'} onChange={e => savePageField('bg_color', e.target.value)} className="w-10 h-8 rounded cursor-pointer border-0" />
+                  <Input value={localPage.bg_color || '#0f172a'} onChange={e => savePageField('bg_color', e.target.value)} className="h-8 text-sm flex-1" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Cor do Texto</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={localPage.text_color || '#ffffff'} onChange={e => savePageField('text_color', e.target.value)} className="w-10 h-8 rounded cursor-pointer border-0" />
+                  <Input value={localPage.text_color || '#ffffff'} onChange={e => savePageField('text_color', e.target.value)} className="h-8 text-sm flex-1" />
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Layout Modal */}
+      <Dialog open={layoutOpen} onOpenChange={setLayoutOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Layout className="w-5 h-5" /> Layout da Página</DialogTitle></DialogHeader>
+          {localPage && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs">Fonte dos Títulos</Label>
+                <Select value={localPage.font_heading || 'Inter'} onValueChange={v => savePageField('font_heading', v)}>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FONTS.map(f => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Fonte do Corpo</Label>
+                <Select value={localPage.font_body || 'Inter'} onValueChange={v => savePageField('font_body', v)}>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FONTS.map(f => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Domain Modal */}
+      <Dialog open={domainOpen} onOpenChange={setDomainOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Globe className="w-5 h-5" /> Domínio Personalizado</DialogTitle></DialogHeader>
+          {localPage && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs">Slug da URL</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">centralflow.com.br/</span>
+                  <Input value={localPage.slug || ''} onChange={e => savePageField('slug', e.target.value)} className="h-8 text-sm flex-1" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Título SEO</Label>
+                <Input value={localPage.meta_title || ''} onChange={e => savePageField('meta_title', e.target.value)} className="h-8 text-sm" placeholder="Título para mecanismos de busca" />
+              </div>
+              <div>
+                <Label className="text-xs">Descrição SEO</Label>
+                <Textarea value={localPage.meta_description || ''} onChange={e => savePageField('meta_description', e.target.value)} className="text-sm min-h-[60px]" placeholder="Descrição para mecanismos de busca" />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Lead Capture Modal */}
+      <Dialog open={leadCaptureOpen} onOpenChange={setLeadCaptureOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><MousePointer className="w-5 h-5" /> Captura de Leads</DialogTitle></DialogHeader>
+          {localPage && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs">Tipo de Captura</Label>
+                <Select value={localPage.lead_capture_type || 'standard'} onValueChange={v => savePageField('lead_capture_type', v)}>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="standard">Formulário Padrão</SelectItem>
+                    <SelectItem value="link">Redirecionar para Link</SelectItem>
+                    <SelectItem value="custom">Formulário Customizado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {localPage.lead_capture_type === 'link' && (
+                <div>
+                  <Label className="text-xs">URL de Destino</Label>
+                  <Input value={localPage.lead_capture_url || ''} onChange={e => savePageField('lead_capture_url', e.target.value)} className="h-8 text-sm" placeholder="https://exemplo.com/contato" />
+                </div>
+              )}
+              <div>
+                <Label className="text-xs">WhatsApp</Label>
+                <Input value={localPage.whatsapp_number || ''} onChange={e => savePageField('whatsapp_number', e.target.value)} className="h-8 text-sm" placeholder="+55 48 99999-9999" />
+              </div>
+              <div>
+                <Label className="text-xs">Instagram</Label>
+                <Input value={localPage.instagram_url || ''} onChange={e => savePageField('instagram_url', e.target.value)} className="h-8 text-sm" placeholder="https://instagram.com/..." />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset Modal */}
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-yellow-500" /> Redefinir para Template</DialogTitle></DialogHeader>
@@ -760,7 +917,18 @@ function PublicPageTab() {
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setResetOpen(false)}>Cancelar</Button>
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-black" onClick={() => {
-              // Reset logic would go here
+              if (page) {
+                updatePage.mutate({
+                  id: page.id,
+                  primary_color: '#ec4899',
+                  secondary_color: '#8b5cf6',
+                  bg_color: '#0f172a',
+                  text_color: '#ffffff',
+                  font_heading: 'Inter',
+                  font_body: 'Inter',
+                } as any);
+                toast({ title: 'Template redefinido com sucesso!' });
+              }
               setResetOpen(false);
             }}>
               Sim, redefinir

@@ -1,109 +1,75 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Play, Star } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import heroMockup from '@/assets/hero-mockup.png';
 
 export function HeroSection() {
   return (
-    <section className="relative pt-28 pb-0 md:pt-36 px-4 overflow-hidden">
-      {/* Gradient mesh background */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'var(--gradient-hero)' }} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] pointer-events-none opacity-60" style={{ background: 'var(--gradient-glow)' }} />
+    <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 px-4 overflow-hidden bg-[#0a0a0a]">
+      <div className="container mx-auto max-w-7xl relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Left — Text */}
+          <motion.div
+            className="flex flex-col gap-6"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.1] tracking-tight text-white">
+              Organize seus clientes,{' '}
+              feche mais projetos e{' '}
+              controle seu dinheiro{' '}
+              <span className="text-[#25D366]">em um único lugar</span>
+            </h1>
 
-      <div className="container mx-auto max-w-6xl relative">
-        {/* Badge */}
-        <motion.div
-          className="flex justify-center mb-6"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm text-[12px] font-medium text-muted-foreground shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--success))] animate-pulse" />
-            Feedback organizado, aprovações rápidas
-          </div>
-        </motion.div>
+            <p className="text-base md:text-lg text-gray-400 max-w-lg leading-relaxed">
+              O CRM completo para profissionais de serviços que querem
+              organizar clientes, projetos e finanças sem depender de
+              planilhas ou múltiplas ferramentas.
+            </p>
 
-        {/* Headline */}
-        <motion.h1
-          className="text-center text-4xl sm:text-5xl md:text-[3.75rem] lg:text-[4.25rem] font-bold leading-[1.08] tracking-[-0.035em] text-foreground mb-5 max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.05 }}
-        >
-          Pare de receber feedback{' '}
-          <br className="hidden sm:block" />
-          de clientes no{' '}
-          <span className="relative">
-            <span className="text-[#25D366] font-extrabold">
-              WhatsApp
-            </span>
-            <motion.span
-              className="absolute -bottom-1 left-0 right-0 h-[3px] rounded-full origin-left bg-[#25D366]"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
+            <div className="flex flex-col sm:flex-row items-start gap-3 mt-2">
+              <Link to="/auth">
+                <Button
+                  size="lg"
+                  className="h-12 px-8 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white hover:opacity-90 shadow-lg shadow-[#25D366]/20 transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Testar por 7 dias
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link to="/demo">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="h-12 px-8 rounded-xl text-sm font-medium border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 gap-2 bg-transparent"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  Ver como funciona
+                </Button>
+              </Link>
+            </div>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Sem cartão de crédito · Cancele quando quiser
+            </p>
+          </motion.div>
+
+          {/* Right — Mockup */}
+          <motion.div
+            className="relative flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+          >
+            <img
+              src={heroMockup}
+              alt="Dashboard preview em laptop, tablet e smartphone"
+              className="w-full max-w-2xl object-contain drop-shadow-2xl"
             />
-          </span>
-        </motion.h1>
-
-        {/* Subheadline */}
-        <motion.p
-          className="text-center text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          Envie seu projeto, receba comentários organizados, controle revisões
-          e obtenha aprovação — tudo num fluxo simples.
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-        >
-          <Link to="/auth">
-            <Button
-              size="lg"
-              className="h-12 px-8 rounded-xl text-sm font-semibold bg-foreground text-background hover:bg-foreground/90 shadow-xl shadow-foreground/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
-            >
-              Começar grátis
-              <ArrowRight className="w-3.5 h-3.5 ml-2" />
-            </Button>
-          </Link>
-          <Link to="/demo">
-            <Button
-              variant="ghost"
-              size="lg"
-              className="h-12 px-8 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground gap-2"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              Veja como funciona
-            </Button>
-          </Link>
-        </motion.div>
-
-        {/* Social proof */}
-        <motion.div
-          className="flex flex-col items-center gap-2.5 mb-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-        >
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            ))}
-            <span className="text-xs text-muted-foreground ml-1.5">Aprovado por freelancers</span>
-          </div>
-          <p className="text-xs text-muted-foreground/50">
-            Grátis plano completo por 7 dias · Sem cartão de crédito
-          </p>
-        </motion.div>
-
+          </motion.div>
+        </div>
       </div>
     </section>
   );

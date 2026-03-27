@@ -7,35 +7,32 @@ import { Input } from '@/components/ui/input';
 import { 
   CheckCircle2, 
   ArrowLeft, 
-  Zap, 
   Crown, 
   Shield,
-  CreditCard,
   Tag,
   Loader2,
   Check,
-  ArrowRight,
-  X,
+  User,
+  Users,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PaymentModal } from '@/components/subscription/PaymentModal';
-import { cn } from '@/lib/utils';
 import { useRedeemCoupon } from '@/hooks/useCoupons';
 
-type PlanType = 'free' | 'pro';
-
 export default function Pricing() {
-  const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
+  const [tab, setTab] = useState<'individual' | 'equipe'>('individual');
   const redeemCoupon = useRedeemCoupon();
   const { data: pricingSettings } = usePricingSettings();
-  const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
-  const annualPrice = pricingSettings?.annual_price ?? 73.9;
-  const discount = Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100);
-  const formatBRL = (v: number) => `R$${v.toFixed(2).replace('.', ',')}`;
+  const monthly = pricingSettings?.monthly_price ?? 39.90;
+  const annual = pricingSettings?.annual_price ?? 29.90;
+  const annualTotal = annual * 12;
+  const monthlyTotal = monthly * 12;
+  const discount = Math.round((1 - annual / monthly) * 100);
 
-  const handleSelectPlan = (planId: PlanType) => {
+  const handleSelectPlan = (planId: 'free' | 'pro') => {
     if (planId === 'free') {
       window.location.href = '/auth';
       return;
@@ -51,6 +48,28 @@ export default function Pricing() {
     });
   };
 
+  const starterFeatures = [
+    'CRM completo para freelancers',
+    'Pipeline de leads ilimitado',
+    'Portfólio público profissional',
+    'Link na Bio personalizado',
+    'Gestão financeira completa',
+    'Contratos e orçamentos',
+    'Kanban de projetos',
+    'Multi-idioma (PT/EN/ES)',
+    'Multi-moeda',
+    'Suporte por email',
+  ];
+
+  const annualFeatures = [
+    'Tudo do plano Mensal',
+    'Domínio próprio para portfólio',
+    'Domínio próprio para Link na Bio',
+    'Prioridade no suporte',
+    'Acesso antecipado a novidades',
+    'Badge Pro no perfil',
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -65,191 +84,154 @@ export default function Pricing() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="container mx-auto px-4 py-12 md:py-20">
         {/* Title */}
         <motion.div 
-          className="text-center mb-14"
+          className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
-            Pare de perder tempo com{' '}
+          <span className="text-primary text-sm font-semibold tracking-wider uppercase">Planos</span>
+          <h2 className="text-3xl md:text-5xl font-extrabold mt-2 mb-3 tracking-tight">
+            Escolha seu{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              feedback desorganizado
+              plano
             </span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Entregue projetos mais rápido com aprovações profissionais.
+          <p className="text-muted-foreground">
+            Comece hoje e tenha 7 dias de garantia.
           </p>
         </motion.div>
 
+        {/* Tab switcher */}
+        <div className="flex items-center justify-center gap-2 mb-10">
+          <button
+            onClick={() => setTab('individual')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              tab === 'individual'
+                ? 'bg-primary text-primary-foreground shadow-lg'
+                : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <User className="w-4 h-4" />
+            Individual
+          </button>
+          <button
+            onClick={() => setTab('equipe')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              tab === 'equipe'
+                ? 'bg-primary text-primary-foreground shadow-lg'
+                : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            Equipe
+          </button>
+        </div>
+
         {/* Plans Grid */}
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
-          {/* FREE Plan */}
+          {/* Starter Mensal */}
           <motion.div
             className="relative bg-card border border-border rounded-3xl p-8 overflow-hidden shadow-lg"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/30 via-transparent to-transparent" />
-            
             <div className="relative">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-1">Teste Grátis</h3>
-                <p className="text-muted-foreground text-sm">Experimente tudo por 7 dias</p>
-              </div>
-              
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl md:text-5xl font-bold">R$0</span>
-                <span className="text-muted-foreground">/7 dias</span>
-              </div>
+              <h3 className="text-xl font-bold mb-1 text-center">Starter</h3>
+              <p className="text-muted-foreground text-sm text-center mb-6">Acesso completo ao Central Flow</p>
 
-              <p className="text-xs text-emerald-600 font-medium mb-6">
-                ✨ Acesso completo ao Pro por 7 dias
-              </p>
-              
+              <div className="text-center mb-1">
+                <span className="text-4xl md:text-5xl font-bold">R$ {monthly.toFixed(2).replace('.', ',')}</span>
+                <span className="text-muted-foreground text-lg">/mês</span>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mb-8">Cobrança mensal</p>
+
               <ul className="space-y-3 mb-8">
-                {[
-                  { text: 'Projetos ilimitados (7 dias)', included: true },
-                  { text: 'Comentários ilimitados', included: true },
-                  { text: 'Aprovações básicas', included: true },
-                  { text: 'Controle de revisões', included: true },
-                  { text: 'Relatórios e estatísticas', included: true },
-                  { text: 'Sem cartão de crédito', included: true },
-                ].map((feature, i) => (
+                {starterFeatures.map((feature, i) => (
                   <li key={i} className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                      feature.included ? "bg-emerald-500/10" : "bg-muted"
-                    )}>
-                      {feature.included ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <X className="w-3 h-3 text-muted-foreground" />
-                      )}
-                    </div>
-                    <span className={cn("text-sm", !feature.included && "text-muted-foreground")}>
-                      {feature.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="w-full h-12 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5"
-                onClick={() => handleSelectPlan('free')}
-              >
-                Começar grátis
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-
-              <p className="text-center text-[11px] text-muted-foreground mt-3">
-                Após 7 dias, continue com o plano gratuito limitado ou faça upgrade
-              </p>
-            </div>
-          </motion.div>
-
-          {/* PRO Plan */}
-          <motion.div
-            className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 overflow-hidden shadow-xl"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            style={{ boxShadow: 'var(--shadow-glow)' }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
-            
-            <div className="absolute top-6 right-6">
-              <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground border-0 shadow-lg">
-                <Crown className="w-3 h-3 mr-1" />
-                Recomendado
-              </Badge>
-            </div>
-            
-            <div className="relative">
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-1">
-                  <Crown className="w-5 h-5 text-primary" />
-                  <h3 className="text-xl font-bold">Pro</h3>
-                </div>
-                <p className="text-muted-foreground text-sm">Tudo para entregar projetos mais rápido</p>
-              </div>
-              
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-                  {formatBRL(monthlyPrice)}
-                </span>
-                <span className="text-muted-foreground">/mês</span>
-              </div>
-
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-muted-foreground">
-                  ou <strong className="text-foreground">{formatBRL(annualPrice)}</strong>/ano
-                </span>
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] px-1.5 py-0">
-                  {discount}% off
-                </Badge>
-              </div>
-              
-              <p className="text-xs text-muted-foreground mb-6">
-                7 dias grátis • Cancele quando quiser
-              </p>
-              
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Projetos ilimitados',
-                  'Comentários ilimitados',
-                  'Controle de revisões',
-                  'Histórico de versões',
-                  'Fluxo profissional de aprovação',
-                  'Link de aprovação para clientes',
-                  'Relatórios e estatísticas',
-                  'Suporte prioritário',
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                    </div>
+                    <Check className="w-4 h-4 text-[#25D366] shrink-0" />
                     <span className="text-sm">{feature}</span>
                   </li>
                 ))}
               </ul>
-              
-              <Button 
-                size="lg" 
-                className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5"
                 onClick={() => handleSelectPlan('pro')}
               >
-                <Zap className="w-4 h-4 mr-2" />
-                Upgrade
+                Assinar Mensal
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Starter Anual */}
+          <motion.div
+            className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 overflow-hidden shadow-xl"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ boxShadow: 'var(--shadow-glow)' }}
+          >
+            <div className="absolute top-6 right-6">
+              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-0 shadow-lg text-xs font-bold">
+                <Crown className="w-3 h-3 mr-1" />
+                Mais Econômico
+              </Badge>
+            </div>
+
+            <div className="relative">
+              <h3 className="text-xl font-bold mb-1 text-center">Starter Anual</h3>
+              <p className="text-muted-foreground text-sm text-center mb-6">
+                Economize {discount}% + domínio próprio
+              </p>
+
+              <div className="text-center mb-1">
+                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
+                  R$ {annual.toFixed(2).replace('.', ',')}
+                </span>
+                <span className="text-muted-foreground text-lg">/mês</span>
+              </div>
+              <div className="text-center mb-1">
+                <span className="text-sm text-primary font-medium">
+                  R$ {annualTotal.toFixed(2).replace('.', ',')}/ano
+                </span>
+                <span className="text-xs text-muted-foreground line-through ml-2">
+                  R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mb-8">Cobrança anual</p>
+
+              <ul className="space-y-3 mb-8">
+                {annualFeatures.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <Check className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                size="lg"
+                className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0"
+                onClick={() => handleSelectPlan('pro')}
+              >
+                Assinar Anual — Economize {discount}%
               </Button>
             </div>
           </motion.div>
         </div>
-
-        {/* Psychology line */}
-        <motion.div
-          className="text-center mt-10"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <p className="text-lg font-semibold text-foreground">
-            💡 Um único projeto já paga a ferramenta
-          </p>
-        </motion.div>
 
         {/* Coupon Section */}
         <motion.div
           className="max-w-md mx-auto mt-10"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.3 }}
         >
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
@@ -288,33 +270,22 @@ export default function Pricing() {
           </div>
         </motion.div>
 
+        {/* Footer note */}
         <motion.div 
           className="text-center mt-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.4 }}
         >
           <div className="inline-flex items-center gap-2 bg-card border border-border rounded-full px-6 py-3 shadow-sm">
             <Shield className="w-5 h-5 text-primary" />
             <span className="text-sm">
-              Garantia de 7 dias após o pagamento. Não gostou? Devolvemos seu dinheiro.
+              Todos os planos incluem 7 dias de garantia de reembolso.
             </span>
           </div>
         </motion.div>
-
-        <motion.div 
-          className="text-center mt-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          <p className="text-sm text-muted-foreground">
-            Pagamento via <strong>PIX</strong> • Sem cartão de crédito • Cancele quando quiser
-          </p>
-        </motion.div>
       </main>
 
-      {/* Payment Modal */}
       <PaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} />
     </div>
   );

@@ -164,18 +164,19 @@ function AgendaContent() {
           <div>
             <p className="text-sm font-medium text-foreground">Google Calendar</p>
             <p className="text-xs text-muted-foreground">
-              {googleCalendar?.is_connected ? 'Conectado' : 'Conecte para sincronizar eventos'}
+              {googleCalendarConnected ? 'Conectado' : 'Conecte para sincronizar eventos'}
             </p>
           </div>
         </div>
         <Button
           size="sm"
-          variant={googleCalendar?.is_connected ? 'outline' : 'default'}
+          variant={googleCalendarConnected ? 'outline' : 'default'}
           onClick={handleConnectGoogle}
+          disabled={connectingGoogle || toggleIntegration.isPending}
           className="gap-2"
         >
           <Link2 className="w-4 h-4" />
-          {googleCalendar?.is_connected ? 'Conectado' : 'Conectar'}
+          {connectingGoogle ? 'Conectando...' : googleCalendarConnected ? 'Conectado' : 'Conectar'}
         </Button>
       </div>
 

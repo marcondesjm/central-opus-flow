@@ -115,7 +115,7 @@ export function PaymentModal({ open, onOpenChange, planName, planPrice, planBill
   const selectedPeriodLabel = planPrice ? (planBilling === 'annual' ? 'pagamento anual' : '/mês') : (billingCycle === 'monthly' ? '/mês' : '/ano');
   const displayPlanName = planName || 'PRO';
 
-  // Fetch PIX data from backend when modal opens or billing cycle changes
+  // Fetch PIX data from backend when modal opens or selected amount changes
   useEffect(() => {
     let isCancelled = false;
 
@@ -144,7 +144,7 @@ export function PaymentModal({ open, onOpenChange, planName, planPrice, planBill
     return () => {
       isCancelled = true;
     };
-  }, [open, billingCycle, toast]);
+  }, [open, selectedPrice, pixSettings?.pix_key, pixSettings?.pix_name, pixSettings?.pix_city, toast]);
 
   const handleCopyPix = async () => {
     if (!pixData) return;

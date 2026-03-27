@@ -1171,10 +1171,7 @@ export default function PortfolioManager() {
           </TabsList>
 
           <TabsContent value="portfolio" className="mt-0">
-            <div className="text-center py-16 text-muted-foreground">
-              <Globe className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">Seus projetos de portfólio aparecerão aqui</p>
-            </div>
+            <PortfolioItemsTab />
           </TabsContent>
 
           <TabsContent value="public" className="mt-0">

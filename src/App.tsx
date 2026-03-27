@@ -34,6 +34,8 @@ const Manual = lazy(() => import("./pages/Manual"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Scheduling = lazy(() => import("./pages/Scheduling"));
 const BookingPublic = lazy(() => import("./pages/BookingPublic"));
+const Briefings = lazy(() => import("./pages/Briefings"));
+const BriefingPublic = lazy(() => import("./pages/BriefingPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -296,6 +298,15 @@ function AppContent() {
               }
             />
             <Route path="/agendar/:slug" element={<BookingPublic />} />
+            <Route
+              path="/briefings"
+              element={
+                <ProtectedRoute>
+                  <Briefings />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/briefing/:token" element={<BriefingPublic />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

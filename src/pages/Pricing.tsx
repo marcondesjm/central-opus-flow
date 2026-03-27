@@ -183,7 +183,7 @@ export default function Pricing() {
               </div>
               <div className="relative">
                 <h3 className="text-xl font-bold mb-1 text-center">Starter Anual</h3>
-                <p className="text-muted-foreground text-sm text-center mb-6">Economize {discount}% + domínio próprio</p>
+                <p className="text-muted-foreground text-sm text-center mb-6">Economize no plano anual + domínio próprio</p>
                 <div className="text-center mb-1">
                   <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
                     R$ {annual.toFixed(2).replace('.', ',')}
@@ -194,7 +194,7 @@ export default function Pricing() {
                   <span className="text-sm text-primary font-medium">R$ {annualTotal.toFixed(2).replace('.', ',')}/ano</span>
                   <span className="text-xs text-muted-foreground line-through ml-2">R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano</span>
                 </div>
-                <p className="text-xs text-muted-foreground text-center mb-8">Cobrança anual</p>
+                <p className="text-xs text-muted-foreground text-center mb-8">Pagamento anual</p>
                 <ul className="space-y-3 mb-8">
                   {annualFeatures.map((feature, i) => (
                     <li key={i} className="flex items-center gap-3">
@@ -204,7 +204,7 @@ export default function Pricing() {
                   ))}
                 </ul>
                 <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('Starter Anual', annualTotal, 'annual')}>
-                  Assinar Anual — Economize {discount}%
+                  Assinar Anual
                 </Button>
               </div>
             </motion.div>

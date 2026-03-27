@@ -102,15 +102,20 @@ export function PaymentModal({ open, onOpenChange, planName, planPrice, planBill
   const { data: pricingSettings } = usePricingSettings();
   const { data: pixSettings } = usePixSettings();
 
-  // If a fixed planPrice is provided, use it; otherwise use billing cycle toggle
+  useEffect(() => {
+    if (planBilling) {
+      setBillingCycle(planBilling);
+    }
+  }, [planBilling, open]);
+
   const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
   const annualPrice = pricingSettings?.annual_price ?? 73.9;
   const selectedPrice = planPrice ?? (billingCycle === 'monthly' ? monthlyPrice : annualPrice);
   const selectedPriceLabel = selectedPrice.toFixed(2).replace('.', ',');
-  const selectedPeriodLabel = planPrice ? (planBilling === 'annual' ? '/ano' : '/mês') : (billingCycle === 'monthly' ? '/mês' : '/ano');
+  const selectedPeriodLabel = planPrice ? (planBilling === 'annual' ? 'pagamento anual' : '/mês') : (billingCycle === 'monthly' ? '/mês' : '/ano');
   const displayPlanName = planName || 'PRO';
 
-  // Fetch PIX data from backend when modal opens or billing cycle changes
+  // Fetch PIX data from backend when modal opens or selected amount changes
   useEffect(() => {
     let isCancelled = false;
 
@@ -139,7 +144,7 @@ export function PaymentModal({ open, onOpenChange, planName, planPrice, planBill
     return () => {
       isCancelled = true;
     };
-  }, [open, billingCycle, toast]);
+  }, [open, selectedPrice, pixSettings?.pix_key, pixSettings?.pix_name, pixSettings?.pix_city, toast]);
 
   const handleCopyPix = async () => {
     if (!pixData) return;

@@ -374,6 +374,7 @@ export function Sidebar({
             <NavItem icon={Clock} label="Agendamento" onClick={() => navigate('/scheduling')} active={isRouteActive('/scheduling')} />
             <NavItem icon={CalendarIcon} label="Agenda" onClick={() => navigate('/agenda')} active={isRouteActive('/agenda')} />
             <NavItem icon={Users} label="Leads & Clientes" onClick={() => navigate('/leads')} active={isRouteActive('/leads')} />
+            <NavItem icon={Users} label="Clientes" onClick={() => navigate('/clients')} active={isRouteActive('/clients')} />
             <NavItem icon={BarChart3} label={t('sidebar.reports')} onClick={() => navigate('/reports')} active={isRouteActive('/reports')} />
             {sidebarVisibility.teams && (
               <NavItem icon={UsersRound} label={t('sidebar.teams')} onClick={() => navigate('/teams')} active={isRouteActive('/teams')} />

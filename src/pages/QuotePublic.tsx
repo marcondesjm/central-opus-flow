@@ -140,10 +140,10 @@ export default function QuotePublicPage() {
                       <p className="font-medium">{idx + 1}. {item.name}</p>
                       <p className="text-xs text-muted-foreground">{item.description}</p>
                     </div>
-                    <span className="font-semibold text-primary">{fmtBRL(item.total)}</span>
+                    <span className="font-semibold text-primary">{formatBRL(item.total)}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {item.quantity}x — {fmtBRL(item.unit_price)} cada
+                    {item.quantity}x — {formatBRL(item.unit_price)} cada
                   </p>
                 </div>
               ))}
@@ -156,14 +156,14 @@ export default function QuotePublicPage() {
           <CardContent className="p-5">
             <p className="font-semibold text-sm flex items-center gap-1 mb-3"><CreditCard className="w-3.5 h-3.5" /> Resumo Financeiro</p>
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{fmtBRL(quote.subtotal)}</span></div>
-              {quote.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Desconto</span><span className="text-rose-500">-{fmtBRL(quote.discount)}</span></div>}
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatBRL(quote.subtotal)}</span></div>
+              {quote.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Desconto</span><span className="text-rose-500">-{formatBRL(quote.discount)}</span></div>}
               {quote.is_recurring && quote.recurring_months && (
-                <div className="flex justify-between"><span className="text-muted-foreground">{quote.recurring_months}x mensalidades</span><span>{fmtBRL(quote.total)}/mês</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{quote.recurring_months}x mensalidades</span><span>{formatBRL(quote.total)}/mês</span></div>
               )}
               <div className="flex justify-between pt-2 border-t font-bold text-lg">
                 <span>Total</span>
-                <span className="text-pink-500">{fmtBRL(recurringTotal)}</span>
+                <span className="text-pink-500">{formatBRL(recurringTotal)}</span>
               </div>
             </div>
           </CardContent>

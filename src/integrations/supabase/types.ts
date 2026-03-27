@@ -1192,33 +1192,59 @@ export type Database = {
       }
       financial_services: {
         Row: {
+          category_id: string | null
           created_at: string
           default_price: number
           description: string | null
           id: string
+          is_recurring: boolean
           name: string
+          recurring_period: string | null
+          show_leads_form: boolean
+          show_public: boolean
+          status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           default_price?: number
           description?: string | null
           id?: string
+          is_recurring?: boolean
           name: string
+          recurring_period?: string | null
+          show_leads_form?: boolean
+          show_public?: boolean
+          status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           default_price?: number
           description?: string | null
           id?: string
+          is_recurring?: boolean
           name?: string
+          recurring_period?: string | null
+          show_leads_form?: boolean
+          show_public?: boolean
+          status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_suppliers: {
         Row: {

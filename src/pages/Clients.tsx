@@ -2,9 +2,11 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
   Search, Plus, Grid3X3, List, Link2, Users, Mail, Phone, Building2,
-  Pencil, Trash2, ArrowLeft, Loader2, Calendar, X, Save,
+  Pencil, Trash2, ArrowLeft, Loader2, Calendar, X, Save, FolderPlus,
+  FileText, DollarSign, CheckCircle2, Clock, Info, File, ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +23,7 @@ import {
   FullClient, TECH_SECTIONS, AVATAR_COLORS,
 } from '@/hooks/useClients';
 import { useToast } from '@/hooks/use-toast';
+import { useUserIntegrations } from '@/hooks/useUserIntegrations';
 
 // ─── Cadastrar Cliente Modal ──────────────────────────
 function CadastrarClienteModal({ open, onOpenChange, editClient }: { open: boolean; onOpenChange: (v: boolean) => void; editClient?: FullClient | null }) {
@@ -382,6 +385,164 @@ function FichaTecnica({ client, onBack }: { client: FullClient; onBack: () => vo
   );
 }
 
+// ─── Client Detail View with Tabs ──────────────────────────
+function ClientDetailView({ client, onBack, onFichaTecnica }: { client: FullClient; onBack: () => void; onFichaTecnica: () => void }) {
+  const [tab, setTab] = useState('info');
+  const { data: techData } = useClientTechnicalData(client.id);
+  const { integrations, isConnected } = useUserIntegrations();
+
+  const hasDriveConnected = isConnected('google_drive');
+
+  return (
+    <Dialog open onOpenChange={() => onBack()}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        <div className="flex items-center justify-between p-6 pb-2">
+          <h2 className="text-lg font-bold">Detalhes do Cliente</h2>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={onFichaTecnica}>
+              <FileText className="w-4 h-4" /> Ficha Técnica
+            </Button>
+          </div>
+        </div>
+
+        <Tabs value={tab} onValueChange={setTab} className="px-6 pb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
+            <TabsTrigger value="info">Informações</TabsTrigger>
+            <TabsTrigger value="files" className="gap-1"><FolderPlus className="w-3.5 h-3.5" /> Arquivos</TabsTrigger>
+            <TabsTrigger value="services">Serviços</TabsTrigger>
+            <TabsTrigger value="financial">Financeiro</TabsTrigger>
+          </TabsList>
+
+          {/* ── Informações ── */}
+          <TabsContent value="info" className="space-y-4 mt-0">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                style={{ backgroundColor: client.avatar_color || '#22c55e' }}>
+                {client.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">{client.name}</h3>
+                {client.company && <p className="text-sm text-muted-foreground">{client.company}</p>}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {client.email && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <span>{client.email}</span>
+                </div>
+              )}
+              {client.phone && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="w-4 h-4 text-muted-foreground" />
+                  <span>{client.phone}</span>
+                </div>
+              )}
+              {client.cpf_cnpj && (
+                <div className="flex items-center gap-2 text-sm">
+                  <FileText className="w-4 h-4 text-muted-foreground" />
+                  <span>{client.cpf_cnpj}</span>
+                </div>
+              )}
+              {client.project_interest && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Info className="w-4 h-4 text-muted-foreground" />
+                  <span>{client.project_interest}</span>
+                </div>
+              )}
+            </div>
+            {(client.address || client.city) && (
+              <Card><CardContent className="p-3 text-sm text-muted-foreground">
+                {[client.address, client.address_number, client.address_complement, client.neighborhood, client.city, client.state, client.cep].filter(Boolean).join(', ')}
+              </CardContent></Card>
+            )}
+            {client.tags && client.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {client.tags.map((t, i) => <Badge key={i} variant="secondary">{t}</Badge>)}
+              </div>
+            )}
+            {client.notes && (
+              <Card><CardContent className="p-3 text-sm">{client.notes}</CardContent></Card>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Cadastrado em {format(parseISO(client.created_at), 'dd/MM/yyyy')}
+            </p>
+          </TabsContent>
+
+          {/* ── Arquivos (Google Drive) ── */}
+          <TabsContent value="files" className="space-y-4 mt-0">
+            <div className="text-center py-8">
+              <FolderPlus className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
+              <h3 className="font-semibold mb-1">Nenhuma pasta configurada</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Crie uma pasta no Google Drive para organizar os arquivos deste cliente.
+              </p>
+              {!hasDriveConnected ? (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-400 flex items-center gap-2 justify-center">
+                  <Info className="w-4 h-4" />
+                  Conecte sua conta do Google Drive nas configurações primeiro.
+                </div>
+              ) : (
+                <Button className="gap-1.5">
+                  <FolderPlus className="w-4 h-4" /> Criar Pasta no Drive
+                </Button>
+              )}
+            </div>
+            <Card><CardContent className="p-4 text-sm space-y-1">
+              <p className="font-semibold mb-2">Ao criar a pasta:</p>
+              <p className="text-muted-foreground">• Uma pasta com o nome "{client.name}" será criada</p>
+              <p className="text-muted-foreground">• Subpastas para Briefings, Artes, Contratos e Orçamentos</p>
+              <p className="text-muted-foreground">• O link ficará salvo para acesso rápido</p>
+            </CardContent></Card>
+          </TabsContent>
+
+          {/* ── Serviços ── */}
+          <TabsContent value="services" className="space-y-4 mt-0">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">Orçamentos Aprovados</h3>
+              <span className="text-sm text-muted-foreground">0 serviços</span>
+            </div>
+            <div className="text-center py-8 border rounded-lg">
+              <File className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+              <p className="text-sm text-muted-foreground">Nenhum orçamento aprovado ainda</p>
+            </div>
+          </TabsContent>
+
+          {/* ── Financeiro ── */}
+          <TabsContent value="financial" className="space-y-4 mt-0">
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="bg-emerald-500/10 border-emerald-500/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    Total Pago
+                  </div>
+                  <p className="text-xl font-bold text-emerald-500">{formatBRL(0)}</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-amber-500/10 border-amber-500/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Clock className="w-4 h-4 text-amber-500" />
+                    Total Pendente
+                  </div>
+                  <p className="text-xl font-bold text-amber-500">{formatBRL(0)}</p>
+                </CardContent>
+              </Card>
+            </div>
+            <h3 className="font-semibold">Contas a Receber</h3>
+            <div className="text-center py-8 border rounded-lg">
+              <DollarSign className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+              <p className="text-sm text-muted-foreground">Nenhuma conta a receber</p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 // ─── Main Clients Page ──────────────────────────
 export default function ClientsPage() {
   const { data: clients, isLoading } = useClients();
@@ -393,6 +554,7 @@ export default function ClientsPage() {
   const [showCadastrar, setShowCadastrar] = useState(false);
   const [editingClient, setEditingClient] = useState<FullClient | null>(null);
   const [selectedClient, setSelectedClient] = useState<FullClient | null>(null);
+  const [showFichaTecnica, setShowFichaTecnica] = useState(false);
 
   const filtered = useMemo(() => {
     if (!clients) return [];
@@ -416,11 +578,11 @@ export default function ClientsPage() {
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   // If viewing ficha técnica
-  if (selectedClient) {
+  if (showFichaTecnica && selectedClient) {
     return (
       <AppLayout>
         <div className="max-w-[1400px] mx-auto px-4 py-6">
-          <FichaTecnica client={selectedClient} onBack={() => setSelectedClient(null)} />
+          <FichaTecnica client={selectedClient} onBack={() => setShowFichaTecnica(false)} />
         </div>
       </AppLayout>
     );
@@ -496,6 +658,14 @@ export default function ClientsPage() {
       </div>
 
       {showCadastrar && <CadastrarClienteModal open={showCadastrar} onOpenChange={setShowCadastrar} editClient={editingClient} />}
+      
+      {selectedClient && !showFichaTecnica && (
+        <ClientDetailView 
+          client={selectedClient} 
+          onBack={() => setSelectedClient(null)} 
+          onFichaTecnica={() => setShowFichaTecnica(true)} 
+        />
+      )}
     </AppLayout>
   );
 }

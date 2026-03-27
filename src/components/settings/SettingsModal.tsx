@@ -538,14 +538,61 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
               {/* ============ INTEGRAÇÕES ============ */}
               <TabsContent value="integrations" className="mt-0 space-y-6">
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {INTEGRATION_DEFS.map((integration) => {
-                    const Icon = integration.icon;
-                    const connected = isConnected(integration.key);
-                    return (
-                      <button
-                        key={integration.key}
-                        onClick={() => handleOpenIntegrationConfig(integration.key)}
+                {activeIntegration ? (
+                  <IntegrationDetailPage
+                    integrationKey={activeIntegration}
+                    onBack={() => setActiveIntegration(null)}
+                  />
+                ) : (
+                  <>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                      {INTEGRATION_DEFS.map((integration) => {
+                        const Icon = integration.icon;
+                        const connected = isConnected(integration.key);
+                        return (
+                          <button
+                            key={integration.key}
+                            onClick={() => handleOpenIntegrationDetail(integration.key)}
+                            className={cn(
+                              'relative flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
+                              connected ? 'border-green-500/50 bg-green-500/5' : 'border-border bg-card hover:border-primary/30',
+                              integration.soon && 'opacity-60 cursor-not-allowed'
+                            )}
+                            disabled={integration.soon}
+                          >
+                            {connected && (
+                              <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                                <Check className="w-2.5 h-2.5 text-white" />
+                              </div>
+                            )}
+                            {integration.soon && (
+                              <span className="absolute top-2 right-2 text-[8px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">Em breve</span>
+                            )}
+                            <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', integration.color)}>
+                              <Icon className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-[11px] font-medium text-center">{integration.name}</span>
+                            {connected && <span className="text-[9px] text-green-500 font-medium">Conectado</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="bg-card border border-border rounded-2xl p-6 text-center space-y-2">
+                      <p className="font-bold text-sm">Não encontrou a integração que precisa?</p>
+                      <p className="text-xs text-muted-foreground">Envie sua sugestão e nossa equipe avaliará para futuras versões</p>
+                      <Button variant="outline" size="sm" className="border-primary/30 text-primary">Sugerir Integração</Button>
+                    </div>
+                  </>
+                )}
+              </TabsContent>
+            </div>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
                         className={cn(
                           'relative flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
                           connected ? 'border-green-500/50 bg-green-500/5' : 'border-border bg-card hover:border-primary/30',

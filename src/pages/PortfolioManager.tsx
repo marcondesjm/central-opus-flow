@@ -686,7 +686,7 @@ function BioLinkEditor() {
                 })}
 
                 <div className="mt-6 text-center">
-                  <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com <span className="font-bold">UCFlow</span></p>
+                  <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com <span className="font-bold">Central Flow</span></p>
                   <p className="text-[10px] opacity-30 underline" style={{ color: localBio.text_color }}>Crie sua conta</p>
                 </div>
               </div>

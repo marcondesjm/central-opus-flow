@@ -266,7 +266,7 @@ export function Sidebar({
           <Button
             size="sm"
             className="w-full justify-start gap-2 rounded-xl text-sm font-medium"
-            onClick={() => navigate('/portfolio-editor')}
+            onClick={() => navigate('/portfolio-manager')}
           >
             <Globe className="w-4 h-4" />
             Páginas de destino

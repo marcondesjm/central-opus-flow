@@ -24,6 +24,29 @@ interface IntegrationDetailProps {
 function GoogleCalendarDetail({ onBack, isConnected, onToggle, isPending }: {
   onBack: () => void; isConnected: boolean; onToggle: (connected: boolean, config?: Record<string, unknown>) => void; isPending: boolean;
 }) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnectGoogle = async () => {
+    if (isConnected) {
+      onToggle(false);
+      return;
+    }
+    setConnecting(true);
+    try {
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin,
+      });
+      if (!result.error) {
+        onToggle(true, { provider: 'google', connected_via: 'oauth' });
+      }
+    } catch (e) {
+      console.error('Google OAuth error:', e);
+    } finally {
+      setConnecting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -65,8 +88,8 @@ function GoogleCalendarDetail({ onBack, isConnected, onToggle, isPending }: {
         </div>
 
         <Button
-          onClick={() => onToggle(!isConnected)}
-          disabled={isPending}
+          onClick={handleConnectGoogle}
+          disabled={isPending || connecting}
           className={cn(
             'w-full border-0 text-white',
             isConnected
@@ -74,8 +97,8 @@ function GoogleCalendarDetail({ onBack, isConnected, onToggle, isPending }: {
               : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'
           )}
         >
-          {isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-          {isConnected ? 'Desconectar Google Calendar' : 'Conectar Google Calendar'}
+          {(isPending || connecting) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+          {isConnected ? 'Desconectar Google Calendar' : 'Conectar com Google'}
         </Button>
       </div>
     </div>

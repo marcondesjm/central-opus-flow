@@ -41,6 +41,8 @@ const Leads = lazy(() => import("./pages/Leads"));
 const Clients = lazy(() => import("./pages/Clients"));
 const ClientRegisterPublic = lazy(() => import("./pages/ClientRegisterPublic"));
 const QuotePublic = lazy(() => import("./pages/QuotePublic"));
+const PortfolioEditor = lazy(() => import("./pages/PortfolioEditor"));
+const PortfolioPublic = lazy(() => import("./pages/PortfolioPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -335,6 +337,15 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Leads />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/portfolio/:slug" element={<PortfolioPublic />} />
+            <Route
+              path="/portfolio-editor"
+              element={
+                <ProtectedRoute>
+                  <PortfolioEditor />
                 </ProtectedRoute>
               }
             />

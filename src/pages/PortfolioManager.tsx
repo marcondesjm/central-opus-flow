@@ -516,7 +516,28 @@ function BioLinkEditor() {
                           </button>
                         </div>
 
-                        <Input value={link.url} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="https://exemplo.com" className="h-7 text-xs" />
+                        {link.type === 'button' && <Input value={link.url} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="https://exemplo.com" className="h-7 text-xs" />}
+
+                        {link.type === 'image' && (
+                          <div className="space-y-2">
+                            <Input value={link.url || ''} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="URL do link ao clicar (opcional)" className="h-7 text-xs" />
+                            <Input value={link.image_url || ''} onChange={e => updateLinkInBlock(bi, li, { image_url: e.target.value } as any)} placeholder="URL da imagem" className="h-7 text-xs" />
+                            <label className="flex items-center gap-2 px-3 py-2 bg-accent rounded-md cursor-pointer text-xs hover:bg-accent/80 w-fit">
+                              <Upload className="w-3 h-3" /> Upload Imagem
+                              <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const ext = file.name.split('.').pop();
+                                const path = `bio-banners/${crypto.randomUUID()}.${ext}`;
+                                const { error } = await supabase.storage.from('portfolio').upload(path, file);
+                                if (!error) {
+                                  const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+                                  updateLinkInBlock(bi, li, { image_url: urlData.publicUrl, url: link.url || urlData.publicUrl } as any);
+                                }
+                              }} />
+                            </label>
+                          </div>
+                        )}
 
                         {link.type === 'button' && (
                           <>

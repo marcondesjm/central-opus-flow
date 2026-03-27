@@ -2445,6 +2445,166 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_leads: {
+        Row: {
+          created_at: string | null
+          custom_fields: Json | null
+          email: string | null
+          id: string
+          message: string | null
+          name: string
+          page_id: string
+          phone: string | null
+          service_interest: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_fields?: Json | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name: string
+          page_id: string
+          phone?: string | null
+          service_interest?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_fields?: Json | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string
+          page_id?: string
+          phone?: string | null
+          service_interest?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_leads_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_pages: {
+        Row: {
+          bg_color: string | null
+          created_at: string | null
+          font_body: string | null
+          font_heading: string | null
+          id: string
+          instagram_url: string | null
+          is_published: boolean | null
+          lead_capture_fields: Json | null
+          lead_capture_type: string | null
+          lead_capture_url: string | null
+          logo_url: string | null
+          meta_description: string | null
+          meta_title: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          text_color: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          bg_color?: string | null
+          created_at?: string | null
+          font_body?: string | null
+          font_heading?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_published?: boolean | null
+          lead_capture_fields?: Json | null
+          lead_capture_type?: string | null
+          lead_capture_url?: string | null
+          logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          text_color?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          bg_color?: string | null
+          created_at?: string | null
+          font_body?: string | null
+          font_heading?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_published?: boolean | null
+          lead_capture_fields?: Json | null
+          lead_capture_type?: string | null
+          lead_capture_url?: string | null
+          logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          text_color?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      portfolio_sections: {
+        Row: {
+          content: Json | null
+          created_at: string | null
+          id: string
+          is_visible: boolean | null
+          page_id: string
+          position: number
+          settings: Json | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          page_id: string
+          position?: number
+          settings?: Json | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          page_id?: string
+          position?: number
+          settings?: Json | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           area_atuacao: string | null

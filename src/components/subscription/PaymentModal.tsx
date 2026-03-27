@@ -29,6 +29,9 @@ import {
 interface PaymentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  planName?: string;
+  planPrice?: number;
+  planBilling?: 'monthly' | 'annual';
 }
 
 const WHATSAPP_NUMBER = '5548996029392';

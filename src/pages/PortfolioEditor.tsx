@@ -120,12 +120,43 @@ function EditorSidebar({
 
             <div className="mt-4">
               <p className="text-[10px] font-bold text-muted-foreground tracking-wider mb-1 px-2">ESTILO</p>
-              {['Cores', 'Templates de Estilo', 'Modelo de Layout', 'Carregar Template'].map(item => (
-                <button key={item} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
-                  <Palette className="w-3.5 h-3.5" />
-                  <span>{item}</span>
-                </button>
-              ))}
+              <button onClick={() => setColorsOpen(!colorsOpen)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Palette className="w-3.5 h-3.5" /><span>Cores</span>
+              </button>
+              {colorsOpen && (
+                <div className="px-3 py-2 space-y-2">
+                  <div>
+                    <Label className="text-xs">Cor Principal</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={page.primary_color} onChange={e => onUpdatePage({ primary_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                      <Input value={page.primary_color} onChange={e => onUpdatePage({ primary_color: e.target.value })} className="h-7 text-xs flex-1" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Cor de Fundo</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={page.bg_color} onChange={e => onUpdatePage({ bg_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                      <Input value={page.bg_color} onChange={e => onUpdatePage({ bg_color: e.target.value })} className="h-7 text-xs flex-1" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Cor do Texto</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={page.text_color} onChange={e => onUpdatePage({ text_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                      <Input value={page.text_color} onChange={e => onUpdatePage({ text_color: e.target.value })} className="h-7 text-xs flex-1" />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <button onClick={() => setTemplatesOpen(true)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Palette className="w-3.5 h-3.5" /><span>Templates de Estilo</span>
+              </button>
+              <button onClick={() => setLayoutOpen(true)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Grid3X3 className="w-3.5 h-3.5" /><span>Modelo de Layout</span>
+              </button>
+              <button onClick={() => setLoadTemplateOpen(true)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Upload className="w-3.5 h-3.5" /><span>Carregar Template</span>
+              </button>
             </div>
           </>
         ) : (

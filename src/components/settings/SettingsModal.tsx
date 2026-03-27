@@ -47,7 +47,7 @@ const INTEGRATION_DEFS = [
   { name: 'Webhooks', key: 'webhooks', icon: Webhook, color: 'bg-green-600' },
   { name: 'WhatsApp', key: 'whatsapp', icon: MessageSquare, color: 'bg-[#25D366]' },
   { name: 'Google Drive', key: 'google_drive', icon: Globe, color: 'bg-green-500' },
-  { name: 'Google Meet', key: 'google_meet', icon: Video, color: 'bg-red-500', soon: true },
+  { name: 'Google Meet', key: 'google_meet', icon: Video, color: 'bg-red-500' },
   { name: 'Stripe', key: 'stripe', icon: CreditCard, color: 'bg-purple-600', soon: true },
   { name: 'Slack', key: 'slack', icon: MessageSquare, color: 'bg-purple-500', soon: true },
 ];
@@ -91,7 +91,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     { id: 'paginas', label: 'Páginas', icon: Globe },
     { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
-  const [selectedShortcuts, setSelectedShortcuts] = useState<string[]>(['dashboard', 'clientes', 'pipelines', 'financeiro']);
+  const MOBILE_SHORTCUTS_KEY = 'mobile-shortcuts';
+  const [selectedShortcuts, setSelectedShortcuts] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(MOBILE_SHORTCUTS_KEY);
+      return saved ? JSON.parse(saved) : ['dashboard', 'clientes', 'pipelines', 'financeiro'];
+    } catch { return ['dashboard', 'clientes', 'pipelines', 'financeiro']; }
+  });
 
   useEffect(() => {
     if (user && open) fetchProfile();
@@ -490,7 +496,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
                   <p className="text-xs text-muted-foreground">💡 <strong>Dica:</strong> Selecione as páginas que você mais acessa para ter acesso rápido no mobile.</p>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Salvar</Button>
+                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => {
+                  localStorage.setItem(MOBILE_SHORTCUTS_KEY, JSON.stringify(selectedShortcuts));
+                  window.dispatchEvent(new Event('mobile-shortcuts-changed'));
+                  toast({ title: 'Atalhos salvos!', description: 'O menu mobile foi atualizado.' });
+                }}>Salvar</Button>
               </div>
             </TabsContent>
 

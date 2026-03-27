@@ -53,8 +53,9 @@ function AgendaContent() {
   const projects = projectsQuery.data;
   const dealsQuery = useKanbanDeals();
   const deals = dealsQuery.data;
-  const { integrations } = useUserIntegrations();
-  const googleCalendar = integrations?.find((i) => i.integration_name === 'google_calendar');
+  const { integrations, toggleIntegration, isConnected: checkConnected } = useUserIntegrations();
+  const googleCalendarConnected = checkConnected('google_calendar');
+  const [connectingGoogle, setConnectingGoogle] = useState(false);
 
   // Build events
   const events = useMemo<CalendarEvent[]>(() => {
@@ -92,8 +93,28 @@ function AgendaContent() {
 
   const goToday = () => setCurrentDate(new Date());
 
-  const handleConnectGoogle = () => {
-    toast.info('Configure o Google Calendar nas Integrações (Configurações → Integrações)');
+  const handleConnectGoogle = async () => {
+    if (googleCalendarConnected) {
+      toggleIntegration.mutate({ name: 'google_calendar', connected: false });
+      return;
+    }
+    setConnectingGoogle(true);
+    try {
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin + '/agenda',
+      });
+      if (!result.error) {
+        toggleIntegration.mutate({ name: 'google_calendar', connected: true, config: { provider: 'google', connected_via: 'oauth' } });
+      } else {
+        toast.error('Erro ao conectar Google Calendar');
+      }
+    } catch (e) {
+      console.error('Google OAuth error:', e);
+      toast.error('Erro ao conectar Google Calendar');
+    } finally {
+      setConnectingGoogle(false);
+    }
   };
 
   // Calendar grid for month view
@@ -143,18 +164,19 @@ function AgendaContent() {
           <div>
             <p className="text-sm font-medium text-foreground">Google Calendar</p>
             <p className="text-xs text-muted-foreground">
-              {googleCalendar?.is_connected ? 'Conectado' : 'Conecte para sincronizar eventos'}
+              {googleCalendarConnected ? 'Conectado' : 'Conecte para sincronizar eventos'}
             </p>
           </div>
         </div>
         <Button
           size="sm"
-          variant={googleCalendar?.is_connected ? 'outline' : 'default'}
+          variant={googleCalendarConnected ? 'outline' : 'default'}
           onClick={handleConnectGoogle}
+          disabled={connectingGoogle || toggleIntegration.isPending}
           className="gap-2"
         >
           <Link2 className="w-4 h-4" />
-          {googleCalendar?.is_connected ? 'Conectado' : 'Conectar'}
+          {connectingGoogle ? 'Conectando...' : googleCalendarConnected ? 'Conectado' : 'Conectar'}
         </Button>
       </div>
 

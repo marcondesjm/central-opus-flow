@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -770,79 +772,268 @@ function PublicPageTab() {
   );
 }
 
+// ============ FORMULÁRIOS TAB ============
+function FormulariosTab() {
+  const { data: page } = usePortfolioPage();
+  const { data: leads, isLoading } = usePortfolioLeads(page?.id);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold">Formulários de Captura</h2>
+          <p className="text-xs text-muted-foreground">Leads capturados através da sua página pública e bio link</p>
+        </div>
+        <Badge variant="outline" className="text-xs">{leads?.length || 0} leads</Badge>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+      ) : !leads?.length ? (
+        <div className="text-center py-16 border border-dashed border-border rounded-xl">
+          <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+          <p className="text-sm text-muted-foreground">Nenhum lead capturado ainda</p>
+          <p className="text-xs text-muted-foreground mt-1">Publique sua página e compartilhe o link para começar a receber leads</p>
+        </div>
+      ) : (
+        <div className="border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="text-left p-3 font-medium">Nome</th>
+                <th className="text-left p-3 font-medium">E-mail</th>
+                <th className="text-left p-3 font-medium">Telefone</th>
+                <th className="text-left p-3 font-medium">Mensagem</th>
+                <th className="text-left p-3 font-medium">Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((lead: any) => (
+                <tr key={lead.id} className="border-b border-border/50 hover:bg-muted/30">
+                  <td className="p-3">{lead.name}</td>
+                  <td className="p-3">{lead.email}</td>
+                  <td className="p-3">{lead.phone || '-'}</td>
+                  <td className="p-3 max-w-[200px] truncate">{lead.message || '-'}</td>
+                  <td className="p-3 text-muted-foreground text-xs">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============ AGENDAMENTO TAB ============
+function AgendamentoTab() {
+  const navigate = useNavigate();
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold">Agendamento</h2>
+        <p className="text-xs text-muted-foreground">Configure sua página de agendamento para clientes</p>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+        onClick={() => navigate('/scheduling')}>
+        <Calendar className="w-10 h-10 mx-auto mb-3 text-primary/60" />
+        <h3 className="text-lg font-bold">Gerenciar Agendamentos</h3>
+        <p className="text-sm text-muted-foreground">Configurar tipos de reunião, horários disponíveis e página pública</p>
+        <Button className="mt-4" size="sm">
+          <Calendar className="w-4 h-4 mr-1" /> Abrir Configurações
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ============ ESTATÍSTICAS TAB ============
+function EstatisticasTab() {
+  const { data: page } = usePortfolioPage();
+  const { data: leads } = usePortfolioLeads(page?.id);
+  const { data: bio } = useBioLink();
+
+  const totalLeads = leads?.length || 0;
+  const stats = [
+    { label: 'Leads Capturados', value: totalLeads, icon: FileText, color: 'text-blue-500' },
+    { label: 'Bio Link', value: bio ? '● Ativo' : '● Inativo', icon: Link2, color: bio?.is_published ? 'text-green-500' : 'text-yellow-500' },
+    { label: 'Página Pública', value: page?.is_published ? '● Publicada' : '● Rascunho', icon: Globe, color: page?.is_published ? 'text-green-500' : 'text-yellow-500' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold">Estatísticas</h2>
+        <p className="text-xs text-muted-foreground">Acompanhe o desempenho da sua presença online</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {stats.map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-xl p-5">
+            <div className="flex items-center gap-3">
+              <div className={cn('w-10 h-10 rounded-lg bg-muted flex items-center justify-center', s.color)}>
+                <s.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-lg font-bold">{s.value}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {totalLeads > 0 && (
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="text-sm font-bold mb-3">Últimos Leads</h3>
+          <div className="space-y-2">
+            {(leads || []).slice(0, 5).map((lead: any) => (
+              <div key={lead.id} className="flex items-center justify-between text-sm py-2 border-b border-border/50 last:border-0">
+                <div>
+                  <span className="font-medium">{lead.name}</span>
+                  <span className="text-muted-foreground ml-2">{lead.email}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============ CONFIGURAÇÕES TAB ============
+function ConfiguracoesTab() {
+  const { data: page } = usePortfolioPage();
+  const updatePage = useUpdatePortfolioPage();
+  const { data: bio } = useBioLink();
+  const updateBio = useUpdateBioLink();
+  const { toast } = useToast();
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold">Configurações</h2>
+        <p className="text-xs text-muted-foreground">Configurações avançadas da sua presença online</p>
+      </div>
+
+      {/* Página Pública Settings */}
+      {page && (
+        <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+          <h3 className="text-sm font-bold flex items-center gap-2"><Globe className="w-4 h-4" /> Página Pública</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs">Slug da URL</Label>
+              <Input value={page.slug} onChange={e => updatePage.mutate({ id: page.id, slug: e.target.value })} className="h-8 text-sm" />
+            </div>
+            <div>
+              <Label className="text-xs">Título SEO</Label>
+              <Input value={page.meta_title || ''} onChange={e => updatePage.mutate({ id: page.id, meta_title: e.target.value })} className="h-8 text-sm" />
+            </div>
+            <div className="md:col-span-2">
+              <Label className="text-xs">Descrição SEO</Label>
+              <Textarea value={page.meta_description || ''} onChange={e => updatePage.mutate({ id: page.id, meta_description: e.target.value })} className="text-sm min-h-[60px]" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch checked={page.is_published} onCheckedChange={v => updatePage.mutate({ id: page.id, is_published: v })} />
+            <span className="text-sm">Página publicada</span>
+          </div>
+        </div>
+      )}
+
+      {/* Bio Link Settings */}
+      {bio && (
+        <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+          <h3 className="text-sm font-bold flex items-center gap-2"><Link2 className="w-4 h-4" /> Link da Bio</h3>
+          <div className="flex items-center gap-3">
+            <Switch checked={bio.is_published} onCheckedChange={v => {
+              updateBio.mutate({ id: bio.id, is_published: v });
+              toast({ title: v ? 'Bio publicada!' : 'Bio despublicada' });
+            }} />
+            <span className="text-sm">Bio publicada</span>
+          </div>
+          <div>
+            <Label className="text-xs">URL da Bio</Label>
+            <div className="flex items-center gap-2">
+              <Input value={`${window.location.origin}/bio/${bio.slug}`} readOnly className="h-8 text-sm text-muted-foreground" />
+              <Button variant="outline" size="sm" onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/bio/${bio.slug}`);
+                toast({ title: 'Link copiado!' });
+              }}>
+                <Copy className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ============ MAIN PAGE ============
 export default function PortfolioManager() {
   const [activeTab, setActiveTab] = useState('public');
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Página Pública</h1>
+    <AppLayout>
+      <div className="p-6 max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Página Pública</h1>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6 bg-transparent border-b border-border rounded-none h-auto p-0 gap-0">
-          {[
-            { id: 'portfolio', label: 'Portfólio', icon: Globe },
-            { id: 'public', label: 'Página Pública', icon: Globe },
-            { id: 'bio', label: 'Link da Bio', icon: Link2 },
-            { id: 'forms', label: 'Formulários', icon: FileText },
-            { id: 'schedule', label: 'Agendamento', icon: Calendar },
-            { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
-            { id: 'config', label: 'Configurações', icon: Settings },
-          ].map(tab => (
-            <TabsTrigger key={tab.id} value={tab.id}
-              className={cn(
-                'rounded-none border-b-2 px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:shadow-none',
-                activeTab === tab.id ? 'border-primary' : 'border-transparent'
-              )}>
-              <tab.icon className="w-3.5 h-3.5 mr-1.5" />
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6 bg-transparent border-b border-border rounded-none h-auto p-0 gap-0">
+            {[
+              { id: 'portfolio', label: 'Portfólio', icon: Globe },
+              { id: 'public', label: 'Página Pública', icon: Globe },
+              { id: 'bio', label: 'Link da Bio', icon: Link2 },
+              { id: 'forms', label: 'Formulários', icon: FileText },
+              { id: 'schedule', label: 'Agendamento', icon: Calendar },
+              { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
+              { id: 'config', label: 'Configurações', icon: Settings },
+            ].map(tab => (
+              <TabsTrigger key={tab.id} value={tab.id}
+                className={cn(
+                  'rounded-none border-b-2 px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:shadow-none',
+                  activeTab === tab.id ? 'border-primary' : 'border-transparent'
+                )}>
+                <tab.icon className="w-3.5 h-3.5 mr-1.5" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        <TabsContent value="portfolio" className="mt-0">
-          <div className="text-center py-16 text-muted-foreground">
-            <Globe className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Seus projetos de portfólio aparecerão aqui</p>
-          </div>
-        </TabsContent>
+          <TabsContent value="portfolio" className="mt-0">
+            <div className="text-center py-16 text-muted-foreground">
+              <Globe className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Seus projetos de portfólio aparecerão aqui</p>
+            </div>
+          </TabsContent>
 
-        <TabsContent value="public" className="mt-0">
-          <PublicPageTab />
-        </TabsContent>
+          <TabsContent value="public" className="mt-0">
+            <PublicPageTab />
+          </TabsContent>
 
-        <TabsContent value="bio" className="mt-0">
-          <BioLinkEditor />
-        </TabsContent>
+          <TabsContent value="bio" className="mt-0">
+            <BioLinkEditor />
+          </TabsContent>
 
-        <TabsContent value="forms" className="mt-0">
-          <div className="text-center py-16 text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Gerencie seus formulários de captura de leads</p>
-          </div>
-        </TabsContent>
+          <TabsContent value="forms" className="mt-0">
+            <FormulariosTab />
+          </TabsContent>
 
-        <TabsContent value="schedule" className="mt-0">
-          <div className="text-center py-16 text-muted-foreground">
-            <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Configure agendamentos para seus clientes</p>
-          </div>
-        </TabsContent>
+          <TabsContent value="schedule" className="mt-0">
+            <AgendamentoTab />
+          </TabsContent>
 
-        <TabsContent value="stats" className="mt-0">
-          <div className="text-center py-16 text-muted-foreground">
-            <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Estatísticas de visualizações e cliques</p>
-          </div>
-        </TabsContent>
+          <TabsContent value="stats" className="mt-0">
+            <EstatisticasTab />
+          </TabsContent>
 
-        <TabsContent value="config" className="mt-0">
-          <div className="text-center py-16 text-muted-foreground">
-            <Settings className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Configurações avançadas da sua página</p>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="config" className="mt-0">
+            <ConfiguracoesTab />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppLayout>
   );
 }

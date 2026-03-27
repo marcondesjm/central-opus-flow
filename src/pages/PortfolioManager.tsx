@@ -761,7 +761,7 @@ function PublicPageTab() {
           <Globe className="w-4 h-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground flex-1">{siteUrl}</span>
           <button onClick={copyLink} className="text-muted-foreground hover:text-foreground"><Copy className="w-4 h-4" /></button>
-          <button onClick={() => window.open(`/portfolio/${page.slug}`, '_blank')} className="text-muted-foreground hover:text-foreground"><ExternalLink className="w-4 h-4" /></button>
+          <button onClick={() => portfolioPublicUrl && window.open(portfolioPublicUrl, '_blank', 'noopener,noreferrer')} className="text-muted-foreground hover:text-foreground"><ExternalLink className="w-4 h-4" /></button>
           <span className={cn(
             'text-xs px-2 py-0.5 rounded-full font-medium',
             page.is_published ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'

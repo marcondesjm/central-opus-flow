@@ -279,8 +279,18 @@ export function useCreateTransaction() {
   const { toast } = useToast();
   return useMutation({
     mutationFn: async (tx: Partial<FinancialTransaction> & { type: string; description: string; amount: number }) => {
+      const payload = {
+        ...tx,
+        user_id: user!.id,
+        amount: Number(tx.amount) || 0,
+        due_date: tx.due_date || new Date().toISOString().split('T')[0],
+        category_id: tx.category_id || null,
+        client_id: tx.client_id || null,
+        supplier_id: tx.supplier_id || null,
+        parent_id: tx.parent_id || null,
+      };
       const { data, error } = await supabase.from('financial_transactions')
-        .insert({ ...tx, user_id: user!.id } as any).select().single();
+        .insert(payload as any).select().single();
       if (error) throw error;
       return data;
     },
@@ -288,7 +298,10 @@ export function useCreateTransaction() {
       qc.invalidateQueries({ queryKey: ['financial-transactions'] });
       toast({ title: vars.type === 'receita' ? 'Venda registrada!' : 'Despesa lançada!' });
     },
-    onError: () => { toast({ title: 'Erro ao registrar', variant: 'destructive' }); },
+    onError: (err: any) => { 
+      console.error('Transaction error:', err);
+      toast({ title: 'Erro ao registrar', description: err?.message || '', variant: 'destructive' }); 
+    },
   });
 }
 

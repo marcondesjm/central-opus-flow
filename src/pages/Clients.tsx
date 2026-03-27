@@ -386,12 +386,101 @@ function FichaTecnica({ client, onBack }: { client: FullClient; onBack: () => vo
 }
 
 // ─── Client Detail View with Tabs ──────────────────────────
-function ClientDetailView({ client, onBack, onFichaTecnica }: { client: FullClient; onBack: () => void; onFichaTecnica: () => void }) {
+function ClientDetailView({ client, onBack }: { client: FullClient; onBack: () => void }) {
   const [tab, setTab] = useState('info');
+  const [showFicha, setShowFicha] = useState(false);
+  const [fichaSection, setFichaSection] = useState<string | null>(null);
   const { data: techData } = useClientTechnicalData(client.id);
+  const upsert = useUpsertTechnicalData();
   const { integrations, isConnected } = useUserIntegrations();
 
   const hasDriveConnected = isConnected('google_drive');
+
+  const getSectionData = (key: string) => {
+    const found = techData?.find(d => d.section === key);
+    return found?.data || {};
+  };
+
+  const handleSaveFicha = (section: string, data: Record<string, any>) => {
+    upsert.mutate({ client_id: client.id, section, data });
+  };
+
+  const hasSectionData = (key: string) => {
+    const d = getSectionData(key);
+    return Object.keys(d).length > 0 && Object.values(d).some(v => v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0));
+  };
+
+  // ── Ficha Técnica inside modal ──
+  if (showFicha) {
+    if (fichaSection) {
+      const sec = TECH_SECTIONS.find(s => s.key === fichaSection);
+      return (
+        <Dialog open onOpenChange={() => onBack()}>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+            <div className="p-6">
+              <button onClick={() => setFichaSection(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-lg">{sec?.icon}</span>
+                <span className="font-semibold text-foreground">{sec?.label}</span>
+              </button>
+              <p className="text-sm text-muted-foreground mb-4">{client.name}</p>
+
+              {fichaSection === 'branding' && <BrandingEditor data={getSectionData('branding')} onSave={d => handleSaveFicha('branding', d)} />}
+              {fichaSection === 'persona' && <PersonaEditor data={getSectionData('persona')} onSave={d => handleSaveFicha('persona', d)} />}
+              {fichaSection === 'editorial' && <EditorialEditor data={getSectionData('editorial')} onSave={d => handleSaveFicha('editorial', d)} />}
+              {fichaSection === 'typography' && <TypographyEditor data={getSectionData('typography')} onSave={d => handleSaveFicha('typography', d)} />}
+              {fichaSection === 'social' && <SocialEditor data={getSectionData('social')} onSave={d => handleSaveFicha('social', d)} />}
+              {fichaSection === 'access' && <GenericEditor data={getSectionData('access')} onSave={d => handleSaveFicha('access', d)}
+                fields={[{ key: 'items', label: 'Acessos (plataforma - login - senha)', type: 'textarea' }]} />}
+              {fichaSection === 'competitors' && <GenericEditor data={getSectionData('competitors')} onSave={d => handleSaveFicha('competitors', d)}
+                fields={[{ key: 'list', label: 'Lista de Concorrentes', type: 'textarea' }, { key: 'analysis', label: 'Análise', type: 'textarea' }]} />}
+              {fichaSection === 'briefing' && <GenericEditor data={getSectionData('briefing')} onSave={d => handleSaveFicha('briefing', d)}
+                fields={[{ key: 'content', label: 'Briefing', type: 'textarea' }, { key: 'notes', label: 'Notas', type: 'textarea' }]} />}
+              {fichaSection === 'attachments' && <GenericEditor data={getSectionData('attachments')} onSave={d => handleSaveFicha('attachments', d)}
+                fields={[{ key: 'links', label: 'Links de arquivos', type: 'textarea' }]} />}
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+
+    return (
+      <Dialog open onOpenChange={() => onBack()}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <button onClick={() => setShowFicha(false)} className="p-1 rounded hover:bg-muted"><ArrowLeft className="w-5 h-5" /></button>
+              <div>
+                <h2 className="text-xl font-bold">Ficha Técnica</h2>
+                <p className="text-sm text-muted-foreground">{client.name}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {TECH_SECTIONS.map(sec => {
+                const filled = hasSectionData(sec.key);
+                return (
+                  <Card key={sec.key}
+                    className={cn(
+                      "cursor-pointer hover:border-primary/50 transition-colors",
+                      filled && "border-primary/30 bg-primary/5"
+                    )}
+                    onClick={() => setFichaSection(sec.key)}>
+                    <CardContent className="p-5">
+                      <div className="text-2xl mb-2">{sec.icon}</div>
+                      <h3 className="font-semibold">{sec.label}</h3>
+                      <p className="text-xs text-muted-foreground">{sec.description}</p>
+                      {filled && <Badge variant="secondary" className="mt-2 text-xs">Preenchido</Badge>}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open onOpenChange={() => onBack()}>
@@ -399,7 +488,7 @@ function ClientDetailView({ client, onBack, onFichaTecnica }: { client: FullClie
         <div className="flex items-center justify-between p-6 pb-2">
           <h2 className="text-lg font-bold">Detalhes do Cliente</h2>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={onFichaTecnica}>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowFicha(true)}>
               <FileText className="w-4 h-4" /> Ficha Técnica
             </Button>
           </div>
@@ -542,7 +631,6 @@ function ClientDetailView({ client, onBack, onFichaTecnica }: { client: FullClie
   );
 }
 
-
 // ─── Main Clients Page ──────────────────────────
 export default function ClientsPage() {
   const { data: clients, isLoading } = useClients();
@@ -554,7 +642,6 @@ export default function ClientsPage() {
   const [showCadastrar, setShowCadastrar] = useState(false);
   const [editingClient, setEditingClient] = useState<FullClient | null>(null);
   const [selectedClient, setSelectedClient] = useState<FullClient | null>(null);
-  const [showFichaTecnica, setShowFichaTecnica] = useState(false);
 
   const filtered = useMemo(() => {
     if (!clients) return [];
@@ -576,17 +663,6 @@ export default function ClientsPage() {
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-
-  // If viewing ficha técnica
-  if (showFichaTecnica && selectedClient) {
-    return (
-      <AppLayout>
-        <div className="max-w-[1400px] mx-auto px-4 py-6">
-          <FichaTecnica client={selectedClient} onBack={() => setShowFichaTecnica(false)} />
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>
@@ -659,11 +735,10 @@ export default function ClientsPage() {
 
       {showCadastrar && <CadastrarClienteModal open={showCadastrar} onOpenChange={setShowCadastrar} editClient={editingClient} />}
       
-      {selectedClient && !showFichaTecnica && (
+      {selectedClient && (
         <ClientDetailView 
           client={selectedClient} 
           onBack={() => setSelectedClient(null)} 
-          onFichaTecnica={() => setShowFichaTecnica(true)} 
         />
       )}
     </AppLayout>

@@ -425,16 +425,22 @@ export function Sidebar({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Customize */}
-        <div className="pt-3 mt-2 border-t border-sidebar-border">
-          <button onClick={() => setCustomizeOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
+        {/* Customize & Settings */}
+        <div className="pt-3 mt-2 border-t border-sidebar-border space-y-0.5">
+          <button onClick={() => setSettingsOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
             <Settings2 className="w-4 h-4" aria-hidden="true" />
+            Configurações
+          </button>
+          <button onClick={() => setCustomizeOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200">
+            <Pencil className="w-4 h-4" aria-hidden="true" />
             Personalizar menu
           </button>
         </div>
       </nav>
 
       <SidebarCustomizeModal open={customizeOpen} onOpenChange={setCustomizeOpen} onUpdate={setSidebarVisibility} />
+      <NewSaleModal open={newSaleOpen} onOpenChange={setNewSaleOpen} onOpenQuoteWizard={() => navigate('/billing?tab=services&action=quote')} />
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       {/* Footer */}
       <footer className="p-3 border-t border-sidebar-border space-y-1" role="contentinfo">

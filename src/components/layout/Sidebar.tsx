@@ -136,6 +136,8 @@ export function Sidebar({
   const [managementOpen, setManagementOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [newSaleOpen, setNewSaleOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [sidebarVisibility, setSidebarVisibility] = useState<SidebarVisibility>(getSidebarVisibility);
   const [profile, setProfile] = useState<{ avatar_url: string | null; full_name: string | null } | null>(null);
   const [avatarLoading, setAvatarLoading] = useState(true);

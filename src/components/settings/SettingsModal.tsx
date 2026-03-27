@@ -91,7 +91,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     { id: 'paginas', label: 'Páginas', icon: Globe },
     { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
-  const [selectedShortcuts, setSelectedShortcuts] = useState<string[]>(['dashboard', 'clientes', 'pipelines', 'financeiro']);
+  const MOBILE_SHORTCUTS_KEY = 'mobile-shortcuts';
+  const [selectedShortcuts, setSelectedShortcuts] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(MOBILE_SHORTCUTS_KEY);
+      return saved ? JSON.parse(saved) : ['dashboard', 'clientes', 'pipelines', 'financeiro'];
+    } catch { return ['dashboard', 'clientes', 'pipelines', 'financeiro']; }
+  });
 
   useEffect(() => {
     if (user && open) fetchProfile();

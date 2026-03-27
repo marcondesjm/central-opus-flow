@@ -737,11 +737,12 @@ function PublicPageTab() {
     }
   }, [page]);
 
-  const siteUrl = page ? `centralflow.com.br/${page.slug}` : '';
+  const portfolioPublicUrl = page ? `${window.location.origin}/portfolio/${page.slug}` : '';
+  const siteUrl = page ? `central-opus-flow.lovable.app/portfolio/${page.slug}` : '';
 
   const copyLink = () => {
     if (page) {
-      navigator.clipboard.writeText(`${window.location.origin}/portfolio/${page.slug}`);
+      navigator.clipboard.writeText(portfolioPublicUrl);
       toast({ title: 'Link copiado!' });
     }
   };

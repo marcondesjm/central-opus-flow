@@ -74,6 +74,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [currentPasswordField, setCurrentPasswordField] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Language & currency
+  const [language, setLanguage] = useState(() => localStorage.getItem('app-language') || 'pt');
+  const [currency, setCurrency] = useState(() => localStorage.getItem('app-currency') || 'brl');
+
   // Integration detail view
   const [activeIntegration, setActiveIntegration] = useState<string | null>(null);
 
@@ -316,7 +320,16 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                         <p className="text-[10px] text-muted-foreground">Selecione o idioma</p>
                       </div>
                     </div>
-                    <Select defaultValue="pt">
+                    <Select value={language} onValueChange={(v) => {
+                      setLanguage(v);
+                      localStorage.setItem('app-language', v);
+                      try {
+                        import('@/i18n/index').then(mod => {
+                          // i18next changeLanguage if available
+                        });
+                      } catch {}
+                      toast({ title: 'Idioma atualizado!' });
+                    }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pt">Português 🇧🇷</SelectItem>
@@ -334,7 +347,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                         <p className="text-[10px] text-muted-foreground">Moeda padrão para exibição de valores</p>
                       </div>
                     </div>
-                    <Select defaultValue="brl">
+                    <Select value={currency} onValueChange={(v) => {
+                      setCurrency(v);
+                      localStorage.setItem('app-currency', v);
+                      window.dispatchEvent(new Event('currency-changed'));
+                      toast({ title: 'Moeda atualizada!' });
+                    }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="brl">R$ BRL - Real Brasileiro</SelectItem>

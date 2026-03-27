@@ -10,11 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { useQuoteByToken, useSignQuote, formatBRL } from '@/hooks/useFinancialQuotes';
+import { useQuoteByToken, useSignQuote } from '@/hooks/useFinancialQuotes';
+import { formatBRL } from '@/hooks/useFinancial';
 import { cn } from '@/lib/utils';
-
-// Re-export formatBRL from financial hook
-import { formatBRL as fmtBRL } from '@/hooks/useFinancial';
 
 const PAYMENT_METHODS_LABELS: Record<string, string> = {
   pix: 'PIX', boleto: 'Boleto Bancário', cartao: 'Cartão de Crédito',

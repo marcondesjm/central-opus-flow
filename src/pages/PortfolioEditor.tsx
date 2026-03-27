@@ -694,17 +694,65 @@ function PropertiesPanel({
             {section.type === 'video' && (
               <>
                 <div><Label className="text-xs">URL do Vídeo (YouTube/Vimeo)</Label><Input value={content.url || ''} onChange={e => updateContent('url', e.target.value)} placeholder="https://youtube.com/embed/..." className="h-8 text-xs" /></div>
+                <div><Label className="text-xs">Título do Vídeo</Label><Input value={content.title || ''} onChange={e => updateContent('title', e.target.value)} className="h-8 text-xs" /></div>
               </>
             )}
 
             {(section.type === 'cta' || section.type === 'cta_final') && (
               <>
                 <div><Label className="text-xs">Título</Label><Input value={content.title || ''} onChange={e => updateContent('title', e.target.value)} className="h-8 text-xs" /></div>
-                {content.description !== undefined && (
+                {section.type === 'cta_final' && (
                   <div><Label className="text-xs">Descrição</Label><Textarea value={content.description || ''} onChange={e => updateContent('description', e.target.value)} className="text-xs min-h-[40px]" /></div>
                 )}
                 <div><Label className="text-xs">Texto do Botão</Label><Input value={content.cta_text || ''} onChange={e => updateContent('cta_text', e.target.value)} className="h-8 text-xs" /></div>
                 <div><Label className="text-xs">URL do Botão</Label><Input value={content.cta_url || ''} onChange={e => updateContent('cta_url', e.target.value)} className="h-8 text-xs" /></div>
+                {section.type === 'cta_final' && content.badges && (
+                  <div>
+                    <Label className="text-xs">Badges</Label>
+                    {(content.badges || []).map((b: string, i: number) => (
+                      <div key={i} className="flex items-center gap-1 mt-1">
+                        <Input value={b} onChange={e => {
+                          const badges = [...content.badges]; badges[i] = e.target.value; updateContent('badges', badges);
+                        }} className="h-7 text-xs" />
+                        <button onClick={() => updateContent('badges', content.badges.filter((_: any, idx: number) => idx !== i))} className="text-destructive"><Trash2 className="w-3 h-3" /></button>
+                      </div>
+                    ))}
+                    <Button size="sm" variant="ghost" className="text-xs mt-1" onClick={() => updateContent('badges', [...(content.badges || []), 'Novo Badge'])}>
+                      <Plus className="w-3 h-3 mr-1" /> Badge
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {section.type === 'menu' && (
+              <>
+                <Label className="text-xs font-bold">Itens do Menu</Label>
+                {(content.items || []).map((item: any, i: number) => (
+                  <div key={i} className="bg-accent/50 p-2 rounded space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-muted-foreground">Item {i + 1}</p>
+                      <button onClick={() => updateContent('items', content.items.filter((_: any, idx: number) => idx !== i))} className="text-destructive"><Trash2 className="w-3 h-3" /></button>
+                    </div>
+                    <Input value={item.label} onChange={e => {
+                      const items = [...content.items]; items[i] = { ...items[i], label: e.target.value }; updateContent('items', items);
+                    }} placeholder="Label" className="h-7 text-xs" />
+                    <Input value={item.anchor} onChange={e => {
+                      const items = [...content.items]; items[i] = { ...items[i], anchor: e.target.value }; updateContent('items', items);
+                    }} placeholder="#secao" className="h-7 text-xs" />
+                  </div>
+                ))}
+                <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => {
+                  updateContent('items', [...(content.items || []), { label: 'Novo Item', anchor: '#' }]);
+                }}>
+                  <Plus className="w-3 h-3 mr-1" /> Adicionar Item
+                </Button>
+              </>
+            )}
+
+            {section.type === 'logo' && (
+              <>
+                <ImageUploadField label="Logo" value={content.url} fieldKey="url" />
               </>
             )}
           </TabsContent>
@@ -720,7 +768,11 @@ function PropertiesPanel({
             </div>
             <div>
               <Label className="text-xs">ID para Âncora (Menu)</Label>
-              <Input placeholder="ex: portfolio, contato, sobre" className="h-8 text-xs" />
+              <Input 
+                value={(section.settings as Record<string, any>)?.anchor_id || ''} 
+                onChange={e => onUpdateSection({ ...section, settings: { ...(section.settings as Record<string, any>), anchor_id: e.target.value } })}
+                placeholder="ex: portfolio, contato, sobre" className="h-8 text-xs" 
+              />
             </div>
           </TabsContent>
 

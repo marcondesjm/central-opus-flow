@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, FileText, DollarSign, Plus, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFinancialClients, useFinancialCategories, useCreateTransaction } from '@/hooks/useFinancial';
-import { useFinancialServices } from '@/hooks/useFinancialServices';
+import { useFinancialServices } from '@/hooks/useFinancial';
 import { cn } from '@/lib/utils';
 
 interface NewSaleModalProps {

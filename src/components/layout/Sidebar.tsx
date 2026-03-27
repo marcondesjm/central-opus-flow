@@ -366,6 +366,7 @@ export function Sidebar({
             {sidebarVisibility.proposals && (
               <NavItem icon={FileText} label={t('sidebar.proposals')} onClick={() => navigate('/proposals')} active={isRouteActive('/proposals')} />
             )}
+            <NavItem icon={FileCode2} label="Briefings" onClick={() => navigate('/briefings')} active={isRouteActive('/briefings')} />
             {sidebarVisibility.billing && (
               <NavItem icon={Receipt} label={t('sidebar.billing')} onClick={() => navigate('/billing')} active={isRouteActive('/billing')} />
             )}

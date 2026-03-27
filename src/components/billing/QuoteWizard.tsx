@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { useFinancialClients, useCreateClient, useFinancialServices, formatBRL } from '@/hooks/useFinancial';
 import { useCreateQuote, QuoteItem } from '@/hooks/useFinancialQuotes';
 import { useToast } from '@/hooks/use-toast';
+import { usePortfolioPage } from '@/hooks/usePortfolio';
 
 const STEPS = [
   { label: 'Informações Básicas', desc: 'Escolha o cliente e defina o título do orçamento' },

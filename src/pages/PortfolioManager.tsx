@@ -24,7 +24,7 @@ import {
 import {
   Globe, Link2, FileText, Calendar, BarChart3, Settings,
   ExternalLink, Copy, ChevronDown, Plus, Trash2, Upload,
-  GripVertical, Eye, Palette, Layout, MousePointer, AlertTriangle,
+  GripVertical, Eye, Palette, Layout, MousePointer, AlertTriangle, Pencil,
   Briefcase, Instagram, Phone, Youtube, Twitter, Linkedin, Mail, Music,
   Maximize2, Save, Loader2, Image as ImageIcon,
 } from 'lucide-react';

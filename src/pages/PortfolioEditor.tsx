@@ -705,17 +705,17 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'cta_final':
       return (
-        <div className="py-12 px-8 text-center" style={{ background: `linear-gradient(135deg, ${primary}22, ${page.bg_color})` }}>
-          <Zap className="w-8 h-8 mx-auto mb-3" style={{ color: primary }} />
-          <h2 className="text-2xl font-bold mb-2" style={{ color: page.text_color }}>{c.title}</h2>
-          <p className="text-sm opacity-60 mb-6" style={{ color: page.text_color }}>{c.description}</p>
+        <div className="py-8 md:py-12 px-4 md:px-8 text-center" style={{ background: `linear-gradient(135deg, ${primary}22, ${page.bg_color})` }}>
+          <Zap className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-3" style={{ color: primary }} />
+          <h2 className="text-xl md:text-2xl font-bold mb-2" style={{ color: page.text_color }}>{c.title}</h2>
+          <p className="text-xs md:text-sm opacity-60 mb-4 md:mb-6 px-4" style={{ color: page.text_color }}>{c.description}</p>
           <button className="px-6 py-2.5 rounded-full text-sm font-medium text-white mx-auto mb-4"
             style={{ background: primary }}
             onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
             {c.cta_text} <ExternalLink className="w-3.5 h-3.5 inline ml-1" />
           </button>
           {c.badges && (
-            <div className="flex items-center justify-center gap-4 text-xs opacity-60" style={{ color: page.text_color }}>
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-xs opacity-60" style={{ color: page.text_color }}>
               {c.badges.map((b: string) => (
                 <span key={b} className="flex items-center gap-1"><CheckCircle className="w-3 h-3" style={{ color: primary }} />{b}</span>
               ))}

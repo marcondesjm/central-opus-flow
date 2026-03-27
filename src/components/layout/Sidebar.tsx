@@ -439,7 +439,7 @@ export function Sidebar({
       </nav>
 
       <SidebarCustomizeModal open={customizeOpen} onOpenChange={setCustomizeOpen} onUpdate={setSidebarVisibility} />
-      <NewSaleModal open={newSaleOpen} onOpenChange={setNewSaleOpen} onOpenQuoteWizard={() => navigate('/billing?tab=services&action=quote')} />
+      <NewSaleModal open={newSaleOpen} onOpenChange={setNewSaleOpen} onOpenQuoteWizard={() => navigate('/billing?tab=servicos&action=quote')} />
       <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       {/* Footer */}

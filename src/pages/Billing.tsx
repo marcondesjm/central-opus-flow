@@ -463,11 +463,17 @@ export default function BillingPage() {
   const deleteTx = useDeleteTransaction();
   const deleteRecurring = useDeleteRecurring();
 
-  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
+  const normalizeBillingTab = (tab: string | null) => {
+    if (!tab) return 'overview';
+    if (tab === 'services') return 'servicos';
+    return tab;
+  };
+
+  const [activeTab, setActiveTab] = useState(() => normalizeBillingTab(searchParams.get('tab')));
   
   // Sync activeTab with URL param changes (e.g. when navigating from sidebar)
   useEffect(() => {
-    const tab = searchParams.get('tab');
+    const tab = normalizeBillingTab(searchParams.get('tab'));
     if (tab && tab !== activeTab) {
       setActiveTab(tab);
     }

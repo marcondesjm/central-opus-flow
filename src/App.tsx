@@ -34,6 +34,8 @@ const Manual = lazy(() => import("./pages/Manual"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Scheduling = lazy(() => import("./pages/Scheduling"));
 const BookingPublic = lazy(() => import("./pages/BookingPublic"));
+const Briefings = lazy(() => import("./pages/Briefings"));
+const BriefingPublic = lazy(() => import("./pages/BriefingPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {

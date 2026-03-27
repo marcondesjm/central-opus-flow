@@ -34,7 +34,7 @@ import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 const SHORTCUT_MAP: Record<string, { path: string; label: string; icon: LucideIcon }> = {
   dashboard: { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   clientes: { path: '/kanban', label: 'Clientes', icon: Users },
-  pipelines: { path: '/kanban', label: 'Pipelines', icon: Columns3 },
+  pipelines: { path: '/leads', label: 'Pipelines', icon: Columns3 },
   tarefas: { path: '/kanban', label: 'Tarefas', icon: CheckSquare },
   agenda: { path: '/scheduling', label: 'Agenda', icon: Calendar },
   'tarefas-diarias': { path: '/kanban', label: 'Tarefas Diárias', icon: Clock },

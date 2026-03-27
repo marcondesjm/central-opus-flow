@@ -183,7 +183,7 @@ export function ServicesManager() {
               <FileText className="w-3.5 h-3.5" /> Novo Orçamento
             </Button>
             <Button size="sm" className="gap-1.5 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white" onClick={() => {
-              setForm(emptyForm); setEditingId(null); setShowCreate(true);
+              setForm(emptyForm); setEditingId(null); setShowSuggestions(true);
             }}>
               <Plus className="w-3.5 h-3.5" /> Novo Serviço
             </Button>

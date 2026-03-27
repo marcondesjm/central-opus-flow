@@ -2,9 +2,11 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
   Search, Plus, Grid3X3, List, Link2, Users, Mail, Phone, Building2,
-  Pencil, Trash2, ArrowLeft, Loader2, Calendar, X, Save,
+  Pencil, Trash2, ArrowLeft, Loader2, Calendar, X, Save, FolderPlus,
+  FileText, DollarSign, CheckCircle2, Clock, Info, File, ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

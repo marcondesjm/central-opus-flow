@@ -200,8 +200,6 @@ export function PricingSection() {
                           <span className="text-sm text-primary font-medium">R$ {annualYearTotal.toFixed(2).replace('.', ',')}/ano</span>
                         </div>
                       )}
-                        </div>
-                      )}
                       <p className="text-xs text-muted-foreground text-center mb-8">Até {plan.members} membros</p>
                       <ul className="space-y-3 mb-8">
                         {features.map((f, i) => <li key={i} className="flex items-center gap-3"><Check className="w-4 h-4 shrink-0 text-[#25D366]" /><span className="text-sm">{f}</span></li>)}

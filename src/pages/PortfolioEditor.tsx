@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -694,17 +694,65 @@ function PropertiesPanel({
             {section.type === 'video' && (
               <>
                 <div><Label className="text-xs">URL do Vídeo (YouTube/Vimeo)</Label><Input value={content.url || ''} onChange={e => updateContent('url', e.target.value)} placeholder="https://youtube.com/embed/..." className="h-8 text-xs" /></div>
+                <div><Label className="text-xs">Título do Vídeo</Label><Input value={content.title || ''} onChange={e => updateContent('title', e.target.value)} className="h-8 text-xs" /></div>
               </>
             )}
 
             {(section.type === 'cta' || section.type === 'cta_final') && (
               <>
                 <div><Label className="text-xs">Título</Label><Input value={content.title || ''} onChange={e => updateContent('title', e.target.value)} className="h-8 text-xs" /></div>
-                {content.description !== undefined && (
+                {section.type === 'cta_final' && (
                   <div><Label className="text-xs">Descrição</Label><Textarea value={content.description || ''} onChange={e => updateContent('description', e.target.value)} className="text-xs min-h-[40px]" /></div>
                 )}
                 <div><Label className="text-xs">Texto do Botão</Label><Input value={content.cta_text || ''} onChange={e => updateContent('cta_text', e.target.value)} className="h-8 text-xs" /></div>
                 <div><Label className="text-xs">URL do Botão</Label><Input value={content.cta_url || ''} onChange={e => updateContent('cta_url', e.target.value)} className="h-8 text-xs" /></div>
+                {section.type === 'cta_final' && content.badges && (
+                  <div>
+                    <Label className="text-xs">Badges</Label>
+                    {(content.badges || []).map((b: string, i: number) => (
+                      <div key={i} className="flex items-center gap-1 mt-1">
+                        <Input value={b} onChange={e => {
+                          const badges = [...content.badges]; badges[i] = e.target.value; updateContent('badges', badges);
+                        }} className="h-7 text-xs" />
+                        <button onClick={() => updateContent('badges', content.badges.filter((_: any, idx: number) => idx !== i))} className="text-destructive"><Trash2 className="w-3 h-3" /></button>
+                      </div>
+                    ))}
+                    <Button size="sm" variant="ghost" className="text-xs mt-1" onClick={() => updateContent('badges', [...(content.badges || []), 'Novo Badge'])}>
+                      <Plus className="w-3 h-3 mr-1" /> Badge
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {section.type === 'menu' && (
+              <>
+                <Label className="text-xs font-bold">Itens do Menu</Label>
+                {(content.items || []).map((item: any, i: number) => (
+                  <div key={i} className="bg-accent/50 p-2 rounded space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-muted-foreground">Item {i + 1}</p>
+                      <button onClick={() => updateContent('items', content.items.filter((_: any, idx: number) => idx !== i))} className="text-destructive"><Trash2 className="w-3 h-3" /></button>
+                    </div>
+                    <Input value={item.label} onChange={e => {
+                      const items = [...content.items]; items[i] = { ...items[i], label: e.target.value }; updateContent('items', items);
+                    }} placeholder="Label" className="h-7 text-xs" />
+                    <Input value={item.anchor} onChange={e => {
+                      const items = [...content.items]; items[i] = { ...items[i], anchor: e.target.value }; updateContent('items', items);
+                    }} placeholder="#secao" className="h-7 text-xs" />
+                  </div>
+                ))}
+                <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => {
+                  updateContent('items', [...(content.items || []), { label: 'Novo Item', anchor: '#' }]);
+                }}>
+                  <Plus className="w-3 h-3 mr-1" /> Adicionar Item
+                </Button>
+              </>
+            )}
+
+            {section.type === 'logo' && (
+              <>
+                <ImageUploadField label="Logo" value={content.url} fieldKey="url" />
               </>
             )}
           </TabsContent>
@@ -720,7 +768,11 @@ function PropertiesPanel({
             </div>
             <div>
               <Label className="text-xs">ID para Âncora (Menu)</Label>
-              <Input placeholder="ex: portfolio, contato, sobre" className="h-8 text-xs" />
+              <Input 
+                value={(section.settings as Record<string, any>)?.anchor_id || ''} 
+                onChange={e => onUpdateSection({ ...section, settings: { ...(section.settings as Record<string, any>), anchor_id: e.target.value } })}
+                placeholder="ex: portfolio, contato, sobre" className="h-8 text-xs" 
+              />
             </div>
           </TabsContent>
 
@@ -814,6 +866,8 @@ export default function PortfolioEditor() {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [leadModalOpen, setLeadModalOpen] = useState(false);
   const [localSections, setLocalSections] = useState<PortfolioSection[]>([]);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingSaveRef = useRef<Set<string>>(new Set());
 
   useEffect(() => { setLocalSections(sections); }, [sections]);
 
@@ -824,6 +878,23 @@ export default function PortfolioEditor() {
     }
   }, [isLoading, page]);
 
+  // Auto-save debounce
+  const scheduleAutoSave = useCallback((sectionId: string) => {
+    pendingSaveRef.current.add(sectionId);
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      const ids = Array.from(pendingSaveRef.current);
+      pendingSaveRef.current.clear();
+      setLocalSections(current => {
+        ids.forEach(id => {
+          const s = current.find(sec => sec.id === id);
+          if (s) upsertSection.mutate(s);
+        });
+        return current;
+      });
+    }, 1500);
+  }, [upsertSection]);
+
   if (isLoading || !page) {
     return <div className="flex items-center justify-center h-screen text-muted-foreground">Carregando editor...</div>;
   }
@@ -831,10 +902,12 @@ export default function PortfolioEditor() {
   const selectedSection = localSections.find(s => s.id === selectedId) || null;
 
   const handleSave = async () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    pendingSaveRef.current.clear();
     for (const s of localSections) {
       await upsertSection.mutateAsync(s);
     }
-    toast({ title: 'Portfólio salvo!' });
+    toast({ title: 'Portfólio salvo com sucesso!' });
   };
 
   const handleAdd = (type: string) => {
@@ -851,7 +924,6 @@ export default function PortfolioEditor() {
     };
     setLocalSections(prev => [...prev, newSection]);
     setSelectedId(newSection.id);
-    // Save to DB
     upsertSection.mutate(newSection);
   };
 
@@ -875,6 +947,7 @@ export default function PortfolioEditor() {
 
   const handleUpdateSection = (updated: PortfolioSection) => {
     setLocalSections(prev => prev.map(s => s.id === updated.id ? updated : s));
+    scheduleAutoSave(updated.id);
   };
 
   const handleUpdatePage = (updates: Partial<PortfolioPage>) => {
@@ -910,6 +983,8 @@ export default function PortfolioEditor() {
           <Button variant="ghost" size="sm" onClick={() => window.open(`/portfolio/${page.slug}`, '_blank')}>
             <Eye className="w-4 h-4 mr-1" /> Preview
           </Button>
+          <Switch checked={page.is_published} onCheckedChange={v => handleUpdatePage({ is_published: v })} />
+          <span className="text-xs text-muted-foreground">{page.is_published ? 'Publicado' : 'Rascunho'}</span>
           <Button size="sm" onClick={handleSave} className="bg-primary text-primary-foreground">
             <Save className="w-4 h-4 mr-1" /> Salvar
           </Button>
@@ -951,8 +1026,14 @@ export default function PortfolioEditor() {
                 <CanvasBlock section={section} page={page} />
               </div>
             ))}
-          </div>
 
+            {localSections.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-32 text-muted-foreground">
+                <Plus className="w-12 h-12 mb-3 opacity-30" />
+                <p className="text-sm">Adicione blocos na sidebar para começar</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Properties Panel */}

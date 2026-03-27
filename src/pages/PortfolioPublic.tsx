@@ -1,13 +1,15 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePublicPortfolio, useSubmitPortfolioLead, type PortfolioSection, type PortfolioPage } from '@/hooks/usePortfolio';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   ExternalLink, TrendingUp, Users, Award, Star, Search,
   Lightbulb, Palette, CheckCircle, Zap, ChevronLeft, ChevronRight,
-  Play, Image, User, Menu, X, Loader2, MessageSquare, Phone,
+  Play, Image, User, Menu, X, Loader2, MessageSquare, Phone, ArrowRight,
 } from 'lucide-react';
 
 const ICON_MAP: Record<string, any> = {
@@ -15,12 +17,26 @@ const ICON_MAP: Record<string, any> = {
   CheckCircle, Zap, Play, Image, User, MessageSquare,
 };
 
-function PublicBlock({ section, page }: { section: PortfolioSection; page: PortfolioPage }) {
+interface PublicService {
+  id: string;
+  name: string;
+  description: string | null;
+  default_price: number;
+}
+
+function PublicBlock({ section, page, onOpenContact }: { section: PortfolioSection; page: PortfolioPage; onOpenContact: () => void }) {
   const c = section.content as Record<string, any>;
   const s = section.settings as Record<string, any>;
   const primary = page.primary_color || '#ec4899';
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const anchorId = s?.anchor_id || section.type;
+
+  const handleCtaClick = (e: React.MouseEvent, url?: string) => {
+    if (!url || url === '#' || url === '#contato') {
+      e.preventDefault();
+      onOpenContact();
+    }
+  };
 
   switch (section.type) {
     case 'menu':
@@ -72,9 +88,9 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
                   {c.cta_text} <ExternalLink className="w-4 h-4" />
                 </a>
               ) : (
-                <a href={c.cta_url || '#contato'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
-                  {c.cta_text} <ExternalLink className="w-4 h-4" />
-                </a>
+                <button onClick={(e) => handleCtaClick(e)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+                  {c.cta_text} <ArrowRight className="w-4 h-4" />
+                </button>
               )}
             </div>
             {c.image_url && (
@@ -88,15 +104,15 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'stats':
       return (
-        <section id={anchorId} className="py-12 px-6 border-y border-white/5" style={{ background: page.bg_color }}>
-          <div className="max-w-4xl mx-auto flex flex-wrap justify-around gap-8">
+        <section id={anchorId} className="py-12 px-6 border-t border-b border-white/5" style={{ background: page.bg_color }}>
+          <div className="flex justify-around max-w-4xl mx-auto">
             {(c.items || []).map((item: any, i: number) => {
               const Icon = ICON_MAP[item.icon] || TrendingUp;
               return (
-                <div key={i} className="text-center space-y-2">
-                  <Icon className="w-7 h-7 mx-auto" style={{ color: primary }} />
+                <div key={i} className="text-center space-y-1">
+                  <Icon className="w-6 h-6 mx-auto" style={{ color: primary }} />
                   <p className="text-2xl font-bold" style={{ color: page.text_color }}>{item.value}</p>
-                  <p className="text-sm opacity-50" style={{ color: page.text_color }}>{item.label}</p>
+                  <p className="text-xs opacity-60" style={{ color: page.text_color }}>{item.label}</p>
                 </div>
               );
             })}
@@ -106,40 +122,29 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'about':
       return (
-        <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
-          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-10">
-            {c.image_url && (
-              <div className="w-64 h-64 shrink-0 rounded-2xl overflow-hidden shadow-2xl">
-                <img src={c.image_url} className="w-full h-full object-cover" alt="" />
-              </div>
-            )}
-            <div className={c.image_url ? '' : 'text-center w-full'}>
-              <h2 className="text-3xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
-              <p className="text-base opacity-60 leading-relaxed" style={{ color: page.text_color }}>{c.description}</p>
-            </div>
-          </div>
+        <section id={anchorId} className="py-16 px-6 text-center" style={{ background: page.bg_color }}>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
+          <p className="text-sm opacity-70 max-w-2xl mx-auto" style={{ color: page.text_color }}>{c.description}</p>
         </section>
       );
 
     case 'portfolio':
       return (
         <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {(c.items || []).map((item: any, i: number) => (
-              <div key={i} className="relative rounded-2xl overflow-hidden aspect-[4/3] group">
+              <div key={i} className="group relative rounded-xl overflow-hidden shadow-lg cursor-pointer" style={{ aspectRatio: '16/10' }}>
                 {item.image_url ? (
-                  <img src={item.image_url} className="w-full h-full object-cover transition-transform group-hover:scale-105" alt={item.title} />
+                  <img src={item.image_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform" alt={item.title} />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-pink-900/40 to-purple-900/40" />
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: `${primary}22` }}>
+                    <Image className="w-10 h-10 opacity-30" style={{ color: page.text_color }} />
+                  </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5">
-                  {item.category && (
-                    <span className="text-xs px-3 py-1 rounded-full mb-2 w-fit font-medium" style={{ background: primary, color: '#fff' }}>
-                      {item.category}
-                    </span>
-                  )}
-                  <h3 className="text-white font-bold text-lg">{item.title}</h3>
-                  <p className="text-white/60 text-sm">{item.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4">
+                  {item.category && <span className="text-xs px-2 py-0.5 rounded text-white w-fit mb-1" style={{ background: primary }}>{item.category}</span>}
+                  <h3 className="font-bold text-white">{item.title}</h3>
+                  {item.description && <p className="text-xs text-white/70">{item.description}</p>}
                 </div>
               </div>
             ))}
@@ -150,21 +155,19 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
     case 'timeline':
       return (
         <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
-          <h2 className="text-3xl font-bold text-center mb-10" style={{ color: page.text_color }}>{c.title}</h2>
-          <div className="max-w-2xl mx-auto space-y-5">
-            {(c.steps || []).map((step: any, i: number) => {
-              const Icon = ICON_MAP[step.icon] || CheckCircle;
+          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: page.text_color }}>{c.title || 'Como Funciona'}</h2>
+          <div className="max-w-2xl mx-auto space-y-6">
+            {(c.items || []).map((item: any, i: number) => {
+              const Icon = ICON_MAP[item.icon] || CheckCircle;
               return (
-                <div key={i} className="flex items-start gap-5 bg-white/5 rounded-2xl p-5 border border-white/5">
+                <div key={i} className="flex items-start gap-4 p-5 rounded-xl" style={{ background: `${page.bg_color === '#0a0a0a' ? '#111' : page.bg_color}`, border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center text-white" style={{ background: primary }}>
-                      {i + 1}
-                    </span>
+                    <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ background: primary }}>{i + 1}</span>
                     <Icon className="w-5 h-5" style={{ color: primary }} />
                   </div>
                   <div>
-                    <h3 className="font-bold" style={{ color: primary }}>{step.title}</h3>
-                    <p className="text-sm opacity-60 mt-1" style={{ color: page.text_color }}>{step.description}</p>
+                    <h3 className="font-semibold" style={{ color: primary }}>{item.title}</h3>
+                    <p className="text-sm opacity-60 mt-1" style={{ color: page.text_color }}>{item.description}</p>
                   </div>
                 </div>
               );
@@ -173,97 +176,95 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
         </section>
       );
 
-    case 'video':
-      return c.url ? (
-        <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
-          <div className="max-w-3xl mx-auto aspect-video rounded-2xl overflow-hidden">
-            <iframe src={c.url} className="w-full h-full" allowFullScreen />
-          </div>
-        </section>
-      ) : null;
-
     case 'testimonials': {
       const items = c.items || [];
-      const current = items[testimonialIdx];
-      if (!current) return null;
+      if (items.length === 0) return null;
+      const current = items[testimonialIdx] || items[0];
       return (
         <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
-          <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-10">
-            <div className="w-52 h-52 shrink-0 rounded-2xl overflow-hidden shadow-2xl">
-              {current.image_url ? (
-                <img src={current.image_url} className="w-full h-full object-cover" alt={current.name} />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-pink-900/40 to-purple-900/40 flex items-center justify-center">
-                  <User className="w-16 h-16 text-white/20" />
-                </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-6">
+              {current.image_url && (
+                <img src={current.image_url} className="w-28 h-28 rounded-xl object-cover shadow-lg shrink-0" alt={current.name} />
               )}
+              <div>
+                <p className="text-lg italic opacity-80" style={{ color: page.text_color }}>"{current.text}"</p>
+                <p className="mt-3 font-semibold" style={{ color: page.text_color }}>{current.name}</p>
+                <p className="text-sm opacity-50" style={{ color: page.text_color }}>{current.role}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold" style={{ color: page.text_color }}>{current.name}</h3>
-              <p className="text-sm opacity-50 mb-4" style={{ color: page.text_color }}>{current.role}</p>
-              <p className="opacity-80 leading-relaxed" style={{ color: page.text_color }}>{current.text}</p>
-              {items.length > 1 && (
-                <div className="flex gap-2 mt-6">
-                  <button onClick={() => setTestimonialIdx(i => (i - 1 + items.length) % items.length)}
-                    className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => setTestimonialIdx(i => (i + 1) % items.length)}
-                    className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
+            {items.length > 1 && (
+              <div className="flex justify-center gap-2 mt-6">
+                <button onClick={() => setTestimonialIdx(i => (i - 1 + items.length) % items.length)}
+                  className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5" style={{ color: page.text_color }}>
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button onClick={() => setTestimonialIdx(i => (i + 1) % items.length)}
+                  className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5" style={{ color: page.text_color }}>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </section>
       );
     }
 
+    case 'video':
+      return c.url ? (
+        <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
+          <div className="max-w-3xl mx-auto rounded-xl overflow-hidden shadow-2xl" style={{ aspectRatio: '16/9' }}>
+            <iframe src={c.url} className="w-full h-full" allow="autoplay; fullscreen" />
+          </div>
+        </section>
+      ) : null;
+
     case 'cta':
       return (
-        <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
-          <div className="max-w-lg mx-auto bg-white/5 rounded-2xl p-10 text-center border border-white/10">
-            <h2 className="text-xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
-            {page.lead_capture_type === 'link' && page.lead_capture_url ? (
-              <a href={page.lead_capture_url} target="_blank" rel="noopener"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
-                {c.cta_text} <ExternalLink className="w-4 h-4" />
-              </a>
-            ) : (
-              <a href={c.cta_url || '#contato'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
-                {c.cta_text} <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-          </div>
+        <section id={anchorId} className="py-12 px-6 text-center" style={{ background: page.bg_color }}>
+          {page.lead_capture_type === 'link' && page.lead_capture_url ? (
+            <a href={page.lead_capture_url} target="_blank" rel="noopener"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+              {c.cta_text} <ExternalLink className="w-4 h-4" />
+            </a>
+          ) : (
+            <button onClick={(e) => handleCtaClick(e)} className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+              {c.cta_text} <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
         </section>
       );
 
     case 'cta_final':
       return (
-        <section id={anchorId} className="py-16 px-6 text-center" style={{ background: `linear-gradient(135deg, ${primary}15, ${page.bg_color})` }}>
-          <Zap className="w-10 h-10 mx-auto mb-4" style={{ color: primary }} />
-          <h2 className="text-3xl font-bold mb-3" style={{ color: page.text_color }}>{c.title}</h2>
-          <p className="opacity-50 mb-8" style={{ color: page.text_color }}>{c.description}</p>
-          {page.lead_capture_type === 'link' && page.lead_capture_url ? (
-            <a href={page.lead_capture_url} target="_blank" rel="noopener"
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium text-lg" style={{ background: primary }}>
-              {c.cta_text} <ExternalLink className="w-5 h-5" />
-            </a>
-          ) : (
-            <a href={c.cta_url || '#contato'} className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium text-lg" style={{ background: primary }}>
-              {c.cta_text} <ExternalLink className="w-5 h-5" />
-            </a>
-          )}
-          {c.badges && (
-            <div className="flex items-center justify-center gap-6 mt-6 text-sm opacity-50" style={{ color: page.text_color }}>
-              {c.badges.map((b: string) => (
-                <span key={b} className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" style={{ color: primary }} />{b}
-                </span>
-              ))}
-            </div>
-          )}
+        <section id={anchorId} className="py-20 px-6 text-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${primary}15, ${page.bg_color})` }}>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold italic mb-4" style={{ color: page.text_color }}>{c.title}</h2>
+            <p className="opacity-50 mb-8 text-lg" style={{ color: page.text_color }}>{c.description}</p>
+            {page.lead_capture_type === 'link' && page.lead_capture_url ? (
+              <a href={page.lead_capture_url} target="_blank" rel="noopener"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-medium text-lg shadow-lg hover:shadow-xl transition-shadow"
+                style={{ background: `linear-gradient(135deg, ${primary}, #06b6d4)` }}>
+                {c.cta_text} <ArrowRight className="w-5 h-5" />
+              </a>
+            ) : (
+              <button onClick={(e) => handleCtaClick(e)}
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-medium text-lg shadow-lg hover:shadow-xl transition-shadow"
+                style={{ background: `linear-gradient(135deg, ${primary}, #06b6d4)` }}>
+                {c.cta_text} <ArrowRight className="w-5 h-5" />
+              </button>
+            )}
+            {c.badges && (
+              <div className="flex items-center justify-center gap-6 mt-6 text-sm opacity-50" style={{ color: page.text_color }}>
+                {c.badges.map((b: string) => (
+                  <span key={b} className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4" style={{ color: primary }} />{b}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
       );
 
@@ -272,54 +273,155 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
   }
 }
 
-function LeadForm({ page }: { page: PortfolioPage }) {
+function ContactModal({ page, services, open, onClose }: { page: PortfolioPage; services: PublicService[]; open: boolean; onClose: () => void }) {
   const submit = useSubmitPortfolioLead();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '', service_interest: '' });
+  const primary = page.primary_color || '#ec4899';
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [sent, setSent] = useState(false);
 
-  if (page.lead_capture_type === 'link' && page.lead_capture_url) {
-    return null;
-  }
+  const toggleService = (name: string) => {
+    setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
+  };
 
-  if (sent) {
-    return (
-      <section id="contato" className="py-16 px-6 text-center" style={{ background: page.bg_color }}>
-        <CheckCircle className="w-12 h-12 mx-auto mb-4" style={{ color: page.primary_color }} />
-        <h2 className="text-2xl font-bold" style={{ color: page.text_color }}>Mensagem enviada!</h2>
-        <p className="opacity-50 mt-2" style={{ color: page.text_color }}>Retornaremos em breve.</p>
-      </section>
+  const handleSubmit = () => {
+    if (!form.name.trim() || !form.email.trim()) return;
+    submit.mutate(
+      { page_id: page.id, ...form, service_interest: selectedServices.join(', ') },
+      {
+        onSuccess: () => {
+          setSent(true);
+          setTimeout(() => { setSent(false); onClose(); setForm({ name: '', email: '', phone: '', message: '' }); setSelectedServices([]); }, 2000);
+        },
+      }
     );
-  }
+  };
 
   return (
-    <section id="contato" className="py-16 px-6" style={{ background: page.bg_color }}>
-      <div className="max-w-md mx-auto space-y-4">
-        <h2 className="text-2xl font-bold text-center" style={{ color: page.text_color }}>Entre em contato</h2>
-        <Input placeholder="Seu nome *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-        <Input placeholder="E-mail" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-        <Input placeholder="Telefone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-        <Input placeholder="Serviço de interesse" value={form.service_interest} onChange={e => setForm(f => ({ ...f, service_interest: e.target.value }))}
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-        <Textarea placeholder="Mensagem" value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[100px]" />
-        <Button className="w-full" style={{ background: page.primary_color }}
-          disabled={!form.name.trim() || submit.isPending}
-          onClick={() => {
-            submit.mutate({ page_id: page.id, ...form }, { onSuccess: () => setSent(true) });
-          }}>
-          {submit.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar mensagem'}
-        </Button>
-      </div>
-    </section>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md border-white/10" style={{ background: '#1a1a2e', color: '#fff' }}>
+        {sent ? (
+          <div className="py-8 text-center">
+            <CheckCircle className="w-12 h-12 mx-auto mb-4" style={{ color: primary }} />
+            <h2 className="text-xl font-bold">Mensagem enviada!</h2>
+            <p className="text-sm opacity-50 mt-2">Retornaremos em até 24 horas.</p>
+          </div>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-white text-center text-lg">Vamos conversar sobre seu projeto?</DialogTitle>
+              <p className="text-sm text-white/50 text-center">Preencha o formulário e retornaremos em até 24 horas</p>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div>
+                <label className="text-xs font-medium text-white/70 mb-1 block">Nome <span className="text-pink-500">*</span></label>
+                <Input
+                  placeholder="Seu nome"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-pink-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/70 mb-1 block">E-mail <span className="text-pink-500">*</span></label>
+                <Input
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-pink-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/70 mb-1 block">Telefone</label>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 px-2 py-2 rounded-md bg-white/5 border border-white/10 text-sm text-white/70 shrink-0">
+                    🇧🇷 +55
+                  </div>
+                  <Input
+                    type="tel"
+                    placeholder="(__)_____-____"
+                    value={form.phone}
+                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-pink-500"
+                  />
+                </div>
+              </div>
+
+              {services.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-white/70 mb-1 block">Serviço de Interesse <span className="text-white/40">(selecione múltiplos)</span></label>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                    {services.map(svc => {
+                      const isSelected = selectedServices.includes(svc.name);
+                      return (
+                        <button
+                          key={svc.id}
+                          type="button"
+                          onClick={() => toggleService(svc.name)}
+                          className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                          style={{
+                            background: isSelected ? `${primary}` : 'rgba(255,255,255,0.03)',
+                            borderColor: isSelected ? primary : 'rgba(255,255,255,0.1)',
+                            color: isSelected ? '#fff' : 'rgba(255,255,255,0.8)',
+                          }}
+                        >
+                          <span className="font-medium">{svc.name}</span>
+                          {svc.description && <p className="text-xs mt-0.5" style={{ opacity: isSelected ? 0.9 : 0.5 }}>{svc.description}</p>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-medium text-white/70 mb-1 block">Mensagem</label>
+                <Textarea
+                  placeholder="Como podemos ajudar?"
+                  value={form.message}
+                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-pink-500 min-h-[80px]"
+                />
+              </div>
+
+              <Button
+                className="w-full text-white font-medium"
+                style={{ background: primary }}
+                disabled={!form.name.trim() || !form.email.trim() || submit.isPending}
+                onClick={handleSubmit}
+              >
+                {submit.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Solicitar Orçamento'}
+              </Button>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
 export default function PortfolioPublic() {
   const { slug } = useParams<{ slug: string }>();
   const { data, isLoading } = usePublicPortfolio(slug || '');
+  const [contactOpen, setContactOpen] = useState(false);
+  const [services, setServices] = useState<PublicService[]>([]);
+
+  // Fetch public services for the portfolio owner
+  useEffect(() => {
+    if (!data?.page?.user_id) return;
+    supabase
+      .from('financial_services')
+      .select('id, name, description, default_price')
+      .eq('user_id', data.page.user_id)
+      .eq('show_public', true)
+      .eq('status', 'active')
+      .then(({ data: svcs }) => {
+        if (svcs) setServices(svcs as PublicService[]);
+      });
+  }, [data?.page?.user_id]);
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]"><Loader2 className="w-8 h-8 animate-spin text-pink-500" /></div>;
@@ -345,10 +447,12 @@ export default function PortfolioPublic() {
       )}
       {page.meta_title && <title>{page.meta_title}</title>}
       {sections.map(section => (
-        <PublicBlock key={section.id} section={section} page={page} />
+        <PublicBlock key={section.id} section={section} page={page} onOpenContact={() => setContactOpen(true)} />
       ))}
-      <LeadForm page={page} />
-      
+
+      {/* Contact Modal */}
+      <ContactModal page={page} services={services} open={contactOpen} onClose={() => setContactOpen(false)} />
+
       {/* WhatsApp floating button */}
       {page.whatsapp_number && (
         <a href={`https://wa.me/${page.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener"

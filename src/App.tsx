@@ -238,6 +238,15 @@ function AppContent() {
               }
             />
             <Route
+              path="/clients"
+              element={
+                <ProtectedRoute>
+                  <Clients />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/cadastro-cliente" element={<ClientRegisterPublic />} />
+            <Route
               path="/proposals"
               element={
                 <ProtectedRoute>

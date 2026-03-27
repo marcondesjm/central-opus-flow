@@ -2,28 +2,34 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, Shield, Palette, Database, Trash2, RotateCcw, HelpCircle, Bell, Key, Camera, Briefcase, MapPin, Phone } from 'lucide-react';
-import { useTheme } from '@/components/theme/ThemeProvider';
-import { useSeedDemoData } from '@/hooks/useSeedDemoData';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useTrial } from '@/hooks/useTrial';
+import {
+  Loader2, User, Shield, Camera, Phone, CreditCard,
+  Smartphone, Bell, Plug, RotateCcw, Crown, Calendar,
+  Clock, LayoutDashboard, Users, Columns3, CheckSquare,
+  DollarSign, FileText, Settings, Globe, Zap, Video,
+  MessageSquare, Receipt, Webhook,
+} from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
-import { useQueryClient } from '@tanstack/react-query';
-import { cn } from '@/lib/utils';
-import { DeadlineNotificationSettings } from './DeadlineNotificationSettings';
-import { KeysManagementPanel } from '@/components/keys/KeysManagementPanel';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-
+import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { DeadlineNotificationSettings } from './DeadlineNotificationSettings';
 
 interface SettingsModalProps {
   open: boolean;
@@ -32,12 +38,11 @@ interface SettingsModalProps {
 
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { user } = useAuth();
-  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { clearDemoData, clearing, hasDemoAccount, seedDemoData, seeding } = useSeedDemoData();
   const { resetOnboarding } = useOnboarding();
-  
+  const { data: subscription } = useSubscription();
+  const { trialInfo } = useTrial();
+
   const [fullName, setFullName] = useState('');
   const [cargo, setCargo] = useState('');
   const [areaAtuacao, setAreaAtuacao] = useState('');
@@ -45,39 +50,61 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
-  const [hasDemoData, setHasDemoData] = useState(false);
-  const [checkingDemo, setCheckingDemo] = useState(true);
-  const [keysModalOpen, setKeysModalOpen] = useState(false);
+  const [currentPasswordField, setCurrentPasswordField] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (user && open) {
-      fetchProfile();
-      checkDemoData();
-    }
-  }, [user, open]);
+  // Mobile shortcuts
+  const allShortcuts = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'clientes', label: 'Clientes', icon: Users },
+    { id: 'pipelines', label: 'Pipelines', icon: Columns3 },
+    { id: 'tarefas', label: 'Tarefas', icon: CheckSquare },
+    { id: 'agenda', label: 'Agenda', icon: Calendar },
+    { id: 'tarefas-diarias', label: 'Tarefas Diárias', icon: Clock },
+    { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
+    { id: 'servicos', label: 'Serviços', icon: FileText },
+    { id: 'orcamentos', label: 'Orçamentos', icon: Receipt },
+    { id: 'paginas', label: 'Páginas', icon: Globe },
+    { id: 'configuracoes', label: 'Configurações', icon: Settings },
+  ];
+  const [selectedShortcuts, setSelectedShortcuts] = useState<string[]>(['dashboard', 'clientes', 'pipelines', 'financeiro']);
 
-  const checkDemoData = async () => {
-    setCheckingDemo(true);
-    const hasDemo = await hasDemoAccount();
-    setHasDemoData(hasDemo);
-    setCheckingDemo(false);
-  };
+  // Notification toggles
+  const [notifNewLeads, setNotifNewLeads] = useState(true);
+  const [notifProposals, setNotifProposals] = useState(true);
+  const [notifDeadlines, setNotifDeadlines] = useState(true);
+  const [notifPayments, setNotifPayments] = useState(true);
+  const [notifInsights, setNotifInsights] = useState(true);
+
+  // Integrations
+  const integrations = [
+    { name: 'Google Calendar', icon: Calendar, color: 'bg-blue-600', connected: false },
+    { name: 'Asaas', icon: Receipt, color: 'bg-blue-500', connected: false },
+    { name: 'Mercado Pago', icon: DollarSign, color: 'bg-blue-400', connected: false },
+    { name: 'Meta Pixel', icon: Zap, color: 'bg-blue-700', connected: false },
+    { name: 'Webhooks', icon: Webhook, color: 'bg-green-600', connected: true },
+    { name: 'WhatsApp', icon: MessageSquare, color: 'bg-[#25D366]', connected: false },
+    { name: 'Google Drive', icon: Globe, color: 'bg-green-500', connected: false },
+    { name: 'Google Meet', icon: Video, color: 'bg-red-500', connected: false, soon: true },
+    { name: 'Stripe', icon: CreditCard, color: 'bg-purple-600', connected: false, soon: true },
+    { name: 'Slack', icon: MessageSquare, color: 'bg-purple-500', connected: false, soon: true },
+  ];
+
+  useEffect(() => {
+    if (user && open) fetchProfile();
+  }, [user, open]);
 
   const fetchProfile = async () => {
     if (!user) return;
-    
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('profiles')
       .select('full_name, cargo, area_atuacao, whatsapp, avatar_url')
       .eq('user_id', user.id)
       .single();
-    
-    if (data && !error) {
+    if (data) {
       setFullName(data.full_name || '');
       setCargo(data.cargo || '');
       setAreaAtuacao(data.area_atuacao || '');
@@ -89,64 +116,27 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
-
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast({
-        title: 'Arquivo inválido',
-        description: 'Por favor, selecione uma imagem.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Arquivo inválido', description: 'Selecione uma imagem.', variant: 'destructive' });
       return;
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: 'Arquivo muito grande',
-        description: 'A imagem deve ter no máximo 5MB.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Arquivo muito grande', description: 'Máximo 5MB.', variant: 'destructive' });
       return;
     }
-
     setUploadingAvatar(true);
     try {
-      // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('project-covers')
-        .upload(filePath, file, { upsert: true });
-
+      const { error: uploadError } = await supabase.storage.from('project-covers').upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('project-covers')
-        .getPublicUrl(filePath);
-
-      // Update profile with avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
+      const { data: { publicUrl } } = supabase.storage.from('project-covers').getPublicUrl(filePath);
+      await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('user_id', user.id);
       setAvatarUrl(publicUrl);
-      toast({
-        title: 'Avatar atualizado!',
-        description: 'Sua foto de perfil foi alterada.',
-      });
+      toast({ title: 'Avatar atualizado!' });
     } catch (error: any) {
-      toast({
-        title: 'Erro ao enviar imagem',
-        description: error.message || 'Tente novamente.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro ao enviar imagem', description: error.message, variant: 'destructive' });
     } finally {
       setUploadingAvatar(false);
     }
@@ -155,44 +145,21 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-
-    // Validar WhatsApp obrigatório
     if (!whatsapp.trim() || whatsapp.replace(/\D/g, '').length < 10) {
-      toast({
-        title: 'WhatsApp obrigatório',
-        description: 'Informe um número de WhatsApp válido com DDD para continuar.',
-        variant: 'destructive',
-      });
+      toast({ title: 'WhatsApp obrigatório', description: 'Informe um número válido com DDD.', variant: 'destructive' });
       return;
     }
-
     setLoading(true);
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          full_name: fullName.trim(),
-          cargo: cargo.trim() || null,
-          area_atuacao: areaAtuacao.trim() || null,
-          whatsapp: whatsapp.trim() || null,
-        })
+        .update({ full_name: fullName.trim(), cargo: cargo.trim() || null, area_atuacao: areaAtuacao.trim() || null, whatsapp: whatsapp.trim() || null })
         .eq('user_id', user.id);
-
       if (error) throw error;
-
-      toast({
-        title: 'Perfil atualizado!',
-        description: 'Suas informações foram salvas.',
-      });
-      
-      // Fechar o modal após salvar com sucesso
+      toast({ title: 'Perfil atualizado!' });
       onOpenChange(false);
     } catch (error: any) {
-      toast({
-        title: 'Erro ao atualizar',
-        description: error.message || 'Tente novamente.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -200,457 +167,469 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (newPassword !== confirmPassword) {
-      toast({
-        title: 'Senhas não coincidem',
-        description: 'A nova senha e a confirmação devem ser iguais.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Senhas não coincidem', variant: 'destructive' });
       return;
     }
-
     if (newPassword.length < 6) {
-      toast({
-        title: 'Senha muito curta',
-        description: 'A senha deve ter pelo menos 6 caracteres.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Senha deve ter pelo menos 6 caracteres', variant: 'destructive' });
       return;
     }
-
     setChangingPassword(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-
-      toast({
-        title: 'Senha alterada!',
-        description: 'Sua senha foi atualizada com sucesso.',
-      });
-
-      // Reset form
-      setCurrentPassword('');
+      toast({ title: 'Senha alterada com sucesso!' });
+      setCurrentPasswordField('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
-      toast({
-        title: 'Erro ao alterar senha',
-        description: error.message || 'Tente novamente.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro ao alterar senha', description: error.message, variant: 'destructive' });
     } finally {
       setChangingPassword(false);
     }
   };
 
-  const handleClearDemoData = async () => {
-    const success = await clearDemoData();
-    if (success) {
-      toast({
-        title: 'Dados de demonstração removidos',
-        description: 'A conta e projetos de demonstração foram excluídos.',
-      });
-      setHasDemoData(false);
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-    } else {
-      toast({
-        title: 'Erro ao remover dados',
-        description: 'Tente novamente.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleRestartTour = () => {
-    resetOnboarding();
-    toast({
-      title: 'Tour reiniciado',
-      description: 'O tour será exibido na próxima vez que você acessar o dashboard.',
+  const toggleShortcut = (id: string) => {
+    setSelectedShortcuts(prev => {
+      if (prev.includes(id)) return prev.filter(s => s !== id);
+      if (prev.length >= 4) {
+        toast({ title: 'Limite de 4 atalhos', description: 'Remova um atalho antes de adicionar outro.' });
+        return prev;
+      }
+      return [...prev, id];
     });
-    onOpenChange(false);
   };
 
-  const handleAddDemoData = async () => {
-    const success = await seedDemoData();
-    if (success) {
-      toast({
-        title: 'Dados de demonstração adicionados',
-        description: 'Projetos de exemplo foram criados para você explorar.',
-      });
-      setHasDemoData(true);
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-    } else {
-      toast({
-        title: 'Dados já existem',
-        description: 'Você já possui dados no sistema.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const themeOptions = [
-    { id: 'light', label: 'Claro', description: 'Tema claro padrão' },
-    { id: 'dark', label: 'Escuro', description: 'Tema escuro para menos cansaço visual' },
-    { id: 'system', label: 'Sistema', description: 'Segue a configuração do dispositivo' },
-  ] as const;
+  const planLabel = subscription?.plan === 'pro' ? 'Pro' : subscription?.plan === 'business' ? 'Business' : 'Trial Gratuito';
+  const isActive = trialInfo ? !trialInfo.isExpired : true;
+  const daysLeft = trialInfo?.daysLeft ?? 0;
+  const expiresAt = subscription?.expires_at ? new Date(subscription.expires_at) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Configurações</DialogTitle>
-          <DialogDescription>
-            Gerencie suas preferências e informações de conta.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        <div className="p-6 pb-0">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Configurações</DialogTitle>
+            <p className="text-sm text-muted-foreground">Personalize sua experiência no Central Flow</p>
+          </DialogHeader>
+        </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="profile" className="gap-1 text-xs">
-              <User className="w-3 h-3" />
-              Perfil
-            </TabsTrigger>
-            <TabsTrigger value="security" className="gap-1 text-xs">
-              <Shield className="w-3 h-3" />
-              Segurança
-            </TabsTrigger>
-            <TabsTrigger value="keys" className="gap-1 text-xs">
-              <Key className="w-3 h-3" />
-              Keys
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-1 text-xs">
-              <Bell className="w-3 h-3" />
-              Alertas
-            </TabsTrigger>
-            <TabsTrigger value="appearance" className="gap-1 text-xs">
-              <Palette className="w-3 h-3" />
-              Aparência
-            </TabsTrigger>
-            <TabsTrigger value="data" className="gap-1 text-xs">
-              <Database className="w-3 h-3" />
-              Dados
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6 mt-4">
-            {/* Avatar Section */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-20 w-20 border-2 border-border">
-                  <AvatarImage src={avatarUrl || ''} alt={fullName || 'Avatar'} />
-                  <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                    {fullName ? fullName.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingAvatar}
-                  className={cn(
-                    "absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-primary-foreground",
-                    "hover:bg-primary/90 transition-colors shadow-md",
-                    "disabled:opacity-50 disabled:cursor-not-allowed"
-                  )}
+          <div className="px-6">
+            <TabsList className="w-full justify-start gap-0 bg-transparent border-b border-border rounded-none h-auto p-0">
+              {[
+                { value: 'profile', label: 'Perfil' },
+                { value: 'subscription', label: 'Assinatura' },
+                { value: 'mobile', label: 'Mobile' },
+                { value: 'notifications', label: 'Notificações' },
+                { value: 'integrations', label: 'Integrações' },
+              ].map(tab => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
                 >
-                  {uploadingAvatar ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Camera className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">{fullName || 'Seu Nome'}</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Clique no ícone para alterar a foto
-                </p>
-              </div>
-            </div>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    Nome completo
-                  </Label>
-                  <Input
-                    id="fullName"
-                    placeholder="Seu nome completo"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
+          <div className="p-6 pt-4">
+            {/* ============ PERFIL ============ */}
+            <TabsContent value="profile" className="mt-0 space-y-6">
+              {/* Profile card */}
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm">Perfil</h3>
+                    <p className="text-xs text-muted-foreground">Informações pessoais e profissionais</p>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="cargo" className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-muted-foreground" />
-                    Cargo / Função
-                  </Label>
-                  <Input
-                    id="cargo"
-                    placeholder="Ex: Desenvolvedor, Designer..."
-                    value={cargo}
-                    onChange={(e) => setCargo(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="whatsapp" className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-muted-foreground" />
-                    WhatsApp cadastrado <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="whatsapp"
-                    placeholder="(00) 00000-0000"
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    required
-                  />
-                  {(!whatsapp.trim() || whatsapp.replace(/\D/g, '').length < 10) && (
-                    <p className="text-xs text-destructive">
-                      Campo obrigatório. Informe um número válido com DDD.
-                    </p>
-                  )}
+                {/* Avatar */}
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <Avatar className="h-16 w-16 border-2 border-border">
+                      <AvatarImage src={avatarUrl || ''} alt={fullName || 'Avatar'} />
+                      <AvatarFallback className="text-lg bg-primary/10 text-primary">
+                        {fullName ? fullName.charAt(0).toUpperCase() : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                      className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-md disabled:opacity-50"
+                    >
+                      {uploadingAvatar ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3" />}
+                    </button>
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  </div>
+                  <div>
+                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                      Fazer Upload
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG até 5MB. 400x400px recomendado</p>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="localMora" className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
-                    Local onde mora
-                  </Label>
-                  <Input
-                    id="localMora"
-                    placeholder="Ex: Florianópolis - SC"
-                    value={areaAtuacao}
-                    onChange={(e) => setAreaAtuacao(e.target.value)}
-                  />
+                {/* Email */}
+                <div className="bg-muted/50 border border-border rounded-xl p-4">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Email da conta</p>
+                  <p className="text-sm font-medium">{user?.email}</p>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={user?.email || ''}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground">
-                  O email não pode ser alterado.
-                </p>
-              </div>
-
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Salvando...
-                  </>
-                ) : (
-                  'Salvar alterações'
-                )}
-              </Button>
-            </form>
-          </TabsContent>
-
-          {/* Security Tab */}
-          <TabsContent value="security" className="space-y-4 mt-4">
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">Nova senha</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <Button type="submit" disabled={changingPassword}>
-                {changingPassword ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Alterando...
-                  </>
-                ) : (
-                  'Alterar senha'
-                )}
-              </Button>
-            </form>
-          </TabsContent>
-
-          {/* Keys Tab */}
-          <TabsContent value="keys" className="space-y-4 mt-4">
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Key className="w-4 h-4" />
-                Gerenciador de API Keys
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Gerencie todas as API Keys (Supabase, OpenAI, etc.) armazenadas localmente no navegador.
-              </p>
-              <Button variant="outline" onClick={() => setKeysModalOpen(true)}>
-                <Key className="mr-2 h-4 w-4" />
-                Abrir Gerenciador de Keys
-              </Button>
-            </div>
-          </TabsContent>
-
-          {/* Notifications Tab */}
-          <TabsContent value="notifications" className="mt-4">
-            <DeadlineNotificationSettings />
-          </TabsContent>
-
-          {/* Appearance Tab */}
-          <TabsContent value="appearance" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Tema</Label>
-              <div className="grid gap-2">
-                {themeOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setTheme(option.id)}
-                    className={cn(
-                      'flex items-start gap-3 p-3 rounded-lg border text-left transition-all',
-                      theme === option.id
-                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                        : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                    )}
-                  >
-                    <div className={cn(
-                      'w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0',
-                      theme === option.id
-                        ? 'border-primary bg-primary'
-                        : 'border-muted-foreground'
-                    )} />
-                    <div>
-                      <p className="font-medium text-sm">{option.label}</p>
-                      <p className="text-xs text-muted-foreground">{option.description}</p>
+                {/* Form fields */}
+                <form onSubmit={handleUpdateProfile} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Nome Completo *</Label>
+                      <Input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Seu nome" />
                     </div>
-                  </button>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Nome da Empresa</Label>
+                      <Input value={cargo} onChange={e => setCargo(e.target.value)} placeholder="Nome da Empresa" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Telefone *</Label>
+                      <Input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="(00) 00000-0000" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Localização</Label>
+                      <Input value={areaAtuacao} onChange={e => setAreaAtuacao(e.target.value)} placeholder="Cidade - Estado" />
+                    </div>
+                  </div>
+
+                  {/* Language */}
+                  <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-bold">Idioma</p>
+                        <p className="text-[10px] text-muted-foreground">Selecione o idioma</p>
+                      </div>
+                    </div>
+                    <Select defaultValue="pt">
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pt">Português 🇧🇷</SelectItem>
+                        <SelectItem value="en">English 🇺🇸</SelectItem>
+                        <SelectItem value="es">Español 🇪🇸</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Currency */}
+                  <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-bold">Moeda</p>
+                        <p className="text-[10px] text-muted-foreground">Moeda padrão para exibição de valores</p>
+                      </div>
+                    </div>
+                    <Select defaultValue="brl">
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="brl">R$ BRL - Real Brasileiro</SelectItem>
+                        <SelectItem value="usd">$ USD - US Dollar</SelectItem>
+                        <SelectItem value="eur">€ EUR - Euro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Salvar
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => { resetOnboarding(); toast({ title: 'Tour reiniciado!' }); onOpenChange(false); }}>
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Reiniciar Tour
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Security */}
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm">Segurança</h3>
+                    <p className="text-xs text-muted-foreground">Proteção da sua conta</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleChangePassword} className="space-y-3">
+                  <div>
+                    <Label className="text-xs">Alterar Senha</Label>
+                    <p className="text-[10px] text-muted-foreground mb-2">Digite sua senha atual e a nova senha para alterá-la.</p>
+                  </div>
+                  <Input type="password" placeholder="Senha atual" value={currentPasswordField} onChange={e => setCurrentPasswordField(e.target.value)} />
+                  <Input type="password" placeholder="Nova senha" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+                  <Input type="password" placeholder="Confirmar nova senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                  <Button type="submit" variant="outline" disabled={changingPassword} size="sm">
+                    {changingPassword ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Atualizar Senha
+                  </Button>
+                </form>
+              </div>
+            </TabsContent>
+
+            {/* ============ ASSINATURA ============ */}
+            <TabsContent value="subscription" className="mt-0 space-y-6">
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm">Minha Assinatura</h3>
+                    <p className="text-xs text-muted-foreground">Gerencie sua assinatura e pagamentos</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Status */}
+                  <div className="flex items-center justify-between bg-muted/50 border border-border rounded-xl p-4">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Status</p>
+                      <p className="font-bold text-sm">{isActive ? 'Ativo' : 'Expirado'}</p>
+                    </div>
+                    <span className={cn(
+                      'text-[10px] font-bold px-3 py-1 rounded-full',
+                      isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+                    )}>
+                      {planLabel}
+                    </span>
+                  </div>
+
+                  {/* Plan */}
+                  <div className="flex items-center justify-between bg-muted/50 border border-border rounded-xl p-4">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Plano</p>
+                      <p className="font-bold text-sm">{planLabel}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Mensal</span>
+                  </div>
+
+                  {/* Days remaining */}
+                  <div className="bg-muted/50 border border-border rounded-xl p-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Dias Restantes</p>
+                        <p className="font-bold text-sm">{daysLeft} dias</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expiration */}
+                  {expiresAt && (
+                    <div className="bg-muted/50 border border-border rounded-xl p-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Data de Expiração</p>
+                          <p className="font-bold text-sm">{format(expiresAt, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                <h4 className="font-bold text-sm">Ações</h4>
+                <Link to="/billing">
+                  <Button variant="outline" className="w-full justify-between" onClick={() => onOpenChange(false)}>
+                    <span className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4" />
+                      Histórico de Pagamentos
+                    </span>
+                    <span className="text-muted-foreground">→</span>
+                  </Button>
+                </Link>
+                <Link to="/pricing">
+                  <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 mt-2" onClick={() => onOpenChange(false)}>
+                    <Crown className="w-4 h-4 mr-2" />
+                    Assinar Agora
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Trial upsell */}
+              <div className="bg-card border border-primary/20 rounded-2xl p-6 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-5 h-5 text-primary" />
+                  <h4 className="font-bold text-sm">Aproveite o Trial Gratuito</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Você está no período de teste gratuito. Assine agora e continue com acesso completo à plataforma.
+                </p>
+                <ul className="space-y-1.5">
+                  {[
+                    'CRM completo para designers e gestores de tráfego',
+                    'Gerencie leads, contratos e projetos em um só lugar',
+                    'Portfolio profissional com captura de leads',
+                    'Controle financeiro completo com múltiplas moedas',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-center gap-2 text-xs text-primary">
+                      <span>✓</span> {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/pricing">
+                  <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 mt-2" onClick={() => onOpenChange(false)}>
+                    Ver Planos
+                  </Button>
+                </Link>
+              </div>
+            </TabsContent>
+
+            {/* ============ MOBILE ============ */}
+            <TabsContent value="mobile" className="mt-0 space-y-6">
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <Smartphone className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm">Menu Mobile Flutuante</h3>
+                    <p className="text-xs text-muted-foreground">Escolha até 4 atalhos para aparecer no menu inferior do mobile</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground">Atalhos selecionados ({selectedShortcuts.length}/4)</p>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {allShortcuts.map(shortcut => {
+                    const isSelected = selectedShortcuts.includes(shortcut.id);
+                    const Icon = shortcut.icon;
+                    return (
+                      <button
+                        key={shortcut.id}
+                        onClick={() => toggleShortcut(shortcut.id)}
+                        className={cn(
+                          'flex flex-col items-center gap-2 p-4 rounded-xl border transition-all text-center',
+                          isSelected
+                            ? 'border-primary bg-primary/5 text-primary'
+                            : 'border-border bg-muted/30 text-muted-foreground hover:border-primary/30'
+                        )}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span className="text-[11px] font-medium">{shortcut.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground">
+                    💡 <strong>Dica:</strong> Selecione as páginas que você mais acessa para ter acesso rápido no mobile. O menu aparecerá fixo na parte inferior da tela.
+                  </p>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">
+                  Salvar
+                </Button>
+              </div>
+            </TabsContent>
+
+            {/* ============ NOTIFICAÇÕES ============ */}
+            <TabsContent value="notifications" className="mt-0 space-y-6">
+              <DeadlineNotificationSettings />
+
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm">Notificações</h3>
+                    <p className="text-xs text-muted-foreground">Gerencie como você recebe atualizações</p>
+                  </div>
+                </div>
+
+                {[
+                  { label: 'Novos Leads', desc: 'Seja notificado quando receber novo lead', value: notifNewLeads, set: setNotifNewLeads },
+                  { label: 'Propostas Abertas', desc: 'Quando cliente visualiza sua proposta', value: notifProposals, set: setNotifProposals },
+                  { label: 'Prazos Próximos', desc: 'Alerta 2 dias antes do deadline', value: notifDeadlines, set: setNotifDeadlines },
+                  { label: 'Pagamentos Recebidos', desc: 'Confirmação de pagamentos', value: notifPayments, set: setNotifPayments },
+                  { label: 'Insights da IA', desc: 'Dicas e sugestões semanais', value: notifInsights, set: setNotifInsights },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                    <Switch checked={item.value} onCheckedChange={item.set} />
+                  </div>
                 ))}
               </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
 
-          {/* Data Tab */}
-          <TabsContent value="data" className="space-y-4 mt-4">
-            {/* Demo Data Section */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Database className="w-4 h-4" />
-                Dados de Demonstração
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Os dados de demonstração incluem uma conta e 4 projetos de exemplo para você explorar o painel.
-              </p>
-              
-              {checkingDemo ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Verificando...
-                </div>
-              ) : hasDemoData ? (
-                <Button 
-                  variant="destructive" 
-                  onClick={handleClearDemoData}
-                  disabled={clearing}
-                >
-                  {clearing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Removendo...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Remover Dados de Demo
-                    </>
-                  )}
+            {/* ============ INTEGRAÇÕES ============ */}
+            <TabsContent value="integrations" className="mt-0 space-y-6">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {integrations.map((integration, i) => {
+                  const Icon = integration.icon;
+                  return (
+                    <button
+                      key={i}
+                      className={cn(
+                        'relative flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
+                        integration.connected
+                          ? 'border-green-500/50 bg-green-500/5'
+                          : 'border-border bg-card hover:border-primary/30',
+                        integration.soon && 'opacity-60'
+                      )}
+                    >
+                      {integration.connected && (
+                        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                          <Zap className="w-2.5 h-2.5 text-white" />
+                        </div>
+                      )}
+                      {integration.soon && (
+                        <span className="absolute top-2 right-2 text-[8px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">
+                          Em breve
+                        </span>
+                      )}
+                      <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', integration.color)}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="text-[11px] font-medium text-center">{integration.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="bg-card border border-border rounded-2xl p-6 text-center space-y-2">
+                <p className="font-bold text-sm">Não encontrou a integração que precisa?</p>
+                <p className="text-xs text-muted-foreground">
+                  Envie sua sugestão e nossa equipe avaliará para futuras versões
+                </p>
+                <Button variant="outline" size="sm" className="border-primary/30 text-primary">
+                  Sugerir Integração
                 </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  onClick={handleAddDemoData}
-                  disabled={seeding}
-                >
-                  {seeding ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Criando...
-                    </>
-                  ) : (
-                    <>
-                      <Database className="mr-2 h-4 w-4" />
-                      Adicionar Dados de Demo
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-
-            <div className="border-t pt-4" />
-
-            {/* Restart Tour Section */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4" />
-                Tour de Ajuda
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Reinicie o tour para ver novamente as explicações de cada botão e funcionalidade.
-              </p>
-              <Button variant="outline" onClick={handleRestartTour}>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Reiniciar Tour
-              </Button>
-            </div>
-          </TabsContent>
+              </div>
+            </TabsContent>
+          </div>
         </Tabs>
-
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
-          </Button>
-        </DialogFooter>
       </DialogContent>
-
-      {/* Keys Management Panel */}
-      <KeysManagementPanel open={keysModalOpen} onOpenChange={setKeysModalOpen} />
     </Dialog>
   );
 }

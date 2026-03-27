@@ -4,28 +4,60 @@ import { usePublicPortfolio, useSubmitPortfolioLead, type PortfolioSection, type
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   ExternalLink, TrendingUp, Users, Award, Star, Search,
   Lightbulb, Palette, CheckCircle, Zap, ChevronLeft, ChevronRight,
-  Play, Image, User, Menu, X,
+  Play, Image, User, Menu, X, Loader2, MessageSquare, Phone,
 } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
 
 const ICON_MAP: Record<string, any> = {
   TrendingUp, Users, Award, Star, Search, Lightbulb, Palette,
-  CheckCircle, Zap, Play, Image, User,
+  CheckCircle, Zap, Play, Image, User, MessageSquare,
 };
 
 function PublicBlock({ section, page }: { section: PortfolioSection; page: PortfolioPage }) {
   const c = section.content as Record<string, any>;
+  const s = section.settings as Record<string, any>;
   const primary = page.primary_color || '#ec4899';
   const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const anchorId = s?.anchor_id || section.type;
 
   switch (section.type) {
+    case 'menu':
+      return (
+        <nav id={anchorId} className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between backdrop-blur-md border-b border-white/5"
+          style={{ background: `${page.bg_color}ee` }}>
+          <div className="flex items-center gap-2">
+            {page.logo_url && <img src={page.logo_url} className="h-8" alt="logo" />}
+            <span className="font-bold" style={{ color: page.text_color }}>{page.title}</span>
+          </div>
+          <div className="hidden md:flex items-center gap-6">
+            {(c.items || []).map((item: any, i: number) => (
+              <a key={i} href={item.anchor || '#'} className="text-sm opacity-70 hover:opacity-100 transition-opacity"
+                style={{ color: page.text_color }}>{item.label}</a>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            {page.whatsapp_number && (
+              <a href={`https://wa.me/${page.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80" style={{ background: '#25D366' }}>
+                <Phone className="w-4 h-4 text-white" />
+              </a>
+            )}
+          </div>
+        </nav>
+      );
+
+    case 'logo':
+      return c.url ? (
+        <section id={anchorId} className="py-6 px-6 flex justify-center" style={{ background: page.bg_color }}>
+          <img src={c.url} className="h-12 object-contain" alt="Logo" />
+        </section>
+      ) : null;
+
     case 'hero':
       return (
-        <section className="relative min-h-[80vh] flex items-center px-6 md:px-16 overflow-hidden"
+        <section id={anchorId} className="relative min-h-[80vh] flex items-center px-6 md:px-16 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${page.bg_color}ee, ${page.bg_color})` }}>
           {c.bg_image_url && <img src={c.bg_image_url} className="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/20 to-transparent" />
@@ -34,9 +66,16 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
               {c.badge && <span className="inline-block px-4 py-1.5 border border-white/20 text-white/60 text-sm rounded">{c.badge}</span>}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ color: page.text_color }}>{c.headline}</h1>
               <p className="text-lg opacity-70 max-w-lg" style={{ color: page.text_color }}>{c.subheadline}</p>
-              <a href={c.cta_url || '#'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
-                {c.cta_text} <ExternalLink className="w-4 h-4" />
-              </a>
+              {page.lead_capture_type === 'link' && page.lead_capture_url ? (
+                <a href={page.lead_capture_url} target="_blank" rel="noopener"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+                  {c.cta_text} <ExternalLink className="w-4 h-4" />
+                </a>
+              ) : (
+                <a href={c.cta_url || '#contato'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+                  {c.cta_text} <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
             </div>
             {c.image_url && (
               <div className="hidden md:block w-[350px] h-[400px] rounded-2xl overflow-hidden shadow-2xl">
@@ -49,7 +88,7 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'stats':
       return (
-        <section className="py-12 px-6 border-y border-white/5" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-12 px-6 border-y border-white/5" style={{ background: page.bg_color }}>
           <div className="max-w-4xl mx-auto flex flex-wrap justify-around gap-8">
             {(c.items || []).map((item: any, i: number) => {
               const Icon = ICON_MAP[item.icon] || TrendingUp;
@@ -67,15 +106,24 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'about':
       return (
-        <section className="py-16 px-6 text-center" style={{ background: page.bg_color }}>
-          <h2 className="text-3xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
-          <p className="text-base opacity-60 max-w-2xl mx-auto leading-relaxed" style={{ color: page.text_color }}>{c.description}</p>
+        <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-10">
+            {c.image_url && (
+              <div className="w-64 h-64 shrink-0 rounded-2xl overflow-hidden shadow-2xl">
+                <img src={c.image_url} className="w-full h-full object-cover" alt="" />
+              </div>
+            )}
+            <div className={c.image_url ? '' : 'text-center w-full'}>
+              <h2 className="text-3xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
+              <p className="text-base opacity-60 leading-relaxed" style={{ color: page.text_color }}>{c.description}</p>
+            </div>
+          </div>
         </section>
       );
 
     case 'portfolio':
       return (
-        <section className="py-12 px-6" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(c.items || []).map((item: any, i: number) => (
               <div key={i} className="relative rounded-2xl overflow-hidden aspect-[4/3] group">
@@ -101,7 +149,7 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'timeline':
       return (
-        <section className="py-16 px-6" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
           <h2 className="text-3xl font-bold text-center mb-10" style={{ color: page.text_color }}>{c.title}</h2>
           <div className="max-w-2xl mx-auto space-y-5">
             {(c.steps || []).map((step: any, i: number) => {
@@ -127,7 +175,7 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'video':
       return c.url ? (
-        <section className="py-12 px-6" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
           <div className="max-w-3xl mx-auto aspect-video rounded-2xl overflow-hidden">
             <iframe src={c.url} className="w-full h-full" allowFullScreen />
           </div>
@@ -139,7 +187,7 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
       const current = items[testimonialIdx];
       if (!current) return null;
       return (
-        <section className="py-16 px-6" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-16 px-6" style={{ background: page.bg_color }}>
           <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-10">
             <div className="w-52 h-52 shrink-0 rounded-2xl overflow-hidden shadow-2xl">
               {current.image_url ? (
@@ -174,25 +222,39 @@ function PublicBlock({ section, page }: { section: PortfolioSection; page: Portf
 
     case 'cta':
       return (
-        <section className="py-12 px-6" style={{ background: page.bg_color }}>
+        <section id={anchorId} className="py-12 px-6" style={{ background: page.bg_color }}>
           <div className="max-w-lg mx-auto bg-white/5 rounded-2xl p-10 text-center border border-white/10">
             <h2 className="text-xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
-            <a href={c.cta_url || '#'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
-              {c.cta_text} <ExternalLink className="w-4 h-4" />
-            </a>
+            {page.lead_capture_type === 'link' && page.lead_capture_url ? (
+              <a href={page.lead_capture_url} target="_blank" rel="noopener"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+                {c.cta_text} <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <a href={c.cta_url || '#contato'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium" style={{ background: primary }}>
+                {c.cta_text} <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </section>
       );
 
     case 'cta_final':
       return (
-        <section className="py-16 px-6 text-center" style={{ background: `linear-gradient(135deg, ${primary}15, ${page.bg_color})` }}>
+        <section id={anchorId} className="py-16 px-6 text-center" style={{ background: `linear-gradient(135deg, ${primary}15, ${page.bg_color})` }}>
           <Zap className="w-10 h-10 mx-auto mb-4" style={{ color: primary }} />
           <h2 className="text-3xl font-bold mb-3" style={{ color: page.text_color }}>{c.title}</h2>
           <p className="opacity-50 mb-8" style={{ color: page.text_color }}>{c.description}</p>
-          <a href={c.cta_url || '#'} className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium text-lg" style={{ background: primary }}>
-            {c.cta_text} <ExternalLink className="w-5 h-5" />
-          </a>
+          {page.lead_capture_type === 'link' && page.lead_capture_url ? (
+            <a href={page.lead_capture_url} target="_blank" rel="noopener"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium text-lg" style={{ background: primary }}>
+              {c.cta_text} <ExternalLink className="w-5 h-5" />
+            </a>
+          ) : (
+            <a href={c.cta_url || '#contato'} className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-medium text-lg" style={{ background: primary }}>
+              {c.cta_text} <ExternalLink className="w-5 h-5" />
+            </a>
+          )}
           {c.badges && (
             <div className="flex items-center justify-center gap-6 mt-6 text-sm opacity-50" style={{ color: page.text_color }}>
               {c.badges.map((b: string) => (
@@ -216,7 +278,7 @@ function LeadForm({ page }: { page: PortfolioPage }) {
   const [sent, setSent] = useState(false);
 
   if (page.lead_capture_type === 'link' && page.lead_capture_url) {
-    return null; // CTAs redirect directly
+    return null;
   }
 
   if (sent) {
@@ -233,9 +295,9 @@ function LeadForm({ page }: { page: PortfolioPage }) {
     <section id="contato" className="py-16 px-6" style={{ background: page.bg_color }}>
       <div className="max-w-md mx-auto space-y-4">
         <h2 className="text-2xl font-bold text-center" style={{ color: page.text_color }}>Entre em contato</h2>
-        <Input placeholder="Seu nome" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+        <Input placeholder="Seu nome *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
           className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-        <Input placeholder="E-mail" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+        <Input placeholder="E-mail" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
           className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
         <Input placeholder="Telefone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
           className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
@@ -265,8 +327,9 @@ export default function PortfolioPublic() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white">
-        <p>Portfólio não encontrado</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white gap-4">
+        <p className="text-lg">Portfólio não encontrado</p>
+        <p className="text-sm opacity-50">Verifique o link e tente novamente</p>
       </div>
     );
   }
@@ -275,10 +338,20 @@ export default function PortfolioPublic() {
 
   return (
     <div className="min-h-screen" style={{ background: page.bg_color, fontFamily: page.font_body }}>
+      {page.meta_title && <title>{page.meta_title}</title>}
       {sections.map(section => (
         <PublicBlock key={section.id} section={section} page={page} />
       ))}
       <LeadForm page={page} />
+      
+      {/* WhatsApp floating button */}
+      {page.whatsapp_number && (
+        <a href={`https://wa.me/${page.whatsapp_number.replace(/\D/g, '')}`} target="_blank" rel="noopener"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform"
+          style={{ background: '#25D366' }}>
+          <MessageSquare className="w-6 h-6 text-white" />
+        </a>
+      )}
     </div>
   );
 }

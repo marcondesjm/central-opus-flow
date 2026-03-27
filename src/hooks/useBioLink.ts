@@ -58,7 +58,7 @@ export function usePublicBioLink(slug: string) {
         .eq('is_published', true)
         .maybeSingle();
       if (error) throw error;
-      return data as BioLink | null;
+      return data as unknown as BioLink | null;
     },
     enabled: !!slug,
   });

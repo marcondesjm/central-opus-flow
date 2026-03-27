@@ -664,17 +664,6 @@ export default function ClientsPage() {
 
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  // If viewing ficha técnica
-  if (showFichaTecnica && selectedClient) {
-    return (
-      <AppLayout>
-        <div className="max-w-[1400px] mx-auto px-4 py-6">
-          <FichaTecnica client={selectedClient} onBack={() => setShowFichaTecnica(false)} />
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout>
       <div className="max-w-[1400px] mx-auto px-4 py-6 space-y-6">

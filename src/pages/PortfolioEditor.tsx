@@ -532,7 +532,7 @@ function BlockControls({
 }
 
 // ============== CANVAS BLOCK RENDERER ==============
-function CanvasBlock({ section, page }: { section: PortfolioSection; page: PortfolioPage }) {
+function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSection; page: PortfolioPage; onOpenLeadModal?: () => void }) {
   const c = section.content as Record<string, any>;
   const primary = page.primary_color || '#ec4899';
 

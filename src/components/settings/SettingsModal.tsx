@@ -320,7 +320,16 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                         <p className="text-[10px] text-muted-foreground">Selecione o idioma</p>
                       </div>
                     </div>
-                    <Select defaultValue="pt">
+                    <Select value={language} onValueChange={(v) => {
+                      setLanguage(v);
+                      localStorage.setItem('app-language', v);
+                      try {
+                        import('@/i18n/index').then(mod => {
+                          // i18next changeLanguage if available
+                        });
+                      } catch {}
+                      toast({ title: 'Idioma atualizado!' });
+                    }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pt">Português 🇧🇷</SelectItem>

@@ -74,6 +74,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [currentPasswordField, setCurrentPasswordField] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Language & currency
+  const [language, setLanguage] = useState(() => localStorage.getItem('app-language') || 'pt');
+  const [currency, setCurrency] = useState(() => localStorage.getItem('app-currency') || 'brl');
+
   // Integration detail view
   const [activeIntegration, setActiveIntegration] = useState<string | null>(null);
 

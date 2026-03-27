@@ -375,6 +375,101 @@ export type Database = {
           },
         ]
       }
+      bio_link_clicks: {
+        Row: {
+          bio_link_id: string
+          clicked_at: string
+          id: string
+          ip_address: string | null
+          link_index: number
+          user_agent: string | null
+        }
+        Insert: {
+          bio_link_id: string
+          clicked_at?: string
+          id?: string
+          ip_address?: string | null
+          link_index: number
+          user_agent?: string | null
+        }
+        Update: {
+          bio_link_id?: string
+          clicked_at?: string
+          id?: string
+          ip_address?: string | null
+          link_index?: number
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bio_link_clicks_bio_link_id_fkey"
+            columns: ["bio_link_id"]
+            isOneToOne: false
+            referencedRelation: "bio_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bio_links: {
+        Row: {
+          avatar_url: string | null
+          bg_color_1: string | null
+          bg_color_2: string | null
+          bg_style: string
+          bio: string | null
+          button_color: string | null
+          button_style: string
+          button_text_color: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          links: Json
+          name: string
+          slug: string
+          text_color: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bg_color_1?: string | null
+          bg_color_2?: string | null
+          bg_style?: string
+          bio?: string | null
+          button_color?: string | null
+          button_style?: string
+          button_text_color?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          links?: Json
+          name?: string
+          slug: string
+          text_color?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bg_color_1?: string | null
+          bg_color_2?: string | null
+          bg_style?: string
+          bio?: string | null
+          button_color?: string | null
+          button_style?: string
+          button_text_color?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          links?: Json
+          name?: string
+          slug?: string
+          text_color?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           color: string

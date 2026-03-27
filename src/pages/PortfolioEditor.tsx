@@ -39,7 +39,7 @@ function EditorSidebar({
   sections: PortfolioSection[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onAdd: (type: string) => void;
+  onAdd: (type: string, customContent?: Record<string, any>) => void;
   page: PortfolioPage;
   onUpdatePage: (p: Partial<PortfolioPage>) => void;
   onOpenLeadModal: () => void;

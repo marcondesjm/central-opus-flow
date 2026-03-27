@@ -450,7 +450,7 @@ export default function Pricing() {
         </motion.div>
       </main>
 
-      <PaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} />
+      <PaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} planName={selectedPlan || undefined} planPrice={selectedPlanPrice} planBilling={selectedPlanBilling} />
     </div>
   );
 }

@@ -197,7 +197,9 @@ export function PricingSection() {
                       </div>
                       {isAnnual && (
                         <div className="text-center mb-1">
-                          <span className="text-sm text-primary font-medium">R$ {plan.at.toFixed(2).replace('.', ',')}/ano</span>
+                          <span className="text-sm text-primary font-medium">R$ {annualYearTotal.toFixed(2).replace('.', ',')}/ano</span>
+                        </div>
+                      )}
                         </div>
                       )}
                       <p className="text-xs text-muted-foreground text-center mb-8">Até {plan.members} membros</p>

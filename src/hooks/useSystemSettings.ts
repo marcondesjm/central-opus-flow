@@ -8,6 +8,15 @@ export interface PricingSettings {
   annual_price: number;
 }
 
+export interface TeamPricingSettings {
+  pro_monthly: number;
+  pro_annual: number;
+  business_monthly: number;
+  business_annual: number;
+  enterprise_monthly: number;
+  enterprise_annual: number;
+}
+
 export interface PixSettings {
   pix_key: string;
   pix_name: string;

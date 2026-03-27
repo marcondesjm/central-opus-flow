@@ -49,10 +49,12 @@ function AgendaContent() {
   const [showHolidays, setShowHolidays] = useState(true);
   const [tasksOnly, setTasksOnly] = useState(false);
 
-  const { projects } = useProjects();
-  const { deals } = useKanban();
+  const projectsQuery = useProjects();
+  const projects = projectsQuery.data;
+  const dealsQuery = useKanbanDeals();
+  const deals = dealsQuery.data;
   const { integrations } = useUserIntegrations();
-  const googleCalendar = integrations?.find((i: any) => i.service_name === 'google_calendar');
+  const googleCalendar = integrations?.find((i) => i.integration_name === 'google_calendar');
 
   // Build events
   const events = useMemo<CalendarEvent[]>(() => {

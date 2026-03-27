@@ -340,6 +340,15 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/portfolio/:slug" element={<PortfolioPublic />} />
+            <Route
+              path="/portfolio-editor"
+              element={
+                <ProtectedRoute>
+                  <PortfolioEditor />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

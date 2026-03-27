@@ -73,7 +73,7 @@ function PublicBlock({ section, page, onOpenContact }: { section: PortfolioSecti
 
     case 'hero':
       return (
-        <section id={anchorId} className="relative min-h-[80vh] flex items-center px-6 md:px-16 overflow-hidden"
+        <section id={anchorId} className="relative min-h-[60vh] md:min-h-[80vh] flex items-center px-6 md:px-16 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${page.bg_color}ee, ${page.bg_color})` }}>
           {c.bg_image_url && <img src={c.bg_image_url} className="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/20 to-transparent" />

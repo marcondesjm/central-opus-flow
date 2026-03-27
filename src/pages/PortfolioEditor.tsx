@@ -1363,9 +1363,11 @@ export default function PortfolioEditor() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => window.open(`/portfolio/${page.slug}`, '_blank')}>
-            <Eye className="w-4 h-4 mr-1" /> Preview
-          </Button>
+          <a href={`/portfolio/${page.slug}`} target="_blank" rel="noopener noreferrer">
+            <Button variant="ghost" size="sm">
+              <Eye className="w-4 h-4 mr-1" /> Preview
+            </Button>
+          </a>
           <Switch checked={page.is_published} onCheckedChange={v => handleUpdatePage({ is_published: v })} />
           <span className="text-xs text-muted-foreground">{page.is_published ? 'Publicado' : 'Rascunho'}</span>
           <Button size="sm" onClick={handleSave} className="bg-primary text-primary-foreground">

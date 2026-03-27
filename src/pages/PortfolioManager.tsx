@@ -936,7 +936,7 @@ function ConfiguracoesTab() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Switch checked={page.is_published} onCheckedChange={v => updatePage.mutate({ is_published: v })} />
+            <Switch checked={page.is_published} onCheckedChange={v => updatePage.mutate({ id: page.id, is_published: v })} />
             <span className="text-sm">Página publicada</span>
           </div>
         </div>

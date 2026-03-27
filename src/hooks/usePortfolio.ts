@@ -101,8 +101,8 @@ export const DEFAULT_SECTION_CONTENT: Record<string, Record<string, any>> = {
   },
   testimonials: {
     items: [
-      { name: 'Maria Silva', role: 'CEO, Café Boutique', text: 'O trabalho superou todas as expectativas. A identidade visual criada capturou perfeitamente a essência da nossa marca.', image_url: '' },
-      { name: 'Juliana Oliveira', role: 'Gerente, Moda & Estilo', text: 'Transformou completamente a identidade da nossa marca. Os resultados em vendas foram imediatos e surpreendentes.', image_url: '' },
+      { name: 'Maria Silva', role: 'CEO, Café Boutique', text: 'O trabalho superou todas as expectativas. A identidade visual criada capturou perfeitamente a essência da nossa marca.', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop' },
+      { name: 'Juliana Oliveira', role: 'Gerente, Moda & Estilo', text: 'Transformou completamente a identidade da nossa marca. Os resultados em vendas foram imediatos e surpreendentes.', image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop' },
     ],
   },
   cta: {

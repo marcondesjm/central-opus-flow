@@ -73,9 +73,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [currentPasswordField, setCurrentPasswordField] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Integration config modal
-  const [configModal, setConfigModal] = useState<string | null>(null);
-  const [configValues, setConfigValues] = useState<Record<string, string>>({});
+  // Integration detail view
+  const [activeIntegration, setActiveIntegration] = useState<string | null>(null);
 
   // Mobile shortcuts
   const allShortcuts = [

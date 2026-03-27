@@ -1195,6 +1195,18 @@ export default function PortfolioEditor() {
     deleteSection.mutate({ id, page_id: page.id });
   };
 
+  const handleClearAllAndAdd = (steps: { type: string; content?: Record<string, any> }[]) => {
+    // Delete all existing sections from DB
+    localSections.forEach(s => deleteSection.mutate({ id: s.id, page_id: page.id }));
+    // Clear local state
+    setLocalSections([]);
+    setSelectedId(null);
+    // Add new sections
+    steps.forEach((step, i) => {
+      setTimeout(() => handleAdd(step.type, step.content), i * 100);
+    });
+  };
+
   const handleUpdateSection = (updated: PortfolioSection) => {
     setLocalSections(prev => prev.map(s => s.id === updated.id ? updated : s));
     scheduleAutoSave(updated.id);

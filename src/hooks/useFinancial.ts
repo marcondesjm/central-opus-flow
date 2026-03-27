@@ -43,7 +43,14 @@ export interface FinancialService {
   name: string;
   default_price: number;
   description: string | null;
+  category_id: string | null;
+  is_recurring: boolean;
+  recurring_period: string | null;
+  show_public: boolean;
+  show_leads_form: boolean;
+  status: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface FinancialTransaction {

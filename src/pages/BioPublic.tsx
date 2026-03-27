@@ -64,7 +64,8 @@ function QuoteWizardModal({ bio, onClose }: { bio: any; onClose: () => void }) {
       .from('financial_services')
       .select('id, name, description, default_price')
       .eq('user_id', bio.user_id)
-      .then(({ data }) => { if (data) setServices(data); });
+      .eq('status', 'active')
+      .then(({ data }) => { if (data) setServices(data as any); });
   }, [bio.user_id]);
 
   // Fetch existing leads for autocomplete

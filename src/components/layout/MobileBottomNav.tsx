@@ -11,11 +11,19 @@ import {
   MoreHorizontal,
   BookOpen,
   Share2,
-  MessageCircle,
+  Calendar,
+  Clock,
+  DollarSign,
+  CheckSquare,
+  Columns3,
+  Settings,
+  Globe,
+  Users,
+  type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Popover,
   PopoverContent,
@@ -23,13 +31,24 @@ import {
 } from '@/components/ui/popover';
 import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 
-const mainItems = [
-  { path: '/dashboard', label: 'Landing Pages', icon: LayoutDashboard },
+const SHORTCUT_MAP: Record<string, { path: string; label: string; icon: LucideIcon }> = {
+  dashboard: { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  clientes: { path: '/kanban', label: 'Clientes', icon: Users },
+  pipelines: { path: '/kanban', label: 'Pipelines', icon: Columns3 },
+  tarefas: { path: '/kanban', label: 'Tarefas', icon: CheckSquare },
+  agenda: { path: '/scheduling', label: 'Agenda', icon: Calendar },
+  'tarefas-diarias': { path: '/kanban', label: 'Tarefas Diárias', icon: Clock },
+  financeiro: { path: '/billing', label: 'Financeiro', icon: DollarSign },
+  servicos: { path: '/proposals', label: 'Serviços', icon: FileText },
+  orcamentos: { path: '/proposals', label: 'Orçamentos', icon: Receipt },
+  paginas: { path: '/dashboard', label: 'Páginas', icon: Globe },
+  configuracoes: { path: '/settings', label: 'Configurações', icon: Settings },
+};
+
+const allNavItems = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/dashboard?view=favorites', label: 'Aprovações', icon: Star },
   { path: '/proposals', label: 'Propostas', icon: FileText },
-];
-
-const moreItems = [
   { path: '/kanban', label: 'Kanban', icon: Kanban },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/billing', label: 'Faturamento', icon: Receipt },
@@ -37,14 +56,41 @@ const moreItems = [
   { path: '/teams', label: 'Equipes', icon: UsersRound },
   { path: '/collaborations', label: 'Colaborações', icon: Share2 },
   { path: '/ideas', label: 'Ideias', icon: Sparkles },
+  { path: '/scheduling', label: 'Agenda', icon: Calendar },
   { path: '/manual', label: 'Manual', icon: BookOpen },
 ];
+
+const MOBILE_SHORTCUTS_KEY = 'mobile-shortcuts';
+const DEFAULT_SHORTCUTS = ['dashboard', 'clientes', 'pipelines', 'financeiro'];
+
+function getShortcuts(): string[] {
+  try {
+    const saved = localStorage.getItem(MOBILE_SHORTCUTS_KEY);
+    return saved ? JSON.parse(saved) : DEFAULT_SHORTCUTS;
+  } catch { return DEFAULT_SHORTCUTS; }
+}
 
 export function MobileBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const scheduledCount = useScheduledMessagesCount();
+  const [shortcuts, setShortcuts] = useState(getShortcuts);
+
+  useEffect(() => {
+    const handler = () => setShortcuts(getShortcuts());
+    window.addEventListener('mobile-shortcuts-changed', handler);
+    return () => window.removeEventListener('mobile-shortcuts-changed', handler);
+  }, []);
+
+  const mainItems = shortcuts
+    .map(id => SHORTCUT_MAP[id])
+    .filter(Boolean)
+    .slice(0, 4);
+
+  // Items not in main shortcuts go to "More" menu
+  const mainPaths = new Set(mainItems.map(i => i.path));
+  const moreItems = allNavItems.filter(i => !mainPaths.has(i.path));
 
   const isActive = (path: string) =>
     location.pathname === path ||
@@ -66,7 +112,7 @@ export function MobileBottomNav() {
 
           return (
             <button
-              key={item.path}
+              key={item.path + item.label}
               onClick={() => navigate(item.path)}
               aria-current={active ? 'page' : undefined}
               aria-label={item.label}

@@ -609,37 +609,66 @@ function WhatsAppDetail({ onBack, isConnected, onToggle, isPending, config }: {
 function GoogleDriveDetail({ onBack, isConnected, onToggle, isPending }: {
   onBack: () => void; isConnected: boolean; onToggle: (connected: boolean, config?: Record<string, unknown>) => void; isPending: boolean;
 }) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnectGoogle = async () => {
+    if (isConnected) {
+      onToggle(false);
+      return;
+    }
+    setConnecting(true);
+    try {
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin,
+      });
+      if (!result.error) {
+        onToggle(true, { provider: 'google', connected_via: 'oauth' });
+      }
+    } catch (e) {
+      console.error('Google OAuth error:', e);
+    } finally {
+      setConnecting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-4 h-4" /> Voltar para integrações
       </button>
 
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center">
-              <Globe className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-bold">Google Drive</h3>
-              <p className="text-xs text-muted-foreground">Conecte para criar pastas automáticas</p>
-            </div>
+      <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center">
+            <Globe className="w-5 h-5 text-white" />
           </div>
-          <Button
-            onClick={() => onToggle(!isConnected)}
-            disabled={isPending}
-            className={cn(
-              'border-0 text-white',
-              isConnected
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'
-            )}
-          >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Globe className="w-4 h-4 mr-2" />}
-            {isConnected ? 'Desconectar' : 'Conectar Google Drive'}
-          </Button>
+          <div>
+            <h3 className="font-bold">Google Drive</h3>
+            <p className="text-xs text-muted-foreground">Conecte para criar pastas automáticas</p>
+          </div>
         </div>
+
+        <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-start gap-3">
+          <Info className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+          <p className="text-sm text-green-300">
+            Ao conectar, pastas serão criadas automaticamente para organizar seus projetos no Google Drive.
+          </p>
+        </div>
+
+        <Button
+          onClick={handleConnectGoogle}
+          disabled={isPending || connecting}
+          className={cn(
+            'w-full border-0 text-white',
+            isConnected
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'
+          )}
+        >
+          {(isPending || connecting) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Globe className="w-4 h-4 mr-2" />}
+          {isConnected ? 'Desconectar Google Drive' : 'Conectar com Google'}
+        </Button>
       </div>
     </div>
   );

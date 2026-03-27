@@ -23,6 +23,7 @@ import { format, startOfMonth, endOfMonth, parseISO, isWithinInterval, isBefore 
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { PixKeysManager } from '@/components/billing/PixKeysManager';
+import { ServicesManager } from '@/components/billing/ServicesManager';
 import {
   useFinancialCategories, useCreateCategory, useUpdateCategory, useDeleteCategory,
   useFinancialClients, useCreateClient, useDeleteClient,

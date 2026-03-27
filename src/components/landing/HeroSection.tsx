@@ -8,16 +8,21 @@ export function HeroSection() {
   return (
     <section
       className="relative min-h-[600px] md:min-h-[700px] flex items-center px-4 overflow-hidden"
-      style={{
-        backgroundImage: `url(${heroMockup})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center right',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#0a0a0a',
-      }}
+      style={{ backgroundColor: '#0a0a0a' }}
     >
+      {/* Background image - full visible */}
+      <div className="absolute inset-0">
+        <img
+          src={heroMockup}
+          alt="Central Opus Flow - Dashboard e Mobile"
+          className="w-full h-full object-contain md:object-cover object-center md:object-right"
+        />
+      </div>
+
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent" />
+      {/* Extra overlay for mobile */}
+      <div className="absolute inset-0 bg-[#0a0a0a]/60 md:bg-transparent" />
 
       <div className="container mx-auto max-w-7xl relative z-10 py-24 md:py-32">
         <motion.div

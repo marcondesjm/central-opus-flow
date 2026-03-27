@@ -65,7 +65,7 @@ export function ProblemSection() {
             Gerenciar tudo manualmente gera retrabalho e faz você perder oportunidades.
           </p>
           <p className="text-white font-bold text-base md:text-lg mt-2">
-            O DGFlow centraliza tudo em um único sistema.
+            O Central Flow centraliza tudo em um único sistema.
           </p>
         </motion.div>
       </div>

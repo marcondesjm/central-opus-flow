@@ -68,6 +68,8 @@ export function ServicesManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ServiceForm>(emptyForm);
   const [activeTab, setActiveTab] = useState('servicos');
+  const [showQuoteWizard, setShowQuoteWizard] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
 
   const filtered = (services || []).filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||

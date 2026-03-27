@@ -15,7 +15,8 @@ import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import {
   usePortfolioPage, useCreatePortfolioPage, useUpdatePortfolioPage,
-  usePortfolioSections, usePortfolioLeads,
+  usePortfolioSections, usePortfolioLeads, useUpsertSection,
+  DEFAULT_SECTION_CONTENT,
 } from '@/hooks/usePortfolio';
 import {
   useBioLink, useCreateBioLink, useUpdateBioLink, useUploadBioAvatar,
@@ -1075,9 +1076,26 @@ function PortfolioItemsTab() {
   const navigate = useNavigate();
   const { data: page } = usePortfolioPage();
   const { data: sections = [], isLoading } = usePortfolioSections(page?.id);
+  const upsertSection = useUpsertSection();
+  const { toast } = useToast();
 
   const portfolioSections = sections.filter(s => s.type === 'portfolio');
   const portfolioItems = portfolioSections.flatMap(s => (s.content as any)?.items || []);
+  const hasEmptyImages = portfolioItems.some((item: any) => !item.image_url);
+
+  const loadExampleImages = () => {
+    const exampleItems = DEFAULT_SECTION_CONTENT.portfolio.items;
+    portfolioSections.forEach(s => {
+      const currentItems = ((s.content as any)?.items || []).map((item: any, i: number) => {
+        if (!item.image_url && exampleItems[i]) {
+          return { ...item, image_url: exampleItems[i].image_url };
+        }
+        return item;
+      });
+      upsertSection.mutate({ id: s.id, page_id: s.page_id, content: { ...s.content as any, items: currentItems } });
+    });
+    toast({ title: 'Imagens de exemplo carregadas!' });
+  };
 
   return (
     <div className="space-y-6">
@@ -1086,9 +1104,16 @@ function PortfolioItemsTab() {
           <h2 className="text-lg font-bold">Meu Portfólio</h2>
           <p className="text-xs text-muted-foreground">Projetos exibidos na sua página pública</p>
         </div>
-        <Button size="sm" onClick={() => navigate('/portfolio-editor')}>
-          <Pencil className="w-3.5 h-3.5 mr-1" /> Editar no Editor Visual
-        </Button>
+        <div className="flex items-center gap-2">
+          {hasEmptyImages && (
+            <Button size="sm" variant="outline" onClick={loadExampleImages} disabled={upsertSection.isPending}>
+              <ImageIcon className="w-3.5 h-3.5 mr-1" /> Carregar Exemplos
+            </Button>
+          )}
+          <Button size="sm" onClick={() => navigate('/portfolio-editor')}>
+            <Pencil className="w-3.5 h-3.5 mr-1" /> Editar no Editor Visual
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (

@@ -57,6 +57,7 @@ const emptyForm: ServiceForm = {
 };
 
 export function ServicesManager() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: services, isLoading } = useFinancialServices();
   const { data: categories } = useFinancialCategories();
   const createService = useCreateServiceFull();
@@ -73,6 +74,17 @@ export function ServicesManager() {
   const [activeTab, setActiveTab] = useState('servicos');
   const [showQuoteWizard, setShowQuoteWizard] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+
+  // Auto-open quote wizard from URL param
+  useEffect(() => {
+    if (searchParams.get('action') === 'quote') {
+      setShowQuoteWizard(true);
+      // Clean up the param
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('action');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams]);
 
   const filtered = (services || []).filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||

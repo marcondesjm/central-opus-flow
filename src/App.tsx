@@ -298,6 +298,14 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/agenda"
+              element={
+                <ProtectedRoute>
+                  <Agenda />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/agendar/:slug" element={<BookingPublic />} />
             <Route
               path="/briefings"

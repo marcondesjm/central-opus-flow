@@ -5,6 +5,8 @@ import { useSystemVersion } from '@/hooks/useSystemVersion';
 import { useLatestVersion } from '@/hooks/useChangelog';
 import { SidebarCustomizeModal, getSidebarVisibility, type SidebarVisibility } from '@/components/layout/SidebarCustomizeModal';
 import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
+import { NewSaleModal } from '@/components/billing/NewSaleModal';
+import { SettingsModal } from '@/components/settings/SettingsModal';
 import { 
   LayoutDashboard, 
   FolderKanban, 

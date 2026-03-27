@@ -1523,14 +1523,14 @@ function PixelsTrackingSection() {
           }
         }
       });
-  }, [user]);
+  }, [userId]);
 
   const saveIntegration = async (name: string, connected: boolean, config: Record<string, unknown>) => {
-    if (!user) return;
+    if (!userId) return;
     const { data: existing } = await supabase
       .from('user_integrations')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('integration_name', name)
       .maybeSingle();
 
@@ -1538,12 +1538,12 @@ function PixelsTrackingSection() {
       await supabase
         .from('user_integrations')
         .update({ is_connected: connected, config: config as any, connected_at: connected ? new Date().toISOString() : null, updated_at: new Date().toISOString() })
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('integration_name', name);
     } else {
       await supabase
         .from('user_integrations')
-        .insert({ user_id: user.id, integration_name: name, is_connected: connected, config: config as any, connected_at: connected ? new Date().toISOString() : null });
+        .insert({ user_id: userId, integration_name: name, is_connected: connected, config: config as any, connected_at: connected ? new Date().toISOString() : null });
     }
   };
 

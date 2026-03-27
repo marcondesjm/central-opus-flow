@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -216,23 +217,24 @@ function BioLinkEditor() {
     return { background: `linear-gradient(180deg, ${localBio.bg_color_1}, ${localBio.bg_color_2})` };
   };
 
-  const getButtonStyleCSS = (linkColor?: string): React.CSSProperties => {
+  const getButtonStyleCSS = (linkColor?: string, borderColor?: string): React.CSSProperties => {
     const c = linkColor || localBio.button_color || '#3b82f6';
     const tc = localBio.button_text_color || '#ffffff';
     const r = `${localBio.button_radius ?? 9999}px`;
     const base: React.CSSProperties = { borderRadius: r, color: tc };
+    const bc = borderColor && borderColor !== 'default' ? borderColor : undefined;
 
     switch (localBio.button_style) {
-      case 'solid': return { ...base, background: c };
-      case 'outline': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c };
-      case 'outline_animated': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c, boxShadow: `0 0 8px ${c}44` };
-      case 'glow': return { ...base, background: c, boxShadow: `0 0 20px ${c}66, 0 0 40px ${c}33` };
-      case 'gradient': return { ...base, background: `linear-gradient(135deg, ${c}, ${c}88)` };
-      case 'transparent': return { ...base, background: `${c}22`, color: c, border: `1px solid ${c}33` };
-      case 'glass': return { ...base, background: `${c}22`, backdropFilter: 'blur(10px)', border: `1px solid ${c}33` };
-      case 'bevel': return { ...base, background: c, boxShadow: `inset 0 2px 0 ${c}44, inset 0 -2px 0 rgba(0,0,0,0.3)` };
-      case 'shadow': return { ...base, background: c, boxShadow: `0 4px 14px ${c}44` };
-      default: return { ...base, background: c };
+      case 'solid': return { ...base, background: c, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'outline': return { ...base, background: 'transparent', border: `2px solid ${bc || c}`, color: bc || c };
+      case 'outline_animated': return { ...base, background: 'transparent', border: `2px solid ${bc || c}`, color: bc || c, boxShadow: `0 0 8px ${(bc || c)}44` };
+      case 'glow': return { ...base, background: c, boxShadow: `0 0 20px ${c}66, 0 0 40px ${c}33`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'gradient': return { ...base, background: `linear-gradient(135deg, ${c}, ${c}88)`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'transparent': return { ...base, background: `${c}22`, color: c, border: `1px solid ${bc || c}33` };
+      case 'glass': return { ...base, background: `${c}22`, backdropFilter: 'blur(10px)', border: `1px solid ${bc || c}33` };
+      case 'bevel': return { ...base, background: c, boxShadow: `inset 0 2px 0 ${c}44, inset 0 -2px 0 rgba(0,0,0,0.3)`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'shadow': return { ...base, background: c, boxShadow: `0 4px 14px ${c}44`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      default: return { ...base, background: c, ...(bc ? { border: `2px solid ${bc}` } : {}) };
     }
   };
 
@@ -516,7 +518,28 @@ function BioLinkEditor() {
                           </button>
                         </div>
 
-                        <Input value={link.url} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="https://exemplo.com" className="h-7 text-xs" />
+                        {link.type === 'button' && <Input value={link.url} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="https://exemplo.com" className="h-7 text-xs" />}
+
+                        {link.type === 'image' && (
+                          <div className="space-y-2">
+                            <Input value={link.url || ''} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="URL do link ao clicar (opcional)" className="h-7 text-xs" />
+                            <Input value={link.image_url || ''} onChange={e => updateLinkInBlock(bi, li, { image_url: e.target.value } as any)} placeholder="URL da imagem" className="h-7 text-xs" />
+                            <label className="flex items-center gap-2 px-3 py-2 bg-accent rounded-md cursor-pointer text-xs hover:bg-accent/80 w-fit">
+                              <Upload className="w-3 h-3" /> Upload Imagem
+                              <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const ext = file.name.split('.').pop();
+                                const path = `bio-banners/${crypto.randomUUID()}.${ext}`;
+                                const { error } = await supabase.storage.from('portfolio').upload(path, file);
+                                if (!error) {
+                                  const { data: urlData } = supabase.storage.from('portfolio').getPublicUrl(path);
+                                  updateLinkInBlock(bi, li, { image_url: urlData.publicUrl, url: link.url || urlData.publicUrl } as any);
+                                }
+                              }} />
+                            </label>
+                          </div>
+                        )}
 
                         {link.type === 'button' && (
                           <>
@@ -564,16 +587,18 @@ function BioLinkEditor() {
                             </div>
 
                             <div>
-                              <Label className="text-[10px]">Borda do Botão</Label>
-                              <Select value={link.border || 'default'} onValueChange={v => updateLinkInBlock(bi, li, { border: v })}>
-                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="default">Padrão</SelectItem>
-                                  <SelectItem value="thin">Fina</SelectItem>
-                                  <SelectItem value="thick">Grossa</SelectItem>
-                                  <SelectItem value="none">Sem borda</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <Label className="text-[10px]">Cor da Borda (opcional)</Label>
+                              <div className="flex items-center gap-2">
+                                <input type="color" value={link.border && link.border !== 'default' ? link.border : (link.color || localBio.button_color || '#000000')}
+                                  onChange={e => updateLinkInBlock(bi, li, { border: e.target.value })}
+                                  className="w-8 h-7 rounded cursor-pointer border-0" />
+                                <Input value={link.border && link.border !== 'default' ? link.border : ''} 
+                                  onChange={e => updateLinkInBlock(bi, li, { border: e.target.value || 'default' })}
+                                  placeholder="Sem borda personalizada" className="h-7 text-xs flex-1" />
+                                {link.border && link.border !== 'default' && (
+                                  <button onClick={() => updateLinkInBlock(bi, li, { border: 'default' })} className="text-xs text-muted-foreground hover:text-destructive">✕</button>
+                                )}
+                              </div>
                             </div>
                           </>
                         )}
@@ -636,12 +661,13 @@ function BioLinkEditor() {
                         {visibleLinks.map((link, li) => {
                           const Icon = ICON_MAP[link.icon || 'ExternalLink'] || ExternalLink;
                           const iconSizeClass = link.icon_size === 'sm' ? 'w-3 h-3' : link.icon_size === 'lg' ? 'w-6 h-6' : 'w-4 h-4';
-                          const style = getButtonStyleCSS(link.color || undefined);
+                          const style = getButtonStyleCSS(link.color || undefined, link.border);
 
                           if (link.type === 'image') {
+                            const imgSrc = (link as any).image_url || link.url;
                             return (
                               <div key={li} className="w-full rounded-lg overflow-hidden">
-                                {link.url ? <img src={link.url} alt={link.label} className="w-full h-auto" /> : <div className="w-full h-20 bg-white/10 flex items-center justify-center text-xs text-white/40">Imagem</div>}
+                                {imgSrc ? <img src={imgSrc} alt={link.label} className="w-full h-auto" /> : <div className="w-full h-20 bg-white/10 flex items-center justify-center text-xs text-white/40">Imagem</div>}
                               </div>
                             );
                           }
@@ -663,8 +689,18 @@ function BioLinkEditor() {
                   );
                 })}
 
+                {/* Solicitar Orçamento button */}
+                <div className="w-full">
+                  <div
+                    className="w-full font-medium text-sm flex items-center justify-center gap-2 py-3 px-4 cursor-pointer hover:opacity-90 transition-opacity"
+                    style={getButtonStyleCSS()}
+                  >
+                    Solicitar Orçamento
+                  </div>
+                </div>
+
                 <div className="mt-6 text-center">
-                  <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com <span className="font-bold">UCFlow</span></p>
+                  <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com <span className="font-bold">Central Flow</span></p>
                   <p className="text-[10px] opacity-30 underline" style={{ color: localBio.text_color }}>Crie sua conta</p>
                 </div>
               </div>

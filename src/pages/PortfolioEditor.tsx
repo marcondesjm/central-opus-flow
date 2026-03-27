@@ -1288,7 +1288,7 @@ export default function PortfolioEditor() {
                   onEdit={() => setSelectedId(section.id)}
                   onDelete={() => handleDelete(section.id)}
                 />
-                <CanvasBlock section={section} page={page} />
+                <CanvasBlock section={section} page={page} onOpenLeadModal={() => setLeadModalOpen(true)} />
               </div>
             ))}
 

@@ -29,6 +29,9 @@ import {
 interface PaymentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  planName?: string;
+  planPrice?: number;
+  planBilling?: 'monthly' | 'annual';
 }
 
 const WHATSAPP_NUMBER = '5548996029392';
@@ -80,7 +83,7 @@ async function loadPixDataWithRetry(amount: number, pixKeyOverride?: string, pix
   throw lastError instanceof Error ? lastError : new Error('Falha ao carregar PIX.');
 }
 
-export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
+export function PaymentModal({ open, onOpenChange, planName, planPrice, planBilling }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
   const [copiedBrCode, setCopiedBrCode] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState('');
@@ -90,7 +93,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [pixLoading, setPixLoading] = useState(false);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>(planBilling || 'monthly');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
@@ -99,11 +102,13 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const { data: pricingSettings } = usePricingSettings();
   const { data: pixSettings } = usePixSettings();
 
+  // If a fixed planPrice is provided, use it; otherwise use billing cycle toggle
   const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
   const annualPrice = pricingSettings?.annual_price ?? 73.9;
-  const selectedPrice = billingCycle === 'monthly' ? monthlyPrice : annualPrice;
+  const selectedPrice = planPrice ?? (billingCycle === 'monthly' ? monthlyPrice : annualPrice);
   const selectedPriceLabel = selectedPrice.toFixed(2).replace('.', ',');
-  const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
+  const selectedPeriodLabel = planPrice ? (planBilling === 'annual' ? '/ano' : '/mês') : (billingCycle === 'monthly' ? '/mês' : '/ano');
+  const displayPlanName = planName || 'PRO';
 
   // Fetch PIX data from backend when modal opens or billing cycle changes
   useEffect(() => {
@@ -301,7 +306,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
         <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
-            Assinatura PRO
+            Assinatura {displayPlanName}
           </DialogTitle>
           <DialogDescription>
             Acesso completo a todas as funcionalidades
@@ -310,46 +315,57 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-6">
-            {/* Billing Cycle Toggle */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setBillingCycle('monthly')}
-                className={cn(
-                  'relative rounded-xl border-2 p-4 text-center transition-all',
-                  billingCycle === 'monthly'
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-border/80'
-                )}
-              >
-                <p className="text-xs text-muted-foreground mb-1">Mensal</p>
+            {/* Billing Cycle Toggle - only show when no fixed price */}
+            {planPrice ? (
+              <div className="text-center rounded-xl border-2 border-primary bg-primary/5 p-4">
+                <p className="text-xs text-muted-foreground mb-1">{displayPlanName}</p>
                 <div className="flex items-baseline justify-center gap-0.5">
                   <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">{monthlyPrice.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-2xl font-bold text-foreground">{selectedPriceLabel}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setBillingCycle('annual')}
-                className={cn(
-                  'relative rounded-xl border-2 p-4 text-center transition-all',
-                  billingCycle === 'annual'
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-border hover:border-border/80'
-                )}
-              >
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                  {Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100)}% off
-                </span>
-                <p className="text-xs text-muted-foreground mb-1">Anual</p>
-                <div className="flex items-baseline justify-center gap-0.5">
-                  <span className="text-xs text-muted-foreground">R$</span>
-                  <span className="text-2xl font-bold text-foreground">{annualPrice.toFixed(2).replace('.', ',')}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R${(monthlyPrice * 12).toFixed(2).replace('.', ',')}</span></p>
-              </button>
-            </div>
+                <p className="text-xs text-muted-foreground mt-0.5">{selectedPeriodLabel}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle('monthly')}
+                  className={cn(
+                    'relative rounded-xl border-2 p-4 text-center transition-all',
+                    billingCycle === 'monthly'
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'border-border hover:border-border/80'
+                  )}
+                >
+                  <p className="text-xs text-muted-foreground mb-1">Mensal</p>
+                  <div className="flex items-baseline justify-center gap-0.5">
+                    <span className="text-xs text-muted-foreground">R$</span>
+                    <span className="text-2xl font-bold text-foreground">{monthlyPrice.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">/mês</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle('annual')}
+                  className={cn(
+                    'relative rounded-xl border-2 p-4 text-center transition-all',
+                    billingCycle === 'annual'
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'border-border hover:border-border/80'
+                  )}
+                >
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                    {Math.round((1 - annualPrice / (monthlyPrice * 12)) * 100)}% off
+                  </span>
+                  <p className="text-xs text-muted-foreground mb-1">Anual</p>
+                  <div className="flex items-baseline justify-center gap-0.5">
+                    <span className="text-xs text-muted-foreground">R$</span>
+                    <span className="text-2xl font-bold text-foreground">{annualPrice.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">/ano <span className="line-through opacity-60">R${(monthlyPrice * 12).toFixed(2).replace('.', ',')}</span></p>
+                </button>
+              </div>
+            )}
 
             {/* Features */}
             <div className="flex flex-wrap justify-center gap-2">

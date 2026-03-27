@@ -20,7 +20,9 @@ import { PaymentModal } from '@/components/subscription/PaymentModal';
 import { useRedeemCoupon } from '@/hooks/useCoupons';
 
 export default function Pricing() {
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlanPrice, setSelectedPlanPrice] = useState<number | undefined>();
+  const [selectedPlanBilling, setSelectedPlanBilling] = useState<'monthly' | 'annual'>('monthly');
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [tab, setTab] = useState<'individual' | 'equipe'>('individual');
@@ -33,12 +35,14 @@ export default function Pricing() {
   const monthlyTotal = monthly * 12;
   const discount = Math.round((1 - annual / monthly) * 100);
 
-  const handleSelectPlan = (planId: 'free' | 'pro') => {
-    if (planId === 'free') {
+  const handleSelectPlan = (planName: string, price?: number, billing?: 'monthly' | 'annual') => {
+    if (planName === 'free') {
       window.location.href = '/auth';
       return;
     }
-    setSelectedPlan(planId);
+    setSelectedPlan(planName);
+    setSelectedPlanPrice(price);
+    setSelectedPlanBilling(billing || 'monthly');
     setPaymentOpen(true);
   };
 
@@ -157,7 +161,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" variant="outline" className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5" onClick={() => handleSelectPlan('pro')}>
+                <Button size="lg" variant="outline" className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5" onClick={() => handleSelectPlan('Starter Mensal', monthly, 'monthly')}>
                   Assinar Mensal
                 </Button>
               </div>
@@ -199,7 +203,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('pro')}>
+                <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('Starter Anual', annualTotal, 'annual')}>
                   Assinar Anual — Economize {discount}%
                 </Button>
               </div>
@@ -371,7 +375,10 @@ export default function Pricing() {
                       <Button
                         size="lg"
                         className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl"
-                        onClick={() => handleSelectPlan('pro')}
+                        onClick={() => {
+                          const totalPrice = isAnnual ? plan.annualTotal : plan.monthlyPrice;
+                          handleSelectPlan(`${displayName}`, totalPrice, isAnnual ? 'annual' : 'monthly');
+                        }}
                       >
                         Assinar Agora
                       </Button>
@@ -443,7 +450,7 @@ export default function Pricing() {
         </motion.div>
       </main>
 
-      <PaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} />
+      <PaymentModal open={paymentOpen} onOpenChange={setPaymentOpen} planName={selectedPlan || undefined} planPrice={selectedPlanPrice} planBilling={selectedPlanBilling} />
     </div>
   );
 }

@@ -203,8 +203,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   const planLabel = subscription?.plan === 'pro' ? 'Pro' : subscription?.plan === 'business' ? 'Business' : 'Trial Gratuito';
   const isActive = trialInfo ? !trialInfo.isExpired : true;
-  const daysLeft = trialInfo?.daysLeft ?? 0;
-  const expiresAt = subscription?.expires_at ? new Date(subscription.expires_at) : null;
+  const daysLeft = trialInfo?.daysRemaining ?? 0;
+  const expiresAt = trialInfo?.trialEndsAt ? new Date(trialInfo.trialEndsAt) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -9,6 +9,7 @@ import { SolutionSection } from '@/components/landing/SolutionSection';
 import { BenefitsSection } from '@/components/landing/BenefitsSection';
 import { DifferentiationSection } from '@/components/landing/DifferentiationSection';
 import { FeaturesSlideshow } from '@/components/landing/FeaturesSlideshow';
+import { IntegrationsSection } from '@/components/landing/IntegrationsSection';
 import { PricingSection } from '@/components/landing/PricingSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';

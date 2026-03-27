@@ -417,16 +417,20 @@ export type Database = {
           bg_color_2: string | null
           bg_style: string
           bio: string | null
+          blocks: Json
           button_color: string | null
+          button_radius: number
           button_style: string
           button_text_color: string | null
           created_at: string
+          font: string
           id: string
           is_published: boolean
           links: Json
           name: string
           slug: string
           text_color: string | null
+          theme_color: string
           updated_at: string
           user_id: string
         }
@@ -436,16 +440,20 @@ export type Database = {
           bg_color_2?: string | null
           bg_style?: string
           bio?: string | null
+          blocks?: Json
           button_color?: string | null
+          button_radius?: number
           button_style?: string
           button_text_color?: string | null
           created_at?: string
+          font?: string
           id?: string
           is_published?: boolean
           links?: Json
           name?: string
           slug: string
           text_color?: string | null
+          theme_color?: string
           updated_at?: string
           user_id: string
         }
@@ -455,16 +463,20 @@ export type Database = {
           bg_color_2?: string | null
           bg_style?: string
           bio?: string | null
+          blocks?: Json
           button_color?: string | null
+          button_radius?: number
           button_style?: string
           button_text_color?: string | null
           created_at?: string
+          font?: string
           id?: string
           is_published?: boolean
           links?: Json
           name?: string
           slug?: string
           text_color?: string | null
+          theme_color?: string
           updated_at?: string
           user_id?: string
         }

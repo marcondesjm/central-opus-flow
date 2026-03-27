@@ -1117,7 +1117,9 @@ export default function PortfolioEditor() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [leadModalOpen, setLeadModalOpen] = useState(false);
+  const [contactPreviewOpen, setContactPreviewOpen] = useState(false);
   const [localSections, setLocalSections] = useState<PortfolioSection[]>([]);
+  const [services, setServices] = useState<{ id: string; name: string; description: string | null; default_price: number }[]>([]);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pendingSaveRef = useRef<Set<string>>(new Set());
 

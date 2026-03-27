@@ -284,6 +284,47 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_slots: {
+        Row: {
+          booking_page_id: string
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          booking_page_id: string
+          created_at?: string
+          day_of_week: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          start_time?: string
+          user_id: string
+        }
+        Update: {
+          booking_page_id?: string
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_slots_booking_page_id_fkey"
+            columns: ["booking_page_id"]
+            isOneToOne: false
+            referencedRelation: "booking_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing: {
         Row: {
           amount: number
@@ -478,6 +519,120 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_pages: {
+        Row: {
+          auto_create_lead: boolean
+          confirmation_message: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          max_future_days: number
+          min_advance_hours: number
+          pipeline_id: string | null
+          redirect_to_booking: boolean
+          slug: string
+          updated_at: string
+          user_id: string
+          welcome_message: string | null
+        }
+        Insert: {
+          auto_create_lead?: boolean
+          confirmation_message?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_future_days?: number
+          min_advance_hours?: number
+          pipeline_id?: string | null
+          redirect_to_booking?: boolean
+          slug: string
+          updated_at?: string
+          user_id: string
+          welcome_message?: string | null
+        }
+        Update: {
+          auto_create_lead?: boolean
+          confirmation_message?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_future_days?: number
+          min_advance_hours?: number
+          pipeline_id?: string | null
+          redirect_to_booking?: boolean
+          slug?: string
+          updated_at?: string
+          user_id?: string
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          booking_date: string
+          booking_page_id: string
+          created_at: string
+          end_time: string
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          meeting_type_id: string
+          notes: string | null
+          owner_user_id: string
+          start_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_date: string
+          booking_page_id: string
+          created_at?: string
+          end_time: string
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          meeting_type_id: string
+          notes?: string | null
+          owner_user_id: string
+          start_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_date?: string
+          booking_page_id?: string
+          created_at?: string
+          end_time?: string
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          meeting_type_id?: string
+          notes?: string | null
+          owner_user_id?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_booking_page_id_fkey"
+            columns: ["booking_page_id"]
+            isOneToOne: false
+            referencedRelation: "booking_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_meeting_type_id_fkey"
+            columns: ["meeting_type_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_types"
             referencedColumns: ["id"]
           },
         ]
@@ -1316,6 +1471,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      meeting_types: {
+        Row: {
+          booking_page_id: string
+          color: string
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          location: string | null
+          name: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_page_id: string
+          color?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_page_id?: string
+          color?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_types_booking_page_id_fkey"
+            columns: ["booking_page_id"]
+            isOneToOne: false
+            referencedRelation: "booking_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_receipts: {
         Row: {

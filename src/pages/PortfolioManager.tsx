@@ -1487,7 +1487,7 @@ export default function PortfolioManager() {
 
 // ===================== PIXELS E RASTREAMENTO SECTION =====================
 function PixelsTrackingSection() {
-  const { user } = useAuth();
+  const [userId, setUserId] = useState<string | null>(null);
   const [metaPixelId, setMetaPixelId] = useState('');
   const [metaAccessToken, setMetaAccessToken] = useState('');
   const [metaActive, setMetaActive] = useState(false);
@@ -1498,7 +1498,11 @@ function PixelsTrackingSection() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!user) return;
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
     supabase
       .from('user_integrations')
       .select('integration_name, config, is_connected')

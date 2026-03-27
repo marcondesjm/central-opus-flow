@@ -1157,6 +1157,18 @@ function PortfolioItemsTab() {
 }
 
 
+function DebouncedInput({ value: externalValue, onSave, ...props }: { value: string; onSave: (v: string) => void } & Omit<React.ComponentProps<typeof Input>, 'value' | 'onChange'>) {
+  const [local, setLocal] = useState(externalValue);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => { setLocal(externalValue); }, [externalValue]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocal(e.target.value);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onSave(e.target.value), 800);
+  };
+  return <Input value={local} onChange={handleChange} {...props} />;
+}
+
 function ConfiguracoesTab() {
   const { data: page } = usePortfolioPage();
   const updatePage = useUpdatePortfolioPage();
@@ -1229,9 +1241,9 @@ function ConfiguracoesTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground whitespace-nowrap">.app/p/</span>
-                  <Input
+                  <DebouncedInput
                     value={page.slug}
-                    onChange={e => updatePage.mutate({ id: page.id, slug: e.target.value })}
+                    onSave={v => updatePage.mutate({ id: page.id, slug: v })}
                     className="h-7 text-xs flex-1"
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
@@ -1256,9 +1268,9 @@ function ConfiguracoesTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground whitespace-nowrap">.app/bio/</span>
-                  <Input
+                  <DebouncedInput
                     value={bio.slug}
-                    onChange={e => updateBio.mutate({ id: bio.id, slug: e.target.value })}
+                    onSave={v => updateBio.mutate({ id: bio.id, slug: v })}
                     className="h-7 text-xs flex-1"
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
@@ -1277,7 +1289,7 @@ function ConfiguracoesTab() {
             {/* Page publish toggles */}
             {page && (
               <div className="flex items-center gap-3 pt-2">
-                <Switch checked={page.is_published} onCheckedChange={v => updatePage.mutate({ id: page.id, is_published: v })} />
+                <Switch checked={page.is_published} onCheckedChange={v => { updatePage.mutate({ id: page.id, is_published: v }); toast({ title: v ? 'Página publicada!' : 'Página despublicada' }); }} />
                 <span className="text-xs">Página Pública publicada</span>
               </div>
             )}
@@ -1298,11 +1310,11 @@ function ConfiguracoesTab() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Título SEO</Label>
-                    <Input value={page.meta_title || ''} onChange={e => updatePage.mutate({ id: page.id, meta_title: e.target.value })} className="h-7 text-xs" />
+                    <DebouncedInput value={page.meta_title || ''} onSave={v => updatePage.mutate({ id: page.id, meta_title: v })} className="h-7 text-xs" />
                   </div>
                   <div>
                     <Label className="text-xs">Descrição SEO</Label>
-                    <Input value={page.meta_description || ''} onChange={e => updatePage.mutate({ id: page.id, meta_description: e.target.value })} className="h-7 text-xs" />
+                    <DebouncedInput value={page.meta_description || ''} onSave={v => updatePage.mutate({ id: page.id, meta_description: v })} className="h-7 text-xs" />
                   </div>
                 </div>
               </div>
@@ -1346,18 +1358,33 @@ function ConfiguracoesTab() {
       )}
 
       {/* Marca / Branding Section */}
-      {activeSection === 'branding' && (
+      {activeSection === 'branding' && page && (
         <div className="bg-card border border-border rounded-xl p-5 space-y-4 animate-in fade-in-0 slide-in-from-top-2">
           <h3 className="text-sm font-bold flex items-center gap-2"><Palette className="w-4 h-4 text-purple-500" /> Marca / Branding</h3>
           <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-4">
             <p className="text-xs text-muted-foreground">Personalize a marca nas suas páginas públicas. Remova badges e adicione sua identidade visual.</p>
             <div className="flex items-center gap-3">
-              <Switch id="hide-badge" />
+              <Switch
+                id="hide-badge"
+                checked={(page as any).hide_badge ?? false}
+                onCheckedChange={v => {
+                  updatePage.mutate({ id: page.id, hide_badge: v } as any);
+                  toast({ title: v ? 'Badge ocultado!' : 'Badge visível' });
+                }}
+              />
               <Label htmlFor="hide-badge" className="text-xs">Ocultar badge "Criado com" nas páginas públicas</Label>
             </div>
             <div>
               <Label className="text-xs">Nome da Marca</Label>
-              <Input placeholder="Sua marca ou empresa" className="h-8 text-sm mt-1" />
+              <DebouncedInput
+                value={(page as any).brand_name || ''}
+                onSave={v => {
+                  updatePage.mutate({ id: page.id, brand_name: v } as any);
+                  toast({ title: 'Marca salva!' });
+                }}
+                placeholder="Sua marca ou empresa"
+                className="h-8 text-sm mt-1"
+              />
             </div>
           </div>
         </div>

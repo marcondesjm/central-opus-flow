@@ -74,22 +74,22 @@ export function LandingHeader() {
         <div className="flex items-center gap-1.5">
           <LanguageSwitcher />
           <ThemeToggle />
-          <div className="hidden sm:flex items-center gap-1.5 ml-2">
-            <Link to="/auth">
+          <div className="hidden sm:flex items-center gap-2 ml-2">
+            <Link to="/pricing">
               <Button
                 size="sm"
-                variant="ghost"
-                className="text-[13px] text-muted-foreground hover:text-foreground h-8 px-3"
+                variant="outline"
+                className="text-[13px] h-9 px-5 rounded-full font-medium border-gray-600 text-gray-300 hover:text-white hover:border-gray-400 bg-transparent"
               >
-                Entrar
+                Ver Planos
               </Button>
             </Link>
             <Link to="/auth">
               <Button
                 size="sm"
-                className="text-[13px] h-8 px-4 rounded-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all"
+                className="text-[13px] h-9 px-5 rounded-full font-medium bg-gradient-to-r from-[#f43f5e] to-[#f97316] text-white hover:opacity-90 transition-all"
               >
-                Começar grátis
+                Acessar
                 <ArrowRight className="w-3 h-3 ml-1.5" />
               </Button>
             </Link>

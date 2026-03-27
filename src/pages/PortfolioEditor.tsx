@@ -924,6 +924,9 @@ export default function PortfolioEditor() {
           selectedId={selectedId}
           onSelect={setSelectedId}
           onAdd={handleAdd}
+          page={page}
+          onUpdatePage={handleUpdatePage}
+          onOpenLeadModal={() => setLeadModalOpen(true)}
         />
 
         {/* Canvas */}

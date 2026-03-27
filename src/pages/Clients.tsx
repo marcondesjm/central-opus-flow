@@ -23,6 +23,7 @@ import {
   FullClient, TECH_SECTIONS, AVATAR_COLORS,
 } from '@/hooks/useClients';
 import { useToast } from '@/hooks/use-toast';
+import { useUserIntegrations } from '@/hooks/useUserIntegrations';
 
 // ─── Cadastrar Cliente Modal ──────────────────────────
 function CadastrarClienteModal({ open, onOpenChange, editClient }: { open: boolean; onOpenChange: (v: boolean) => void; editClient?: FullClient | null }) {

@@ -61,6 +61,7 @@ export function ServicesManager() {
   const createService = useCreateServiceFull();
   const updateService = useUpdateServiceFull();
   const deleteService = useDeleteServiceFull();
+  const { toast } = useToast();
 
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

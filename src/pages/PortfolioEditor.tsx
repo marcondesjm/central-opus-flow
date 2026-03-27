@@ -1264,6 +1264,7 @@ export default function PortfolioEditor() {
           page={page}
           onUpdatePage={handleUpdatePage}
           onOpenLeadModal={() => setLeadModalOpen(true)}
+          onClearAllAndAdd={handleClearAllAndAdd}
         />
 
         {/* Canvas */}

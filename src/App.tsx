@@ -43,6 +43,8 @@ const ClientRegisterPublic = lazy(() => import("./pages/ClientRegisterPublic"));
 const QuotePublic = lazy(() => import("./pages/QuotePublic"));
 const PortfolioEditor = lazy(() => import("./pages/PortfolioEditor"));
 const PortfolioPublic = lazy(() => import("./pages/PortfolioPublic"));
+const PortfolioManager = lazy(() => import("./pages/PortfolioManager"));
+const BioPublic = lazy(() => import("./pages/BioPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {

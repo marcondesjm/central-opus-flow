@@ -121,7 +121,7 @@ const LAYOUT_MODELS = [
 
 // ============== SIDEBAR ==============
 function EditorSidebar({
-  sections, selectedId, onSelect, onAdd, page, onUpdatePage, onOpenLeadModal,
+  sections, selectedId, onSelect, onAdd, page, onUpdatePage, onOpenLeadModal, onClearAllAndAdd,
 }: {
   sections: PortfolioSection[];
   selectedId: string | null;
@@ -130,6 +130,7 @@ function EditorSidebar({
   page: PortfolioPage;
   onUpdatePage: (p: Partial<PortfolioPage>) => void;
   onOpenLeadModal: () => void;
+  onClearAllAndAdd: (steps: { type: string; content?: Record<string, any> }[]) => void;
 }) {
   const [addOpen, setAddOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'elementos' | 'config'>('elementos');

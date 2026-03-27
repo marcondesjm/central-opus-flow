@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Plus, Search, Pencil, Trash2, Loader2, LayoutGrid, List,
   ShoppingCart, FileText, Eye, EyeOff, Repeat, X, Share2, Copy, ExternalLink,

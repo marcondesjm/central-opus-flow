@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { useFinancialClients, useCreateClient, useFinancialServices, formatBRL } from '@/hooks/useFinancial';
 import { useCreateQuote, QuoteItem } from '@/hooks/useFinancialQuotes';
 import { useToast } from '@/hooks/use-toast';
+import { usePortfolioPage } from '@/hooks/usePortfolio';
 
 const STEPS = [
   { label: 'Informações Básicas', desc: 'Escolha o cliente e defina o título do orçamento' },
@@ -51,6 +52,7 @@ interface QuoteWizardProps {
 export function QuoteWizard({ onClose, onCreated }: QuoteWizardProps) {
   const { data: clients } = useFinancialClients();
   const { data: services } = useFinancialServices();
+  const { data: portfolioPage } = usePortfolioPage();
   const createClient = useCreateClient();
   const createQuote = useCreateQuote();
   const { toast } = useToast();
@@ -517,10 +519,15 @@ export function QuoteWizard({ onClose, onCreated }: QuoteWizardProps) {
                 </CardContent>
               </Card>
 
-              {/* Portfolio link */}
-              <Button variant="outline" className="w-full gap-2 text-muted-foreground">
-                <ExternalLink className="w-4 h-4" /> Ver meu portfólio completo
-              </Button>
+              {portfolioPage?.slug && (
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500"
+                  onClick={() => window.open(`${window.location.origin}/p/${portfolioPage.slug}`, '_blank')}
+                >
+                  <ExternalLink className="w-4 h-4" /> Ver meu portfólio completo
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

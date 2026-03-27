@@ -876,6 +876,11 @@ export default function BillingPage() {
             <PixKeysManager />
           </TabsContent>
 
+          {/* ═══ SERVIÇOS ═══ */}
+          <TabsContent value="servicos" className="mt-4">
+            <ServicesManager />
+          </TabsContent>
+
           {/* ═══ RECORRENTES ═══ */}
           <TabsContent value="recorrentes" className="mt-4 space-y-4">
             <div className="grid grid-cols-3 gap-4">

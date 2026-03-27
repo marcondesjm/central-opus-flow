@@ -2599,9 +2599,11 @@ export type Database = {
       portfolio_pages: {
         Row: {
           bg_color: string | null
+          brand_name: string | null
           created_at: string | null
           font_body: string | null
           font_heading: string | null
+          hide_badge: boolean | null
           id: string
           instagram_url: string | null
           is_published: boolean | null
@@ -2622,9 +2624,11 @@ export type Database = {
         }
         Insert: {
           bg_color?: string | null
+          brand_name?: string | null
           created_at?: string | null
           font_body?: string | null
           font_heading?: string | null
+          hide_badge?: boolean | null
           id?: string
           instagram_url?: string | null
           is_published?: boolean | null
@@ -2645,9 +2649,11 @@ export type Database = {
         }
         Update: {
           bg_color?: string | null
+          brand_name?: string | null
           created_at?: string | null
           font_body?: string | null
           font_heading?: string | null
+          hide_badge?: boolean | null
           id?: string
           instagram_url?: string | null
           is_published?: boolean | null

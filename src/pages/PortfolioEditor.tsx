@@ -410,10 +410,7 @@ function EditorSidebar({
               <button
                 key={layout.name}
                 onClick={() => {
-                  // Clear existing sections first, then add new ones
-                  layout.steps.forEach((step, i) => {
-                    setTimeout(() => onAdd(step.type, step.content), i * 150);
-                  });
+                  onClearAllAndAdd(layout.steps);
                   if (layout.colors) {
                     onUpdatePage(layout.colors);
                   }

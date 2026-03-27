@@ -598,8 +598,8 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'portfolio':
       return (
-        <div className="py-8 px-8" style={{ background: page.bg_color }}>
-          <div className="grid grid-cols-3 gap-4">
+        <div className="py-8 px-4 md:px-8" style={{ background: page.bg_color }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {(c.items || []).map((item: any, i: number) => (
               <div key={i} className="relative rounded-lg overflow-hidden aspect-[4/3] group/card">
                 {item.image_url ? (
@@ -609,14 +609,14 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
                     <Image className="w-8 h-8 text-white/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-3 md:p-4">
                   {item.category && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full mb-1 w-fit" style={{ background: primary, color: '#fff' }}>
                       {item.category}
                     </span>
                   )}
-                  <h3 className="text-white font-bold text-sm">{item.title}</h3>
-                  <p className="text-white/60 text-xs">{item.description}</p>
+                  <h3 className="text-white font-bold text-xs md:text-sm">{item.title}</h3>
+                  <p className="text-white/60 text-[10px] md:text-xs hidden md:block">{item.description}</p>
                 </div>
               </div>
             ))}

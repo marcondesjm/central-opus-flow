@@ -953,15 +953,6 @@ export default function PortfolioEditor() {
             ))}
           </div>
 
-          {/* Color editor floating button */}
-          <button
-            onClick={() => setLeadModalOpen(true)}
-            className="fixed bottom-6 right-80 z-20 flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium bg-pink-500 text-white shadow-lg hover:bg-pink-600"
-          >
-            <span className="w-3 h-3 rounded-full bg-pink-300" />
-            <span className="w-3 h-3 rounded-full bg-purple-400" />
-            Editar Cores
-          </button>
         </div>
 
         {/* Properties Panel */}

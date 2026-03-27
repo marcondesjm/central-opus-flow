@@ -1331,6 +1331,14 @@ export default function PortfolioEditor() {
         page={page}
         onUpdate={handleUpdatePage}
       />
+
+      {/* Contact Preview Modal - same as public page */}
+      <ContactPreviewModal
+        open={contactPreviewOpen}
+        onClose={() => setContactPreviewOpen(false)}
+        page={page}
+        services={services}
+      />
     </div>
   );
 }

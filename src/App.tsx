@@ -38,6 +38,8 @@ const BookingPublic = lazy(() => import("./pages/BookingPublic"));
 const Briefings = lazy(() => import("./pages/Briefings"));
 const BriefingPublic = lazy(() => import("./pages/BriefingPublic"));
 const Leads = lazy(() => import("./pages/Leads"));
+const Clients = lazy(() => import("./pages/Clients"));
+const ClientRegisterPublic = lazy(() => import("./pages/ClientRegisterPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -235,6 +237,15 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/clients"
+              element={
+                <ProtectedRoute>
+                  <Clients />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/cadastro-cliente" element={<ClientRegisterPublic />} />
             <Route
               path="/proposals"
               element={

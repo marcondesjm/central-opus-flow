@@ -781,6 +781,44 @@ export type Database = {
         }
         Relationships: []
       }
+      client_technical_data: {
+        Row: {
+          client_id: string
+          created_at: string
+          data: Json
+          id: string
+          section: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          data?: Json
+          id?: string
+          section: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          section?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_technical_data_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_notifications: {
         Row: {
           actor_id: string | null
@@ -1006,35 +1044,71 @@ export type Database = {
       }
       financial_clients: {
         Row: {
+          address: string | null
+          address_complement: string | null
+          address_number: string | null
+          avatar_color: string | null
+          cep: string | null
+          city: string | null
           company: string | null
+          cpf_cnpj: string | null
           created_at: string
           email: string | null
           id: string
           name: string
+          neighborhood: string | null
           notes: string | null
           phone: string | null
+          project_interest: string | null
+          share_token: string | null
+          state: string | null
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          avatar_color?: string | null
+          cep?: string | null
+          city?: string | null
           company?: string | null
+          cpf_cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
           name: string
+          neighborhood?: string | null
           notes?: string | null
           phone?: string | null
+          project_interest?: string | null
+          share_token?: string | null
+          state?: string | null
+          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          avatar_color?: string | null
+          cep?: string | null
+          city?: string | null
           company?: string | null
+          cpf_cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
           name?: string
+          neighborhood?: string | null
           notes?: string | null
           phone?: string | null
+          project_interest?: string | null
+          share_token?: string | null
+          state?: string | null
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }

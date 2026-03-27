@@ -66,7 +66,8 @@ export function useQuoteByToken(token: string | undefined) {
       const { data, error } = await supabase.from('financial_quotes' as any)
         .select('*').eq('share_token', token).single();
       if (error) throw error;
-      return { ...data, items: (data as any).items || [] } as FinancialQuote;
+      const d = data as any;
+      return { ...d, items: d.items || [] } as unknown as FinancialQuote;
     },
     enabled: !!token,
   });

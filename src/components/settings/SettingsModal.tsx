@@ -593,8 +593,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     </>
   );
 }
-                        className={cn(
-                          'relative flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
                           connected ? 'border-green-500/50 bg-green-500/5' : 'border-border bg-card hover:border-primary/30',
                           integration.soon && 'opacity-60 cursor-not-allowed'
                         )}

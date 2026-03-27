@@ -161,7 +161,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" variant="outline" className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5" onClick={() => handleSelectPlan('pro')}>
+                <Button size="lg" variant="outline" className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5" onClick={() => handleSelectPlan('Starter Mensal', monthly, 'monthly')}>
                   Assinar Mensal
                 </Button>
               </div>

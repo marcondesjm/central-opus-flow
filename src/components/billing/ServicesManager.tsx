@@ -419,6 +419,53 @@ export function ServicesManager() {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* ═══ QUOTE WIZARD ═══ */}
+      <Dialog open={showQuoteWizard} onOpenChange={setShowQuoteWizard}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-6">
+          <QuoteWizardLazy
+            onClose={() => setShowQuoteWizard(false)}
+            onCreated={(token) => {
+              setShowQuoteWizard(false);
+              setShareToken(token);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ SHARE DIALOG ═══ */}
+      <Dialog open={!!shareToken} onOpenChange={() => setShareToken(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Share2 className="w-5 h-5" /> Orçamento Criado!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Compartilhe o link abaixo com o cliente para que ele possa visualizar e assinar o orçamento.</p>
+            <div className="flex items-center gap-2">
+              <Input readOnly value={`${window.location.origin}/orcamento/${shareToken}`} className="flex-1 text-xs" />
+              <Button size="icon" variant="outline" onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/orcamento/${shareToken}`);
+                toast({ title: 'Link copiado!' });
+              }}>
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 gap-1.5" onClick={() => {
+                window.open(`${window.location.origin}/orcamento/${shareToken}`, '_blank');
+              }}>
+                <ExternalLink className="w-4 h-4" /> Abrir para o Cliente
+              </Button>
+              <Button className="flex-1 gap-1.5 bg-gradient-to-r from-pink-500 to-pink-600 text-white" onClick={() => setShareToken(null)}>
+                Fechar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+// Lazy import to avoid circular deps
+import { QuoteWizard as QuoteWizardLazy } from '@/components/billing/QuoteWizard';

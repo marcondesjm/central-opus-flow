@@ -43,6 +43,8 @@ const ClientRegisterPublic = lazy(() => import("./pages/ClientRegisterPublic"));
 const QuotePublic = lazy(() => import("./pages/QuotePublic"));
 const PortfolioEditor = lazy(() => import("./pages/PortfolioEditor"));
 const PortfolioPublic = lazy(() => import("./pages/PortfolioPublic"));
+const PortfolioManager = lazy(() => import("./pages/PortfolioManager"));
+const BioPublic = lazy(() => import("./pages/BioPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -341,11 +343,20 @@ function AppContent() {
               }
             />
             <Route path="/portfolio/:slug" element={<PortfolioPublic />} />
+            <Route path="/bio/:slug" element={<BioPublic />} />
             <Route
               path="/portfolio-editor"
               element={
                 <ProtectedRoute>
                   <PortfolioEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/portfolio-manager"
+              element={
+                <ProtectedRoute>
+                  <PortfolioManager />
                 </ProtectedRoute>
               }
             />

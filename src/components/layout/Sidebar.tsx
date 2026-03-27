@@ -266,7 +266,7 @@ export function Sidebar({
           <Button
             size="sm"
             className="w-full justify-start gap-2 rounded-xl text-sm font-medium"
-            onClick={() => navigate('/portfolio-editor')}
+            onClick={() => navigate('/portfolio-manager')}
           >
             <Globe className="w-4 h-4" />
             Páginas de destino
@@ -412,7 +412,7 @@ export function Sidebar({
               <NavItem icon={Kanban} label="Kanban" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
             )}
             <NavItem icon={BookOpen} label="Manual" onClick={() => navigate('/manual')} active={isRouteActive('/manual')} />
-            <NavItem icon={Globe} label="Meu Site" onClick={() => navigate('/portfolio-editor')} active={isRouteActive('/portfolio-editor')} />
+            <NavItem icon={Globe} label="Meu Site" onClick={() => navigate('/portfolio-manager')} active={isRouteActive('/portfolio-manager')} />
             {sidebarVisibility.wordpress && (
               <NavItem icon={Globe} label={t('sidebar.wordpress')} onClick={() => onViewChange('wordpress')} active={activeView === 'wordpress' && !selectedAccount} />
             )}

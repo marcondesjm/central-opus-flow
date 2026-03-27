@@ -602,6 +602,7 @@ export default function BillingPage() {
               <TabsTrigger value="clientes" className="text-xs sm:text-sm gap-1"><Users className="w-3.5 h-3.5" /> Clientes</TabsTrigger>
               <TabsTrigger value="fornecedores" className="text-xs sm:text-sm">Fornecedores</TabsTrigger>
               <TabsTrigger value="pix" className="text-xs sm:text-sm gap-1"><Receipt className="w-3.5 h-3.5" /> PIX</TabsTrigger>
+              <TabsTrigger value="servicos" className="text-xs sm:text-sm gap-1"><ShoppingCart className="w-3.5 h-3.5" /> Serviços</TabsTrigger>
               <TabsTrigger value="recorrentes" className="text-xs sm:text-sm gap-1"><Repeat className="w-3.5 h-3.5" /> Recorrentes</TabsTrigger>
               <TabsTrigger value="relatorios" className="text-xs sm:text-sm gap-1"><BarChart3 className="w-3.5 h-3.5" /> Relatórios</TabsTrigger>
             </TabsList>

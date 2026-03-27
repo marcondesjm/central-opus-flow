@@ -1066,14 +1066,14 @@ export default function PortfolioEditor() {
     toast({ title: 'Portfólio salvo com sucesso!' });
   };
 
-  const handleAdd = (type: string) => {
+  const handleAdd = (type: string, customContent?: Record<string, any>) => {
     const newSection: PortfolioSection = {
       id: crypto.randomUUID(),
       page_id: page.id,
       type,
       position: localSections.length,
       is_visible: true,
-      content: DEFAULT_SECTION_CONTENT[type] || {},
+      content: customContent || DEFAULT_SECTION_CONTENT[type] || {},
       settings: {},
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

@@ -83,7 +83,7 @@ async function loadPixDataWithRetry(amount: number, pixKeyOverride?: string, pix
   throw lastError instanceof Error ? lastError : new Error('Falha ao carregar PIX.');
 }
 
-export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
+export function PaymentModal({ open, onOpenChange, planName, planPrice, planBilling }: PaymentModalProps) {
   const [copied, setCopied] = useState(false);
   const [copiedBrCode, setCopiedBrCode] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState('');
@@ -93,7 +93,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [pixLoading, setPixLoading] = useState(false);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>(planBilling || 'monthly');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
@@ -102,11 +102,13 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
   const { data: pricingSettings } = usePricingSettings();
   const { data: pixSettings } = usePixSettings();
 
+  // If a fixed planPrice is provided, use it; otherwise use billing cycle toggle
   const monthlyPrice = pricingSettings?.monthly_price ?? 7.9;
   const annualPrice = pricingSettings?.annual_price ?? 73.9;
-  const selectedPrice = billingCycle === 'monthly' ? monthlyPrice : annualPrice;
+  const selectedPrice = planPrice ?? (billingCycle === 'monthly' ? monthlyPrice : annualPrice);
   const selectedPriceLabel = selectedPrice.toFixed(2).replace('.', ',');
-  const selectedPeriodLabel = billingCycle === 'monthly' ? '/mês' : '/ano';
+  const selectedPeriodLabel = planPrice ? (planBilling === 'annual' ? '/ano' : '/mês') : (billingCycle === 'monthly' ? '/mês' : '/ano');
+  const displayPlanName = planName || 'PRO';
 
   // Fetch PIX data from backend when modal opens or billing cycle changes
   useEffect(() => {

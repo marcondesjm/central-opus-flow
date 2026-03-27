@@ -4,15 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Shield, User, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { usePricingSettings } from '@/hooks/useSystemSettings';
+import { usePricingSettings, useTeamPricingSettings } from '@/hooks/useSystemSettings';
 
 export function PricingSection() {
   const { data: pricing } = usePricingSettings();
-  const monthly = pricing?.monthly_price ?? 39.90;
-  const annual = pricing?.annual_price ?? 29.90;
-  const annualTotal = annual * 12;
+  const { data: teamSettings } = useTeamPricingSettings();
+  const monthly = pricing?.monthly_price ?? 7.90;
+  const annual = pricing?.annual_price ?? 73.90;
+  const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;
-  const discount = Math.round((1 - annual / monthly) * 100);
+  const discount = Math.round((1 - annual / monthlyTotal) * 100);
   const [tab, setTab] = useState<'individual' | 'equipe'>('individual');
   const [teamBilling, setTeamBilling] = useState<'mensal' | 'anual'>('mensal');
 
@@ -144,20 +145,20 @@ export function PricingSection() {
               </div>
               <div className="relative">
                 <h3 className="text-xl font-bold mb-1 text-center">Starter Anual</h3>
-                <p className="text-muted-foreground text-sm text-center mb-6">Economize {discount}% + domínio próprio</p>
+                <p className="text-muted-foreground text-sm text-center mb-6">Economize no plano anual + domínio próprio</p>
                 <div className="text-center mb-1">
-                  <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$ {annual.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$ {annualPerMonth.toFixed(2).replace('.', ',')}</span>
                   <span className="text-muted-foreground text-lg">/mês</span>
                 </div>
                 <div className="text-center mb-1">
-                  <span className="text-sm text-primary font-medium">R$ {annualTotal.toFixed(2).replace('.', ',')}/ano</span>
+                  <span className="text-sm text-primary font-medium">R$ {annual.toFixed(2).replace('.', ',')}/ano</span>
                   <span className="text-xs text-muted-foreground line-through ml-2">R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano</span>
                 </div>
-                <p className="text-xs text-muted-foreground text-center mb-8">Cobrança anual</p>
+                <p className="text-xs text-muted-foreground text-center mb-8">Pagamento anual</p>
                 <ul className="space-y-3 mb-8">
                   {annualFeatures.map((f, i) => <li key={i} className="flex items-center gap-3"><Check className="w-4 h-4 text-primary shrink-0" /><span className="text-sm">{f}</span></li>)}
                 </ul>
-                <Link to="/pricing"><Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Assinar Anual — Economize {discount}%</Button></Link>
+                <Link to="/pricing"><Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Assinar Anual</Button></Link>
               </div>
             </motion.div>
           </div>
@@ -172,12 +173,13 @@ export function PricingSection() {
             </div>
             <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
               {[
-                { name: 'Pro', subtitle: 'Ideal para pequenas equipes', mp: 79, ap: 59.25, at: 711, members: 3, fm: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Domínio próprio'], fa: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','25% de desconto','Domínio próprio'] },
-                { name: 'Business', subtitle: 'Para equipes em crescimento', mp: 129, ap: 96.75, at: 1161, members: 6, fm: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Domínio próprio'], fa: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','25% de desconto','Domínio próprio'] },
-                { name: 'Enterprise', subtitle: 'Para grandes operações', mp: 249, ap: 186.75, at: 2241, members: 20, fm: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','Domínio próprio'], fa: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','25% de desconto','Domínio próprio'] },
+                { name: 'Pro', subtitle: 'Ideal para pequenas equipes', mp: teamSettings?.pro_monthly ?? 79, ap: teamSettings?.pro_annual ?? 59.25, members: 3, fm: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Domínio próprio'], fa: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','25% de desconto','Domínio próprio'] },
+                { name: 'Business', subtitle: 'Para equipes em crescimento', mp: teamSettings?.business_monthly ?? 129, ap: teamSettings?.business_annual ?? 96.75, members: 6, fm: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Domínio próprio'], fa: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','25% de desconto','Domínio próprio'] },
+                { name: 'Enterprise', subtitle: 'Para grandes operações', mp: teamSettings?.enterprise_monthly ?? 249, ap: teamSettings?.enterprise_annual ?? 186.75, members: 20, fm: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','Domínio próprio'], fa: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','25% de desconto','Domínio próprio'] },
               ].map((plan, idx) => {
                 const isAnnual = teamBilling === 'anual';
                 const price = isAnnual ? plan.ap : plan.mp;
+                const annualYearTotal = plan.ap * 12;
                 const features = isAnnual ? plan.fa : plan.fm;
                 const displayName = isAnnual ? `${plan.name} Anual` : plan.name;
                 const displaySubtitle = isAnnual ? 'Economize 25% no plano anual' : plan.subtitle;
@@ -195,7 +197,7 @@ export function PricingSection() {
                       </div>
                       {isAnnual && (
                         <div className="text-center mb-1">
-                          <span className="text-sm text-primary font-medium">R$ {plan.at.toFixed(2).replace('.', ',')}/ano</span>
+                          <span className="text-sm text-primary font-medium">R$ {annualYearTotal.toFixed(2).replace('.', ',')}/ano</span>
                         </div>
                       )}
                       <p className="text-xs text-muted-foreground text-center mb-8">Até {plan.members} membros</p>

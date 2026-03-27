@@ -8,6 +8,15 @@ export interface PricingSettings {
   annual_price: number;
 }
 
+export interface TeamPricingSettings {
+  pro_monthly: number;
+  pro_annual: number;
+  business_monthly: number;
+  business_annual: number;
+  enterprise_monthly: number;
+  enterprise_annual: number;
+}
+
 export interface PixSettings {
   pix_key: string;
   pix_name: string;
@@ -28,6 +37,14 @@ export function usePricingSettings() {
   return useQuery({
     queryKey: ['system-settings', 'pricing'],
     queryFn: () => fetchSetting<PricingSettings>('pricing'),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useTeamPricingSettings() {
+  return useQuery({
+    queryKey: ['system-settings', 'team_pricing'],
+    queryFn: () => fetchSetting<TeamPricingSettings>('team_pricing'),
     staleTime: 1000 * 60 * 5,
   });
 }

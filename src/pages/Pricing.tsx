@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePricingSettings } from '@/hooks/useSystemSettings';
+import { usePricingSettings, useTeamPricingSettings } from '@/hooks/useSystemSettings';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -29,11 +29,13 @@ export default function Pricing() {
   const [teamBilling, setTeamBilling] = useState<'mensal' | 'anual'>('mensal');
   const redeemCoupon = useRedeemCoupon();
   const { data: pricingSettings } = usePricingSettings();
-  const monthly = pricingSettings?.monthly_price ?? 39.90;
-  const annual = pricingSettings?.annual_price ?? 29.90;
-  const annualTotal = annual * 12;
+  const { data: teamSettings } = useTeamPricingSettings();
+  const monthly = pricingSettings?.monthly_price ?? 7.90;
+  const annual = pricingSettings?.annual_price ?? 73.90;
+  // annual_price is the TOTAL annual price (e.g. 73.90/year)
+  const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;
-  const discount = Math.round((1 - annual / monthly) * 100);
+  const discount = Math.round((1 - annual / monthlyTotal) * 100);
 
   const handleSelectPlan = (planName: string, price?: number, billing?: 'monthly' | 'annual') => {
     if (planName === 'free') {
@@ -186,12 +188,12 @@ export default function Pricing() {
                 <p className="text-muted-foreground text-sm text-center mb-6">Economize no plano anual + domínio próprio</p>
                 <div className="text-center mb-1">
                   <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-                    R$ {annual.toFixed(2).replace('.', ',')}
+                    R$ {annualPerMonth.toFixed(2).replace('.', ',')}
                   </span>
                   <span className="text-muted-foreground text-lg">/mês</span>
                 </div>
                 <div className="text-center mb-1">
-                  <span className="text-sm text-primary font-medium">R$ {annualTotal.toFixed(2).replace('.', ',')}/ano</span>
+                  <span className="text-sm text-primary font-medium">R$ {annual.toFixed(2).replace('.', ',')}/ano</span>
                   <span className="text-xs text-muted-foreground line-through ml-2">R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano</span>
                 </div>
                 <p className="text-xs text-muted-foreground text-center mb-8">Pagamento anual</p>
@@ -203,7 +205,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('Starter Anual', annualTotal, 'annual')}>
+                <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('Starter Anual', annual, 'annual')}>
                   Assinar Anual
                 </Button>
               </div>
@@ -246,87 +248,34 @@ export default function Pricing() {
                 {
                   name: 'Pro',
                   subtitle: 'Ideal para pequenas equipes',
-                  monthlyPrice: 79,
-                  annualPrice: 59.25,
-                  annualTotal: 711,
+                  monthlyPrice: teamSettings?.pro_monthly ?? 79,
+                  annualPrice: teamSettings?.pro_annual ?? 59.25,
                   members: 3,
-                  featuresMonthly: [
-                    'Até 3 membros na equipe',
-                    'Todas as funcionalidades do plano individual',
-                    'Gestão de permissões por colaborador',
-                    'Kanban compartilhado',
-                    'Dashboard do time',
-                    'Domínio próprio',
-                  ],
-                  featuresAnnual: [
-                    'Até 3 membros na equipe',
-                    'Todas as funcionalidades do plano individual',
-                    'Gestão de permissões por colaborador',
-                    'Kanban compartilhado',
-                    'Dashboard do time',
-                    '25% de desconto',
-                    'Domínio próprio',
-                  ],
+                  featuresMonthly: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Domínio próprio'],
+                  featuresAnnual: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','25% de desconto','Domínio próprio'],
                 },
                 {
                   name: 'Business',
                   subtitle: 'Para equipes em crescimento',
-                  monthlyPrice: 129,
-                  annualPrice: 96.75,
-                  annualTotal: 1161,
+                  monthlyPrice: teamSettings?.business_monthly ?? 129,
+                  annualPrice: teamSettings?.business_annual ?? 96.75,
                   members: 6,
-                  featuresMonthly: [
-                    'Até 6 membros na equipe',
-                    'Todas as funcionalidades do plano individual',
-                    'Gestão de permissões por colaborador',
-                    'Kanban compartilhado',
-                    'Dashboard do time',
-                    'Relatórios avançados',
-                    'Domínio próprio',
-                  ],
-                  featuresAnnual: [
-                    'Até 6 membros na equipe',
-                    'Todas as funcionalidades do plano individual',
-                    'Gestão de permissões por colaborador',
-                    'Kanban compartilhado',
-                    'Dashboard do time',
-                    'Relatórios avançados',
-                    '25% de desconto',
-                    'Domínio próprio',
-                  ],
+                  featuresMonthly: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Domínio próprio'],
+                  featuresAnnual: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','25% de desconto','Domínio próprio'],
                 },
                 {
                   name: 'Enterprise',
                   subtitle: 'Para grandes operações',
-                  monthlyPrice: 249,
-                  annualPrice: 186.75,
-                  annualTotal: 2241,
+                  monthlyPrice: teamSettings?.enterprise_monthly ?? 249,
+                  annualPrice: teamSettings?.enterprise_annual ?? 186.75,
                   members: 20,
-                  featuresMonthly: [
-                    'Até 20 membros na equipe',
-                    'Todas as funcionalidades do plano individual',
-                    'Gestão de permissões por colaborador',
-                    'Kanban compartilhado',
-                    'Dashboard do time',
-                    'Relatórios avançados',
-                    'Suporte prioritário',
-                    'Domínio próprio',
-                  ],
-                  featuresAnnual: [
-                    'Até 20 membros na equipe',
-                    'Todas as funcionalidades do plano individual',
-                    'Gestão de permissões por colaborador',
-                    'Kanban compartilhado',
-                    'Dashboard do time',
-                    'Relatórios avançados',
-                    'Suporte prioritário',
-                    '25% de desconto',
-                    'Domínio próprio',
-                  ],
+                  featuresMonthly: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','Domínio próprio'],
+                  featuresAnnual: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','25% de desconto','Domínio próprio'],
                 },
               ].map((plan, idx) => {
                 const isAnnual = teamBilling === 'anual';
                 const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+                const annualYearTotal = plan.annualPrice * 12;
                 const features = isAnnual ? plan.featuresAnnual : plan.featuresMonthly;
                 const displayName = isAnnual ? `${plan.name} Anual` : plan.name;
                 const displaySubtitle = isAnnual ? 'Economize 25% no plano anual' : plan.subtitle;
@@ -339,14 +288,12 @@ export default function Pricing() {
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
                     style={{ boxShadow: 'var(--shadow-glow)' }}
                   >
-                    {/* Badge */}
                     <div className="flex justify-center mb-4">
                       <Badge className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-0 shadow-lg text-xs font-bold px-3 py-1">
                         <Crown className="w-3 h-3 mr-1" />
                         Mais Popular
                       </Badge>
                     </div>
-
                     <div className="relative">
                       <h3 className="text-xl font-bold mb-1 text-center">{displayName}</h3>
                       <p className="text-muted-foreground text-sm text-center mb-6">{displaySubtitle}</p>
@@ -359,7 +306,7 @@ export default function Pricing() {
                       {isAnnual && (
                         <div className="text-center mb-1">
                           <span className="text-sm text-primary font-medium">
-                            R$ {plan.annualTotal.toFixed(2).replace('.', ',')}/ano
+                            R$ {annualYearTotal.toFixed(2).replace('.', ',')}/ano
                           </span>
                         </div>
                       )}
@@ -376,8 +323,8 @@ export default function Pricing() {
                         size="lg"
                         className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl"
                         onClick={() => {
-                          const totalPrice = isAnnual ? plan.annualTotal : plan.monthlyPrice;
-                          handleSelectPlan(`${displayName}`, totalPrice, isAnnual ? 'annual' : 'monthly');
+                          const paymentAmount = isAnnual ? annualYearTotal : plan.monthlyPrice;
+                          handleSelectPlan(displayName, paymentAmount, isAnnual ? 'annual' : 'monthly');
                         }}
                       >
                         Assinar Agora

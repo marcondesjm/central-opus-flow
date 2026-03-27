@@ -1125,6 +1125,18 @@ export default function PortfolioEditor() {
 
   useEffect(() => { setLocalSections(sections); }, [sections]);
 
+  // Fetch services for contact preview
+  useEffect(() => {
+    if (!page?.user_id) return;
+    supabase
+      .from('financial_services')
+      .select('id, name, description, default_price')
+      .eq('user_id', page.user_id)
+      .eq('show_public', true)
+      .eq('status', 'active')
+      .then(({ data: svcs }) => { if (svcs) setServices(svcs); });
+  }, [page?.user_id]);
+
   // Auto-create page if none exists
   useEffect(() => {
     if (!isLoading && !page && !createPage.isPending) {

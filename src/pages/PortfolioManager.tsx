@@ -1382,15 +1382,7 @@ function ConfiguracoesTab() {
 
       {/* Pixels e Rastreamento Section */}
       {activeSection === 'pixels' && (
-        <div className="bg-card border border-border rounded-xl p-5 space-y-4 animate-in fade-in-0 slide-in-from-top-2">
-          <h3 className="text-sm font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-red-500" /> Pixels e Rastreamento</h3>
-          <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-            <p className="text-xs text-muted-foreground">Configure seus pixels de rastreamento na página de Integrações para que sejam carregados nas suas páginas públicas (Portfólio, Bio Link, Formulários, Agendamento).</p>
-            <Button size="sm" onClick={() => navigate('/settings')}>
-              <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Ir para Integrações
-            </Button>
-          </div>
-        </div>
+        <PixelsTrackingSection />
       )}
 
       {/* Marca / Branding Section */}

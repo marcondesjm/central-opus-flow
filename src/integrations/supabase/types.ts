@@ -1463,6 +1463,175 @@ export type Database = {
           },
         ]
       }
+      lead_pipelines: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lead_webhooks: {
+        Row: {
+          auto_tags: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          leads_count: number
+          name: string
+          pipeline_id: string | null
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_tags?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          leads_count?: number
+          name: string
+          pipeline_id?: string | null
+          token?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_tags?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          leads_count?: number
+          name?: string
+          pipeline_id?: string | null
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_webhooks_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "lead_pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          address: string | null
+          address_complement: string | null
+          address_number: string | null
+          cep: string | null
+          city: string | null
+          company: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          email: string | null
+          estimated_value: number | null
+          id: string
+          name: string
+          neighborhood: string | null
+          notes: string | null
+          phase: string
+          phone: string | null
+          pipeline_id: string | null
+          position: number
+          project_interest: string | null
+          source: string | null
+          state: string | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          cep?: string | null
+          city?: string | null
+          company?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          estimated_value?: number | null
+          id?: string
+          name: string
+          neighborhood?: string | null
+          notes?: string | null
+          phase?: string
+          phone?: string | null
+          pipeline_id?: string | null
+          position?: number
+          project_interest?: string | null
+          source?: string | null
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          cep?: string | null
+          city?: string | null
+          company?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          estimated_value?: number | null
+          id?: string
+          name?: string
+          neighborhood?: string | null
+          notes?: string | null
+          phase?: string
+          phone?: string | null
+          pipeline_id?: string | null
+          position?: number
+          project_interest?: string | null
+          source?: string | null
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "lead_pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       license_keys: {
         Row: {
           activated_at: string | null

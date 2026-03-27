@@ -37,6 +37,7 @@ const Agenda = lazy(() => import("./pages/Agenda"));
 const BookingPublic = lazy(() => import("./pages/BookingPublic"));
 const Briefings = lazy(() => import("./pages/Briefings"));
 const BriefingPublic = lazy(() => import("./pages/BriefingPublic"));
+const Leads = lazy(() => import("./pages/Leads"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -316,6 +317,14 @@ function AppContent() {
               }
             />
             <Route path="/briefing/:token" element={<BriefingPublic />} />
+            <Route
+              path="/leads"
+              element={
+                <ProtectedRoute>
+                  <Leads />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

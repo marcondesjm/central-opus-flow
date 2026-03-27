@@ -94,18 +94,14 @@ function QuoteWizardModal({ bio, onClose }: { bio: any; onClose: () => void }) {
     if (!name.trim()) return;
     setSubmitting(true);
     try {
-      // Get the portfolio page for this user
+      // Get the portfolio page for this user (optional)
       const { data: pageData } = await supabase
         .from('portfolio_pages')
         .select('id')
         .eq('user_id', bio.user_id)
         .maybeSingle();
 
-      const pageId = pageData?.id;
-      if (!pageId) {
-        setSubmitting(false);
-        return;
-      }
+      const pageId = pageData?.id || bio.id;
 
       // Save lead
       await supabase.from('portfolio_leads').insert({

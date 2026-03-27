@@ -25,6 +25,7 @@ import {
   CheckCircle, TrendingUp, Users, Award, Star, ExternalLink, Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 const ICON_MAP: Record<string, any> = {
   Type, BarChart3, Grid3X3, MessageSquare, GitBranch, Play,
@@ -532,7 +533,7 @@ function BlockControls({
 }
 
 // ============== CANVAS BLOCK RENDERER ==============
-function CanvasBlock({ section, page }: { section: PortfolioSection; page: PortfolioPage }) {
+function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSection; page: PortfolioPage; onOpenLeadModal?: () => void }) {
   const c = section.content as Record<string, any>;
   const primary = page.primary_color || '#ec4899';
 
@@ -693,7 +694,8 @@ function CanvasBlock({ section, page }: { section: PortfolioSection; page: Portf
           <div className="bg-white/5 rounded-xl p-8 max-w-lg mx-auto border border-white/10">
             <h2 className="text-xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
             <button className="px-6 py-2.5 rounded-full text-sm font-medium text-white flex items-center gap-2 mx-auto"
-              style={{ background: primary }}>
+              style={{ background: primary }}
+              onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
               {c.cta_text} <ExternalLink className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -707,7 +709,8 @@ function CanvasBlock({ section, page }: { section: PortfolioSection; page: Portf
           <h2 className="text-2xl font-bold mb-2" style={{ color: page.text_color }}>{c.title}</h2>
           <p className="text-sm opacity-60 mb-6" style={{ color: page.text_color }}>{c.description}</p>
           <button className="px-6 py-2.5 rounded-full text-sm font-medium text-white mx-auto mb-4"
-            style={{ background: primary }}>
+            style={{ background: primary }}
+            onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
             {c.cta_text} <ExternalLink className="w-3.5 h-3.5 inline ml-1" />
           </button>
           {c.badges && (
@@ -1100,6 +1103,102 @@ function LeadCaptureModal({
   );
 }
 
+// ============== CONTACT PREVIEW MODAL ==============
+function ContactPreviewModal({ open, onClose, page, services }: {
+  open: boolean; onClose: () => void; page: PortfolioPage;
+  services: { id: string; name: string; description: string | null; default_price: number }[];
+}) {
+  const primary = page.primary_color || '#ec4899';
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [customService, setCustomService] = useState('');
+
+  const toggleService = (name: string) => {
+    setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" style={{ background: page.bg_color || '#1a1a2e', color: page.text_color || '#fff' }}>
+        <DialogHeader>
+          <DialogTitle style={{ color: page.text_color || '#fff' }}>Vamos conversar sobre seu projeto?</DialogTitle>
+          <p className="text-xs" style={{ color: `${page.text_color || '#fff'}99` }}>Preencha o formulário e retornaremos em até 24 horas</p>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>Nome *</label>
+            <Input placeholder="Seu nome" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+              className="border-white/10 bg-white/5" style={{ color: page.text_color || '#fff' }} />
+          </div>
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>E-mail *</label>
+            <Input placeholder="seu@email.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+              className="border-white/10 bg-white/5" style={{ color: page.text_color || '#fff' }} />
+          </div>
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>Telefone</label>
+            <div className="flex gap-2">
+              <span className="flex items-center gap-1 px-2 text-xs rounded border border-white/10 bg-white/5" style={{ color: page.text_color || '#fff' }}>🇧🇷 +55</span>
+              <Input placeholder="(__)_____-____" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                className="border-white/10 bg-white/5 flex-1" style={{ color: page.text_color || '#fff' }} />
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>
+              Serviço de Interesse <span style={{ opacity: 0.5 }}>(selecione múltiplos)</span>
+            </label>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {services.map(svc => {
+                const isSelected = selectedServices.includes(svc.name);
+                return (
+                  <button key={svc.id} type="button" onClick={() => toggleService(svc.name)}
+                    className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                    style={{
+                      background: isSelected ? primary : 'rgba(255,255,255,0.03)',
+                      borderColor: isSelected ? primary : 'rgba(255,255,255,0.1)',
+                      color: isSelected ? '#fff' : `${page.text_color || '#fff'}cc`,
+                    }}>
+                    <span className="font-medium">{svc.name}</span>
+                    {svc.description && <p className="text-xs mt-0.5" style={{ opacity: isSelected ? 0.9 : 0.5 }}>{svc.description}</p>}
+                  </button>
+                );
+              })}
+              <button type="button" onClick={() => toggleService('__outro__')}
+                className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                style={{
+                  background: selectedServices.includes('__outro__') ? primary : 'rgba(255,255,255,0.03)',
+                  borderColor: selectedServices.includes('__outro__') ? primary : 'rgba(255,255,255,0.1)',
+                  color: selectedServices.includes('__outro__') ? '#fff' : `${page.text_color || '#fff'}cc`,
+                }}>
+                <span className="font-medium">Outro serviço</span>
+                <p className="text-xs mt-0.5" style={{ opacity: selectedServices.includes('__outro__') ? 0.9 : 0.5 }}>Descreva um serviço personalizado</p>
+              </button>
+              {selectedServices.includes('__outro__') && (
+                <Input placeholder="Descreva o serviço desejado..." value={customService}
+                  onChange={e => setCustomService(e.target.value)}
+                  className="border-white/10 bg-white/5 text-sm" style={{ color: page.text_color || '#fff' }} />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium mb-1 block" style={{ color: `${page.text_color || '#fff'}aa` }}>Mensagem</label>
+            <Textarea placeholder="Como podemos ajudar?" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+              className="border-white/10 bg-white/5 min-h-[60px]" style={{ color: page.text_color || '#fff' }} />
+          </div>
+
+          <Button className="w-full text-white font-medium" style={{ background: primary }}
+            onClick={onClose}>
+            Solicitar Orçamento
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ============== MAIN EDITOR ==============
 export default function PortfolioEditor() {
   const navigate = useNavigate();
@@ -1115,11 +1214,25 @@ export default function PortfolioEditor() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [leadModalOpen, setLeadModalOpen] = useState(false);
+  const [contactPreviewOpen, setContactPreviewOpen] = useState(false);
   const [localSections, setLocalSections] = useState<PortfolioSection[]>([]);
+  const [services, setServices] = useState<{ id: string; name: string; description: string | null; default_price: number }[]>([]);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pendingSaveRef = useRef<Set<string>>(new Set());
 
   useEffect(() => { setLocalSections(sections); }, [sections]);
+
+  // Fetch services for contact preview
+  useEffect(() => {
+    if (!page?.user_id) return;
+    supabase
+      .from('financial_services')
+      .select('id, name, description, default_price')
+      .eq('user_id', page.user_id)
+      .eq('show_public', true)
+      .eq('status', 'active')
+      .then(({ data: svcs }) => { if (svcs) setServices(svcs); });
+  }, [page?.user_id]);
 
   // Auto-create page if none exists
   useEffect(() => {
@@ -1286,7 +1399,7 @@ export default function PortfolioEditor() {
                   onEdit={() => setSelectedId(section.id)}
                   onDelete={() => handleDelete(section.id)}
                 />
-                <CanvasBlock section={section} page={page} />
+                <CanvasBlock section={section} page={page} onOpenLeadModal={() => setContactPreviewOpen(true)} />
               </div>
             ))}
 
@@ -1313,6 +1426,14 @@ export default function PortfolioEditor() {
         onClose={() => setLeadModalOpen(false)}
         page={page}
         onUpdate={handleUpdatePage}
+      />
+
+      {/* Contact Preview Modal - same as public page */}
+      <ContactPreviewModal
+        open={contactPreviewOpen}
+        onClose={() => setContactPreviewOpen(false)}
+        page={page}
+        services={services}
       />
     </div>
   );

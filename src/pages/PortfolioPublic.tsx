@@ -469,6 +469,7 @@ export default function PortfolioPublic() {
 
   return (
     <div className="min-h-screen" style={{ background: page.bg_color, fontFamily: page.font_body }}>
+      <TrackingPixels userId={page.user_id} />
       {!page.is_published && (
         <div className="bg-yellow-500 text-black text-center py-2 text-sm font-medium sticky top-0 z-[100]">
           ⚠️ Esta página está em modo rascunho e não é visível publicamente.

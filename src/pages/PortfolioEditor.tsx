@@ -708,7 +708,8 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
           <h2 className="text-2xl font-bold mb-2" style={{ color: page.text_color }}>{c.title}</h2>
           <p className="text-sm opacity-60 mb-6" style={{ color: page.text_color }}>{c.description}</p>
           <button className="px-6 py-2.5 rounded-full text-sm font-medium text-white mx-auto mb-4"
-            style={{ background: primary }}>
+            style={{ background: primary }}
+            onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
             {c.cta_text} <ExternalLink className="w-3.5 h-3.5 inline ml-1" />
           </button>
           {c.badges && (

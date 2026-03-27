@@ -1070,7 +1070,68 @@ function EstatisticasTab() {
   );
 }
 
-// ============ CONFIGURAÇÕES TAB ============
+// ============ PORTFOLIO ITEMS TAB ============
+function PortfolioItemsTab() {
+  const navigate = useNavigate();
+  const { data: page } = usePortfolioPage();
+  const { data: sections = [], isLoading } = usePortfolioSections(page?.id);
+
+  const portfolioSections = sections.filter(s => s.type === 'portfolio');
+  const portfolioItems = portfolioSections.flatMap(s => (s.content as any)?.items || []);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold">Meu Portfólio</h2>
+          <p className="text-xs text-muted-foreground">Projetos exibidos na sua página pública</p>
+        </div>
+        <Button size="sm" onClick={() => navigate('/portfolio-editor')}>
+          <Pencil className="w-3.5 h-3.5 mr-1" /> Editar no Editor Visual
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+      ) : portfolioItems.length === 0 ? (
+        <div className="text-center py-16 border border-dashed border-border rounded-xl">
+          <Globe className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+          <p className="text-sm text-muted-foreground">Nenhum projeto no portfólio ainda</p>
+          <p className="text-xs text-muted-foreground mt-1">Abra o editor visual para adicionar projetos</p>
+          <Button size="sm" className="mt-4" onClick={() => navigate('/portfolio-editor')}>
+            <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar Projetos
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {portfolioItems.map((item: any, i: number) => (
+            <div key={i} className="relative rounded-xl overflow-hidden aspect-[4/3] group border border-border bg-card cursor-pointer hover:border-primary/50 transition-colors"
+              onClick={() => navigate('/portfolio-editor')}>
+              {item.image_url ? (
+                <img src={item.image_url} className="w-full h-full object-cover" alt={item.title} />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                {item.category && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full mb-1 w-fit bg-primary text-primary-foreground">
+                    {item.category}
+                  </span>
+                )}
+                <h3 className="text-white font-bold text-sm">{item.title}</h3>
+                <p className="text-white/60 text-xs">{item.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function ConfiguracoesTab() {
   const { data: page } = usePortfolioPage();
   const updatePage = useUpdatePortfolioPage();

@@ -188,12 +188,12 @@ export default function Pricing() {
                 <p className="text-muted-foreground text-sm text-center mb-6">Economize no plano anual + domínio próprio</p>
                 <div className="text-center mb-1">
                   <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-                    R$ {annual.toFixed(2).replace('.', ',')}
+                    R$ {annualPerMonth.toFixed(2).replace('.', ',')}
                   </span>
                   <span className="text-muted-foreground text-lg">/mês</span>
                 </div>
                 <div className="text-center mb-1">
-                  <span className="text-sm text-primary font-medium">R$ {annualTotal.toFixed(2).replace('.', ',')}/ano</span>
+                  <span className="text-sm text-primary font-medium">R$ {annual.toFixed(2).replace('.', ',')}/ano</span>
                   <span className="text-xs text-muted-foreground line-through ml-2">R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano</span>
                 </div>
                 <p className="text-xs text-muted-foreground text-center mb-8">Pagamento anual</p>
@@ -205,7 +205,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('Starter Anual', annualTotal, 'annual')}>
+                <Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => handleSelectPlan('Starter Anual', annual, 'annual')}>
                   Assinar Anual
                 </Button>
               </div>

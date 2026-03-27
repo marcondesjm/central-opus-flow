@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TrackingPixels } from '@/components/tracking/TrackingPixels';
 import { useParams } from 'react-router-dom';
 import { usePublicBioLink } from '@/hooks/useBioLink';
 import { supabase } from '@/integrations/supabase/client';
@@ -383,6 +384,7 @@ export default function BioPublic() {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-10" style={{ ...getBgStyle(), fontFamily: bio.font || 'Inter' }}>
+      <TrackingPixels userId={bio.user_id} />
       <div className="w-full max-w-md flex flex-col items-center gap-5">
         {/* Avatar */}
         <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/20 shadow-xl">

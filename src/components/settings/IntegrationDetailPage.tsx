@@ -12,7 +12,7 @@ import {
   ArrowLeft, Calendar, Receipt, DollarSign, Zap, Webhook,
   MessageSquare, Globe, Video, CreditCard, Check, Info,
   ExternalLink, Eye, EyeOff, AlertTriangle, CheckCircle2,
-  Loader2, Plus, Copy, Settings, Columns3, Clock,
+  Loader2, Plus, Copy, Settings, Columns3, Clock, BarChart3,
 } from 'lucide-react';
 
 interface IntegrationDetailProps {
@@ -343,6 +343,59 @@ function MercadoPagoDetail({ onBack, isConnected, onToggle, isPending, config }:
             </p>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ===================== GOOGLE ANALYTICS =====================
+function GoogleAnalyticsDetail({ onBack, isConnected, onToggle, isPending, config }: {
+  onBack: () => void; isConnected: boolean; onToggle: (connected: boolean, config?: Record<string, unknown>) => void; isPending: boolean; config: Record<string, unknown>;
+}) {
+  const [measurementId, setMeasurementId] = useState((config.measurement_id as string) || '');
+  const [trackingActive, setTrackingActive] = useState(isConnected);
+
+  return (
+    <div className="space-y-4">
+      <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="w-4 h-4" /> Voltar para integrações
+      </button>
+      <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="font-bold">Google Analytics</h3>
+          </div>
+          <span className={cn('text-xs px-3 py-1 rounded-full font-medium', isConnected ? 'bg-green-500/10 text-green-500' : 'bg-muted text-muted-foreground')}>
+            {isConnected ? 'Configurado' : 'Não configurado'}
+          </span>
+        </div>
+        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 flex items-start gap-3">
+          <Info className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+          <p className="text-sm">O script GA4 será carregado nas suas <strong>páginas públicas</strong> (Portfólio, Bio Link, Formulários, Agendamento).</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium">Ativar rastreamento</p>
+          <Switch checked={trackingActive} onCheckedChange={setTrackingActive} />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Measurement ID (GA4)</Label>
+          <Input value={measurementId} onChange={e => setMeasurementId(e.target.value)} placeholder="G-XXXXXXXXXX" />
+          <p className="text-xs text-muted-foreground">
+            Encontre em{' '}
+            <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">Google Analytics</a> → Admin → Data Streams
+          </p>
+        </div>
+        <Button
+          onClick={() => onToggle(trackingActive, { measurement_id: measurementId })}
+          disabled={isPending || !measurementId.trim()}
+          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0"
+        >
+          {isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+          Salvar Configuração
+        </Button>
       </div>
     </div>
   );
@@ -775,6 +828,8 @@ export function IntegrationDetailPage({ integrationKey, onBack }: IntegrationDet
       return <MercadoPagoDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'meta_pixel':
       return <MetaPixelDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
+    case 'google_analytics':
+      return <GoogleAnalyticsDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'webhooks':
       return <WebhooksDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'whatsapp':

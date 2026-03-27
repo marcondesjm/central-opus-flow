@@ -23,7 +23,7 @@ import {
   Smartphone, Bell, RotateCcw, Crown, Calendar,
   Clock, LayoutDashboard, Users, Columns3, CheckSquare,
   DollarSign, FileText, Settings, Globe, Zap, Video,
-  MessageSquare, Receipt, Webhook, Check,
+  MessageSquare, Receipt, Webhook, Check, BarChart3,
 } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -44,6 +44,7 @@ const INTEGRATION_DEFS = [
   { name: 'Asaas', key: 'asaas', icon: Receipt, color: 'bg-blue-500' },
   { name: 'Mercado Pago', key: 'mercado_pago', icon: DollarSign, color: 'bg-blue-400' },
   { name: 'Meta Pixel', key: 'meta_pixel', icon: Zap, color: 'bg-blue-700' },
+  { name: 'Google Analytics', key: 'google_analytics', icon: BarChart3, color: 'bg-orange-500' },
   { name: 'Webhooks', key: 'webhooks', icon: Webhook, color: 'bg-green-600' },
   { name: 'WhatsApp', key: 'whatsapp', icon: MessageSquare, color: 'bg-[#25D366]' },
   { name: 'Google Drive', key: 'google_drive', icon: Globe, color: 'bg-green-500' },

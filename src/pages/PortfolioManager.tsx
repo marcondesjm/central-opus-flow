@@ -1382,15 +1382,7 @@ function ConfiguracoesTab() {
 
       {/* Pixels e Rastreamento Section */}
       {activeSection === 'pixels' && (
-        <div className="bg-card border border-border rounded-xl p-5 space-y-4 animate-in fade-in-0 slide-in-from-top-2">
-          <h3 className="text-sm font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-red-500" /> Pixels e Rastreamento</h3>
-          <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-            <p className="text-xs text-muted-foreground">Configure seus pixels de rastreamento na página de Integrações para que sejam carregados nas suas páginas públicas (Portfólio, Bio Link, Formulários, Agendamento).</p>
-            <Button size="sm" onClick={() => navigate('/settings')}>
-              <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Ir para Integrações
-            </Button>
-          </div>
-        </div>
+        <PixelsTrackingSection />
       )}
 
       {/* Marca / Branding Section */}
@@ -1490,5 +1482,152 @@ export default function PortfolioManager() {
         </Tabs>
       </div>
     </AppLayout>
+  );
+}
+
+// ===================== PIXELS E RASTREAMENTO SECTION =====================
+function PixelsTrackingSection() {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [metaPixelId, setMetaPixelId] = useState('');
+  const [metaAccessToken, setMetaAccessToken] = useState('');
+  const [metaActive, setMetaActive] = useState(false);
+  const [gaId, setGaId] = useState('');
+  const [gaActive, setGaActive] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showToken, setShowToken] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from('user_integrations')
+      .select('integration_name, config, is_connected')
+      .eq('user_id', userId)
+      .in('integration_name', ['meta_pixel', 'google_analytics'])
+      .then(({ data }) => {
+        if (!data) return;
+        for (const row of data) {
+          const c = row.config as Record<string, unknown>;
+          if (row.integration_name === 'meta_pixel') {
+            setMetaPixelId((c?.pixel_id as string) || '');
+            setMetaAccessToken((c?.access_token as string) || '');
+            setMetaActive(row.is_connected);
+          }
+          if (row.integration_name === 'google_analytics') {
+            setGaId((c?.measurement_id as string) || '');
+            setGaActive(row.is_connected);
+          }
+        }
+      });
+  }, [userId]);
+
+  const saveIntegration = async (name: string, connected: boolean, config: Record<string, unknown>) => {
+    if (!userId) return;
+    const { data: existing } = await supabase
+      .from('user_integrations')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('integration_name', name)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from('user_integrations')
+        .update({ is_connected: connected, config: config as any, connected_at: connected ? new Date().toISOString() : null, updated_at: new Date().toISOString() })
+        .eq('user_id', userId)
+        .eq('integration_name', name);
+    } else {
+      await supabase
+        .from('user_integrations')
+        .insert({ user_id: userId, integration_name: name, is_connected: connected, config: config as any, connected_at: connected ? new Date().toISOString() : null });
+    }
+  };
+
+  const handleSaveAll = async () => {
+    setSaving(true);
+    try {
+      await saveIntegration('meta_pixel', metaActive, { pixel_id: metaPixelId, access_token: metaAccessToken });
+      await saveIntegration('google_analytics', gaActive, { measurement_id: gaId });
+      toast({ title: 'Pixels salvos com sucesso!' });
+    } catch {
+      toast({ title: 'Erro ao salvar pixels', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-5 space-y-5 animate-in fade-in-0 slide-in-from-top-2">
+      <h3 className="text-sm font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-red-500" /> Pixels e Rastreamento</h3>
+      <p className="text-xs text-muted-foreground">Os pixels serão carregados automaticamente nas suas páginas públicas (Portfólio, Bio Link, Formulários, Agendamento).</p>
+
+      {/* Meta Pixel */}
+      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-700 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">f</span>
+            </div>
+            <div>
+              <p className="text-xs font-bold">Meta Pixel</p>
+              <p className="text-[10px] text-muted-foreground">Facebook / Instagram Ads</p>
+            </div>
+          </div>
+          <Switch checked={metaActive} onCheckedChange={setMetaActive} />
+        </div>
+        {metaActive && (
+          <div className="space-y-2 pt-1">
+            <div>
+              <Label className="text-xs">Pixel ID</Label>
+              <Input value={metaPixelId} onChange={e => setMetaPixelId(e.target.value)} placeholder="123456789012345" className="h-8 text-xs" />
+            </div>
+            <div>
+              <Label className="text-xs">Token de Acesso <span className="text-muted-foreground">(opcional)</span></Label>
+              <div className="relative">
+                <Input value={metaAccessToken} onChange={e => setMetaAccessToken(e.target.value)} placeholder="EAAxxxxxxxx..." type={showToken ? 'text' : 'password'} className="h-8 text-xs pr-8" />
+                <button type="button" onClick={() => setShowToken(!showToken)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showToken ? <Eye className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Conversions API para melhor atribuição</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Google Analytics */}
+      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
+              <BarChart3 className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-bold">Google Analytics</p>
+              <p className="text-[10px] text-muted-foreground">GA4 Measurement ID</p>
+            </div>
+          </div>
+          <Switch checked={gaActive} onCheckedChange={setGaActive} />
+        </div>
+        {gaActive && (
+          <div className="pt-1">
+            <Label className="text-xs">Measurement ID</Label>
+            <Input value={gaId} onChange={e => setGaId(e.target.value)} placeholder="G-XXXXXXXXXX" className="h-8 text-xs" />
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              Encontre em <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">Google Analytics</a> → Admin → Data Streams
+            </p>
+          </div>
+        )}
+      </div>
+
+      <Button onClick={handleSaveAll} disabled={saving} className="w-full" size="sm">
+        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
+        Salvar Configurações de Rastreamento
+      </Button>
+    </div>
   );
 }

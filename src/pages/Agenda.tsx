@@ -93,8 +93,28 @@ function AgendaContent() {
 
   const goToday = () => setCurrentDate(new Date());
 
-  const handleConnectGoogle = () => {
-    toast.info('Configure o Google Calendar nas Integrações (Configurações → Integrações)');
+  const handleConnectGoogle = async () => {
+    if (googleCalendarConnected) {
+      toggleIntegration.mutate({ name: 'google_calendar', connected: false });
+      return;
+    }
+    setConnectingGoogle(true);
+    try {
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin + '/agenda',
+      });
+      if (!result.error) {
+        toggleIntegration.mutate({ name: 'google_calendar', connected: true, config: { provider: 'google', connected_via: 'oauth' } });
+      } else {
+        toast.error('Erro ao conectar Google Calendar');
+      }
+    } catch (e) {
+      console.error('Google OAuth error:', e);
+      toast.error('Erro ao conectar Google Calendar');
+    } finally {
+      setConnectingGoogle(false);
+    }
   };
 
   // Calendar grid for month view

@@ -22,7 +22,7 @@ import {
   Pencil, Monitor, Tablet, Smartphone, Image, Upload,
   Type, BarChart3, Grid3X3, MessageSquare, GitBranch, Play,
   MousePointer, Menu, User, Zap, Search, Lightbulb, Palette,
-  CheckCircle, TrendingUp, Users, Award, Star, ExternalLink,
+  CheckCircle, TrendingUp, Users, Award, Star, ExternalLink, Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,14 +34,20 @@ const ICON_MAP: Record<string, any> = {
 
 // ============== SIDEBAR ==============
 function EditorSidebar({
-  sections, selectedId, onSelect, onAdd,
+  sections, selectedId, onSelect, onAdd, page, onUpdatePage, onOpenLeadModal,
 }: {
   sections: PortfolioSection[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onAdd: (type: string) => void;
+  page: PortfolioPage;
+  onUpdatePage: (p: Partial<PortfolioPage>) => void;
+  onOpenLeadModal: () => void;
 }) {
   const [addOpen, setAddOpen] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<'elementos' | 'config'>('elementos');
+  const [seoOpen, setSeoOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const grouped = SECTION_TYPES.reduce((acc, t) => {
     if (!acc[t.group]) acc[t.group] = [];
     acc[t.group].push(t);
@@ -81,28 +87,137 @@ function EditorSidebar({
     <div className="w-52 border-r border-border bg-card flex flex-col h-full">
       <div className="p-3 border-b border-border">
         <div className="flex items-center gap-2 text-xs font-medium mb-3">
-          <button className="px-2 py-1 rounded bg-accent text-foreground">Elementos</button>
-          <button className="px-2 py-1 rounded text-muted-foreground hover:bg-accent">Config</button>
+          <button
+            onClick={() => setSidebarTab('elementos')}
+            className={cn('px-2 py-1 rounded', sidebarTab === 'elementos' ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent')}
+          >
+            Elementos
+          </button>
+          <button
+            onClick={() => setSidebarTab('config')}
+            className={cn('px-2 py-1 rounded flex items-center gap-1', sidebarTab === 'config' ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent')}
+          >
+            <Settings className="w-3 h-3" /> Config
+          </button>
         </div>
-        <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => setAddOpen(true)}>
-          <Plus className="w-3 h-3 mr-1" /> Adicionar Bloco
-        </Button>
+        {sidebarTab === 'elementos' && (
+          <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => setAddOpen(true)}>
+            <Plus className="w-3 h-3 mr-1" /> Adicionar Bloco
+          </Button>
+        )}
       </div>
 
       <ScrollArea className="flex-1 p-2 space-y-3">
-        {renderGroup('HERO', heroSections)}
-        {renderGroup(`BLOCOS (${blockSections.length})`, blockSections)}
-        {renderGroup('OUTRAS SEÇÕES', otherSections)}
+        {sidebarTab === 'elementos' ? (
+          <>
+            {renderGroup('HERO', heroSections)}
+            {renderGroup(`BLOCOS (${blockSections.length})`, blockSections)}
+            {renderGroup('OUTRAS SEÇÕES', otherSections)}
 
-        <div className="mt-4">
-          <p className="text-[10px] font-bold text-muted-foreground tracking-wider mb-1 px-2">ESTILO</p>
-          {['Cores', 'Templates de Estilo', 'Modelo de Layout', 'Carregar Template'].map(item => (
-            <button key={item} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
-              <Palette className="w-3.5 h-3.5" />
-              <span>{item}</span>
+            <div className="mt-4">
+              <p className="text-[10px] font-bold text-muted-foreground tracking-wider mb-1 px-2">ESTILO</p>
+              {['Cores', 'Templates de Estilo', 'Modelo de Layout', 'Carregar Template'].map(item => (
+                <button key={item} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                  <Palette className="w-3.5 h-3.5" />
+                  <span>{item}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="space-y-1">
+            {/* SEO & Meta */}
+            <div>
+              <button onClick={() => setSeoOpen(!seoOpen)} className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium hover:bg-accent rounded-md">
+                <span>SEO & Meta</span>
+                <ChevronDown className={cn('w-4 h-4 transition-transform', seoOpen && 'rotate-180')} />
+              </button>
+              {seoOpen && (
+                <div className="px-2 pb-2 space-y-2">
+                  <div>
+                    <Label className="text-xs">Meta Título</Label>
+                    <Input value={page.meta_title || ''} onChange={e => onUpdatePage({ meta_title: e.target.value })} className="h-7 text-xs" placeholder="Título para SEO" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Meta Descrição</Label>
+                    <Textarea value={page.meta_description || ''} onChange={e => onUpdatePage({ meta_description: e.target.value })} className="text-xs min-h-[50px]" placeholder="Descrição para SEO" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Slug da URL</Label>
+                    <Input value={page.slug || ''} onChange={e => onUpdatePage({ slug: e.target.value })} className="h-7 text-xs" placeholder="meu-portfolio" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Menu de Navegação */}
+            <div>
+              <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium hover:bg-accent rounded-md">
+                <span>Menu de Navegação</span>
+                <ChevronDown className={cn('w-4 h-4 transition-transform', menuOpen && 'rotate-180')} />
+              </button>
+              {menuOpen && (
+                <div className="px-2 pb-2 space-y-2">
+                  <div>
+                    <Label className="text-xs">WhatsApp</Label>
+                    <Input value={page.whatsapp_number || ''} onChange={e => onUpdatePage({ whatsapp_number: e.target.value })} className="h-7 text-xs" placeholder="+55 11 99999-9999" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Instagram</Label>
+                    <Input value={page.instagram_url || ''} onChange={e => onUpdatePage({ instagram_url: e.target.value })} className="h-7 text-xs" placeholder="https://instagram.com/..." />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Captura de Leads */}
+            <button onClick={onOpenLeadModal} className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium hover:bg-accent rounded-md">
+              <span>Captura de Leads</span>
+              <span className={cn(
+                'text-[10px] px-2 py-0.5 rounded-full font-medium',
+                page.lead_capture_type === 'link' ? 'bg-yellow-500/20 text-yellow-500' :
+                page.lead_capture_type === 'custom' ? 'bg-blue-500/20 text-blue-500' :
+                'bg-green-500/20 text-green-500'
+              )}>
+                {page.lead_capture_type === 'link' ? 'Link' : page.lead_capture_type === 'custom' ? 'Custom' : 'Padrão'}
+              </span>
             </button>
-          ))}
-        </div>
+
+            {/* Publicação */}
+            <div className="px-2 pt-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Publicado</Label>
+                <Switch checked={page.is_published} onCheckedChange={v => onUpdatePage({ is_published: v })} />
+              </div>
+            </div>
+
+            {/* Cores Globais */}
+            <div className="px-2 pt-3 space-y-2">
+              <p className="text-[10px] font-bold text-muted-foreground tracking-wider">CORES GLOBAIS</p>
+              <div>
+                <Label className="text-xs">Cor Principal</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={page.primary_color} onChange={e => onUpdatePage({ primary_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                  <Input value={page.primary_color} onChange={e => onUpdatePage({ primary_color: e.target.value })} className="h-7 text-xs flex-1" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Cor de Fundo</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={page.bg_color} onChange={e => onUpdatePage({ bg_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                  <Input value={page.bg_color} onChange={e => onUpdatePage({ bg_color: e.target.value })} className="h-7 text-xs flex-1" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Cor do Texto</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={page.text_color} onChange={e => onUpdatePage({ text_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                  <Input value={page.text_color} onChange={e => onUpdatePage({ text_color: e.target.value })} className="h-7 text-xs flex-1" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </ScrollArea>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -809,6 +924,9 @@ export default function PortfolioEditor() {
           selectedId={selectedId}
           onSelect={setSelectedId}
           onAdd={handleAdd}
+          page={page}
+          onUpdatePage={handleUpdatePage}
+          onOpenLeadModal={() => setLeadModalOpen(true)}
         />
 
         {/* Canvas */}
@@ -835,15 +953,6 @@ export default function PortfolioEditor() {
             ))}
           </div>
 
-          {/* Color editor floating button */}
-          <button
-            onClick={() => setLeadModalOpen(true)}
-            className="fixed bottom-6 right-80 z-20 flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium bg-pink-500 text-white shadow-lg hover:bg-pink-600"
-          >
-            <span className="w-3 h-3 rounded-full bg-pink-300" />
-            <span className="w-3 h-3 rounded-full bg-purple-400" />
-            Editar Cores
-          </button>
         </div>
 
         {/* Properties Panel */}

@@ -80,7 +80,7 @@ function PublicBlock({ section, page, onOpenContact }: { section: PortfolioSecti
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full max-w-6xl mx-auto py-12 md:py-0">
             <div className="flex-1 space-y-6">
               {c.badge && <span className="inline-block px-4 py-1.5 border border-white/20 text-white/60 text-sm rounded">{c.badge}</span>}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ color: page.text_color }}>{c.headline}</h1>
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ color: page.text_color }}>{c.headline}</h1>
               <p className="text-lg opacity-70 max-w-lg" style={{ color: page.text_color }}>{c.subheadline}</p>
               {page.lead_capture_type === 'link' && page.lead_capture_url ? (
                 <a href={page.lead_capture_url} target="_blank" rel="noopener"

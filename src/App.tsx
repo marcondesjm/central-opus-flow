@@ -287,6 +287,15 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/scheduling"
+              element={
+                <ProtectedRoute>
+                  <Scheduling />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/agendar/:slug" element={<BookingPublic />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

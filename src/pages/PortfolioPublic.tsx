@@ -354,32 +354,55 @@ function ContactModal({ page, services, open, onClose }: { page: PortfolioPage; 
                 </div>
               </div>
 
-              {services.length > 0 && (
-                <div>
-                  <label className="text-xs font-medium text-white/70 mb-1 block">Serviço de Interesse <span className="text-white/40">(selecione múltiplos)</span></label>
-                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                    {services.map(svc => {
-                      const isSelected = selectedServices.includes(svc.name);
-                      return (
-                        <button
-                          key={svc.id}
-                          type="button"
-                          onClick={() => toggleService(svc.name)}
-                          className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
-                          style={{
-                            background: isSelected ? `${primary}` : 'rgba(255,255,255,0.03)',
-                            borderColor: isSelected ? primary : 'rgba(255,255,255,0.1)',
-                            color: isSelected ? '#fff' : 'rgba(255,255,255,0.8)',
-                          }}
-                        >
-                          <span className="font-medium">{svc.name}</span>
-                          {svc.description && <p className="text-xs mt-0.5" style={{ opacity: isSelected ? 0.9 : 0.5 }}>{svc.description}</p>}
-                        </button>
-                      );
-                    })}
-                  </div>
+              <div>
+                <label className="text-xs font-medium text-white/70 mb-1 block">Serviço de Interesse <span className="text-white/40">(selecione múltiplos)</span></label>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {services.length === 0 && (
+                    <p className="text-xs text-white/40 px-3 py-2">Nenhum serviço disponível no momento</p>
+                  )}
+                  {services.map(svc => {
+                    const isSelected = selectedServices.includes(svc.name);
+                    return (
+                      <button
+                        key={svc.id}
+                        type="button"
+                        onClick={() => toggleService(svc.name)}
+                        className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                        style={{
+                          background: isSelected ? primary : 'rgba(255,255,255,0.03)',
+                          borderColor: isSelected ? primary : 'rgba(255,255,255,0.1)',
+                          color: isSelected ? '#fff' : 'rgba(255,255,255,0.8)',
+                        }}
+                      >
+                        <span className="font-medium">{svc.name}</span>
+                        {svc.description && <p className="text-xs mt-0.5" style={{ opacity: isSelected ? 0.9 : 0.5 }}>{svc.description}</p>}
+                      </button>
+                    );
+                  })}
+                  {/* Outro serviço */}
+                  <button
+                    type="button"
+                    onClick={() => toggleService('__outro__')}
+                    className="w-full text-left px-3 py-2.5 rounded-lg border transition-all text-sm"
+                    style={{
+                      background: selectedServices.includes('__outro__') ? primary : 'rgba(255,255,255,0.03)',
+                      borderColor: selectedServices.includes('__outro__') ? primary : 'rgba(255,255,255,0.1)',
+                      color: selectedServices.includes('__outro__') ? '#fff' : 'rgba(255,255,255,0.8)',
+                    }}
+                  >
+                    <span className="font-medium">Outro serviço</span>
+                    <p className="text-xs mt-0.5" style={{ opacity: selectedServices.includes('__outro__') ? 0.9 : 0.5 }}>Descreva um serviço personalizado</p>
+                  </button>
+                  {selectedServices.includes('__outro__') && (
+                    <Input
+                      placeholder="Descreva o serviço desejado..."
+                      value={customService}
+                      onChange={e => setCustomService(e.target.value)}
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-pink-500 text-sm"
+                    />
+                  )}
                 </div>
-              )}
+              </div>
 
               <div>
                 <label className="text-xs font-medium text-white/70 mb-1 block">Mensagem</label>

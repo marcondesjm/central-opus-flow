@@ -572,15 +572,15 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'stats':
       return (
-        <div className="py-8 px-8 border-t border-b border-white/10" style={{ background: page.bg_color }}>
-          <div className="flex justify-around">
+        <div className="py-8 px-4 md:px-8 border-t border-b border-white/10" style={{ background: page.bg_color }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {(c.items || []).map((item: any, i: number) => {
               const Icon = ICON_MAP[item.icon] || TrendingUp;
               return (
                 <div key={i} className="text-center space-y-1">
-                  <Icon className="w-6 h-6 mx-auto" style={{ color: primary }} />
-                  <p className="text-lg font-bold" style={{ color: page.text_color }}>{item.value}</p>
-                  <p className="text-xs opacity-60" style={{ color: page.text_color }}>{item.label}</p>
+                  <Icon className="w-5 h-5 md:w-6 md:h-6 mx-auto" style={{ color: primary }} />
+                  <p className="text-base md:text-lg font-bold" style={{ color: page.text_color }}>{item.value}</p>
+                  <p className="text-[10px] md:text-xs opacity-60" style={{ color: page.text_color }}>{item.label}</p>
                 </div>
               );
             })}

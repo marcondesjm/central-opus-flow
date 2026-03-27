@@ -402,6 +402,7 @@ export function Sidebar({
               <NavItem icon={Kanban} label="Kanban" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
             )}
             <NavItem icon={BookOpen} label="Manual" onClick={() => navigate('/manual')} active={isRouteActive('/manual')} />
+            <NavItem icon={Globe} label="Meu Site" onClick={() => navigate('/portfolio-editor')} active={isRouteActive('/portfolio-editor')} />
             {sidebarVisibility.wordpress && (
               <NavItem icon={Globe} label={t('sidebar.wordpress')} onClick={() => onViewChange('wordpress')} active={activeView === 'wordpress' && !selectedAccount} />
             )}

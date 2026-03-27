@@ -33,7 +33,6 @@ export function FeaturesSlideshow() {
     setCurrent((prev) => (prev + dir + slides.length) % slides.length);
   }, []);
 
-  // Auto-play: reset timer on every slide change
   useEffect(() => {
     const timer = setInterval(() => {
       setDirection(1);
@@ -53,9 +52,9 @@ export function FeaturesSlideshow() {
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
-            Tudo que você precisa em{' '}
+            Conheça cada{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-              um só lugar
+              módulo
             </span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -87,9 +86,6 @@ export function FeaturesSlideshow() {
 
         {/* Slideshow */}
         <div className="relative">
-          {/* Glow */}
-          <div className="absolute -inset-4 rounded-3xl bg-primary/[0.04] blur-3xl -z-10" />
-
           <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden shadow-2xl shadow-black/20">
             {/* Browser bar */}
             <div className="bg-muted/60 px-4 py-2.5 flex items-center gap-2.5 border-b border-border/40">
@@ -114,14 +110,13 @@ export function FeaturesSlideshow() {
                   alt={slides[current].label}
                   className="absolute inset-0 w-full h-full object-cover object-top"
                   custom={direction}
-                  initial={{ opacity: 0, x: direction > 0 ? 100 : -100 }}
+                  initial={{ opacity: 0, x: direction > 0 ? 60 : -60 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: direction > 0 ? -100 : 100 }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  exit={{ opacity: 0, x: direction > 0 ? -60 : 60 }}
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
                 />
               </AnimatePresence>
 
-              {/* Nav arrows */}
               <button
                 onClick={() => go(-1)}
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/80 backdrop-blur border border-border/50 flex items-center justify-center shadow-lg hover:bg-card transition-colors z-10"

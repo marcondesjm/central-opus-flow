@@ -70,7 +70,7 @@ const integrations: Integration[] = [
 
 export function IntegrationsSection() {
   return (
-    <section className="py-20 md:py-28 px-4 relative">
+    <section className="py-20 md:py-28 px-4">
       <div className="container mx-auto max-w-6xl">
         <motion.div
           className="text-center mb-14"
@@ -79,41 +79,41 @@ export function IntegrationsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold tracking-wider uppercase mb-3">
+          <span className="inline-flex items-center gap-2 text-red-500 text-sm font-semibold tracking-wider uppercase mb-3">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             Integrações Disponíveis
           </span>
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mt-2">
             Conecte com suas{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
               ferramentas favoritas
             </span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-muted-foreground max-w-xl mx-auto mt-3">
             Automatize processos e economize tempo com integrações nativas
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {integrations.map((item, i) => (
             <motion.div
               key={item.name}
-              className="bg-card border border-border rounded-2xl p-6 hover:border-primary/30 transition-colors"
-              initial={{ opacity: 0, y: 20 }}
+              className="bg-[#141414] border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-colors"
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
+              transition={{ duration: 0.4, delay: i * 0.04 }}
             >
-              <div className={`w-12 h-12 rounded-xl ${item.iconBg} flex items-center justify-center mb-4`}>
+              <div className={`w-11 h-11 rounded-xl ${item.iconBg} flex items-center justify-center mb-4`}>
                 {item.icon}
               </div>
-              <h3 className="text-base font-bold mb-2">{item.name}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-4">{item.description}</p>
-              <div className="flex flex-wrap gap-2">
+              <h3 className="text-sm font-bold text-white mb-2">{item.name}</h3>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">{item.description}</p>
+              <div className="flex flex-wrap gap-1.5">
                 {item.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[11px] px-2.5 py-1 rounded-full bg-primary/10 text-primary/80 border border-primary/20"
+                    className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20"
                   >
                     {tag}
                   </span>

@@ -24,22 +24,17 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-20 md:py-28 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-muted/30 dark:bg-muted/5" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
-
-      <div className="container mx-auto max-w-5xl relative">
+    <section className="py-20 md:py-28 px-4 relative">
+      <div className="container mx-auto max-w-5xl">
         <motion.div
           className="text-center mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-card/50 text-[11px] font-medium text-muted-foreground mb-5">
-            Depoimentos
-          </div>
-          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em]">
+          <span className="text-primary text-sm font-semibold tracking-wider uppercase">Depoimentos</span>
+          <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mt-2">
             Profissionais já estão{' '}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
               simplificando
@@ -52,20 +47,19 @@ export function TestimonialsSection() {
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
-              className="group relative bg-card/80 border border-border/50 rounded-2xl p-6 hover:border-border transition-all duration-300 hover:-translate-y-0.5"
+              className="bg-card border border-border/50 rounded-2xl p-6 hover:border-border transition-colors"
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.08 }}
             >
-              {/* Stars */}
               <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, j) => (
                   <Star key={j} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 ))}
               </div>
 
-              <p className="text-[13px] text-foreground/80 leading-relaxed mb-6">
+              <p className="text-sm text-foreground/80 leading-relaxed mb-6">
                 "{t.content}"
               </p>
 

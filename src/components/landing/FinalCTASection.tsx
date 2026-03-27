@@ -11,17 +11,10 @@ export function FinalCTASection() {
           className="text-center relative p-10 md:p-16 rounded-2xl border border-border/50 bg-card/60 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
         >
-          {/* Top accent */}
           <div className="absolute -top-px left-8 right-8 h-[2px] rounded-b-full" style={{ background: 'var(--gradient-primary)' }} />
-
-          {/* Subtle dot pattern */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{
-            backgroundImage: 'radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)',
-            backgroundSize: '20px 20px'
-          }} />
 
           <div className="relative">
             <h2 className="text-3xl md:text-[2.75rem] font-bold tracking-[-0.03em] mb-4 leading-tight">
@@ -47,7 +40,7 @@ export function FinalCTASection() {
             </Link>
 
             <p className="text-xs text-muted-foreground/40 mt-6">
-              Grátis para até 2 projetos · Sem cartão de crédito
+              Grátis plano completo por 7 dias · Sem cartão de crédito
             </p>
           </div>
         </motion.div>

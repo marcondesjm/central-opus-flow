@@ -642,7 +642,6 @@ export default function ClientsPage() {
   const [showCadastrar, setShowCadastrar] = useState(false);
   const [editingClient, setEditingClient] = useState<FullClient | null>(null);
   const [selectedClient, setSelectedClient] = useState<FullClient | null>(null);
-  const [showFichaTecnica, setShowFichaTecnica] = useState(false);
 
   const filtered = useMemo(() => {
     if (!clients) return [];

@@ -121,105 +121,85 @@ export function PricingSection() {
           </button>
         </div>
 
-        {/* Plans */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-          {/* Starter Mensal */}
-          <motion.div
-            className="relative bg-card border border-border rounded-3xl p-8 overflow-hidden shadow-lg"
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="relative">
-              <h3 className="text-xl font-bold mb-1 text-center">Starter</h3>
-              <p className="text-muted-foreground text-sm text-center mb-6">Acesso completo ao Central Flow</p>
-
-              <div className="text-center mb-1">
-                <span className="text-4xl md:text-5xl font-bold">R$ {monthly.toFixed(2).replace('.', ',')}</span>
-                <span className="text-muted-foreground text-lg">/mês</span>
+        {tab === 'individual' ? (
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+            <motion.div className="relative bg-card border border-border rounded-3xl p-8 overflow-hidden shadow-lg" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <div className="relative">
+                <h3 className="text-xl font-bold mb-1 text-center">Starter</h3>
+                <p className="text-muted-foreground text-sm text-center mb-6">Acesso completo ao Central Flow</p>
+                <div className="text-center mb-1">
+                  <span className="text-4xl md:text-5xl font-bold">R$ {monthly.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-muted-foreground text-lg">/mês</span>
+                </div>
+                <p className="text-xs text-muted-foreground text-center mb-8">Cobrança mensal</p>
+                <ul className="space-y-3 mb-8">
+                  {starterFeatures.map((f, i) => <li key={i} className="flex items-center gap-3"><Check className="w-4 h-4 text-[#25D366] shrink-0" /><span className="text-sm">{f}</span></li>)}
+                </ul>
+                <Link to="/pricing"><Button size="lg" variant="outline" className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5">Assinar Mensal</Button></Link>
               </div>
-              <p className="text-xs text-muted-foreground text-center mb-8">Cobrança mensal</p>
-
-              <ul className="space-y-3 mb-8">
-                {starterFeatures.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[#25D366] shrink-0" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link to="/pricing">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5"
-                >
-                  Assinar Mensal
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Starter Anual */}
-          <motion.div
-            className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 overflow-hidden shadow-xl"
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            style={{ boxShadow: 'var(--shadow-glow)' }}
-          >
-            <div className="absolute top-6 right-6">
-              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-0 shadow-lg text-xs font-bold">
-                <Crown className="w-3 h-3 mr-1" />
-                Mais Econômico
-              </Badge>
-            </div>
-
-            <div className="relative">
-              <h3 className="text-xl font-bold mb-1 text-center">Starter Anual</h3>
-              <p className="text-muted-foreground text-sm text-center mb-6">
-                Economize {discount}% + domínio próprio
-              </p>
-
-              <div className="text-center mb-1">
-                <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>
-                  R$ {annual.toFixed(2).replace('.', ',')}
-                </span>
-                <span className="text-muted-foreground text-lg">/mês</span>
+            </motion.div>
+            <motion.div className="relative bg-card border-2 border-primary/50 rounded-3xl p-8 overflow-hidden shadow-xl" initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} style={{ boxShadow: 'var(--shadow-glow)' }}>
+              <div className="absolute top-6 right-6">
+                <Badge className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-0 shadow-lg text-xs font-bold"><Crown className="w-3 h-3 mr-1" />Mais Econômico</Badge>
               </div>
-              <div className="text-center mb-1">
-                <span className="text-sm text-primary font-medium">
-                  R$ {annualTotal.toFixed(2).replace('.', ',')}/ano
-                </span>
-                <span className="text-xs text-muted-foreground line-through ml-2">
-                  R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano
-                </span>
+              <div className="relative">
+                <h3 className="text-xl font-bold mb-1 text-center">Starter Anual</h3>
+                <p className="text-muted-foreground text-sm text-center mb-6">Economize {discount}% + domínio próprio</p>
+                <div className="text-center mb-1">
+                  <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$ {annual.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-muted-foreground text-lg">/mês</span>
+                </div>
+                <div className="text-center mb-1">
+                  <span className="text-sm text-primary font-medium">R$ {annualTotal.toFixed(2).replace('.', ',')}/ano</span>
+                  <span className="text-xs text-muted-foreground line-through ml-2">R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano</span>
+                </div>
+                <p className="text-xs text-muted-foreground text-center mb-8">Cobrança anual</p>
+                <ul className="space-y-3 mb-8">
+                  {annualFeatures.map((f, i) => <li key={i} className="flex items-center gap-3"><Check className="w-4 h-4 text-primary shrink-0" /><span className="text-sm">{f}</span></li>)}
+                </ul>
+                <Link to="/pricing"><Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Assinar Anual — Economize {discount}%</Button></Link>
               </div>
-              <p className="text-xs text-muted-foreground text-center mb-8">Cobrança anual</p>
-
-              <ul className="space-y-3 mb-8">
-                {annualFeatures.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link to="/pricing">
-                <Button
-                  size="lg"
-                  className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0"
-                >
-                  Assinar Anual — Economize {discount}%
-                </Button>
-              </Link>
+            </motion.div>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <button onClick={() => setTeamBilling('mensal')} className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${teamBilling === 'mensal' ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>Mensal</button>
+              <div className="relative">
+                <button onClick={() => setTeamBilling('anual')} className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${teamBilling === 'anual' ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>Anual</button>
+                <Badge className="absolute -top-3 -right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 text-[10px] px-1.5 py-0.5">-25%</Badge>
+              </div>
             </div>
-          </motion.div>
-        </div>
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+              {[
+                { name: 'Pro', subtitle: 'Ideal para pequenas equipes', mp: 79, ap: 59.25, members: 3, features: ['Até 3 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Domínio próprio'], hl: false },
+                { name: 'Business', subtitle: 'Para equipes em crescimento', mp: 129, ap: 96.75, members: 6, features: ['Até 6 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Domínio próprio'], hl: true },
+                { name: 'Enterprise', subtitle: 'Para grandes operações', mp: 249, ap: 186.75, members: 20, features: ['Até 20 membros na equipe','Todas as funcionalidades do plano individual','Gestão de permissões por colaborador','Kanban compartilhado','Dashboard do time','Relatórios avançados','Suporte prioritário','Domínio próprio'], hl: false },
+              ].map((plan, idx) => {
+                const price = teamBilling === 'mensal' ? plan.mp : plan.ap;
+                return (
+                  <motion.div key={plan.name} className={`relative bg-card rounded-3xl p-8 overflow-hidden shadow-lg ${plan.hl ? 'border-2 border-primary/50 shadow-xl' : 'border border-border'}`} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: idx * 0.1 }} style={plan.hl ? { boxShadow: 'var(--shadow-glow)' } : undefined}>
+                    <div className="relative">
+                      <h3 className="text-xl font-bold mb-1 text-center">{plan.name}</h3>
+                      <p className="text-muted-foreground text-sm text-center mb-6">{plan.subtitle}</p>
+                      <div className="text-center mb-1">
+                        <span className={`text-4xl md:text-5xl font-bold ${plan.hl ? 'bg-clip-text text-transparent' : ''}`} style={plan.hl ? { backgroundImage: 'var(--gradient-primary)' } : undefined}>R$ {price.toFixed(2).replace('.', ',')}</span>
+                        <span className="text-muted-foreground text-lg">/mês</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center mb-8">Até {plan.members} membros</p>
+                      <ul className="space-y-3 mb-8">
+                        {plan.features.map((f, i) => <li key={i} className="flex items-center gap-3"><Check className={`w-4 h-4 shrink-0 ${plan.hl ? 'text-primary' : 'text-[#25D366]'}`} /><span className="text-sm">{f}</span></li>)}
+                      </ul>
+                      <Link to="/pricing?tab=equipe">
+                        <Button size="lg" className={`w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 ${plan.hl ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl' : ''}`} variant={plan.hl ? 'default' : 'outline'}>Assinar Agora</Button>
+                      </Link>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         {/* Footer note */}
         <motion.p

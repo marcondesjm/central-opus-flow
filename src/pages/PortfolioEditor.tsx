@@ -667,19 +667,19 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'testimonials':
       return (
-        <div className="py-12 px-8" style={{ background: page.bg_color }}>
+        <div className="py-8 md:py-12 px-4 md:px-8" style={{ background: page.bg_color }}>
           {(c.items || []).slice(0, 1).map((t: any, i: number) => (
-            <div key={i} className="flex items-center gap-8 max-w-2xl mx-auto">
-              <div className="w-48 h-48 shrink-0 rounded-xl overflow-hidden">
+            <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-8 max-w-2xl mx-auto">
+              <div className="w-24 h-24 md:w-48 md:h-48 shrink-0 rounded-xl overflow-hidden">
                 {t.image_url ? (
                   <img src={t.image_url} className="w-full h-full object-cover" alt={t.name} />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-pink-900/40 to-purple-900/40 flex items-center justify-center">
-                    <User className="w-12 h-12 text-white/20" />
+                    <User className="w-8 md:w-12 h-8 md:h-12 text-white/20" />
                   </div>
                 )}
               </div>
-              <div>
+              <div className="text-center md:text-left">
                 <h3 className="font-bold" style={{ color: page.text_color }}>{t.name}</h3>
                 <p className="text-xs opacity-60 mb-3" style={{ color: page.text_color }}>{t.role}</p>
                 <p className="text-sm opacity-80" style={{ color: page.text_color }}>{t.text}</p>

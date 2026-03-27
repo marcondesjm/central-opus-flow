@@ -540,25 +540,26 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
   switch (section.type) {
     case 'hero':
       return (
-        <div className="relative min-h-[400px] flex items-center p-8 md:p-16 overflow-hidden"
+        <div className="relative min-h-[300px] md:min-h-[400px] flex items-center p-6 md:p-16 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${page.bg_color}ee, ${page.bg_color})` }}>
           {c.bg_image_url && <img src={c.bg_image_url} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="" />}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/20 to-transparent" />
-          <div className="relative z-10 flex items-center gap-8 w-full">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8 w-full">
             <div className="flex-1 space-y-4">
               {c.badge && (
                 <span className="inline-block px-3 py-1 border border-dashed border-white/30 text-white/60 text-xs rounded">
                   {c.badge}
                 </span>
               )}
-              <h1 className="text-3xl md:text-4xl font-bold" style={{ color: page.text_color }}>{c.headline}</h1>
+              <h1 className="text-2xl md:text-4xl font-bold" style={{ color: page.text_color }}>{c.headline}</h1>
               <p className="text-sm opacity-70" style={{ color: page.text_color }}>{c.subheadline}</p>
               <button className="px-5 py-2.5 rounded-full text-sm font-medium text-white flex items-center gap-2"
-                style={{ background: primary }}>
+                style={{ background: primary }}
+                onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
                 {c.cta_text} <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="hidden md:block w-[300px] h-[350px] border border-dashed border-white/20 rounded-lg flex items-center justify-center">
+            <div className="hidden md:flex w-[300px] h-[350px] border border-dashed border-white/20 rounded-lg items-center justify-center">
               {c.image_url ? (
                 <img src={c.image_url} className="w-full h-full object-cover rounded-lg" alt="" />
               ) : (

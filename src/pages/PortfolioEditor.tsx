@@ -48,6 +48,10 @@ function EditorSidebar({
   const [sidebarTab, setSidebarTab] = useState<'elementos' | 'config'>('elementos');
   const [seoOpen, setSeoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [colorsOpen, setColorsOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [loadTemplateOpen, setLoadTemplateOpen] = useState(false);
   const grouped = SECTION_TYPES.reduce((acc, t) => {
     if (!acc[t.group]) acc[t.group] = [];
     acc[t.group].push(t);
@@ -116,12 +120,43 @@ function EditorSidebar({
 
             <div className="mt-4">
               <p className="text-[10px] font-bold text-muted-foreground tracking-wider mb-1 px-2">ESTILO</p>
-              {['Cores', 'Templates de Estilo', 'Modelo de Layout', 'Carregar Template'].map(item => (
-                <button key={item} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
-                  <Palette className="w-3.5 h-3.5" />
-                  <span>{item}</span>
-                </button>
-              ))}
+              <button onClick={() => setColorsOpen(!colorsOpen)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Palette className="w-3.5 h-3.5" /><span>Cores</span>
+              </button>
+              {colorsOpen && (
+                <div className="px-3 py-2 space-y-2">
+                  <div>
+                    <Label className="text-xs">Cor Principal</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={page.primary_color} onChange={e => onUpdatePage({ primary_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                      <Input value={page.primary_color} onChange={e => onUpdatePage({ primary_color: e.target.value })} className="h-7 text-xs flex-1" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Cor de Fundo</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={page.bg_color} onChange={e => onUpdatePage({ bg_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                      <Input value={page.bg_color} onChange={e => onUpdatePage({ bg_color: e.target.value })} className="h-7 text-xs flex-1" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Cor do Texto</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={page.text_color} onChange={e => onUpdatePage({ text_color: e.target.value })} className="w-8 h-7 rounded cursor-pointer border-0" />
+                      <Input value={page.text_color} onChange={e => onUpdatePage({ text_color: e.target.value })} className="h-7 text-xs flex-1" />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <button onClick={() => setTemplatesOpen(true)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Palette className="w-3.5 h-3.5" /><span>Templates de Estilo</span>
+              </button>
+              <button onClick={() => setLayoutOpen(true)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Grid3X3 className="w-3.5 h-3.5" /><span>Modelo de Layout</span>
+              </button>
+              <button onClick={() => setLoadTemplateOpen(true)} className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-foreground/70 hover:bg-accent rounded-md">
+                <Upload className="w-3.5 h-3.5" /><span>Carregar Template</span>
+              </button>
             </div>
           </>
         ) : (
@@ -240,6 +275,127 @@ function EditorSidebar({
                 </div>
               </div>
             ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Templates de Estilo */}
+      <Dialog open={templatesOpen} onOpenChange={setTemplatesOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Templates de Estilo</DialogTitle></DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { name: 'Dark Premium', primary: '#ec4899', bg: '#0a0a0a', text: '#ffffff' },
+              { name: 'Ocean Blue', primary: '#3b82f6', bg: '#0c1222', text: '#e2e8f0' },
+              { name: 'Forest Green', primary: '#10b981', bg: '#0a1a0f', text: '#d1fae5' },
+              { name: 'Royal Purple', primary: '#8b5cf6', bg: '#0f0a1a', text: '#e9e0ff' },
+              { name: 'Sunset Warm', primary: '#f59e0b', bg: '#1a0f05', text: '#fef3c7' },
+              { name: 'Coral Vibrant', primary: '#ef4444', bg: '#1a0a0a', text: '#fecaca' },
+              { name: 'Minimal Light', primary: '#1f2937', bg: '#fafafa', text: '#111827' },
+              { name: 'Neon Cyber', primary: '#06b6d4', bg: '#020617', text: '#cffafe' },
+            ].map(t => (
+              <button
+                key={t.name}
+                onClick={() => {
+                  onUpdatePage({ primary_color: t.primary, bg_color: t.bg, text_color: t.text });
+                  setTemplatesOpen(false);
+                }}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg border border-border hover:border-primary transition-colors"
+              >
+                <div className="w-full h-16 rounded-md flex items-center justify-center" style={{ background: t.bg }}>
+                  <div className="w-8 h-8 rounded-full" style={{ background: t.primary }} />
+                </div>
+                <span className="text-xs font-medium">{t.name}</span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modelo de Layout */}
+      <Dialog open={layoutOpen} onOpenChange={setLayoutOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Modelo de Layout</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground mb-3">Escolha um layout pré-definido. As seções atuais serão substituídas.</p>
+          <div className="grid grid-cols-1 gap-3">
+            {[
+              { name: 'Portfólio Completo', desc: 'Hero + Stats + Portfolio + Depoimentos + CTA', sections: ['hero', 'stats', 'portfolio', 'testimonials', 'cta_final'] },
+              { name: 'Landing Page', desc: 'Hero + About + CTA + Depoimentos', sections: ['hero', 'about', 'cta', 'testimonials', 'cta_final'] },
+              { name: 'Minimalista', desc: 'Hero + Portfolio + CTA', sections: ['hero', 'portfolio', 'cta_final'] },
+              { name: 'Apresentação', desc: 'Hero + Stats + Timeline + CTA', sections: ['hero', 'stats', 'timeline', 'cta_final'] },
+            ].map(layout => (
+              <button
+                key={layout.name}
+                onClick={() => {
+                  layout.sections.forEach((type, i) => {
+                    setTimeout(() => onAdd(type), i * 100);
+                  });
+                  setLayoutOpen(false);
+                }}
+                className="text-left p-3 rounded-lg border border-border hover:border-primary transition-colors"
+              >
+                <p className="text-sm font-medium">{layout.name}</p>
+                <p className="text-xs text-muted-foreground">{layout.desc}</p>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Carregar Template */}
+      <Dialog open={loadTemplateOpen} onOpenChange={setLoadTemplateOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Carregar Template</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground mb-3">Importe um template JSON salvo anteriormente ou cole a configuração.</p>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Arquivo JSON</Label>
+              <Input
+                type="file"
+                accept=".json"
+                className="text-xs"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const text = await file.text();
+                    const template = JSON.parse(text);
+                    if (template.primary_color) onUpdatePage({ primary_color: template.primary_color, bg_color: template.bg_color, text_color: template.text_color });
+                    if (template.sections && Array.isArray(template.sections)) {
+                      template.sections.forEach((type: string, i: number) => {
+                        setTimeout(() => onAdd(type), i * 100);
+                      });
+                    }
+                    setLoadTemplateOpen(false);
+                  } catch { /* ignore */ }
+                }}
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-2">Ou exporte o template atual</p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                onClick={() => {
+                  const template = {
+                    primary_color: page.primary_color,
+                    bg_color: page.bg_color,
+                    text_color: page.text_color,
+                    sections: sections.map(s => s.type),
+                  };
+                  const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'portfolio-template.json';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                Exportar Template Atual
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

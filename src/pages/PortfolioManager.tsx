@@ -267,7 +267,7 @@ function BioLinkEditor() {
                 <div>
                   <Label className="text-xs">URL da Bio</Label>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">dgtflow.com.br/bio/</span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">central-opus-flow.lovable.app/bio/</span>
                     <Input value={localBio.slug} onChange={e => updateField('slug', e.target.value)} className="h-8 text-sm flex-1" />
                   </div>
                 </div>

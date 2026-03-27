@@ -389,11 +389,9 @@ function FichaTecnica({ client, onBack }: { client: FullClient; onBack: () => vo
 function ClientDetailView({ client, onBack, onFichaTecnica }: { client: FullClient; onBack: () => void; onFichaTecnica: () => void }) {
   const [tab, setTab] = useState('info');
   const { data: techData } = useClientTechnicalData(client.id);
-  const { data: userIntegrations } = useUserIntegrations();
+  const { integrations, isConnected } = useUserIntegrations();
 
-  const hasDriveConnected = useMemo(() => {
-    return userIntegrations?.some((i: any) => i.provider === 'google_drive' && i.is_active);
-  }, [userIntegrations]);
+  const hasDriveConnected = isConnected('google_drive');
 
   return (
     <Dialog open onOpenChange={() => onBack()}>

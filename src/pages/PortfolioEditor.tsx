@@ -48,6 +48,10 @@ function EditorSidebar({
   const [sidebarTab, setSidebarTab] = useState<'elementos' | 'config'>('elementos');
   const [seoOpen, setSeoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [colorsOpen, setColorsOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [loadTemplateOpen, setLoadTemplateOpen] = useState(false);
   const grouped = SECTION_TYPES.reduce((acc, t) => {
     if (!acc[t.group]) acc[t.group] = [];
     acc[t.group].push(t);

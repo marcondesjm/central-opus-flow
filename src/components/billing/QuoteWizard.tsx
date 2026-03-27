@@ -68,6 +68,8 @@ export function QuoteWizard({ onClose, onCreated }: QuoteWizardProps) {
   // Step 2
   const [items, setItems] = useState<QuoteItem[]>([]);
   const [discount, setDiscount] = useState(0);
+  const [showNewServiceInline, setShowNewServiceInline] = useState(false);
+  const [newServiceForm, setNewServiceForm] = useState({ name: '', description: '', price: 0 });
 
   // Step 3
   const [isRecurring, setIsRecurring] = useState(false);
@@ -100,6 +102,19 @@ export function QuoteWizard({ onClose, onCreated }: QuoteWizardProps) {
       unit_price: Number(svc.default_price),
       total: Number(svc.default_price),
     }]);
+  };
+
+  const addCustomService = () => {
+    if (!newServiceForm.name.trim() || newServiceForm.price <= 0) return;
+    setItems(prev => [...prev, {
+      name: newServiceForm.name.trim(),
+      description: newServiceForm.description,
+      quantity: 1,
+      unit_price: newServiceForm.price,
+      total: newServiceForm.price,
+    }]);
+    setNewServiceForm({ name: '', description: '', price: 0 });
+    setShowNewServiceInline(false);
   };
 
   const updateItem = (idx: number, field: string, value: any) => {
@@ -253,10 +268,36 @@ export function QuoteWizard({ onClose, onCreated }: QuoteWizardProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" className="gap-1.5">
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowNewServiceInline(!showNewServiceInline)}>
                   <Plus className="w-3.5 h-3.5" /> Novo
                 </Button>
               </div>
+
+              {showNewServiceInline && (
+                <Card className="border-pink-500/30">
+                  <CardContent className="p-4 space-y-3">
+                    <p className="text-sm font-semibold">Adicionar serviço personalizado</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Nome *</Label>
+                        <Input placeholder="Ex: Consultoria" value={newServiceForm.name} onChange={e => setNewServiceForm(f => ({ ...f, name: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Preço unitário (R$) *</Label>
+                        <Input type="number" min={0} step={0.01} placeholder="0,00" value={newServiceForm.price || ''} onChange={e => setNewServiceForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Descrição</Label>
+                      <Input placeholder="Descrição opcional..." value={newServiceForm.description} onChange={e => setNewServiceForm(f => ({ ...f, description: e.target.value }))} />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => setShowNewServiceInline(false)}>Cancelar</Button>
+                      <Button size="sm" className="flex-1 bg-pink-500 hover:bg-pink-600 text-white" onClick={addCustomService} disabled={!newServiceForm.name.trim() || newServiceForm.price <= 0}>Adicionar</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {items.length > 0 ? (
                 <div className="space-y-3">

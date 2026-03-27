@@ -661,9 +661,10 @@ function BioLinkEditor() {
                           const style = getButtonStyleCSS(link.color || undefined);
 
                           if (link.type === 'image') {
+                            const imgSrc = (link as any).image_url || link.url;
                             return (
                               <div key={li} className="w-full rounded-lg overflow-hidden">
-                                {link.url ? <img src={link.url} alt={link.label} className="w-full h-auto" /> : <div className="w-full h-20 bg-white/10 flex items-center justify-center text-xs text-white/40">Imagem</div>}
+                                {imgSrc ? <img src={imgSrc} alt={link.label} className="w-full h-auto" /> : <div className="w-full h-20 bg-white/10 flex items-center justify-center text-xs text-white/40">Imagem</div>}
                               </div>
                             );
                           }

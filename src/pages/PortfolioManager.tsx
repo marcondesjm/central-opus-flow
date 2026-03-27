@@ -1590,7 +1590,7 @@ function PixelsTrackingSection() {
               <div className="relative">
                 <Input value={metaAccessToken} onChange={e => setMetaAccessToken(e.target.value)} placeholder="EAAxxxxxxxx..." type={showToken ? 'text' : 'password'} className="h-8 text-xs pr-8" />
                 <button type="button" onClick={() => setShowToken(!showToken)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showToken ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                  {showToken ? <Eye className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">Conversions API para melhor atribuição</p>

@@ -40,6 +40,7 @@ export default function Landing() {
       <BenefitsSection />
       <DifferentiationSection />
       <FeaturesSlideshow />
+      <IntegrationsSection />
       <PricingSection />
       <TestimonialsSection />
       <FinalCTASection />

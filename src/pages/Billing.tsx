@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
   TrendingUp, TrendingDown, DollarSign, Plus, Search,
@@ -451,6 +452,7 @@ function TransactionRow({ tx, clients, suppliers, categories, onDelete }: {
 
 // ─── Main Page ──────────────────────────
 export default function BillingPage() {
+  const [searchParams] = useSearchParams();
   const { data: allTx, isLoading: txLoading } = useFinancialTransactions();
   const { data: receitas } = useFinancialTransactions('receita');
   const { data: despesas } = useFinancialTransactions('despesa');
@@ -461,7 +463,7 @@ export default function BillingPage() {
   const deleteTx = useDeleteTransaction();
   const deleteRecurring = useDeleteRecurring();
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [showVenda, setShowVenda] = useState(false);
   const [showDespesa, setShowDespesa] = useState(false);
   const [showCategorias, setShowCategorias] = useState(false);

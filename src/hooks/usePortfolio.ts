@@ -164,7 +164,6 @@ export function usePublicPortfolio(slug: string) {
         .from('portfolio_pages')
         .select('*')
         .eq('slug', slug)
-        .eq('is_published', true)
         .maybeSingle();
       if (pe) throw pe;
       if (!page) return null;

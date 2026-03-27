@@ -32,8 +32,10 @@ export default function Pricing() {
   const { data: teamSettings } = useTeamPricingSettings();
   const monthly = pricingSettings?.monthly_price ?? 7.90;
   const annual = pricingSettings?.annual_price ?? 73.90;
-  const annualTotal = annual;
+  // annual_price is the TOTAL annual price (e.g. 73.90/year)
+  const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;
+  const discount = Math.round((1 - annual / monthlyTotal) * 100);
   const discount = Math.round((1 - annual / monthly) * 100);
 
   const handleSelectPlan = (planName: string, price?: number, billing?: 'monthly' | 'annual') => {

@@ -217,23 +217,24 @@ function BioLinkEditor() {
     return { background: `linear-gradient(180deg, ${localBio.bg_color_1}, ${localBio.bg_color_2})` };
   };
 
-  const getButtonStyleCSS = (linkColor?: string): React.CSSProperties => {
+  const getButtonStyleCSS = (linkColor?: string, borderColor?: string): React.CSSProperties => {
     const c = linkColor || localBio.button_color || '#3b82f6';
     const tc = localBio.button_text_color || '#ffffff';
     const r = `${localBio.button_radius ?? 9999}px`;
     const base: React.CSSProperties = { borderRadius: r, color: tc };
+    const bc = borderColor && borderColor !== 'default' ? borderColor : undefined;
 
     switch (localBio.button_style) {
-      case 'solid': return { ...base, background: c };
-      case 'outline': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c };
-      case 'outline_animated': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c, boxShadow: `0 0 8px ${c}44` };
-      case 'glow': return { ...base, background: c, boxShadow: `0 0 20px ${c}66, 0 0 40px ${c}33` };
-      case 'gradient': return { ...base, background: `linear-gradient(135deg, ${c}, ${c}88)` };
-      case 'transparent': return { ...base, background: `${c}22`, color: c, border: `1px solid ${c}33` };
-      case 'glass': return { ...base, background: `${c}22`, backdropFilter: 'blur(10px)', border: `1px solid ${c}33` };
-      case 'bevel': return { ...base, background: c, boxShadow: `inset 0 2px 0 ${c}44, inset 0 -2px 0 rgba(0,0,0,0.3)` };
-      case 'shadow': return { ...base, background: c, boxShadow: `0 4px 14px ${c}44` };
-      default: return { ...base, background: c };
+      case 'solid': return { ...base, background: c, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'outline': return { ...base, background: 'transparent', border: `2px solid ${bc || c}`, color: bc || c };
+      case 'outline_animated': return { ...base, background: 'transparent', border: `2px solid ${bc || c}`, color: bc || c, boxShadow: `0 0 8px ${(bc || c)}44` };
+      case 'glow': return { ...base, background: c, boxShadow: `0 0 20px ${c}66, 0 0 40px ${c}33`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'gradient': return { ...base, background: `linear-gradient(135deg, ${c}, ${c}88)`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'transparent': return { ...base, background: `${c}22`, color: c, border: `1px solid ${bc || c}33` };
+      case 'glass': return { ...base, background: `${c}22`, backdropFilter: 'blur(10px)', border: `1px solid ${bc || c}33` };
+      case 'bevel': return { ...base, background: c, boxShadow: `inset 0 2px 0 ${c}44, inset 0 -2px 0 rgba(0,0,0,0.3)`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      case 'shadow': return { ...base, background: c, boxShadow: `0 4px 14px ${c}44`, ...(bc ? { border: `2px solid ${bc}` } : {}) };
+      default: return { ...base, background: c, ...(bc ? { border: `2px solid ${bc}` } : {}) };
     }
   };
 

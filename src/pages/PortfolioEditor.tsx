@@ -1225,15 +1225,14 @@ export default function PortfolioEditor() {
 
   // Fetch services for contact preview
   useEffect(() => {
-    if (!page?.user_id) return;
+    const ownerId = page?.user_id || user?.id;
+    if (!ownerId) return;
     supabase
       .from('financial_services')
       .select('id, name, description, default_price')
-      .eq('user_id', page.user_id)
-      .eq('show_public', true)
-      .eq('status', 'active')
+      .eq('user_id', ownerId)
       .then(({ data: svcs }) => { if (svcs) setServices(svcs); });
-  }, [page?.user_id]);
+  }, [page?.user_id, user?.id]);
 
   // Auto-create page if none exists
   useEffect(() => {

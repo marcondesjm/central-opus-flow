@@ -814,6 +814,8 @@ export default function PortfolioEditor() {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [leadModalOpen, setLeadModalOpen] = useState(false);
   const [localSections, setLocalSections] = useState<PortfolioSection[]>([]);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingSaveRef = useRef<Set<string>>(new Set());
 
   useEffect(() => { setLocalSections(sections); }, [sections]);
 
@@ -824,6 +826,23 @@ export default function PortfolioEditor() {
     }
   }, [isLoading, page]);
 
+  // Auto-save debounce
+  const scheduleAutoSave = useCallback((sectionId: string) => {
+    pendingSaveRef.current.add(sectionId);
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      const ids = Array.from(pendingSaveRef.current);
+      pendingSaveRef.current.clear();
+      setLocalSections(current => {
+        ids.forEach(id => {
+          const s = current.find(sec => sec.id === id);
+          if (s) upsertSection.mutate(s);
+        });
+        return current;
+      });
+    }, 1500);
+  }, [upsertSection]);
+
   if (isLoading || !page) {
     return <div className="flex items-center justify-center h-screen text-muted-foreground">Carregando editor...</div>;
   }
@@ -831,10 +850,12 @@ export default function PortfolioEditor() {
   const selectedSection = localSections.find(s => s.id === selectedId) || null;
 
   const handleSave = async () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    pendingSaveRef.current.clear();
     for (const s of localSections) {
       await upsertSection.mutateAsync(s);
     }
-    toast({ title: 'Portfólio salvo!' });
+    toast({ title: 'Portfólio salvo com sucesso!' });
   };
 
   const handleAdd = (type: string) => {
@@ -851,7 +872,6 @@ export default function PortfolioEditor() {
     };
     setLocalSections(prev => [...prev, newSection]);
     setSelectedId(newSection.id);
-    // Save to DB
     upsertSection.mutate(newSection);
   };
 
@@ -875,6 +895,7 @@ export default function PortfolioEditor() {
 
   const handleUpdateSection = (updated: PortfolioSection) => {
     setLocalSections(prev => prev.map(s => s.id === updated.id ? updated : s));
+    scheduleAutoSave(updated.id);
   };
 
   const handleUpdatePage = (updates: Partial<PortfolioPage>) => {
@@ -910,6 +931,8 @@ export default function PortfolioEditor() {
           <Button variant="ghost" size="sm" onClick={() => window.open(`/portfolio/${page.slug}`, '_blank')}>
             <Eye className="w-4 h-4 mr-1" /> Preview
           </Button>
+          <Switch checked={page.is_published} onCheckedChange={v => handleUpdatePage({ is_published: v })} />
+          <span className="text-xs text-muted-foreground">{page.is_published ? 'Publicado' : 'Rascunho'}</span>
           <Button size="sm" onClick={handleSave} className="bg-primary text-primary-foreground">
             <Save className="w-4 h-4 mr-1" /> Salvar
           </Button>
@@ -951,8 +974,14 @@ export default function PortfolioEditor() {
                 <CanvasBlock section={section} page={page} />
               </div>
             ))}
-          </div>
 
+            {localSections.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-32 text-muted-foreground">
+                <Plus className="w-12 h-12 mb-3 opacity-30" />
+                <p className="text-sm">Adicione blocos na sidebar para começar</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Properties Panel */}

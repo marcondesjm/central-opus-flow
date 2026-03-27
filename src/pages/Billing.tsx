@@ -464,6 +464,15 @@ export default function BillingPage() {
   const deleteRecurring = useDeleteRecurring();
 
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
+  
+  // Sync activeTab with URL param changes (e.g. when navigating from sidebar)
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
   const [showVenda, setShowVenda] = useState(false);
   const [showDespesa, setShowDespesa] = useState(false);
   const [showCategorias, setShowCategorias] = useState(false);

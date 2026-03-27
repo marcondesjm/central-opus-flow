@@ -77,7 +77,7 @@ function PublicBlock({ section, page, onOpenContact }: { section: PortfolioSecti
           style={{ background: `linear-gradient(135deg, ${page.bg_color}ee, ${page.bg_color})` }}>
           {c.bg_image_url && <img src={c.bg_image_url} className="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/20 to-transparent" />
-          <div className="relative z-10 flex items-center gap-12 w-full max-w-6xl mx-auto">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full max-w-6xl mx-auto py-12 md:py-0">
             <div className="flex-1 space-y-6">
               {c.badge && <span className="inline-block px-4 py-1.5 border border-white/20 text-white/60 text-sm rounded">{c.badge}</span>}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" style={{ color: page.text_color }}>{c.headline}</h1>

@@ -347,7 +347,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                         <p className="text-[10px] text-muted-foreground">Moeda padrão para exibição de valores</p>
                       </div>
                     </div>
-                    <Select defaultValue="brl">
+                    <Select value={currency} onValueChange={(v) => {
+                      setCurrency(v);
+                      localStorage.setItem('app-currency', v);
+                      window.dispatchEvent(new Event('currency-changed'));
+                      toast({ title: 'Moeda atualizada!' });
+                    }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="brl">R$ BRL - Real Brasileiro</SelectItem>

@@ -496,7 +496,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
                   <p className="text-xs text-muted-foreground">💡 <strong>Dica:</strong> Selecione as páginas que você mais acessa para ter acesso rápido no mobile.</p>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Salvar</Button>
+                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0" onClick={() => {
+                  localStorage.setItem(MOBILE_SHORTCUTS_KEY, JSON.stringify(selectedShortcuts));
+                  window.dispatchEvent(new Event('mobile-shortcuts-changed'));
+                  toast({ title: 'Atalhos salvos!', description: 'O menu mobile foi atualizado.' });
+                }}>Salvar</Button>
               </div>
             </TabsContent>
 

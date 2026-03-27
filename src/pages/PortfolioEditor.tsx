@@ -1225,14 +1225,22 @@ export default function PortfolioEditor() {
 
   // Fetch services for contact preview
   useEffect(() => {
-    const ownerId = page?.user_id || user?.id;
-    if (!ownerId) return;
-    supabase
-      .from('financial_services')
-      .select('id, name, description, default_price')
-      .eq('user_id', ownerId)
-      .then(({ data: svcs }) => { if (svcs) setServices(svcs); });
-  }, [page?.user_id, user?.id]);
+    const loadServices = async () => {
+      const ownerId = page?.user_id;
+      let uid = ownerId;
+      if (!uid) {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        uid = authUser?.id;
+      }
+      if (!uid) return;
+      const { data: svcs } = await supabase
+        .from('financial_services')
+        .select('id, name, description, default_price')
+        .eq('user_id', uid);
+      if (svcs) setServices(svcs);
+    };
+    loadServices();
+  }, [page?.user_id]);
 
   // Auto-create page if none exists
   useEffect(() => {

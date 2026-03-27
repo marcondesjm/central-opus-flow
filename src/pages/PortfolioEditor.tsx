@@ -314,28 +314,37 @@ function EditorSidebar({
 
       {/* Modelo de Layout */}
       <Dialog open={layoutOpen} onOpenChange={setLayoutOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Modelo de Layout</DialogTitle></DialogHeader>
-          <p className="text-xs text-muted-foreground mb-3">Escolha um layout pré-definido. As seções atuais serão substituídas.</p>
+          <p className="text-xs text-muted-foreground mb-3">Escolha um modelo. As seções atuais serão substituídas por novas seções com conteúdo exclusivo.</p>
           <div className="grid grid-cols-1 gap-3">
-            {[
-              { name: 'Portfólio Completo', desc: 'Hero + Stats + Portfolio + Depoimentos + CTA', sections: ['hero', 'stats', 'portfolio', 'testimonials', 'cta_final'] },
-              { name: 'Landing Page', desc: 'Hero + About + CTA + Depoimentos', sections: ['hero', 'about', 'cta', 'testimonials', 'cta_final'] },
-              { name: 'Minimalista', desc: 'Hero + Portfolio + CTA', sections: ['hero', 'portfolio', 'cta_final'] },
-              { name: 'Apresentação', desc: 'Hero + Stats + Timeline + CTA', sections: ['hero', 'stats', 'timeline', 'cta_final'] },
-            ].map(layout => (
+            {LAYOUT_MODELS.map(layout => (
               <button
                 key={layout.name}
                 onClick={() => {
-                  layout.sections.forEach((type, i) => {
-                    setTimeout(() => onAdd(type), i * 100);
+                  // Clear existing sections first, then add new ones
+                  layout.steps.forEach((step, i) => {
+                    setTimeout(() => onAdd(step.type, step.content), i * 150);
                   });
+                  if (layout.colors) {
+                    onUpdatePage(layout.colors);
+                  }
                   setLayoutOpen(false);
                 }}
-                className="text-left p-3 rounded-lg border border-border hover:border-primary transition-colors"
+                className="text-left p-4 rounded-lg border border-border hover:border-primary transition-colors group"
               >
-                <p className="text-sm font-medium">{layout.name}</p>
-                <p className="text-xs text-muted-foreground">{layout.desc}</p>
+                <div className="flex items-center gap-3">
+                  {layout.colors && (
+                    <div className="flex gap-1 shrink-0">
+                      <div className="w-4 h-4 rounded-full border border-border" style={{ background: layout.colors.primary_color }} />
+                      <div className="w-4 h-4 rounded-full border border-border" style={{ background: layout.colors.bg_color }} />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium group-hover:text-primary transition-colors">{layout.name}</p>
+                    <p className="text-xs text-muted-foreground">{layout.desc}</p>
+                  </div>
+                </div>
               </button>
             ))}
           </div>

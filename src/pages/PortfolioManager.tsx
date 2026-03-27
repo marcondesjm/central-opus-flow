@@ -1284,12 +1284,12 @@ function ConfiguracoesTab() {
                     className="h-7 text-xs flex-1"
                   />
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/p/${page.slug}`);
+                    navigator.clipboard.writeText(`${window.location.origin}/portfolio/${page.slug}`);
                     toast({ title: 'Link copiado!' });
                   }}>
                     <Copy className="w-3.5 h-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.open(`/p/${page.slug}`, '_blank')}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.open(`${window.location.origin}/portfolio/${page.slug}`, '_blank', 'noopener,noreferrer')}>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </Button>
                 </div>

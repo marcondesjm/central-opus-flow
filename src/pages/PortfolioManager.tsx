@@ -928,7 +928,7 @@ function ConfiguracoesTab() {
             </div>
             <div>
               <Label className="text-xs">Título SEO</Label>
-              <Input value={page.meta_title || ''} onChange={e => updatePage.mutate({ meta_title: e.target.value })} className="h-8 text-sm" />
+              <Input value={page.meta_title || ''} onChange={e => updatePage.mutate({ id: page.id, meta_title: e.target.value })} className="h-8 text-sm" />
             </div>
             <div className="md:col-span-2">
               <Label className="text-xs">Descrição SEO</Label>

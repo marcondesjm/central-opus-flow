@@ -2332,6 +2332,75 @@ export type Database = {
         }
         Relationships: []
       }
+      user_integrations: {
+        Row: {
+          config: Json | null
+          connected_at: string | null
+          created_at: string
+          id: string
+          integration_name: string
+          is_connected: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json | null
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          integration_name: string
+          is_connected?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json | null
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          integration_name?: string
+          is_connected?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_notification_preferences: {
+        Row: {
+          ai_insights: boolean
+          created_at: string
+          deadlines_near: boolean
+          id: string
+          new_leads: boolean
+          payments_received: boolean
+          proposals_opened: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_insights?: boolean
+          created_at?: string
+          deadlines_near?: boolean
+          id?: string
+          new_leads?: boolean
+          payments_received?: boolean
+          proposals_opened?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_insights?: boolean
+          created_at?: string
+          deadlines_near?: boolean
+          id?: string
+          new_leads?: boolean
+          payments_received?: boolean
+          proposals_opened?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

@@ -1,0 +1,6 @@
+
+ALTER TABLE public.bio_links 
+  ADD COLUMN IF NOT EXISTS font text NOT NULL DEFAULT 'Inter',
+  ADD COLUMN IF NOT EXISTS button_radius integer NOT NULL DEFAULT 9999,
+  ADD COLUMN IF NOT EXISTS theme_color text NOT NULL DEFAULT '#6366f1',
+  ADD COLUMN IF NOT EXISTS blocks jsonb NOT NULL DEFAULT '[]'::jsonb;

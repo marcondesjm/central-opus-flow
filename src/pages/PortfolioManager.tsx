@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import {
   usePortfolioPage, useCreatePortfolioPage, useUpdatePortfolioPage,
@@ -16,16 +17,19 @@ import {
 } from '@/hooks/usePortfolio';
 import {
   useBioLink, useCreateBioLink, useUpdateBioLink, useUploadBioAvatar,
-  type BioLink, type BioLinkItem,
+  type BioLink, type BioBlock, type BioLinkItemLink,
 } from '@/hooks/useBioLink';
 import {
   Globe, Link2, FileText, Calendar, BarChart3, Settings,
   ExternalLink, Copy, ChevronDown, Plus, Trash2, Upload,
   GripVertical, Eye, Palette, Layout, MousePointer, AlertTriangle,
   Briefcase, Instagram, Phone, Youtube, Twitter, Linkedin, Mail, Music,
-  Maximize2, Save, Loader2,
+  Maximize2, Save, Loader2, Image as ImageIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 
 const LINK_ICONS = [
   { id: 'Briefcase', label: 'Portfólio', Icon: Briefcase },
@@ -45,20 +49,67 @@ const ICON_MAP: Record<string, any> = {
 };
 
 const BG_PRESETS = [
-  { id: 'gradient_blue', label: 'Azul', c1: '#1a1a2e', c2: '#16213e' },
-  { id: 'gradient_purple', label: 'Roxo', c1: '#2d1b69', c2: '#1a1a2e' },
-  { id: 'gradient_green', label: 'Verde', c1: '#1b4332', c2: '#1a1a2e' },
-  { id: 'gradient_pink', label: 'Rosa', c1: '#831843', c2: '#1a1a2e' },
-  { id: 'gradient_dark', label: 'Dark', c1: '#111111', c2: '#0a0a0a' },
-  { id: 'gradient_warm', label: 'Warm', c1: '#92400e', c2: '#1a1a2e' },
+  { id: 'gradient_smooth', label: 'Gradiente Suave', css: 'linear-gradient(180deg, #1e3a5f, #0f172a)' },
+  { id: 'radial_glow', label: 'Radial Glow', css: 'radial-gradient(ellipse at top, #312e81, #0f172a)' },
+  { id: 'mesh_gradient', label: 'Mesh Gradient', css: 'linear-gradient(135deg, #1e3a5f, #312e81, #0f172a)' },
+  { id: 'gradient_animated', label: 'Gradiente Animado', css: 'linear-gradient(135deg, #7c3aed, #2563eb, #0f172a)' },
+  { id: 'glow_pulse', label: 'Glow Pulse', css: 'radial-gradient(ellipse at center, #7c3aed33, #0f172a)' },
+  { id: 'wave_motion', label: 'Wave Motion', css: 'linear-gradient(180deg, #0ea5e9, #1e3a5f, #0f172a)' },
+  { id: 'aurora', label: 'Aurora', css: 'linear-gradient(135deg, #10b981, #6366f1, #0f172a)' },
+  { id: 'energy_flow', label: 'Energy Flow', css: 'linear-gradient(180deg, #f59e0b, #ef4444, #0f172a)' },
+  { id: 'solid', label: 'Cor Sólida', css: '#1a1a2e' },
+  { id: 'dark_mode', label: 'Dark Mode', css: 'linear-gradient(180deg, #111111, #000000)' },
+  { id: 'dots_pattern', label: 'Dots Pattern', css: 'linear-gradient(180deg, #1e293b, #0f172a)' },
+  { id: 'grid_lines', label: 'Grid Lines', css: 'linear-gradient(180deg, #1e293b, #0f172a)' },
+  { id: 'diagonal_lines', label: 'Diagonal Lines', css: 'linear-gradient(135deg, #1e293b, #0f172a)' },
+  { id: 'waves', label: 'Waves', css: 'linear-gradient(180deg, #0c4a6e, #0f172a)' },
+  { id: 'noise_texture', label: 'Noise Texture', css: 'linear-gradient(180deg, #27272a, #18181b)' },
+  { id: 'geometric', label: 'Geometric Shapes', css: 'linear-gradient(135deg, #4c1d95, #1e1b4b)' },
 ];
 
 const BUTTON_STYLES = [
-  { id: 'rounded', label: 'Arredondado' },
-  { id: 'square', label: 'Quadrado' },
+  { id: 'solid', label: 'Sólido' },
   { id: 'outline', label: 'Contorno' },
-  { id: 'shadow', label: 'Com Sombra' },
+  { id: 'outline_animated', label: 'Contorno Animado' },
+  { id: 'glow', label: 'Glow' },
+  { id: 'gradient', label: 'Gradiente' },
+  { id: 'transparent', label: 'Transparente' },
+  { id: 'glass', label: 'Glass' },
+  { id: 'bevel', label: 'Bevel' },
+  { id: 'shadow', label: 'Shadow' },
 ];
+
+const FONTS = [
+  { id: 'Inter', label: 'Default (Inter)' },
+  { id: 'Poppins', label: 'Poppins' },
+  { id: 'Roboto', label: 'Roboto' },
+  { id: 'Montserrat', label: 'Montserrat' },
+  { id: 'Open Sans', label: 'Open Sans' },
+  { id: 'Playfair Display', label: 'Playfair Display' },
+  { id: 'Space Grotesk', label: 'Space Grotesk' },
+];
+
+function hslToHex(h: number, s: number, l: number) {
+  l /= 100; s /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => { const k = (n + h / 30) % 12; const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1); return Math.round(255 * color).toString(16).padStart(2, '0'); };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function hexToHue(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0;
+  if (max !== min) {
+    const d = max - min;
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+    else if (max === g) h = ((b - r) / d + 2) * 60;
+    else h = ((r - g) / d + 4) * 60;
+  }
+  return Math.round(h);
+}
 
 // ============ BIO LINK EDITOR ============
 function BioLinkEditor() {
@@ -99,35 +150,93 @@ function BioLinkEditor() {
     updateField('avatar_url', url);
   };
 
-  const addLink = () => {
-    const links = [...(localBio.links || []), { label: 'Novo Link', url: '', icon: 'ExternalLink', enabled: true }];
-    updateField('links', links);
+  // Block helpers
+  const blocks = localBio.blocks || [];
+  const updateBlocks = (newBlocks: BioBlock[]) => updateField('blocks', newBlocks);
+
+  const addBlock = () => {
+    updateBlocks([...blocks, {
+      id: crypto.randomUUID(),
+      title: '',
+      layout: '1col',
+      links: [{ type: 'button', label: 'Novo Link', url: '', icon: 'ExternalLink', icon_position: 'side', icon_size: 'md', color: '', border: 'default', enabled: true }],
+    }]);
   };
 
-  const updateLink = (i: number, updates: Partial<BioLinkItem>) => {
-    const links = [...localBio.links];
-    links[i] = { ...links[i], ...updates };
-    updateField('links', links);
+  const updateBlock = (blockIdx: number, updates: Partial<BioBlock>) => {
+    const nb = [...blocks];
+    nb[blockIdx] = { ...nb[blockIdx], ...updates };
+    updateBlocks(nb);
   };
 
-  const removeLink = (i: number) => {
-    updateField('links', localBio.links.filter((_, idx) => idx !== i));
+  const removeBlock = (blockIdx: number) => {
+    updateBlocks(blocks.filter((_, i) => i !== blockIdx));
   };
 
-  const getBgStyle = () => {
+  const addLinkToBlock = (blockIdx: number, type: 'button' | 'image' | 'lead') => {
+    const nb = [...blocks];
+    nb[blockIdx] = {
+      ...nb[blockIdx],
+      links: [...nb[blockIdx].links, {
+        type,
+        label: type === 'button' ? 'Novo Link' : type === 'image' ? '' : 'Captura de Lead',
+        url: '',
+        icon: type === 'button' ? 'ExternalLink' : '',
+        icon_position: 'side',
+        icon_size: 'md',
+        color: '',
+        border: 'default',
+        enabled: true,
+      }],
+    };
+    updateBlocks(nb);
+  };
+
+  const updateLinkInBlock = (blockIdx: number, linkIdx: number, updates: Partial<BioLinkItemLink>) => {
+    const nb = [...blocks];
+    const links = [...nb[blockIdx].links];
+    links[linkIdx] = { ...links[linkIdx], ...updates };
+    nb[blockIdx] = { ...nb[blockIdx], links };
+    updateBlocks(nb);
+  };
+
+  const removeLinkFromBlock = (blockIdx: number, linkIdx: number) => {
+    const nb = [...blocks];
+    nb[blockIdx] = { ...nb[blockIdx], links: nb[blockIdx].links.filter((_, i) => i !== linkIdx) };
+    updateBlocks(nb);
+  };
+
+  const getBgStyle = (): React.CSSProperties => {
     const preset = BG_PRESETS.find(p => p.id === localBio.bg_style);
-    if (preset) return { background: `linear-gradient(180deg, ${preset.c1}, ${preset.c2})` };
+    if (preset) return { background: preset.css };
+    if (localBio.bg_style === 'solid') return { background: localBio.bg_color_1 };
     return { background: `linear-gradient(180deg, ${localBio.bg_color_1}, ${localBio.bg_color_2})` };
   };
 
-  const getButtonStyle = (): React.CSSProperties => {
-    const base: React.CSSProperties = { background: localBio.button_color, color: localBio.button_text_color };
-    if (localBio.button_style === 'rounded') return { ...base, borderRadius: '9999px' };
-    if (localBio.button_style === 'square') return { ...base, borderRadius: '8px' };
-    if (localBio.button_style === 'outline') return { ...base, background: 'transparent', border: `2px solid ${localBio.button_color}`, color: localBio.button_color };
-    if (localBio.button_style === 'shadow') return { ...base, borderRadius: '9999px', boxShadow: `0 4px 14px ${localBio.button_color}44` };
-    return { ...base, borderRadius: '9999px' };
+  const getButtonStyleCSS = (linkColor?: string): React.CSSProperties => {
+    const c = linkColor || localBio.button_color || '#3b82f6';
+    const tc = localBio.button_text_color || '#ffffff';
+    const r = `${localBio.button_radius ?? 9999}px`;
+    const base: React.CSSProperties = { borderRadius: r, color: tc };
+
+    switch (localBio.button_style) {
+      case 'solid': return { ...base, background: c };
+      case 'outline': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c };
+      case 'outline_animated': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c, boxShadow: `0 0 8px ${c}44` };
+      case 'glow': return { ...base, background: c, boxShadow: `0 0 20px ${c}66, 0 0 40px ${c}33` };
+      case 'gradient': return { ...base, background: `linear-gradient(135deg, ${c}, ${c}88)` };
+      case 'transparent': return { ...base, background: `${c}22`, color: c, border: `1px solid ${c}33` };
+      case 'glass': return { ...base, background: `${c}22`, backdropFilter: 'blur(10px)', border: `1px solid ${c}33` };
+      case 'bevel': return { ...base, background: c, boxShadow: `inset 0 2px 0 ${c}44, inset 0 -2px 0 rgba(0,0,0,0.3)` };
+      case 'shadow': return { ...base, background: c, boxShadow: `0 4px 14px ${c}44` };
+      default: return { ...base, background: c };
+    }
   };
+
+  const buttonHue = hexToHue(localBio.button_color || '#3b82f6');
+
+  // All links flat for preview
+  const allLinks = blocks.flatMap(b => b.links.filter(l => l.enabled !== false));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -138,11 +247,9 @@ function BioLinkEditor() {
             <h2 className="text-lg font-bold">Editor de Bio Link</h2>
             <p className="text-xs text-muted-foreground">Crie seu mini site personalizado</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => window.open(`/bio/${localBio.slug}`, '_blank')}>
-              <Eye className="w-3.5 h-3.5 mr-1" /> Ver Bio
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" onClick={() => window.open(`/bio/${localBio.slug}`, '_blank')}>
+            <Eye className="w-3.5 h-3.5 mr-1" /> Ver Bio
+          </Button>
         </div>
 
         <ScrollArea className="h-[calc(100vh-320px)]">
@@ -154,34 +261,67 @@ function BioLinkEditor() {
                 <ChevronDown className="w-4 h-4" />
               </CollapsibleTrigger>
               <CollapsibleContent className="p-3 border border-t-0 border-border rounded-b-lg space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border shrink-0">
-                    {localBio.avatar_url ? (
-                      <img src={localBio.avatar_url} className="w-full h-full object-cover" alt="" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/50 to-primary/20 flex items-center justify-center text-primary text-xl font-bold">
-                        {localBio.name?.charAt(0)?.toUpperCase()}
-                      </div>
-                    )}
+                <div>
+                  <Label className="text-xs">URL da Bio</Label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">dgtflow.com.br/bio/</span>
+                    <Input value={localBio.slug} onChange={e => updateField('slug', e.target.value)} className="h-8 text-sm flex-1" />
                   </div>
-                  <label className="flex items-center gap-2 px-3 py-2 bg-accent rounded-md cursor-pointer text-xs hover:bg-accent/80">
-                    <Upload className="w-3 h-3" /> Enviar foto
-                    <input type="file" accept="image/*" className="hidden" onChange={e => {
-                      if (e.target.files?.[0]) handleAvatarUpload(e.target.files[0]);
-                    }} />
-                  </label>
                 </div>
                 <div>
-                  <Label className="text-xs">Nome</Label>
+                  <Label className="text-xs">Foto de Perfil</Label>
+                  <p className="text-[10px] text-muted-foreground mb-1">400x400px recomendado</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border shrink-0">
+                      {localBio.avatar_url ? (
+                        <img src={localBio.avatar_url} className="w-full h-full object-cover" alt="" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/50 to-primary/20 flex items-center justify-center text-primary text-xl font-bold">
+                          {localBio.name?.charAt(0)?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 px-3 py-2 bg-accent rounded-md cursor-pointer text-xs hover:bg-accent/80">
+                        <Upload className="w-3 h-3" /> Alterar Foto
+                        <input type="file" accept="image/*" className="hidden" onChange={e => {
+                          if (e.target.files?.[0]) handleAvatarUpload(e.target.files[0]);
+                        }} />
+                      </label>
+                      <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG até 5MB</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">Nome/Título</Label>
                   <Input value={localBio.name} onChange={e => updateField('name', e.target.value)} className="h-8 text-sm" />
                 </div>
                 <div>
-                  <Label className="text-xs">Bio</Label>
-                  <Textarea value={localBio.bio} onChange={e => updateField('bio', e.target.value)} className="text-sm min-h-[50px]" />
+                  <Label className="text-xs">Descrição</Label>
+                  <Textarea value={localBio.bio} onChange={e => updateField('bio', e.target.value)} className="text-sm min-h-[60px]" />
                 </div>
                 <div>
-                  <Label className="text-xs">Slug da URL</Label>
-                  <Input value={localBio.slug} onChange={e => updateField('slug', e.target.value)} className="h-8 text-sm" />
+                  <Label className="text-xs">Cor do Tema</Label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={localBio.theme_color || '#6366f1'} onChange={e => updateField('theme_color', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
+                    <Input value={localBio.theme_color || '#6366f1'} onChange={e => updateField('theme_color', e.target.value)} className="h-7 text-xs flex-1" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">Fonte</Label>
+                  <Select value={localBio.font || 'Inter'} onValueChange={v => updateField('font', v)}>
+                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {FONTS.map(f => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Cor do Texto</Label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={localBio.text_color || '#ffffff'} onChange={e => updateField('text_color', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
+                    <Input value={localBio.text_color || '#ffffff'} onChange={e => updateField('text_color', e.target.value)} className="h-7 text-xs flex-1" />
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
@@ -193,36 +333,35 @@ function BioLinkEditor() {
                 <ChevronDown className="w-4 h-4" />
               </CollapsibleTrigger>
               <CollapsibleContent className="p-3 border border-t-0 border-border rounded-b-lg space-y-3">
-                <div className="grid grid-cols-3 gap-2">
+                <Label className="text-xs">Estilo do Background</Label>
+                <div className="grid grid-cols-4 gap-2">
                   {BG_PRESETS.map(preset => (
                     <button key={preset.id}
-                      onClick={() => { updateField('bg_style', preset.id); updateField('bg_color_1', preset.c1); updateField('bg_color_2', preset.c2); }}
+                      onClick={() => updateField('bg_style', preset.id)}
                       className={cn(
-                        'h-12 rounded-lg transition-all border-2',
-                        localBio.bg_style === preset.id ? 'border-primary scale-105' : 'border-transparent'
+                        'h-16 rounded-lg transition-all border-2 flex items-end justify-center pb-1 relative overflow-hidden',
+                        localBio.bg_style === preset.id ? 'border-pink-500 ring-1 ring-pink-500' : 'border-border/50'
                       )}
-                      style={{ background: `linear-gradient(180deg, ${preset.c1}, ${preset.c2})` }}
+                      style={{ background: preset.css }}
                     >
-                      <span className="text-[10px] text-white font-medium">{preset.label}</span>
+                      {localBio.bg_style === preset.id && (
+                        <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-pink-500 flex items-center justify-center">
+                          <span className="text-white text-[8px]">✓</span>
+                        </div>
+                      )}
+                      <span className="text-[9px] text-white/80 font-medium text-center leading-tight">{preset.label}</span>
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                {localBio.bg_style === 'solid' && (
                   <div>
-                    <Label className="text-xs">Cor 1</Label>
-                    <div className="flex items-center gap-1">
-                      <input type="color" value={localBio.bg_color_1} onChange={e => updateField('bg_color_1', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
+                    <Label className="text-xs">Cor de Fundo</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={localBio.bg_color_1 || '#1a1a2e'} onChange={e => updateField('bg_color_1', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
                       <Input value={localBio.bg_color_1} onChange={e => updateField('bg_color_1', e.target.value)} className="h-7 text-xs flex-1" />
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-xs">Cor 2</Label>
-                    <div className="flex items-center gap-1">
-                      <input type="color" value={localBio.bg_color_2} onChange={e => updateField('bg_color_2', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
-                      <Input value={localBio.bg_color_2} onChange={e => updateField('bg_color_2', e.target.value)} className="h-7 text-xs flex-1" />
-                    </div>
-                  </div>
-                </div>
+                )}
               </CollapsibleContent>
             </Collapsible>
 
@@ -232,33 +371,74 @@ function BioLinkEditor() {
                 <span className="text-sm font-medium">Estilo de Botões</span>
                 <ChevronDown className="w-4 h-4" />
               </CollapsibleTrigger>
-              <CollapsibleContent className="p-3 border border-t-0 border-border rounded-b-lg space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  {BUTTON_STYLES.map(style => (
-                    <button key={style.id}
-                      onClick={() => updateField('button_style', style.id)}
-                      className={cn(
-                        'p-2 rounded-lg border text-xs text-center',
-                        localBio.button_style === style.id ? 'border-primary bg-primary/10' : 'border-border'
-                      )}>
-                      {style.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-xs">Cor do Botão</Label>
-                    <div className="flex items-center gap-1">
-                      <input type="color" value={localBio.button_color} onChange={e => updateField('button_color', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
-                      <Input value={localBio.button_color} onChange={e => updateField('button_color', e.target.value)} className="h-7 text-xs flex-1" />
-                    </div>
+              <CollapsibleContent className="p-3 border border-t-0 border-border rounded-b-lg space-y-4">
+                <div>
+                  <Label className="text-xs mb-2 block">Estilo dos Botões</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {BUTTON_STYLES.map(style => {
+                      const previewStyle = (() => {
+                        const c = localBio.button_color || '#3b82f6';
+                        const r = `${Math.min(localBio.button_radius ?? 9999, 20)}px`;
+                        const base: React.CSSProperties = { borderRadius: r, fontSize: '10px', padding: '6px 12px' };
+                        switch (style.id) {
+                          case 'solid': return { ...base, background: c, color: '#fff' };
+                          case 'outline': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c };
+                          case 'outline_animated': return { ...base, background: 'transparent', border: `2px solid ${c}`, color: c, boxShadow: `0 0 6px ${c}44` };
+                          case 'glow': return { ...base, background: c, color: '#fff', boxShadow: `0 0 12px ${c}66` };
+                          case 'gradient': return { ...base, background: `linear-gradient(135deg, ${c}, ${c}88)`, color: '#fff' };
+                          case 'transparent': return { ...base, background: `${c}22`, color: c };
+                          case 'glass': return { ...base, background: `${c}22`, color: '#fff', border: `1px solid ${c}33` };
+                          case 'bevel': return { ...base, background: c, color: '#fff', boxShadow: `inset 0 1px 0 ${c}44, inset 0 -1px 0 rgba(0,0,0,0.3)` };
+                          case 'shadow': return { ...base, background: c, color: '#fff', boxShadow: `0 3px 10px ${c}44` };
+                          default: return { ...base, background: c, color: '#fff' };
+                        }
+                      })();
+                      return (
+                        <button key={style.id}
+                          onClick={() => updateField('button_style', style.id)}
+                          className={cn(
+                            'p-3 rounded-lg border-2 flex flex-col items-center gap-1.5 transition-all',
+                            localBio.button_style === style.id ? 'border-pink-500 bg-pink-500/5' : 'border-border/50 bg-card'
+                          )}>
+                          <span style={previewStyle}>Link</span>
+                          <span className="text-[9px] text-muted-foreground">{style.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div>
-                    <Label className="text-xs">Cor do Texto</Label>
-                    <div className="flex items-center gap-1">
-                      <input type="color" value={localBio.button_text_color} onChange={e => updateField('button_text_color', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
-                      <Input value={localBio.button_text_color} onChange={e => updateField('button_text_color', e.target.value)} className="h-7 text-xs flex-1" />
-                    </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs">Matiz da Cor (HUE): {buttonHue}°</Label>
+                  <div className="mt-2 h-3 rounded-full" style={{
+                    background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                  }}>
+                    <input type="range" min="0" max="360" value={buttonHue}
+                      onChange={e => updateField('button_color', hslToHex(parseInt(e.target.value), 70, 55))}
+                      className="w-full h-3 appearance-none bg-transparent cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-gray-400 [&::-webkit-slider-thumb]:shadow-md"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs">Cor do Texto do Botão</Label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={localBio.button_text_color || '#ffffff'} onChange={e => updateField('button_text_color', e.target.value)} className="w-8 h-7 rounded cursor-pointer border-0" />
+                    <Input value={localBio.button_text_color || '#ffffff'} onChange={e => updateField('button_text_color', e.target.value)} className="h-7 text-xs flex-1" />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs">Arredondamento dos Botões: {localBio.button_radius ?? 9999}px</Label>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[10px] text-muted-foreground">Quadrado</span>
+                    <Slider
+                      value={[localBio.button_radius ?? 9999]}
+                      onValueChange={v => updateField('button_radius', v[0])}
+                      min={0} max={50} step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-[10px] text-muted-foreground">Muito arredondado</span>
                   </div>
                 </div>
               </CollapsibleContent>
@@ -270,42 +450,137 @@ function BioLinkEditor() {
                 <span className="text-sm font-medium">Blocos e Links</span>
                 <ChevronDown className="w-4 h-4" />
               </CollapsibleTrigger>
-              <CollapsibleContent className="p-3 border border-t-0 border-border rounded-b-lg space-y-3">
-                {(localBio.links || []).map((link, i) => (
-                  <div key={i} className="bg-accent/50 rounded-lg p-3 space-y-2">
+              <CollapsibleContent className="p-3 border border-t-0 border-border rounded-b-lg space-y-4">
+                {blocks.map((block, bi) => (
+                  <div key={block.id} className="bg-accent/30 rounded-lg p-3 space-y-3 border border-border/50">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
-                        <span className="text-xs font-medium">Link {i + 1}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch checked={link.enabled !== false} onCheckedChange={v => updateLink(i, { enabled: v })} />
-                        <button onClick={() => removeLink(i)} className="text-destructive hover:text-destructive/80">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <span className="text-xs font-bold">Bloco {bi + 1}</span>
+                      <button onClick={() => removeBlock(bi)} className="text-destructive hover:text-destructive/80">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <div>
-                        <Label className="text-[10px]">Ícone</Label>
-                        <select value={link.icon || 'ExternalLink'} onChange={e => updateLink(i, { icon: e.target.value })}
-                          className="w-full h-7 text-xs bg-background border border-border rounded px-1">
-                          {LINK_ICONS.map(ic => <option key={ic.id} value={ic.id}>{ic.label}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <Label className="text-[10px]">Label</Label>
-                        <Input value={link.label} onChange={e => updateLink(i, { label: e.target.value })} className="h-7 text-xs" />
-                      </div>
-                    </div>
+
                     <div>
-                      <Label className="text-[10px]">URL</Label>
-                      <Input value={link.url} onChange={e => updateLink(i, { url: e.target.value })} placeholder="https://..." className="h-7 text-xs" />
+                      <Label className="text-[10px]">Título do Bloco (opcional)</Label>
+                      <Input value={block.title} onChange={e => updateBlock(bi, { title: e.target.value })} placeholder="Ex: Redes Sociais" className="h-7 text-xs" />
                     </div>
+
+                    <div>
+                      <Label className="text-[10px]">Layout do Bloco</Label>
+                      <div className="flex items-center gap-4 mt-1">
+                        <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                          <input type="radio" checked={block.layout === '1col'} onChange={() => updateBlock(bi, { layout: '1col' })} className="accent-pink-500" />
+                          1 Coluna
+                        </label>
+                        <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                          <input type="radio" checked={block.layout === '2col'} onChange={() => updateBlock(bi, { layout: '2col' })} className="accent-pink-500" />
+                          2 Colunas
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <Label className="text-[10px]">Links do Bloco</Label>
+                      <div className="flex gap-1 ml-auto">
+                        <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => addLinkToBlock(bi, 'button')}>
+                          <Plus className="w-2.5 h-2.5 mr-0.5" /> Botão
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => addLinkToBlock(bi, 'image')}>
+                          <ImageIcon className="w-2.5 h-2.5 mr-0.5" /> Imagem
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => addLinkToBlock(bi, 'lead')}>
+                          <Plus className="w-2.5 h-2.5 mr-0.5" /> Captura Lead
+                        </Button>
+                      </div>
+                    </div>
+
+                    {block.links.map((link, li) => (
+                      <div key={li} className="bg-background/50 rounded-lg p-2.5 space-y-2 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <GripVertical className="w-3 h-3 text-muted-foreground cursor-grab" />
+                          <GripVertical className="w-3 h-3 text-muted-foreground cursor-grab -ml-2.5" />
+                          <Select value={link.type} onValueChange={v => updateLinkInBlock(bi, li, { type: v as any })}>
+                            <SelectTrigger className="h-6 text-[10px] w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="button">Botão</SelectItem>
+                              <SelectItem value="image">Imagem</SelectItem>
+                              <SelectItem value="lead">Lead</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input value={link.label} onChange={e => updateLinkInBlock(bi, li, { label: e.target.value })} className="h-6 text-[10px] flex-1" />
+                          <button onClick={() => removeLinkFromBlock(bi, li)} className="text-destructive hover:text-destructive/80">
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <Input value={link.url} onChange={e => updateLinkInBlock(bi, li, { url: e.target.value })} placeholder="https://exemplo.com" className="h-7 text-xs" />
+
+                        {link.type === 'button' && (
+                          <>
+                            <div>
+                              <Label className="text-[10px]">Ícone (opcional)</Label>
+                              <Select value={link.icon || 'ExternalLink'} onValueChange={v => updateLinkInBlock(bi, li, { icon: v })}>
+                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  {LINK_ICONS.map(ic => <SelectItem key={ic.id} value={ic.id}>{ic.label}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div>
+                              <Label className="text-[10px]">Posição do Ícone</Label>
+                              <div className="flex items-center gap-4 mt-1">
+                                <label className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+                                  <input type="radio" checked={link.icon_position !== 'top'} onChange={() => updateLinkInBlock(bi, li, { icon_position: 'side' })} className="accent-pink-500" />
+                                  Ao lado (horizontal)
+                                </label>
+                                <label className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+                                  <input type="radio" checked={link.icon_position === 'top'} onChange={() => updateLinkInBlock(bi, li, { icon_position: 'top' })} className="accent-pink-500" />
+                                  Em cima (vertical, expandido)
+                                </label>
+                              </div>
+                            </div>
+
+                            <div>
+                              <Label className="text-[10px]">Tamanho do Ícone</Label>
+                              <Select value={link.icon_size || 'md'} onValueChange={v => updateLinkInBlock(bi, li, { icon_size: v as any })}>
+                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="sm">Pequeno</SelectItem>
+                                  <SelectItem value="md">Médio</SelectItem>
+                                  <SelectItem value="lg">Grande</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div>
+                              <Label className="text-[10px]">Cor do Botão (opcional)</Label>
+                              <input type="color" value={link.color || localBio.button_color || '#000000'}
+                                onChange={e => updateLinkInBlock(bi, li, { color: e.target.value })}
+                                className="w-full h-7 rounded cursor-pointer border border-border" />
+                            </div>
+
+                            <div>
+                              <Label className="text-[10px]">Borda do Botão</Label>
+                              <Select value={link.border || 'default'} onValueChange={v => updateLinkInBlock(bi, li, { border: v })}>
+                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="default">Padrão</SelectItem>
+                                  <SelectItem value="thin">Fina</SelectItem>
+                                  <SelectItem value="thick">Grossa</SelectItem>
+                                  <SelectItem value="none">Sem borda</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ))}
-                <Button size="sm" variant="outline" className="w-full text-xs" onClick={addLink}>
-                  <Plus className="w-3 h-3 mr-1" /> Adicionar Link
+
+                <Button size="sm" variant="outline" className="w-full text-xs" onClick={addBlock}>
+                  <Plus className="w-3 h-3 mr-1" /> Adicionar Novo Bloco
                 </Button>
               </CollapsibleContent>
             </Collapsible>
@@ -322,13 +597,13 @@ function BioLinkEditor() {
       <div className="flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-muted-foreground">Preview ao Vivo</span>
-          <Button variant="outline" size="sm" className="text-xs" onClick={saveBio} disabled={updateBio.isPending}>
+          <Button variant="outline" size="sm" className="text-xs bg-pink-500 hover:bg-pink-600 text-white border-0" onClick={saveBio} disabled={updateBio.isPending}>
             <Save className="w-3 h-3 mr-1" /> Salvar
           </Button>
         </div>
         <div className="flex-1 rounded-2xl overflow-hidden border border-border" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           <ScrollArea className="h-full">
-            <div className="min-h-[600px] flex flex-col items-center px-4 py-10" style={getBgStyle()}>
+            <div className="min-h-[600px] flex flex-col items-center px-4 py-10" style={{ ...getBgStyle(), fontFamily: localBio.font || 'Inter' }}>
               <div className="w-full max-w-xs flex flex-col items-center gap-5">
                 {/* Avatar */}
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/20 shadow-xl">
@@ -344,20 +619,49 @@ function BioLinkEditor() {
                   <h2 className="font-bold" style={{ color: localBio.text_color }}>{localBio.name}</h2>
                   <p className="text-xs opacity-70 mt-0.5" style={{ color: localBio.text_color }}>{localBio.bio}</p>
                 </div>
-                <div className="w-full space-y-2.5">
-                  {(localBio.links || []).filter(l => l.enabled !== false).map((link, i) => {
-                    const Icon = ICON_MAP[link.icon || 'ExternalLink'] || ExternalLink;
-                    return (
-                      <div key={i} className="flex items-center justify-center gap-2 w-full py-3 px-4 font-medium text-sm cursor-pointer hover:opacity-90 transition-opacity"
-                        style={getButtonStyle()}>
-                        <Icon className="w-4 h-4" />
-                        {link.label}
+
+                {/* Render blocks */}
+                {blocks.map((block, bi) => {
+                  const visibleLinks = block.links.filter(l => l.enabled !== false);
+                  if (visibleLinks.length === 0) return null;
+                  return (
+                    <div key={bi} className="w-full space-y-2">
+                      {block.title && (
+                        <p className="text-xs font-semibold text-center opacity-60" style={{ color: localBio.text_color }}>{block.title}</p>
+                      )}
+                      <div className={cn('w-full', block.layout === '2col' ? 'grid grid-cols-2 gap-2' : 'space-y-2.5')}>
+                        {visibleLinks.map((link, li) => {
+                          const Icon = ICON_MAP[link.icon || 'ExternalLink'] || ExternalLink;
+                          const iconSizeClass = link.icon_size === 'sm' ? 'w-3 h-3' : link.icon_size === 'lg' ? 'w-6 h-6' : 'w-4 h-4';
+                          const style = getButtonStyleCSS(link.color || undefined);
+
+                          if (link.type === 'image') {
+                            return (
+                              <div key={li} className="w-full rounded-lg overflow-hidden">
+                                {link.url ? <img src={link.url} alt={link.label} className="w-full h-auto" /> : <div className="w-full h-20 bg-white/10 flex items-center justify-center text-xs text-white/40">Imagem</div>}
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div key={li}
+                              className={cn(
+                                'w-full font-medium text-sm cursor-pointer hover:opacity-90 transition-opacity',
+                                link.icon_position === 'top' ? 'flex flex-col items-center gap-1 py-4 px-4' : 'flex items-center justify-center gap-2 py-3 px-4'
+                              )}
+                              style={style}>
+                              {link.icon && <Icon className={iconSizeClass} />}
+                              {link.label}
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
+
                 <div className="mt-6 text-center">
-                  <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com Central Flow</p>
+                  <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com <span className="font-bold">UCFlow</span></p>
                   <p className="text-[10px] opacity-30 underline" style={{ color: localBio.text_color }}>Crie sua conta</p>
                 </div>
               </div>

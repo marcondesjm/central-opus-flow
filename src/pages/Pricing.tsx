@@ -275,6 +275,7 @@ export default function Pricing() {
               ].map((plan, idx) => {
                 const isAnnual = teamBilling === 'anual';
                 const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+                const annualYearTotal = plan.annualPrice * 12;
                 const features = isAnnual ? plan.featuresAnnual : plan.featuresMonthly;
                 const displayName = isAnnual ? `${plan.name} Anual` : plan.name;
                 const displaySubtitle = isAnnual ? 'Economize 25% no plano anual' : plan.subtitle;
@@ -287,14 +288,12 @@ export default function Pricing() {
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
                     style={{ boxShadow: 'var(--shadow-glow)' }}
                   >
-                    {/* Badge */}
                     <div className="flex justify-center mb-4">
                       <Badge className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-0 shadow-lg text-xs font-bold px-3 py-1">
                         <Crown className="w-3 h-3 mr-1" />
                         Mais Popular
                       </Badge>
                     </div>
-
                     <div className="relative">
                       <h3 className="text-xl font-bold mb-1 text-center">{displayName}</h3>
                       <p className="text-muted-foreground text-sm text-center mb-6">{displaySubtitle}</p>
@@ -307,7 +306,7 @@ export default function Pricing() {
                       {isAnnual && (
                         <div className="text-center mb-1">
                           <span className="text-sm text-primary font-medium">
-                            R$ {plan.annualTotal.toFixed(2).replace('.', ',')}/ano
+                            R$ {annualYearTotal.toFixed(2).replace('.', ',')}/ano
                           </span>
                         </div>
                       )}
@@ -324,8 +323,8 @@ export default function Pricing() {
                         size="lg"
                         className="w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl"
                         onClick={() => {
-                          const totalPrice = isAnnual ? plan.annualTotal : plan.monthlyPrice;
-                          handleSelectPlan(`${displayName}`, totalPrice, isAnnual ? 'annual' : 'monthly');
+                          const paymentAmount = isAnnual ? annualYearTotal : plan.monthlyPrice;
+                          handleSelectPlan(displayName, paymentAmount, isAnnual ? 'annual' : 'monthly');
                         }}
                       >
                         Assinar Agora

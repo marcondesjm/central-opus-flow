@@ -4,15 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Shield, User, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { usePricingSettings } from '@/hooks/useSystemSettings';
+import { usePricingSettings, useTeamPricingSettings } from '@/hooks/useSystemSettings';
 
 export function PricingSection() {
   const { data: pricing } = usePricingSettings();
-  const monthly = pricing?.monthly_price ?? 39.90;
-  const annual = pricing?.annual_price ?? 29.90;
-  const annualTotal = annual * 12;
+  const { data: teamSettings } = useTeamPricingSettings();
+  const monthly = pricing?.monthly_price ?? 7.90;
+  const annual = pricing?.annual_price ?? 73.90;
+  const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;
-  const discount = Math.round((1 - annual / monthly) * 100);
+  const discount = Math.round((1 - annual / monthlyTotal) * 100);
   const [tab, setTab] = useState<'individual' | 'equipe'>('individual');
   const [teamBilling, setTeamBilling] = useState<'mensal' | 'anual'>('mensal');
 

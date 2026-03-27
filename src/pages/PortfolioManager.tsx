@@ -15,7 +15,8 @@ import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import {
   usePortfolioPage, useCreatePortfolioPage, useUpdatePortfolioPage,
-  usePortfolioSections, usePortfolioLeads,
+  usePortfolioSections, usePortfolioLeads, useUpsertSection,
+  DEFAULT_SECTION_CONTENT,
 } from '@/hooks/usePortfolio';
 import {
   useBioLink, useCreateBioLink, useUpdateBioLink, useUploadBioAvatar,

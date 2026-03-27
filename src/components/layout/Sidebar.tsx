@@ -41,6 +41,7 @@ import {
   MessageCircle,
   FileCode2,
   FolderOpen,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -371,6 +372,7 @@ export function Sidebar({
               <NavItem icon={Receipt} label={t('sidebar.billing')} onClick={() => navigate('/billing')} active={isRouteActive('/billing')} />
             )}
             <NavItem icon={Clock} label="Agendamento" onClick={() => navigate('/scheduling')} active={isRouteActive('/scheduling')} />
+            <NavItem icon={CalendarIcon} label="Agenda" onClick={() => navigate('/agenda')} active={isRouteActive('/agenda')} />
             <NavItem icon={BarChart3} label={t('sidebar.reports')} onClick={() => navigate('/reports')} active={isRouteActive('/reports')} />
             {sidebarVisibility.teams && (
               <NavItem icon={UsersRound} label={t('sidebar.teams')} onClick={() => navigate('/teams')} active={isRouteActive('/teams')} />

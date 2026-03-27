@@ -82,7 +82,7 @@ export function useCreateQuote() {
       const { data, error } = await supabase.from('financial_quotes' as any)
         .insert({ ...q, user_id: user!.id } as any).select().single();
       if (error) throw error;
-      return data as FinancialQuote;
+      return data as unknown as FinancialQuote;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['financial-quotes'] }); toast({ title: 'Orçamento criado!' }); },
     onError: (e: any) => { toast({ title: 'Erro ao criar orçamento', description: e?.message, variant: 'destructive' }); },

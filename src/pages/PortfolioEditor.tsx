@@ -540,25 +540,26 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
   switch (section.type) {
     case 'hero':
       return (
-        <div className="relative min-h-[400px] flex items-center p-8 md:p-16 overflow-hidden"
+        <div className="relative min-h-[300px] md:min-h-[400px] flex items-center p-6 md:p-16 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${page.bg_color}ee, ${page.bg_color})` }}>
           {c.bg_image_url && <img src={c.bg_image_url} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="" />}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/20 to-transparent" />
-          <div className="relative z-10 flex items-center gap-8 w-full">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8 w-full">
             <div className="flex-1 space-y-4">
               {c.badge && (
                 <span className="inline-block px-3 py-1 border border-dashed border-white/30 text-white/60 text-xs rounded">
                   {c.badge}
                 </span>
               )}
-              <h1 className="text-3xl md:text-4xl font-bold" style={{ color: page.text_color }}>{c.headline}</h1>
+              <h1 className="text-2xl md:text-4xl font-bold" style={{ color: page.text_color }}>{c.headline}</h1>
               <p className="text-sm opacity-70" style={{ color: page.text_color }}>{c.subheadline}</p>
               <button className="px-5 py-2.5 rounded-full text-sm font-medium text-white flex items-center gap-2"
-                style={{ background: primary }}>
+                style={{ background: primary }}
+                onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
                 {c.cta_text} <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="hidden md:block w-[300px] h-[350px] border border-dashed border-white/20 rounded-lg flex items-center justify-center">
+            <div className="hidden md:flex w-[300px] h-[350px] border border-dashed border-white/20 rounded-lg items-center justify-center">
               {c.image_url ? (
                 <img src={c.image_url} className="w-full h-full object-cover rounded-lg" alt="" />
               ) : (
@@ -571,15 +572,15 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'stats':
       return (
-        <div className="py-8 px-8 border-t border-b border-white/10" style={{ background: page.bg_color }}>
-          <div className="flex justify-around">
+        <div className="py-8 px-4 md:px-8 border-t border-b border-white/10" style={{ background: page.bg_color }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {(c.items || []).map((item: any, i: number) => {
               const Icon = ICON_MAP[item.icon] || TrendingUp;
               return (
                 <div key={i} className="text-center space-y-1">
-                  <Icon className="w-6 h-6 mx-auto" style={{ color: primary }} />
-                  <p className="text-lg font-bold" style={{ color: page.text_color }}>{item.value}</p>
-                  <p className="text-xs opacity-60" style={{ color: page.text_color }}>{item.label}</p>
+                  <Icon className="w-5 h-5 md:w-6 md:h-6 mx-auto" style={{ color: primary }} />
+                  <p className="text-base md:text-lg font-bold" style={{ color: page.text_color }}>{item.value}</p>
+                  <p className="text-[10px] md:text-xs opacity-60" style={{ color: page.text_color }}>{item.label}</p>
                 </div>
               );
             })}
@@ -597,8 +598,8 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'portfolio':
       return (
-        <div className="py-8 px-8" style={{ background: page.bg_color }}>
-          <div className="grid grid-cols-3 gap-4">
+        <div className="py-8 px-4 md:px-8" style={{ background: page.bg_color }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {(c.items || []).map((item: any, i: number) => (
               <div key={i} className="relative rounded-lg overflow-hidden aspect-[4/3] group/card">
                 {item.image_url ? (
@@ -608,14 +609,14 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
                     <Image className="w-8 h-8 text-white/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-3 md:p-4">
                   {item.category && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full mb-1 w-fit" style={{ background: primary, color: '#fff' }}>
                       {item.category}
                     </span>
                   )}
-                  <h3 className="text-white font-bold text-sm">{item.title}</h3>
-                  <p className="text-white/60 text-xs">{item.description}</p>
+                  <h3 className="text-white font-bold text-xs md:text-sm">{item.title}</h3>
+                  <p className="text-white/60 text-[10px] md:text-xs hidden md:block">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -666,19 +667,19 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'testimonials':
       return (
-        <div className="py-12 px-8" style={{ background: page.bg_color }}>
+        <div className="py-8 md:py-12 px-4 md:px-8" style={{ background: page.bg_color }}>
           {(c.items || []).slice(0, 1).map((t: any, i: number) => (
-            <div key={i} className="flex items-center gap-8 max-w-2xl mx-auto">
-              <div className="w-48 h-48 shrink-0 rounded-xl overflow-hidden">
+            <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-8 max-w-2xl mx-auto">
+              <div className="w-24 h-24 md:w-48 md:h-48 shrink-0 rounded-xl overflow-hidden">
                 {t.image_url ? (
                   <img src={t.image_url} className="w-full h-full object-cover" alt={t.name} />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-pink-900/40 to-purple-900/40 flex items-center justify-center">
-                    <User className="w-12 h-12 text-white/20" />
+                    <User className="w-8 md:w-12 h-8 md:h-12 text-white/20" />
                   </div>
                 )}
               </div>
-              <div>
+              <div className="text-center md:text-left">
                 <h3 className="font-bold" style={{ color: page.text_color }}>{t.name}</h3>
                 <p className="text-xs opacity-60 mb-3" style={{ color: page.text_color }}>{t.role}</p>
                 <p className="text-sm opacity-80" style={{ color: page.text_color }}>{t.text}</p>
@@ -690,9 +691,9 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'cta':
       return (
-        <div className="py-8 px-8 text-center" style={{ background: `${page.bg_color}` }}>
-          <div className="bg-white/5 rounded-xl p-8 max-w-lg mx-auto border border-white/10">
-            <h2 className="text-xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
+        <div className="py-6 md:py-8 px-4 md:px-8 text-center" style={{ background: `${page.bg_color}` }}>
+          <div className="bg-white/5 rounded-xl p-6 md:p-8 max-w-lg mx-auto border border-white/10">
+            <h2 className="text-lg md:text-xl font-bold mb-4" style={{ color: page.text_color }}>{c.title}</h2>
             <button className="px-6 py-2.5 rounded-full text-sm font-medium text-white flex items-center gap-2 mx-auto"
               style={{ background: primary }}
               onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
@@ -704,17 +705,17 @@ function CanvasBlock({ section, page, onOpenLeadModal }: { section: PortfolioSec
 
     case 'cta_final':
       return (
-        <div className="py-12 px-8 text-center" style={{ background: `linear-gradient(135deg, ${primary}22, ${page.bg_color})` }}>
-          <Zap className="w-8 h-8 mx-auto mb-3" style={{ color: primary }} />
-          <h2 className="text-2xl font-bold mb-2" style={{ color: page.text_color }}>{c.title}</h2>
-          <p className="text-sm opacity-60 mb-6" style={{ color: page.text_color }}>{c.description}</p>
+        <div className="py-8 md:py-12 px-4 md:px-8 text-center" style={{ background: `linear-gradient(135deg, ${primary}22, ${page.bg_color})` }}>
+          <Zap className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-3" style={{ color: primary }} />
+          <h2 className="text-xl md:text-2xl font-bold mb-2" style={{ color: page.text_color }}>{c.title}</h2>
+          <p className="text-xs md:text-sm opacity-60 mb-4 md:mb-6 px-4" style={{ color: page.text_color }}>{c.description}</p>
           <button className="px-6 py-2.5 rounded-full text-sm font-medium text-white mx-auto mb-4"
             style={{ background: primary }}
             onClick={(e) => { e.stopPropagation(); onOpenLeadModal?.(); }}>
             {c.cta_text} <ExternalLink className="w-3.5 h-3.5 inline ml-1" />
           </button>
           {c.badges && (
-            <div className="flex items-center justify-center gap-4 text-xs opacity-60" style={{ color: page.text_color }}>
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-xs opacity-60" style={{ color: page.text_color }}>
               {c.badges.map((b: string) => (
                 <span key={b} className="flex items-center gap-1"><CheckCircle className="w-3 h-3" style={{ color: primary }} />{b}</span>
               ))}

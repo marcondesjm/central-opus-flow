@@ -586,16 +586,18 @@ function BioLinkEditor() {
                             </div>
 
                             <div>
-                              <Label className="text-[10px]">Borda do Botão</Label>
-                              <Select value={link.border || 'default'} onValueChange={v => updateLinkInBlock(bi, li, { border: v })}>
-                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="default">Padrão</SelectItem>
-                                  <SelectItem value="thin">Fina</SelectItem>
-                                  <SelectItem value="thick">Grossa</SelectItem>
-                                  <SelectItem value="none">Sem borda</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <Label className="text-[10px]">Cor da Borda (opcional)</Label>
+                              <div className="flex items-center gap-2">
+                                <input type="color" value={link.border && link.border !== 'default' ? link.border : (link.color || localBio.button_color || '#000000')}
+                                  onChange={e => updateLinkInBlock(bi, li, { border: e.target.value })}
+                                  className="w-8 h-7 rounded cursor-pointer border-0" />
+                                <Input value={link.border && link.border !== 'default' ? link.border : ''} 
+                                  onChange={e => updateLinkInBlock(bi, li, { border: e.target.value || 'default' })}
+                                  placeholder="Sem borda personalizada" className="h-7 text-xs flex-1" />
+                                {link.border && link.border !== 'default' && (
+                                  <button onClick={() => updateLinkInBlock(bi, li, { border: 'default' })} className="text-xs text-muted-foreground hover:text-destructive">✕</button>
+                                )}
+                              </div>
                             </div>
                           </>
                         )}

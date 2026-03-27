@@ -472,7 +472,6 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 </div>
               </div>
             </div>
-            </div>
 
             {/* Receipt Form */}
             <form onSubmit={(e) => { e.preventDefault(); handleSubmitReceipt(e); }} className="space-y-4 border-t pt-4">

@@ -932,7 +932,7 @@ function ConfiguracoesTab() {
             </div>
             <div className="md:col-span-2">
               <Label className="text-xs">Descrição SEO</Label>
-              <Textarea value={page.meta_description || ''} onChange={e => updatePage.mutate({ meta_description: e.target.value })} className="text-sm min-h-[60px]" />
+              <Textarea value={page.meta_description || ''} onChange={e => updatePage.mutate({ id: page.id, meta_description: e.target.value })} className="text-sm min-h-[60px]" />
             </div>
           </div>
           <div className="flex items-center gap-3">

@@ -686,7 +686,16 @@ function BioLinkEditor() {
                   );
                 })}
 
-                <div className="mt-6 text-center">
+                {/* Solicitar Orçamento button */}
+                <div className="w-full">
+                  <div
+                    className="w-full font-medium text-sm flex items-center justify-center gap-2 py-3 px-4 cursor-pointer hover:opacity-90 transition-opacity"
+                    style={getButtonStyleCSS()}
+                  >
+                    Solicitar Orçamento
+                  </div>
+                </div>
+
                   <p className="text-[10px] opacity-30" style={{ color: localBio.text_color }}>Feito com <span className="font-bold">Central Flow</span></p>
                   <p className="text-[10px] opacity-30 underline" style={{ color: localBio.text_color }}>Crie sua conta</p>
                 </div>

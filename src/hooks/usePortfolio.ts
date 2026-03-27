@@ -73,12 +73,12 @@ export const DEFAULT_SECTION_CONTENT: Record<string, Record<string, any>> = {
   },
   portfolio: {
     items: [
-      { title: 'Branding Completo', description: 'Identidade visual moderna para startup de tecnologia', category: 'Branding', image_url: '' },
-      { title: 'Design Digital', description: 'Interface UI/UX para aplicativo mobile', category: 'Web Design', image_url: '' },
-      { title: 'Campanha Visual', description: 'Artes para redes sociais e marketing digital', category: 'Social Media', image_url: '' },
-      { title: 'Editorial', description: 'Design gráfico impresso para revista', category: 'Design Gráfico', image_url: '' },
-      { title: 'Logo & Identidade', description: 'Criação de logotipo e manual de marca', category: 'Branding', image_url: '' },
-      { title: 'Website Institucional', description: 'Site responsivo com foco em conversão', category: 'Web Design', image_url: '' },
+      { title: 'Branding Completo', description: 'Identidade visual moderna para startup de tecnologia', category: 'Branding', image_url: 'https://images.unsplash.com/photo-1634942537034-2531766767d1?w=600&h=450&fit=crop' },
+      { title: 'Design Digital', description: 'Interface UI/UX para aplicativo mobile', category: 'Web Design', image_url: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=600&h=450&fit=crop' },
+      { title: 'Campanha Visual', description: 'Artes para redes sociais e marketing digital', category: 'Social Media', image_url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&h=450&fit=crop' },
+      { title: 'Editorial', description: 'Design gráfico impresso para revista', category: 'Design Gráfico', image_url: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=600&h=450&fit=crop' },
+      { title: 'Logo & Identidade', description: 'Criação de logotipo e manual de marca', category: 'Branding', image_url: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=450&fit=crop' },
+      { title: 'Website Institucional', description: 'Site responsivo com foco em conversão', category: 'Web Design', image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=450&fit=crop' },
     ],
   },
   about: {

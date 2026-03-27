@@ -121,7 +121,7 @@ const LAYOUT_MODELS = [
 
 // ============== SIDEBAR ==============
 function EditorSidebar({
-  sections, selectedId, onSelect, onAdd, page, onUpdatePage, onOpenLeadModal,
+  sections, selectedId, onSelect, onAdd, page, onUpdatePage, onOpenLeadModal, onClearAllAndAdd,
 }: {
   sections: PortfolioSection[];
   selectedId: string | null;
@@ -130,6 +130,7 @@ function EditorSidebar({
   page: PortfolioPage;
   onUpdatePage: (p: Partial<PortfolioPage>) => void;
   onOpenLeadModal: () => void;
+  onClearAllAndAdd: (steps: { type: string; content?: Record<string, any> }[]) => void;
 }) {
   const [addOpen, setAddOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'elementos' | 'config'>('elementos');
@@ -409,10 +410,7 @@ function EditorSidebar({
               <button
                 key={layout.name}
                 onClick={() => {
-                  // Clear existing sections first, then add new ones
-                  layout.steps.forEach((step, i) => {
-                    setTimeout(() => onAdd(step.type, step.content), i * 150);
-                  });
+                  onClearAllAndAdd(layout.steps);
                   if (layout.colors) {
                     onUpdatePage(layout.colors);
                   }
@@ -1197,6 +1195,18 @@ export default function PortfolioEditor() {
     deleteSection.mutate({ id, page_id: page.id });
   };
 
+  const handleClearAllAndAdd = (steps: { type: string; content?: Record<string, any> }[]) => {
+    // Delete all existing sections from DB
+    localSections.forEach(s => deleteSection.mutate({ id: s.id, page_id: page.id }));
+    // Clear local state
+    setLocalSections([]);
+    setSelectedId(null);
+    // Add new sections
+    steps.forEach((step, i) => {
+      setTimeout(() => handleAdd(step.type, step.content), i * 100);
+    });
+  };
+
   const handleUpdateSection = (updated: PortfolioSection) => {
     setLocalSections(prev => prev.map(s => s.id === updated.id ? updated : s));
     scheduleAutoSave(updated.id);
@@ -1254,6 +1264,7 @@ export default function PortfolioEditor() {
           page={page}
           onUpdatePage={handleUpdatePage}
           onOpenLeadModal={() => setLeadModalOpen(true)}
+          onClearAllAndAdd={handleClearAllAndAdd}
         />
 
         {/* Canvas */}

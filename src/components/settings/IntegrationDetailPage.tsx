@@ -674,6 +674,87 @@ function GoogleDriveDetail({ onBack, isConnected, onToggle, isPending }: {
   );
 }
 
+// ===================== GOOGLE MEET =====================
+function GoogleMeetDetail({ onBack, isConnected, onToggle, isPending }: {
+  onBack: () => void; isConnected: boolean; onToggle: (connected: boolean, config?: Record<string, unknown>) => void; isPending: boolean;
+}) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnectGoogle = async () => {
+    if (isConnected) {
+      onToggle(false);
+      return;
+    }
+    setConnecting(true);
+    try {
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin,
+      });
+      if (!result.error) {
+        onToggle(true, { provider: 'google', service: 'meet', connected_via: 'oauth' });
+      }
+    } catch (e) {
+      console.error('Google Meet OAuth error:', e);
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <button onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="w-4 h-4" /> Voltar para integrações
+      </button>
+
+      <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center">
+            <Video className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm">Google Meet</h3>
+            <p className="text-xs text-muted-foreground">Crie reuniões automaticamente ao agendar compromissos</p>
+          </div>
+          <span className={cn(
+            'ml-auto text-[10px] font-bold px-3 py-1 rounded-full',
+            isConnected ? 'bg-green-500/10 text-green-500' : 'bg-muted text-muted-foreground'
+          )}>
+            {isConnected ? 'Conectado' : 'Desconectado'}
+          </span>
+        </div>
+
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
+          <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p className="font-medium text-foreground">Funcionalidades</p>
+            <ul className="space-y-0.5 list-disc pl-3">
+              <li>Link de Google Meet gerado automaticamente ao criar reuniões no Agendamento</li>
+              <li>Sincronização com Google Calendar para evitar conflitos</li>
+              <li>Envio automático do link para o cliente por e-mail</li>
+            </ul>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleConnectGoogle}
+          disabled={connecting || isPending}
+          className={cn(
+            'w-full gap-2',
+            isConnected
+              ? 'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/30'
+              : 'bg-red-500 hover:bg-red-600 text-white'
+          )}
+          variant={isConnected ? 'outline' : 'default'}
+        >
+          {(connecting || isPending) && <Loader2 className="w-4 h-4 animate-spin" />}
+          {isConnected ? 'Desconectar Google Meet' : 'Conectar com Google'}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ===================== MAIN COMPONENT =====================
 export function IntegrationDetailPage({ integrationKey, onBack }: IntegrationDetailProps) {
   const { isConnected, getConfig, toggleIntegration } = useUserIntegrations();

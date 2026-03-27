@@ -14,6 +14,7 @@ export function PricingSection() {
   const monthlyTotal = monthly * 12;
   const discount = Math.round((1 - annual / monthly) * 100);
   const [tab, setTab] = useState<'individual' | 'equipe'>('individual');
+  const [teamBilling, setTeamBilling] = useState<'mensal' | 'anual'>('mensal');
 
   const starterFeatures = [
     'CRM completo para freelancers',

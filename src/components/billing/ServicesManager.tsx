@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, Search, Pencil, Trash2, Loader2, LayoutGrid, List,
-  ShoppingCart, FileText, Eye, EyeOff, Repeat, X,
+  ShoppingCart, FileText, Eye, EyeOff, Repeat, X, Share2, Copy, ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

@@ -164,9 +164,7 @@ export function ServicesManager() {
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
               <FileText className="w-3.5 h-3.5" /> Gerenciar Categorias
             </Button>
-            <Button variant="outline" size="sm" className="gap-1.5 border-pink-500/50 text-pink-500 hover:bg-pink-500/10" onClick={() => {
-              setForm(emptyForm); setEditingId(null); setShowCreate(true);
-            }}>
+            <Button variant="outline" size="sm" className="gap-1.5 border-pink-500/50 text-pink-500 hover:bg-pink-500/10" onClick={() => setShowQuoteWizard(true)}>
               <FileText className="w-3.5 h-3.5" /> Novo Orçamento
             </Button>
             <Button size="sm" className="gap-1.5 bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white" onClick={() => {

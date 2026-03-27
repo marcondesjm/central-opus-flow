@@ -343,11 +343,20 @@ function AppContent() {
               }
             />
             <Route path="/portfolio/:slug" element={<PortfolioPublic />} />
+            <Route path="/bio/:slug" element={<BioPublic />} />
             <Route
               path="/portfolio-editor"
               element={
                 <ProtectedRoute>
                   <PortfolioEditor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/portfolio-manager"
+              element={
+                <ProtectedRoute>
+                  <PortfolioManager />
                 </ProtectedRoute>
               }
             />

@@ -12,7 +12,7 @@ import {
   ArrowLeft, Calendar, Receipt, DollarSign, Zap, Webhook,
   MessageSquare, Globe, Video, CreditCard, Check, Info,
   ExternalLink, Eye, EyeOff, AlertTriangle, CheckCircle2,
-  Loader2, Plus, Copy, Settings, Columns3, Clock,
+  Loader2, Plus, Copy, Settings, Columns3, Clock, BarChart3,
 } from 'lucide-react';
 
 interface IntegrationDetailProps {

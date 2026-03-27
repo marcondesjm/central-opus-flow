@@ -661,7 +661,7 @@ function BioLinkEditor() {
                         {visibleLinks.map((link, li) => {
                           const Icon = ICON_MAP[link.icon || 'ExternalLink'] || ExternalLink;
                           const iconSizeClass = link.icon_size === 'sm' ? 'w-3 h-3' : link.icon_size === 'lg' ? 'w-6 h-6' : 'w-4 h-4';
-                          const style = getButtonStyleCSS(link.color || undefined);
+                          const style = getButtonStyleCSS(link.color || undefined, link.border);
 
                           if (link.type === 'image') {
                             const imgSrc = (link as any).image_url || link.url;

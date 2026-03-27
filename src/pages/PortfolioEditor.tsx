@@ -25,6 +25,7 @@ import {
   CheckCircle, TrendingUp, Users, Award, Star, ExternalLink, Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 const ICON_MAP: Record<string, any> = {
   Type, BarChart3, Grid3X3, MessageSquare, GitBranch, Play,

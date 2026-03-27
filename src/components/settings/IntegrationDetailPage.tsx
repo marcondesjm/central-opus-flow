@@ -700,6 +700,8 @@ export function IntegrationDetailPage({ integrationKey, onBack }: IntegrationDet
       return <WhatsAppDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} config={config} />;
     case 'google_drive':
       return <GoogleDriveDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} />;
+    case 'google_meet':
+      return <GoogleMeetDetail onBack={onBack} isConnected={connected} onToggle={handleToggle} isPending={isPending} />;
     default:
       return (
         <div className="space-y-4">

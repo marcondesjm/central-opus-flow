@@ -1190,10 +1190,7 @@ function ContactPreviewModal({ open, onClose, page, services }: {
           </div>
 
           <Button className="w-full text-white font-medium" style={{ background: primary }}
-            onClick={() => {
-              toast({ title: '✅ Prévia do formulário', description: 'Na página pública, o lead será salvo automaticamente.' });
-              onClose();
-            }}>
+            onClick={onClose}>
             Solicitar Orçamento
           </Button>
         </div>

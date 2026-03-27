@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TrackingPixels } from '@/components/tracking/TrackingPixels';
 import { useParams } from 'react-router-dom';
 import { usePublicBioLink } from '@/hooks/useBioLink';
 import { supabase } from '@/integrations/supabase/client';

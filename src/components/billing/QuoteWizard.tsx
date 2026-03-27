@@ -52,6 +52,7 @@ interface QuoteWizardProps {
 export function QuoteWizard({ onClose, onCreated }: QuoteWizardProps) {
   const { data: clients } = useFinancialClients();
   const { data: services } = useFinancialServices();
+  const { data: portfolioPage } = usePortfolioPage();
   const createClient = useCreateClient();
   const createQuote = useCreateQuote();
   const { toast } = useToast();

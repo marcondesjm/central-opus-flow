@@ -145,20 +145,20 @@ export function PricingSection() {
               </div>
               <div className="relative">
                 <h3 className="text-xl font-bold mb-1 text-center">Starter Anual</h3>
-                <p className="text-muted-foreground text-sm text-center mb-6">Economize {discount}% + domínio próprio</p>
+                <p className="text-muted-foreground text-sm text-center mb-6">Economize no plano anual + domínio próprio</p>
                 <div className="text-center mb-1">
-                  <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$ {annual.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>R$ {annualPerMonth.toFixed(2).replace('.', ',')}</span>
                   <span className="text-muted-foreground text-lg">/mês</span>
                 </div>
                 <div className="text-center mb-1">
-                  <span className="text-sm text-primary font-medium">R$ {annualTotal.toFixed(2).replace('.', ',')}/ano</span>
+                  <span className="text-sm text-primary font-medium">R$ {annual.toFixed(2).replace('.', ',')}/ano</span>
                   <span className="text-xs text-muted-foreground line-through ml-2">R$ {monthlyTotal.toFixed(2).replace('.', ',')}/ano</span>
                 </div>
-                <p className="text-xs text-muted-foreground text-center mb-8">Cobrança anual</p>
+                <p className="text-xs text-muted-foreground text-center mb-8">Pagamento anual</p>
                 <ul className="space-y-3 mb-8">
                   {annualFeatures.map((f, i) => <li key={i} className="flex items-center gap-3"><Check className="w-4 h-4 text-primary shrink-0" /><span className="text-sm">{f}</span></li>)}
                 </ul>
-                <Link to="/pricing"><Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Assinar Anual — Economize {discount}%</Button></Link>
+                <Link to="/pricing"><Button size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Assinar Anual</Button></Link>
               </div>
             </motion.div>
           </div>

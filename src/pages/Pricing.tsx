@@ -24,6 +24,7 @@ export default function Pricing() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [tab, setTab] = useState<'individual' | 'equipe'>('individual');
+  const [teamBilling, setTeamBilling] = useState<'mensal' | 'anual'>('mensal');
   const redeemCoupon = useRedeemCoupon();
   const { data: pricingSettings } = usePricingSettings();
   const monthly = pricingSettings?.monthly_price ?? 39.90;

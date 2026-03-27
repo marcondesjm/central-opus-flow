@@ -544,11 +544,6 @@ function ClientDetailView({ client, onBack, onFichaTecnica }: { client: FullClie
   );
 }
 
-// Helper hook for user integrations
-function useUserIntegrationsQuery() {
-  const { useUserIntegrations: hook } = require('@/hooks/useUserIntegrations');
-  return hook ? hook() : { data: [] };
-}
 
 // ─── Main Clients Page ──────────────────────────
 export default function ClientsPage() {

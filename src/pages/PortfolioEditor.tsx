@@ -22,6 +22,7 @@ import {
   Pencil, Monitor, Tablet, Smartphone, Image, Upload,
   Type, BarChart3, Grid3X3, MessageSquare, GitBranch, Play,
   MousePointer, Menu, User, Zap, Search, Lightbulb, Palette,
+  CheckCircle, TrendingUp, Users, Award, Star, ExternalLink, Settings,
   CheckCircle, TrendingUp, Users, Award, Star, ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';

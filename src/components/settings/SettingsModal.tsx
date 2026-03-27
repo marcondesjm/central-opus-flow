@@ -200,52 +200,16 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     });
   };
 
-  const handleOpenIntegrationConfig = (integrationKey: string) => {
+  const handleOpenIntegrationDetail = (integrationKey: string) => {
     const def = INTEGRATION_DEFS.find(i => i.key === integrationKey);
     if (!def || def.soon) return;
-
-    if (isConnected(integrationKey)) {
-      // Disconnect
-      toggleIntegration.mutate({ name: integrationKey, connected: false, config: {} });
-      return;
-    }
-
-    // Open config modal
-    const existingConfig = getConfig(integrationKey) as Record<string, string>;
-    const initialValues: Record<string, string> = {};
-    def.configFields.forEach(f => {
-      initialValues[f.key] = existingConfig[f.key] || '';
-    });
-    setConfigValues(initialValues);
-    setConfigModal(integrationKey);
-  };
-
-  const handleSaveIntegration = () => {
-    if (!configModal) return;
-    const def = INTEGRATION_DEFS.find(i => i.key === configModal);
-    if (!def) return;
-
-    // Validate required fields
-    const hasEmpty = def.configFields.some(f => !configValues[f.key]?.trim());
-    if (hasEmpty) {
-      toast({ title: 'Preencha todos os campos', variant: 'destructive' });
-      return;
-    }
-
-    toggleIntegration.mutate({
-      name: configModal,
-      connected: true,
-      config: configValues as any,
-    });
-    setConfigModal(null);
+    setActiveIntegration(integrationKey);
   };
 
   const planLabel = subscription?.plan === 'pro' ? 'Pro' : subscription?.plan === 'business' ? 'Business' : 'Trial Gratuito';
   const isActive = trialInfo ? !trialInfo.isExpired : true;
   const daysLeft = trialInfo?.daysRemaining ?? 0;
   const expiresAt = trialInfo?.trialEndsAt ? new Date(trialInfo.trialEndsAt) : null;
-
-  const activeConfigDef = configModal ? INTEGRATION_DEFS.find(i => i.key === configModal) : null;
 
   return (
     <>

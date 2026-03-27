@@ -41,6 +41,14 @@ export function usePricingSettings() {
   });
 }
 
+export function useTeamPricingSettings() {
+  return useQuery({
+    queryKey: ['system-settings', 'team_pricing'],
+    queryFn: () => fetchSetting<TeamPricingSettings>('team_pricing'),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 export function usePixSettings() {
   return useQuery({
     queryKey: ['system-settings', 'pix'],

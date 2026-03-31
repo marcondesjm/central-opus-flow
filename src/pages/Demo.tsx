@@ -35,7 +35,7 @@ export default function Demo() {
   }, [status]);
 
   useEffect(() => {
-    if (!authLoading && user?.email === DEMO_EMAIL) {
+    if (!authLoading && user?.email === DEMO_ACCOUNT_EMAIL) {
       sessionStorage.setItem('demo_data_reset', 'pending');
       navigate('/dashboard', { replace: true });
       return;

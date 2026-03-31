@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useBookingPage, useMeetingTypes, useAvailabilitySlots } from '@/hooks/useBooking';
+import { useBookingPage, useMeetingTypes, useAvailabilitySlots, useBookings } from '@/hooks/useBooking';
+import { useLeadPipelines } from '@/hooks/useLeads';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Calendar, Clock, Settings2, Copy, ExternalLink, Plus, Trash2, Loader2, Video, Phone, MapPin

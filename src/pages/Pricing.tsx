@@ -30,8 +30,8 @@ export default function Pricing() {
   const redeemCoupon = useRedeemCoupon();
   const { data: pricingSettings } = usePricingSettings();
   const { data: teamSettings } = useTeamPricingSettings();
-  const monthly = pricingSettings?.monthly_price ?? 7.90;
-  const annual = pricingSettings?.annual_price ?? 73.90;
+  const monthly = pricingSettings?.monthly_price ?? 39.90;
+  const annual = pricingSettings?.annual_price ?? 297.00;
   // annual_price is the TOTAL annual price (e.g. 73.90/year)
   const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;

@@ -40,6 +40,7 @@ interface ProfileCompletion {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading, signOut } = useAuth();
   const queryClient = useQueryClient();
+  const isAdminUser = useIsAdmin();
   
   // Sincronização global em tempo real
   useGlobalSync();

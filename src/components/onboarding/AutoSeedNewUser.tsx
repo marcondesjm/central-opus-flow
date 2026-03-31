@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-
-const ADMIN_EMAIL = 'marcondesgestaotrafego@gmail.com';
-const DEMO_EMAIL = 'usercentral@gmail.com';
+import { useIsAdmin } from '@/hooks/useRoles';
+import { isDemoAccount } from '@/lib/auth-config';
 
 /**
  * REQUISITO CRÍTICO: Novas contas DEVEM ser populadas automaticamente com dados de exemplo.

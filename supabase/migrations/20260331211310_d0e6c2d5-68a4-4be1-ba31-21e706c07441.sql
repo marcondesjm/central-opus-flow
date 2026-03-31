@@ -1,0 +1,1 @@
+UPDATE system_settings SET value = '{"monthly_price": 39.90, "annual_price": 297.00}'::jsonb, updated_at = now() WHERE key = 'pricing';

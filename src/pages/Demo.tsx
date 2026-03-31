@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, Search, KanbanSquare, FileText, BarChart3, CheckCircle2 } from 'lucide-react';
 
-const DEMO_EMAIL = 'usercentral@gmail.com';
+import { DEMO_ACCOUNT_EMAIL } from '@/lib/auth-config';
 const DEMO_PASSWORD = 'Ab123456';
 
 const steps = [
@@ -35,13 +35,13 @@ export default function Demo() {
   }, [status]);
 
   useEffect(() => {
-    if (!authLoading && user?.email === DEMO_EMAIL) {
+    if (!authLoading && user?.email === DEMO_ACCOUNT_EMAIL) {
       sessionStorage.setItem('demo_data_reset', 'pending');
       navigate('/dashboard', { replace: true });
       return;
     }
 
-    if (!authLoading && user && user.email !== DEMO_EMAIL) {
+    if (!authLoading && user && user.email !== DEMO_ACCOUNT_EMAIL) {
       supabase.auth.signOut().then(() => {
         attemptedRef.current = false;
       });
@@ -72,7 +72,7 @@ export default function Demo() {
 
         setStatus('logging-in');
         const { error } = await supabase.auth.signInWithPassword({
-          email: DEMO_EMAIL,
+          email: DEMO_ACCOUNT_EMAIL,
           password: DEMO_PASSWORD,
         });
 

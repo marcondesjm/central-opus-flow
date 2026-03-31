@@ -710,7 +710,7 @@ export default function Admin() {
                   try {
                     const { data, error } = await supabase.functions.invoke('seed-demo-account');
                     if (error) throw error;
-                    toast({ title: 'Conta demo criada!', description: `Email: usercentral@gmail.com | Senha: Ab123456` });
+                    toast({ title: 'Conta demo criada!', description: 'Conta de demonstração configurada com sucesso.' });
                   } catch (err: any) {
                     toast({ title: 'Erro', description: err.message, variant: 'destructive' });
                   }

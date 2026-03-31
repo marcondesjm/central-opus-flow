@@ -1,6 +1,7 @@
 import { ReactNode, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useRoles';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Clock, Mail, AlertTriangle, MessageCircle } from 'lucide-react';
@@ -39,6 +40,7 @@ interface ProfileCompletion {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading, signOut } = useAuth();
   const queryClient = useQueryClient();
+  const isAdminUser = useIsAdmin();
   
   // Sincronização global em tempo real
   useGlobalSync();
@@ -241,8 +243,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const missingAvatar = !profileData?.avatar_url?.trim();
 
   if (missingName || missingWhatsapp || missingAvatar) {
-    // Skip for admin
-    const isAdmin = user.email === 'marcondesgestaotrafego@gmail.com';
+    // Skip for admin (role-based check via useIsAdmin hook - called at top level)
+    const isAdmin = isAdminUser;
     if (!isAdmin) {
       return (
         <>

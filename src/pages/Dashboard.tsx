@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { isDemoAccount } from '@/lib/auth-config';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileSidebar } from '@/components/layout/MobileSidebar';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
@@ -228,10 +229,10 @@ export default function Dashboard() {
   }, [user]);
 
   // Auto-reset demo data for the demo account on each new session (login)
-  const isDemoAccount = user?.email === 'usercentral@gmail.com';
+  const isDemoAccountUser = isDemoAccount(user?.email);
   const queryClient = useQueryClient();
   useEffect(() => {
-    if (!isDemoAccount || accountsLoading || !user?.id || demoResetting) return;
+    if (!isDemoAccountUser || accountsLoading || !user?.id || demoResetting) return;
 
     let cancelled = false;
 
@@ -255,11 +256,11 @@ export default function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
+  }, [isDemoAccountUser, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
   // Auto-seed is now handled globally by AutoSeedNewUser component in ProtectedRoute
   const isAdminRole = useIsAdmin();
-  const isAdminUser = isAdminRole || user?.email === 'marcondesgestaotrafego@gmail.com';
+  const isAdminUser = isAdminRole;
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

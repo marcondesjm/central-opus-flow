@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { isDemoAccount } from '@/lib/auth-config';
 import { addDays } from 'date-fns';
 
 export interface LovableAccount {
@@ -85,7 +86,7 @@ export function useAccounts() {
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      const isDemo = user?.email === 'usercentral@gmail.com';
+      const isDemo = isDemoAccount(user?.email);
       return (data || [])
         .filter(acc => {
           // Hide demo account from non-demo users
@@ -444,7 +445,7 @@ export function useDeleteProject() {
   return useMutation({
     mutationFn: async (id: string) => {
       // Block deletion in demo account - changes are temporary only
-      if (user?.email === 'usercentral@gmail.com') {
+      if (isDemoAccount(user?.email)) {
         throw new Error('Na conta de demonstração, os projetos não podem ser excluídos.');
       }
 

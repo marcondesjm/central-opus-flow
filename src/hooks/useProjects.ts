@@ -85,7 +85,7 @@ export function useAccounts() {
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      const isDemo = user?.email === 'usercentral@gmail.com';
+      const isDemo = isDemoAccount(user?.email);
       return (data || [])
         .filter(acc => {
           // Hide demo account from non-demo users

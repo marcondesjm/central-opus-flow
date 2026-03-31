@@ -367,6 +367,44 @@ function SchedulingContent() {
               Salvar Disponibilidade
             </Button>
           </TabsContent>
+          {/* Bookings Tab */}
+          <TabsContent value="bookings" className="p-6 pt-4 space-y-4">
+            <p className="text-sm text-muted-foreground">Agendamentos recebidos dos seus clientes</p>
+            {bookings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Calendar className="w-12 h-12 text-muted-foreground/40 mb-4" />
+                <p className="text-muted-foreground font-medium">Nenhum agendamento ainda</p>
+                <p className="text-sm text-muted-foreground/70">Compartilhe seu link para receber agendamentos</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {bookings.map((b: any) => (
+                  <div key={b.id} className="flex items-center gap-4 border border-border rounded-xl p-4 hover:bg-muted/20 transition-colors">
+                    <div className="w-1 h-10 rounded-full" style={{ backgroundColor: b.meeting_types?.color || '#8b5cf6' }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground">{b.guest_name}</p>
+                      <p className="text-xs text-muted-foreground">{b.guest_email} {b.guest_phone ? `• ${b.guest_phone}` : ''}</p>
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(b.booking_date).toLocaleDateString('pt-BR')} às {b.start_time}
+                        <span>•</span>
+                        {b.meeting_types?.name || 'Reunião'} ({b.meeting_types?.duration_minutes || 30} min)
+                      </p>
+                      {b.notes && <p className="text-xs text-muted-foreground/70 mt-1">📝 {b.notes}</p>}
+                    </div>
+                    <span className={cn(
+                      'text-xs px-2 py-1 rounded-full font-medium',
+                      b.status === 'confirmed' ? 'bg-green-500/10 text-green-500' :
+                      b.status === 'cancelled' ? 'bg-destructive/10 text-destructive' :
+                      'bg-primary/10 text-primary'
+                    )}>
+                      {b.status === 'confirmed' ? 'Confirmado' : b.status === 'cancelled' ? 'Cancelado' : 'Pendente'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
 

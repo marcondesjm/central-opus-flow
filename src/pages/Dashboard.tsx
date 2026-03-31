@@ -231,7 +231,7 @@ export default function Dashboard() {
   const isDemoAccountUser = isDemoAccount(user?.email);
   const queryClient = useQueryClient();
   useEffect(() => {
-    if (!isDemoAccount || accountsLoading || !user?.id || demoResetting) return;
+    if (!isDemoAccountUser || accountsLoading || !user?.id || demoResetting) return;
 
     let cancelled = false;
 

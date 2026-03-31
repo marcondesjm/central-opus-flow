@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useBookingPage, useMeetingTypes, useAvailabilitySlots } from '@/hooks/useBooking';
+import { useBookingPage, useMeetingTypes, useAvailabilitySlots, useBookings } from '@/hooks/useBooking';
+import { useLeadPipelines } from '@/hooks/useLeads';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Calendar, Clock, Settings2, Copy, ExternalLink, Plus, Trash2, Loader2, Video, Phone, MapPin
@@ -30,6 +31,8 @@ function SchedulingContent() {
   const { bookingPage, isLoading, upsert } = useBookingPage();
   const { meetingTypes, create: createMeeting, update: updateMeeting, remove: removeMeeting } = useMeetingTypes(bookingPage?.id);
   const { slots, upsertSlots } = useAvailabilitySlots(bookingPage?.id);
+  const { bookings } = useBookings();
+  const { pipelines } = useLeadPipelines();
 
   // Config state
   const [slug, setSlug] = useState('');
@@ -195,6 +198,7 @@ function SchedulingContent() {
               <TabsTrigger value="config" className="gap-2 rounded-lg flex-1 text-xs"><Settings2 className="w-3.5 h-3.5" /> Configurações</TabsTrigger>
               <TabsTrigger value="meetings" className="gap-2 rounded-lg flex-1 text-xs"><Video className="w-3.5 h-3.5" /> Tipos de Reunião</TabsTrigger>
               <TabsTrigger value="availability" className="gap-2 rounded-lg flex-1 text-xs"><Calendar className="w-3.5 h-3.5" /> Disponibilidade</TabsTrigger>
+              <TabsTrigger value="bookings" className="gap-2 rounded-lg flex-1 text-xs"><Clock className="w-3.5 h-3.5" /> Agendamentos</TabsTrigger>
             </TabsList>
           </div>
 
@@ -222,6 +226,9 @@ function SchedulingContent() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Nenhum (padrão)</SelectItem>
+                    {pipelines.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -359,6 +366,44 @@ function SchedulingContent() {
               {upsertSlots.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Salvar Disponibilidade
             </Button>
+          </TabsContent>
+          {/* Bookings Tab */}
+          <TabsContent value="bookings" className="p-6 pt-4 space-y-4">
+            <p className="text-sm text-muted-foreground">Agendamentos recebidos dos seus clientes</p>
+            {bookings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Calendar className="w-12 h-12 text-muted-foreground/40 mb-4" />
+                <p className="text-muted-foreground font-medium">Nenhum agendamento ainda</p>
+                <p className="text-sm text-muted-foreground/70">Compartilhe seu link para receber agendamentos</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {bookings.map((b: any) => (
+                  <div key={b.id} className="flex items-center gap-4 border border-border rounded-xl p-4 hover:bg-muted/20 transition-colors">
+                    <div className="w-1 h-10 rounded-full" style={{ backgroundColor: b.meeting_types?.color || '#8b5cf6' }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground">{b.guest_name}</p>
+                      <p className="text-xs text-muted-foreground">{b.guest_email} {b.guest_phone ? `• ${b.guest_phone}` : ''}</p>
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(b.booking_date).toLocaleDateString('pt-BR')} às {b.start_time}
+                        <span>•</span>
+                        {b.meeting_types?.name || 'Reunião'} ({b.meeting_types?.duration_minutes || 30} min)
+                      </p>
+                      {b.notes && <p className="text-xs text-muted-foreground/70 mt-1">📝 {b.notes}</p>}
+                    </div>
+                    <span className={cn(
+                      'text-xs px-2 py-1 rounded-full font-medium',
+                      b.status === 'confirmed' ? 'bg-green-500/10 text-green-500' :
+                      b.status === 'cancelled' ? 'bg-destructive/10 text-destructive' :
+                      'bg-primary/10 text-primary'
+                    )}>
+                      {b.status === 'confirmed' ? 'Confirmado' : b.status === 'cancelled' ? 'Cancelado' : 'Pendente'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, Search, KanbanSquare, FileText, BarChart3, CheckCircle2 } from 'lucide-react';
 
-const DEMO_EMAIL = 'usercentral@gmail.com';
+import { DEMO_ACCOUNT_EMAIL } from '@/lib/auth-config';
 const DEMO_PASSWORD = 'Ab123456';
 
 const steps = [

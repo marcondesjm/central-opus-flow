@@ -20,8 +20,8 @@ export function AutoSeedNewUser() {
   useEffect(() => {
     if (!user?.id || !user?.email) return;
 
-    // Skip admin and demo accounts by email (no async dependency)
-    if (user.email === ADMIN_EMAIL || user.email === DEMO_EMAIL) return;
+    // Skip demo accounts (admin is checked via role below)
+    if (isDemoAccount(user.email)) return;
 
     // Only trigger once per component lifecycle
     if (seedTriggeredRef.current) return;

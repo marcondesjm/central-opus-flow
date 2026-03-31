@@ -128,7 +128,7 @@ export function useAdminStats() {
   const { data: allUsers = [] } = useAdminUsers();
   
   // Exclude demo account from stats
-  const users = allUsers.filter(u => u.email !== 'usercentral@gmail.com');
+  const users = allUsers.filter(u => !isDemoAccount(u.email));
   
   const stats = {
     totalUsers: users.length,

@@ -444,7 +444,7 @@ export function useDeleteProject() {
   return useMutation({
     mutationFn: async (id: string) => {
       // Block deletion in demo account - changes are temporary only
-      if (user?.email === 'usercentral@gmail.com') {
+      if (isDemoAccount(user?.email)) {
         throw new Error('Na conta de demonstração, os projetos não podem ser excluídos.');
       }
 

@@ -241,8 +241,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const missingAvatar = !profileData?.avatar_url?.trim();
 
   if (missingName || missingWhatsapp || missingAvatar) {
-    // Skip for admin
-    const isAdmin = user.email === 'marcondesgestaotrafego@gmail.com';
+    // Skip for admin (role-based check)
+    const isAdmin = profileData?.role === 'admin';
     if (!isAdmin) {
       return (
         <>

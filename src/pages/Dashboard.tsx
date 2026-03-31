@@ -259,7 +259,7 @@ export default function Dashboard() {
 
   // Auto-seed is now handled globally by AutoSeedNewUser component in ProtectedRoute
   const isAdminRole = useIsAdmin();
-  const isAdminUser = isAdminRole || user?.email === 'marcondesgestaotrafego@gmail.com';
+  const isAdminUser = isAdminRole;
 
   // Global search keyboard shortcut (Ctrl+K / Cmd+K)
   useEffect(() => {

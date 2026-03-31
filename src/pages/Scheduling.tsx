@@ -31,6 +31,8 @@ function SchedulingContent() {
   const { bookingPage, isLoading, upsert } = useBookingPage();
   const { meetingTypes, create: createMeeting, update: updateMeeting, remove: removeMeeting } = useMeetingTypes(bookingPage?.id);
   const { slots, upsertSlots } = useAvailabilitySlots(bookingPage?.id);
+  const { bookings } = useBookings();
+  const { pipelines } = useLeadPipelines();
 
   // Config state
   const [slug, setSlug] = useState('');

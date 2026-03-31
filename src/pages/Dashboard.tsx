@@ -255,7 +255,7 @@ export default function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [isDemoAccount, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
+  }, [isDemoAccountUser, demoResetDone, accountsLoading, user?.id, demoResetting, hasCompleteDemoData, resetDemoData, queryClient]);
 
   // Auto-seed is now handled globally by AutoSeedNewUser component in ProtectedRoute
   const isAdminRole = useIsAdmin();

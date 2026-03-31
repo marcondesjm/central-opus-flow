@@ -72,7 +72,7 @@ export default function Demo() {
 
         setStatus('logging-in');
         const { error } = await supabase.auth.signInWithPassword({
-          email: DEMO_EMAIL,
+          email: DEMO_ACCOUNT_EMAIL,
           password: DEMO_PASSWORD,
         });
 

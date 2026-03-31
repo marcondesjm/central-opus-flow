@@ -242,8 +242,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const missingAvatar = !profileData?.avatar_url?.trim();
 
   if (missingName || missingWhatsapp || missingAvatar) {
-    // Skip for admin (role-based check)
-    const isAdmin = profileData?.role === 'admin';
+    // Skip for admin (role-based check via useIsAdmin hook - called at top level)
+    const isAdmin = isAdminUser;
     if (!isAdmin) {
       return (
         <>

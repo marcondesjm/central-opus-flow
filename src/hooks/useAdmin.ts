@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { isDemoAccount } from '@/lib/auth-config';
 import { toast } from 'sonner';
 
 export type UserStatus = 'active' | 'frozen' | 'deleted' | 'pending_approval';

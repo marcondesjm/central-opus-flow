@@ -131,12 +131,39 @@ export default function BookingPublic() {
       notes: notes.trim() || null,
     } as any);
 
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       toast.error('Erro ao agendar. Tente novamente.');
-    } else {
-      setStep('done');
+      return;
     }
+
+    // Auto-create lead if enabled
+    if (bookingPage.auto_create_lead) {
+      const dateStr = format(selectedDate, "dd/MM/yyyy");
+      await supabase.from('leads').insert({
+        user_id: bookingPage.user_id,
+        pipeline_id: bookingPage.pipeline_id || null,
+        name: guestName.trim(),
+        email: guestEmail.trim(),
+        phone: guestPhone.trim() || null,
+        source: 'agendamento',
+        notes: `Agendamento: ${selectedType.name} em ${dateStr} às ${selectedTime}${notes.trim() ? ` — ${notes.trim()}` : ''}`,
+        phase: 'novo_lead',
+      } as any).then(() => {});
+    }
+
+    // Send notification to booking owner
+    await supabase.from('collaboration_notifications').insert({
+      user_id: bookingPage.user_id,
+      type: 'booking',
+      title: 'Novo Agendamento',
+      message: `${guestName.trim()} agendou ${selectedType.name} para ${format(selectedDate, "dd/MM/yyyy")} às ${selectedTime}`,
+      entity_type: 'booking',
+      entity_id: bookingPage.id,
+    } as any).then(() => {});
+
+    setSubmitting(false);
+    setStep('done');
   };
 
   if (loading) {

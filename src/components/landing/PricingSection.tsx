@@ -9,8 +9,8 @@ import { usePricingSettings, useTeamPricingSettings } from '@/hooks/useSystemSet
 export function PricingSection() {
   const { data: pricing } = usePricingSettings();
   const { data: teamSettings } = useTeamPricingSettings();
-  const monthly = pricing?.monthly_price ?? 7.90;
-  const annual = pricing?.annual_price ?? 73.90;
+  const monthly = pricing?.monthly_price ?? 39.90;
+  const annual = pricing?.annual_price ?? 297.00;
   const annualPerMonth = annual / 12;
   const monthlyTotal = monthly * 12;
   const discount = Math.round((1 - annual / monthlyTotal) * 100);

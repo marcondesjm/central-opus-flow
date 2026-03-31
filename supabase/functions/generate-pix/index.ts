@@ -6,7 +6,7 @@ const corsHeaders = {
 // Default fallback values (used for subscription payments)
 const DEFAULT_PIX_KEY = '+5548996029392';
 const DEFAULT_PIX_NAME = 'Marcondes Jorge Machado';
-const DEFAULT_PIX_AMOUNT = 7.90;
+const DEFAULT_PIX_AMOUNT = 39.90;
 
 /**
  * CRC16-CCITT (0xFFFF) — required by PIX EMV BR Code spec

@@ -228,7 +228,7 @@ export default function Dashboard() {
   }, [user]);
 
   // Auto-reset demo data for the demo account on each new session (login)
-  const isDemoAccount = user?.email === 'usercentral@gmail.com';
+  const isDemoAccountUser = isDemoAccount(user?.email);
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!isDemoAccount || accountsLoading || !user?.id || demoResetting) return;

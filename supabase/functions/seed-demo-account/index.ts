@@ -5,9 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const DEMO_EMAIL = "usercentral@gmail.com";
-const DEMO_PASSWORD = "Ab123456";
-const ADMIN_EMAIL = "marcondesgestaotrafego@gmail.com";
+const DEMO_EMAIL = Deno.env.get("DEMO_EMAIL") || "demo@centralopusflow.com";
+const DEMO_PASSWORD = Deno.env.get("DEMO_PASSWORD") || "Ab123456";
+const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "admin@centralopusflow.com";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {

@@ -41,7 +41,7 @@ export default function Demo() {
       return;
     }
 
-    if (!authLoading && user && user.email !== DEMO_EMAIL) {
+    if (!authLoading && user && user.email !== DEMO_ACCOUNT_EMAIL) {
       supabase.auth.signOut().then(() => {
         attemptedRef.current = false;
       });

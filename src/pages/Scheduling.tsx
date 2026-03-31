@@ -198,6 +198,7 @@ function SchedulingContent() {
               <TabsTrigger value="config" className="gap-2 rounded-lg flex-1 text-xs"><Settings2 className="w-3.5 h-3.5" /> Configurações</TabsTrigger>
               <TabsTrigger value="meetings" className="gap-2 rounded-lg flex-1 text-xs"><Video className="w-3.5 h-3.5" /> Tipos de Reunião</TabsTrigger>
               <TabsTrigger value="availability" className="gap-2 rounded-lg flex-1 text-xs"><Calendar className="w-3.5 h-3.5" /> Disponibilidade</TabsTrigger>
+              <TabsTrigger value="bookings" className="gap-2 rounded-lg flex-1 text-xs"><Clock className="w-3.5 h-3.5" /> Agendamentos</TabsTrigger>
             </TabsList>
           </div>
 

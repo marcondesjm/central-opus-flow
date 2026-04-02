@@ -59,7 +59,7 @@ const allNavItems = [
 ];
 
 const MOBILE_SHORTCUTS_KEY = 'mobile-shortcuts';
-const DEFAULT_SHORTCUTS = ['dashboard', 'clientes', 'pipelines', 'financeiro'];
+const DEFAULT_SHORTCUTS = ['dashboard', 'clientes', 'pipelines', 'kanban'];
 
 function getShortcuts(): string[] {
   try {

@@ -33,16 +33,14 @@ import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 
 const SHORTCUT_MAP: Record<string, { path: string; label: string; icon: LucideIcon }> = {
   dashboard: { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  clientes: { path: '/kanban', label: 'Clientes', icon: Users },
+  clientes: { path: '/clients', label: 'Clientes', icon: Users },
   pipelines: { path: '/leads', label: 'Pipelines', icon: Columns3 },
-  tarefas: { path: '/kanban', label: 'Tarefas', icon: CheckSquare },
-  agenda: { path: '/scheduling', label: 'Agenda', icon: Calendar },
-  'tarefas-diarias': { path: '/kanban', label: 'Tarefas Diárias', icon: Clock },
+  kanban: { path: '/kanban', label: 'Kanban', icon: Kanban },
+  agenda: { path: '/agenda', label: 'Agenda', icon: Calendar },
   financeiro: { path: '/billing', label: 'Financeiro', icon: DollarSign },
-  servicos: { path: '/proposals', label: 'Serviços', icon: FileText },
-  orcamentos: { path: '/proposals', label: 'Orçamentos', icon: Receipt },
-  paginas: { path: '/dashboard', label: 'Páginas', icon: Globe },
-  configuracoes: { path: '/settings', label: 'Configurações', icon: Settings },
+  propostas: { path: '/proposals', label: 'Propostas', icon: FileText },
+  projetos: { path: '/portfolio-manager', label: 'Projetos', icon: Globe },
+  relatorios: { path: '/reports', label: 'Relatórios', icon: BarChart3 },
 };
 
 const allNavItems = [

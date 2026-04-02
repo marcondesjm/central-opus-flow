@@ -90,7 +90,15 @@ export default function Proposals() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  const ITEMS_PER_PAGE = 6;
+  const totalPages = Math.ceil(proposals.length / ITEMS_PER_PAGE);
+  const paginatedProposals = useMemo(() => {
+    const start = currentPage * ITEMS_PER_PAGE;
+    return proposals.slice(start, start + ITEMS_PER_PAGE);
+  }, [proposals, currentPage]);
 
   const handleSave = async () => {
     if (!currentProposal.client_name?.trim()) {

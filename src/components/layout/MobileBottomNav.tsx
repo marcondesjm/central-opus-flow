@@ -3,7 +3,6 @@ import {
   Kanban, 
   FileText, 
   Sparkles, 
-  Star,
   BarChart3,
   Receipt,
   FolderOpen,
@@ -14,9 +13,7 @@ import {
   Calendar,
   Clock,
   DollarSign,
-  CheckSquare,
   Columns3,
-  Settings,
   Globe,
   Users,
   type LucideIcon,
@@ -33,35 +30,34 @@ import { useScheduledMessagesCount } from '@/hooks/useScheduledMessagesCount';
 
 const SHORTCUT_MAP: Record<string, { path: string; label: string; icon: LucideIcon }> = {
   dashboard: { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  clientes: { path: '/kanban', label: 'Clientes', icon: Users },
+  clientes: { path: '/clients', label: 'Clientes', icon: Users },
   pipelines: { path: '/leads', label: 'Pipelines', icon: Columns3 },
-  tarefas: { path: '/kanban', label: 'Tarefas', icon: CheckSquare },
-  agenda: { path: '/scheduling', label: 'Agenda', icon: Calendar },
-  'tarefas-diarias': { path: '/kanban', label: 'Tarefas Diárias', icon: Clock },
+  kanban: { path: '/kanban', label: 'Kanban', icon: Kanban },
+  agenda: { path: '/agenda', label: 'Agenda', icon: Calendar },
   financeiro: { path: '/billing', label: 'Financeiro', icon: DollarSign },
-  servicos: { path: '/proposals', label: 'Serviços', icon: FileText },
-  orcamentos: { path: '/proposals', label: 'Orçamentos', icon: Receipt },
-  paginas: { path: '/dashboard', label: 'Páginas', icon: Globe },
-  configuracoes: { path: '/settings', label: 'Configurações', icon: Settings },
+  propostas: { path: '/proposals', label: 'Propostas', icon: FileText },
+  projetos: { path: '/portfolio-manager', label: 'Projetos', icon: Globe },
+  relatorios: { path: '/reports', label: 'Relatórios', icon: BarChart3 },
 };
 
 const allNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/dashboard?view=favorites', label: 'Aprovações', icon: Star },
+  { path: '/portfolio-manager', label: 'Projetos', icon: Globe },
+  { path: '/clients', label: 'Clientes', icon: Users },
   { path: '/proposals', label: 'Propostas', icon: FileText },
   { path: '/kanban', label: 'Kanban', icon: Kanban },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/billing', label: 'Faturamento', icon: Receipt },
-  { path: '/files', label: 'Versões', icon: FolderOpen },
+  { path: '/files', label: 'Arquivos', icon: FolderOpen },
   { path: '/teams', label: 'Equipes', icon: UsersRound },
   { path: '/collaborations', label: 'Colaborações', icon: Share2 },
   { path: '/ideas', label: 'Ideias', icon: Sparkles },
-  { path: '/scheduling', label: 'Agenda', icon: Calendar },
+  { path: '/agenda', label: 'Agenda', icon: Calendar },
   { path: '/manual', label: 'Manual', icon: BookOpen },
 ];
 
 const MOBILE_SHORTCUTS_KEY = 'mobile-shortcuts';
-const DEFAULT_SHORTCUTS = ['dashboard', 'clientes', 'pipelines', 'financeiro'];
+const DEFAULT_SHORTCUTS = ['dashboard', 'clientes', 'pipelines', 'kanban'];
 
 function getShortcuts(): string[] {
   try {

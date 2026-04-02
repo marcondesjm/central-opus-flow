@@ -42,16 +42,17 @@ const SHORTCUT_MAP: Record<string, { path: string; label: string; icon: LucideIc
 
 const allNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/dashboard?view=favorites', label: 'Aprovações', icon: Star },
+  { path: '/portfolio-manager', label: 'Projetos', icon: Globe },
+  { path: '/clients', label: 'Clientes', icon: Users },
   { path: '/proposals', label: 'Propostas', icon: FileText },
   { path: '/kanban', label: 'Kanban', icon: Kanban },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
   { path: '/billing', label: 'Faturamento', icon: Receipt },
-  { path: '/files', label: 'Versões', icon: FolderOpen },
+  { path: '/files', label: 'Arquivos', icon: FolderOpen },
   { path: '/teams', label: 'Equipes', icon: UsersRound },
   { path: '/collaborations', label: 'Colaborações', icon: Share2 },
   { path: '/ideas', label: 'Ideias', icon: Sparkles },
-  { path: '/scheduling', label: 'Agenda', icon: Calendar },
+  { path: '/agenda', label: 'Agenda', icon: Calendar },
   { path: '/manual', label: 'Manual', icon: BookOpen },
 ];
 

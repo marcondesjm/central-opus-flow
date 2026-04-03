@@ -64,6 +64,7 @@ export function useCreateWhatsAppAutomation() {
       delay_minutes?: number;
       target_phase?: string;
       description?: string;
+      tag?: string;
     }) => {
       const { data, error } = await supabase
         .from('whatsapp_automations')

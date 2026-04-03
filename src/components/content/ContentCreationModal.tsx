@@ -192,9 +192,15 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
                   </div>
                   <div className="w-28">
                     <p className="text-xs font-semibold text-muted-foreground mb-2">CAPA</p>
-                    <button className="w-full aspect-[9/16] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors bg-background">
-                      <Upload className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-[10px] text-muted-foreground">Imagem de capa</span>
+                    <button onClick={() => coverInputRef.current?.click()} className="w-full aspect-[9/16] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors bg-background">
+                      {coverUrl ? (
+                        <img src={coverUrl} alt="Capa" className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <>
+                          <Upload className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground">Imagem de capa</span>
+                        </>
+                      )}
                     </button>
                   </div>
                   <div className="flex-1 space-y-3">

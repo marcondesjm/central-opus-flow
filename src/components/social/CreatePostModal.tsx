@@ -182,7 +182,7 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
               <Select value={clientId} onValueChange={setClientId}>
                 <SelectTrigger><SelectValue placeholder="Vincular a um cliente..." /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {clients.map(c => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}

@@ -392,8 +392,8 @@ export function Sidebar({
             <NavItem icon={Receipt} label={t('sidebar.billing')} onClick={() => navigate('/billing')} active={isRouteActive('/billing')} />
           )}
           <NavItem icon={CalendarIcon} label="Agenda" onClick={() => navigate('/agenda')} active={isRouteActive('/agenda')} />
-          <NavItem icon={Share2} label="Social Media" onClick={() => navigate('/social')} active={isRouteActive('/social')} isNew />
-          <NavItem icon={MessageSquare} label="Automações WhatsApp" onClick={() => navigate('/whatsapp-automations')} active={isRouteActive('/whatsapp-automations')} isNew />
+          <NavItem icon={Share2} label="Social Media" onClick={() => navigate('/social')} active={isRouteActive('/social')} isNew isBeta />
+          <NavItem icon={MessageSquare} label="Automações WhatsApp" onClick={() => navigate('/whatsapp-automations')} active={isRouteActive('/whatsapp-automations')} isNew isBeta />
           <NavItem icon={BarChart3} label={t('sidebar.reports')} onClick={() => navigate('/reports')} active={isRouteActive('/reports')} />
         </div>
 

@@ -48,8 +48,14 @@ export default function SocialMedia() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
   const [addMetricOpen, setAddMetricOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<SocialPost | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+
+  // Always derive selectedPost from fresh query data
+  const selectedPost = useMemo(() => {
+    if (!selectedPostId || !allPosts) return null;
+    return allPosts.find(p => p.id === selectedPostId) || null;
+  }, [selectedPostId, allPosts]);
   const [tab, setTab] = useState('calendar');
   const [filterClient, setFilterClient] = useState<string>('all');
 

@@ -556,7 +556,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Social Media',
     icon: Globe,
     color: '#e1306c',
-    image: dashboardImg,
+    image: socialImg,
     intro: 'O módulo de Social Media permite gerenciar todo o ciclo de vida dos seus conteúdos para redes sociais: criação, agendamento, aprovação e análise de métricas — tudo em um só lugar.',
     items: [
       {

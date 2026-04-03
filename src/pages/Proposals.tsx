@@ -502,24 +502,24 @@ export default function Proposals() {
                       </div>
 
                       {/* Actions footer */}
-                      <div className="border-t border-border/60 bg-muted/30 px-2 py-1.5 flex items-center justify-between gap-1">
-                        <div className="flex items-center gap-0.5">
-                          <Button size="sm" variant="ghost" className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary" onClick={() => handlePreview(proposal)}>
-                            <Eye className="w-3.5 h-3.5" />
+                      <div className="border-t border-border/60 bg-muted/30 px-2 py-1.5 flex items-center justify-between gap-0">
+                        <div className="flex items-center gap-0">
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 hover:bg-primary/10 hover:text-primary" onClick={() => handlePreview(proposal)}>
+                            <Eye className="w-3 h-3" />
                             Ver
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary" onClick={() => handleEdit(proposal)}>
-                            <Pencil className="w-3.5 h-3.5" />
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 hover:bg-primary/10 hover:text-primary" onClick={() => handleEdit(proposal)}>
+                            <Pencil className="w-3 h-3" />
                             Editar
                           </Button>
                           {proposal.status === 'draft' ? (
-                            <Button size="sm" variant="ghost" className="h-8 px-3 text-xs gap-1.5 text-blue-600 hover:bg-blue-500/10" onClick={() => handlePublish(proposal.id)}>
-                              <Send className="w-3.5 h-3.5" />
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 text-blue-600 hover:bg-blue-500/10" onClick={() => handlePublish(proposal.id)}>
+                              <Send className="w-3 h-3" />
                               Publicar
                             </Button>
                           ) : (
-                            <Button size="sm" variant="ghost" className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary" onClick={() => copyShareLink(proposal.share_token!)}>
-                              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px] gap-1 hover:bg-primary/10 hover:text-primary" onClick={() => copyShareLink(proposal.share_token!)}>
+                              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                               Link
                             </Button>
                           )}

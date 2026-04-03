@@ -324,6 +324,18 @@ function AutomationFormModal({
             </div>
           )}
 
+          {/* Schedule date (only for scheduled trigger) */}
+          {trigger === 'scheduled' && (
+            <div>
+              <Label>📅 Data e hora do agendamento</Label>
+              <Input
+                type="datetime-local"
+                value={scheduleDate}
+                onChange={e => setScheduleDate(e.target.value)}
+              />
+            </div>
+          )}
+
           {/* Description */}
           <div>
             <Label>Descrição (opcional)</Label>

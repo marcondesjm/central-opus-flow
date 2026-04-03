@@ -12,6 +12,7 @@ export interface WhatsAppAutomation {
   delay_minutes: number;
   target_phase: string | null;
   description: string | null;
+  tag: string | null;
   created_at: string;
   updated_at: string;
 }

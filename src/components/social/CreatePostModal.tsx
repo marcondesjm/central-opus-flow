@@ -258,7 +258,7 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
                     {date ? format(date, 'dd/MM/yyyy', { locale: ptBR }) : 'Selecionar data'}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 z-[60]">
                   <Calendar mode="single" selected={date} onSelect={setDate} className="p-3 pointer-events-auto" locale={ptBR} />
                 </PopoverContent>
               </Popover>

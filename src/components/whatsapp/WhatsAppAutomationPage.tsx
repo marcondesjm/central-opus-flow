@@ -58,6 +58,42 @@ export function WhatsAppAutomationPage() {
     deleteMutation.mutate(id);
   };
 
+  const quickActions = [
+    {
+      label: '👋 Mensagem de boas-vindas',
+      action: () => {
+        createMutation.mutate({
+          trigger_type: 'new_message',
+          message_template: 'Olá! Seja bem-vindo 👋 Como posso te ajudar hoje?',
+          delay_minutes: 0,
+          tag: 'boas-vindas',
+        });
+      },
+    },
+    {
+      label: '👀 Follow-up automático',
+      action: () => {
+        createMutation.mutate({
+          trigger_type: 'no_reply',
+          message_template: 'Oi! Só passando pra saber se conseguiu ver minha última mensagem 👀',
+          delay_minutes: 60,
+          tag: 'follow-up',
+        });
+      },
+    },
+    {
+      label: '🙌 Pós-venda automático',
+      action: () => {
+        createMutation.mutate({
+          trigger_type: 'sale_completed',
+          message_template: 'Obrigado pela compra! Qualquer dúvida estou por aqui 🙌',
+          delay_minutes: 0,
+          tag: 'pos-venda',
+        });
+      },
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}

@@ -281,10 +281,41 @@ export function ContentDetailModal({ open, onOpenChange, item }: Props) {
               )}
             </div>
           ) : (
-            <Button variant="outline" size="sm" onClick={handleSendApproval} disabled={createApproval.isPending} className="gap-2">
-              {createApproval.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Enviar para aprovação do cliente
-            </Button>
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" onClick={handleSendApproval} disabled={createApproval.isPending} className="gap-2">
+                {createApproval.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                Enviar para aprovação do cliente
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={async () => {
+                  if (!user) return;
+                  const token = crypto.randomUUID();
+                  const clientName = item.financial_clients?.name || 'Cliente';
+                  const contentText = item.description || item.title || 'Conteúdo';
+                  const { error } = await supabase.from('content_approvals').insert([{
+                    user_id: user.id,
+                    client_name: clientName,
+                    content: contentText,
+                    client_id: item.client_id || null,
+                    content_item_id: item.id,
+                    share_token: token,
+                    status: 'pending',
+                  }] as any);
+                  if (!error) {
+                    const link = `${window.location.origin}/aprovacao/${token}`;
+                    await navigator.clipboard.writeText(link);
+                    toast({ title: 'Link de aprovação copiado!' });
+                  } else {
+                    toast({ title: 'Erro ao gerar link', description: error.message, variant: 'destructive' });
+                  }
+                }}
+              >
+                <Link2 className="w-4 h-4" /> Gerar Link de Aprovação
+              </Button>
+            </div>
           )}
         </div>
 

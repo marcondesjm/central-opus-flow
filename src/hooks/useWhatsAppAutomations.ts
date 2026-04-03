@@ -13,6 +13,7 @@ export interface WhatsAppAutomation {
   target_phase: string | null;
   description: string | null;
   tag: string | null;
+  schedule_date: string | null;
   created_at: string;
   updated_at: string;
 }

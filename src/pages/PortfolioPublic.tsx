@@ -438,6 +438,25 @@ export default function PortfolioPublic() {
   const [contactOpen, setContactOpen] = useState(false);
   const [services, setServices] = useState<PublicService[]>([]);
 
+  // Set document title for SEO
+  useEffect(() => {
+    if (data?.page?.meta_title) {
+      document.title = data.page.meta_title;
+    } else if (data?.page?.title) {
+      document.title = data.page.title;
+    }
+    // Add meta description
+    if (data?.page?.meta_description) {
+      let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'description';
+        document.head.appendChild(meta);
+      }
+      meta.content = data.page.meta_description;
+    }
+  }, [data?.page?.meta_title, data?.page?.meta_description, data?.page?.title]);
+
   // Fetch public services for the portfolio owner
   useEffect(() => {
     if (!data?.page?.user_id) return;

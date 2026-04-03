@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, XCircle, FileCheck, Loader2, Clock, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { CheckCircle, XCircle, FileCheck, Loader2, Clock, AlertCircle, Image as ImageIcon, ListChecks } from 'lucide-react';
 
 export default function ApprovalPublic() {
   const { token } = useParams<{ token: string }>();
@@ -90,9 +90,12 @@ export default function ApprovalPublic() {
   const isApproved = approval.status === 'approved';
   const isRejected = approval.status === 'rejected';
 
-  const mediaUrls: string[] = contentItem?.media_urls || [];
+  // Merge data from content_item (if linked) and direct approval fields
+  const approvalAny = approval as any;
+  const mediaUrls: string[] = contentItem?.media_urls || approvalAny.media_urls || [];
+  const checklist: { id: string; text: string; done: boolean }[] = contentItem?.checklist || approvalAny.checklist || [];
   const description = contentItem?.description || approval.content;
-  const title = contentItem?.title;
+  const title = contentItem?.title || approvalAny.title;
   const coverUrl = contentItem?.cover_url;
   const videoLink = contentItem?.video_link;
   const platforms: string[] = contentItem?.platforms || [];
@@ -148,6 +151,29 @@ export default function ApprovalPublic() {
             <a href={videoLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-purple-400 hover:underline">
               🎬 Ver vídeo
             </a>
+          )}
+
+          {/* Checklist */}
+          {checklist.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-medium">Checklist</span>
+                <span className="text-xs text-white/40">
+                  {checklist.filter((c: any) => c.done).length}/{checklist.length}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {checklist.map((item: any) => (
+                  <div key={item.id} className="flex items-center gap-2 text-sm">
+                    <span className={`w-4 h-4 rounded border flex items-center justify-center text-xs ${item.done ? 'bg-emerald-500/30 border-emerald-500 text-emerald-400' : 'border-white/20'}`}>
+                      {item.done && '✓'}
+                    </span>
+                    <span className={item.done ? 'text-white/50 line-through' : ''}>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Platforms */}

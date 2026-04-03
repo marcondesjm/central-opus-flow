@@ -1,0 +1,5 @@
+
+ALTER TABLE public.content_approvals
+ADD COLUMN IF NOT EXISTS media_urls TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS checklist JSONB DEFAULT '[]',
+ADD COLUMN IF NOT EXISTS title TEXT;

@@ -306,16 +306,17 @@ export default function Auth() {
     }
     setIsChangingPassword(true);
     try {
-      // First sign in with temp password
-      const { error: signInError } = await signIn(changeEmail, changeTempPassword);
-      if (signInError) {
-        toast({ title: 'Senha temporária inválida', description: 'A senha temporária informada está incorreta.', variant: 'destructive' });
-        setIsChangingPassword(false);
-        return;
-      }
-      // Now update password
-      const { error: updateError } = await supabase.auth.updateUser({ password: changeNewPassword });
-      if (updateError) throw updateError;
+      const { data, error } = await supabase.functions.invoke('change-temp-password', {
+        body: {
+          email: changeEmail,
+          tempPassword: changeTempPassword,
+          newPassword: changeNewPassword,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       toast({ title: 'Senha alterada com sucesso!', description: 'Você já pode fazer login com sua nova senha.' });
       setShowChangePassword(false);
       setLoginEmail(changeEmail);
@@ -324,10 +325,13 @@ export default function Auth() {
       setChangeNewPassword('');
       setChangeConfirmPassword('');
       setChangeEmail('');
-      // Sign out so user logs in fresh with new password
-      await supabase.auth.signOut();
-    } catch (err: any) {
-      toast({ title: 'Erro ao alterar senha', description: err.message || 'Tente novamente.', variant: 'destructive' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Tente novamente.';
+      if (message.toLowerCase().includes('senha temporária')) {
+        toast({ title: 'Senha temporária inválida', description: message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Erro ao alterar senha', description: message, variant: 'destructive' });
+      }
     } finally {
       setIsChangingPassword(false);
     }

@@ -27,6 +27,12 @@ import collaborationImg from '@/assets/manual/collaboration-preview.jpg';
 import settingsImg from '@/assets/manual/settings-preview.jpg';
 import reportsImg from '@/assets/manual/reports-preview.jpg';
 import accountsImg from '@/assets/manual/accounts-preview.jpg';
+import socialImg from '@/assets/manual/social-preview.jpg';
+import portfolioImg from '@/assets/manual/portfolio-preview.jpg';
+import whatsappImg from '@/assets/manual/whatsapp-preview.jpg';
+import briefingsImg from '@/assets/manual/briefings-preview.jpg';
+import agendaImg from '@/assets/manual/agenda-preview.jpg';
+import teamsImg from '@/assets/manual/teams-preview.jpg';
 
 interface ManualStep {
   icon: React.ElementType;
@@ -383,7 +389,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Equipes',
     icon: Users,
     color: '#14b8a6',
-    image: collaborationImg,
+    image: teamsImg,
     intro: 'Gerencie os membros da sua equipe, visualize papéis e permissões. Mantenha o controle de quem tem acesso a quê dentro da plataforma.',
     items: [
       {
@@ -550,7 +556,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Social Media',
     icon: Globe,
     color: '#e1306c',
-    image: dashboardImg,
+    image: socialImg,
     intro: 'O módulo de Social Media permite gerenciar todo o ciclo de vida dos seus conteúdos para redes sociais: criação, agendamento, aprovação e análise de métricas — tudo em um só lugar.',
     items: [
       {
@@ -594,7 +600,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Portfólio e Bio Link',
     icon: Globe,
     color: '#8b5cf6',
-    image: settingsImg,
+    image: portfolioImg,
     intro: 'Crie páginas profissionais para mostrar seu trabalho. O Editor Visual permite montar sua página com blocos arrastáveis, e o Bio Link é uma mini página de links para redes sociais.',
     items: [
       {
@@ -632,7 +638,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Automações WhatsApp',
     icon: MessageCircle,
     color: '#25d366',
-    image: kanbanImg,
+    image: whatsappImg,
     intro: 'Configure automações inteligentes para enviar mensagens via WhatsApp de forma automática em diferentes momentos do seu fluxo de trabalho.',
     items: [
       {
@@ -666,7 +672,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Briefings',
     icon: FileText,
     color: '#f59e0b',
-    image: proposalsImg,
+    image: briefingsImg,
     intro: 'Crie e envie briefings profissionais para seus clientes preencherem. O link público permite que o cliente responda sem precisar criar conta.',
     items: [
       {
@@ -690,7 +696,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Agenda e Agendamentos',
     icon: Calendar,
     color: '#06b6d4',
-    image: dashboardImg,
+    image: agendaImg,
     intro: 'Configure uma página de agendamento pública para que clientes marquem reuniões com você. Funciona como um Calendly integrado ao sistema.',
     items: [
       {

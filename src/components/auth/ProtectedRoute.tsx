@@ -1,12 +1,13 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Clock, Mail, AlertTriangle, MessageCircle } from 'lucide-react';
+import { Loader2, Clock, Mail, AlertTriangle, MessageCircle, Ticket } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CompleteProfileGate } from './CompleteProfileGate';
 import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
@@ -16,6 +17,8 @@ import { AutoVersionBump } from '@/components/version/AutoVersionBump';
 import { ActivitySync } from '@/components/activity/ActivitySync';
 import { AutoSeedNewUser } from '@/components/onboarding/AutoSeedNewUser';
 import { useGlobalSync } from '@/hooks/useGlobalSync';
+import { useRedeemCoupon } from '@/hooks/useCoupons';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProtectedRouteProps {
   children: ReactNode;

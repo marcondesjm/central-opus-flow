@@ -974,10 +974,12 @@ export type Database = {
       content_approvals: {
         Row: {
           approved_at: string | null
+          client_id: string | null
           client_name: string
           content: string
           created_at: string
           id: string
+          phone: string | null
           rejected_at: string | null
           rejection_reason: string | null
           status: string
@@ -986,10 +988,12 @@ export type Database = {
         }
         Insert: {
           approved_at?: string | null
+          client_id?: string | null
           client_name: string
           content: string
           created_at?: string
           id?: string
+          phone?: string | null
           rejected_at?: string | null
           rejection_reason?: string | null
           status?: string
@@ -998,17 +1002,27 @@ export type Database = {
         }
         Update: {
           approved_at?: string | null
+          client_id?: string | null
           client_name?: string
           content?: string
           created_at?: string
           id?: string
+          phone?: string | null
           rejected_at?: string | null
           rejection_reason?: string | null
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "content_approvals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       coupon_redemptions: {
         Row: {

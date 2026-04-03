@@ -720,6 +720,7 @@ function PublicPageTab() {
   const createPage = useCreatePortfolioPage();
   const updatePage = useUpdatePortfolioPage();
   const { toast } = useToast();
+  const { pipelines } = useLeadPipelines();
   const [resetOpen, setResetOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [layoutOpen, setLayoutOpen] = useState(false);

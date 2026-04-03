@@ -442,41 +442,41 @@ export default function Proposals() {
                 return (
                   <Card
                     key={proposal.id}
-                    className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border-border/60 bg-card"
+                    className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg border-border/60 bg-card"
                   >
                     {/* Top accent bar */}
-                    <div className="h-1" style={{ background: `linear-gradient(90deg, ${proposal.brand_color}, ${proposal.brand_secondary_color || proposal.brand_color}88)` }} />
+                    <div className="h-0.5" style={{ background: `linear-gradient(90deg, ${proposal.brand_color}, ${proposal.brand_secondary_color || proposal.brand_color}88)` }} />
                     
                     <CardContent className="p-0">
                       {/* Client info header */}
-                      <div className="p-5 pb-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
+                      <div className="px-3 pt-3 pb-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             {proposal.client_logo_url ? (
                               <img
                                 src={proposal.client_logo_url}
                                 alt=""
-                                className="w-12 h-12 rounded-xl object-contain border border-border p-1 flex-shrink-0 bg-background"
+                                className="w-9 h-9 rounded-lg object-contain border border-border p-0.5 flex-shrink-0 bg-background"
                               />
                             ) : (
                               <div
-                                className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-bold text-lg shadow-lg"
-                                style={{ backgroundColor: proposal.brand_color, boxShadow: `0 4px 14px ${proposal.brand_color}40` }}
+                                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-sm shadow"
+                                style={{ backgroundColor: proposal.brand_color, boxShadow: `0 2px 8px ${proposal.brand_color}40` }}
                               >
                                 {(proposal.client_name || 'C').charAt(0).toUpperCase()}
                               </div>
                             )}
                             <div className="min-w-0">
-                              <p className="font-semibold text-foreground truncate">{proposal.client_name}</p>
+                              <p className="font-semibold text-sm text-foreground truncate">{proposal.client_name}</p>
                               {proposal.client_company && (
-                                <p className="text-xs text-muted-foreground truncate">{proposal.client_company}</p>
+                                <p className="text-[11px] text-muted-foreground truncate">{proposal.client_company}</p>
                               )}
                             </div>
                           </div>
                           <Badge
                             variant="outline"
                             className={cn(
-                              'text-[10px] flex-shrink-0 font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border-0',
+                              'text-[9px] flex-shrink-0 font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border-0',
                               status.color
                             )}
                           >
@@ -486,16 +486,16 @@ export default function Proposals() {
                       </div>
 
                       {/* Proposal details */}
-                      <div className="px-5 pb-4">
-                        <p className="text-sm text-muted-foreground truncate mb-3">{proposal.proposal_title}</p>
+                      <div className="px-3 pb-2">
+                        <p className="text-xs text-muted-foreground truncate mb-1.5">{proposal.proposal_title}</p>
                         <div className="flex items-end justify-between">
                           <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">Valor</p>
-                            <p className="text-2xl font-bold tabular-nums" style={{ color: proposal.brand_color }}>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Valor</p>
+                            <p className="text-lg font-bold tabular-nums" style={{ color: proposal.brand_color }}>
                               R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
                           </div>
-                          <p className="text-xs text-muted-foreground tabular-nums">
+                          <p className="text-[10px] text-muted-foreground tabular-nums">
                             {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
                           </p>
                         </div>

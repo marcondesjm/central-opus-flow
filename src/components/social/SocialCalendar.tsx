@@ -1,15 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth,
   addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, subDays,
-  startOfDay, endOfDay, isWithinInterval
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, User, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { SocialPost, CONTENT_TYPE_OPTIONS } from '@/hooks/useSocialMedia';
+import { SocialPost, CONTENT_TYPE_OPTIONS, useUpdateSocialPost } from '@/hooks/useSocialMedia';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type ViewMode = 'day' | 'week' | 'month';
@@ -40,10 +39,13 @@ interface Props {
 export function SocialCalendar({ posts, onPostClick }: Props) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [draggedPost, setDraggedPost] = useState<SocialPost | null>(null);
+  const [dragOverDay, setDragOverDay] = useState<string | null>(null);
+
+  const updatePost = useUpdateSocialPost();
 
   const getPostDate = (post: SocialPost) => new Date(post.scheduled_at || post.created_at);
 
-  // Navigation
   const navigate = (dir: 'prev' | 'next') => {
     const fn = dir === 'prev'
       ? viewMode === 'month' ? subMonths : viewMode === 'week' ? subWeeks : subDays
@@ -61,14 +63,47 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
     return format(currentDate, "EEEE, dd 'de' MMMM", { locale: ptBR });
   }, [currentDate, viewMode]);
 
-  // ─── DAY VIEW ───
+  // Drag & Drop handlers
+  const handleDragStart = useCallback((e: React.DragEvent, post: SocialPost) => {
+    setDraggedPost(post);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', post.id);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, dayKey: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverDay(dayKey);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverDay(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, dayKey: string) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    if (!draggedPost) return;
+
+    const oldDate = getPostDate(draggedPost);
+    const [year, month, day] = dayKey.split('-').map(Number);
+    const newDate = new Date(year, month - 1, day, oldDate.getHours(), oldDate.getMinutes());
+
+    updatePost.mutate({
+      id: draggedPost.id,
+      scheduled_at: newDate.toISOString(),
+      status: draggedPost.status === 'draft' ? 'scheduled' : draggedPost.status,
+    });
+    setDraggedPost(null);
+  }, [draggedPost, updatePost]);
+
+  // Views data
   const dayPosts = useMemo(() => {
     if (viewMode !== 'day') return [];
     return posts.filter(p => isSameDay(getPostDate(p), currentDate))
       .sort((a, b) => getPostDate(a).getTime() - getPostDate(b).getTime());
   }, [posts, currentDate, viewMode]);
 
-  // ─── WEEK VIEW ───
   const weekDays = useMemo(() => {
     if (viewMode !== 'week') return [];
     const ws = startOfWeek(currentDate, { weekStartsOn: 0 });
@@ -86,7 +121,6 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
     return map;
   }, [posts, weekDays, viewMode]);
 
-  // ─── MONTH VIEW ───
   const monthDays = useMemo(() => {
     if (viewMode !== 'month') return [];
     const ms = startOfMonth(currentDate);
@@ -106,23 +140,26 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
   }, [posts, viewMode]);
 
   const PostCard = ({ post, compact = false }: { post: SocialPost; compact?: boolean }) => {
-    const Icon = platformIcons[post.platform] || Instagram;
-    const typeLabel = CONTENT_TYPE_OPTIONS.find(t => t.value === post.content_type)?.label || post.content_type;
+    const PIcon = platformIcons[post.platform] || Instagram;
+    const tLabel = CONTENT_TYPE_OPTIONS.find(t => t.value === post.content_type)?.label || post.content_type;
 
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <div
+            draggable
+            onDragStart={e => handleDragStart(e, post)}
             onClick={() => onPostClick?.(post)}
             className={cn(
-              'w-full flex items-center gap-1.5 rounded text-left transition-colors hover:opacity-80 border-l-2',
+              'w-full flex items-center gap-1.5 rounded text-left transition-colors hover:opacity-80 border-l-2 cursor-grab active:cursor-grabbing',
               compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1.5 text-xs',
               statusColors[post.status],
               approvalColors[post.approval_status] || 'border-l-transparent'
             )}
             style={post.color ? { borderLeftColor: post.color } : undefined}
           >
-            <Icon className={cn('flex-shrink-0', compact ? 'w-3 h-3' : 'w-3.5 h-3.5')} />
+            <GripVertical className={cn('flex-shrink-0 text-muted-foreground/50', compact ? 'w-2.5 h-2.5' : 'w-3 h-3')} />
+            <PIcon className={cn('flex-shrink-0', compact ? 'w-3 h-3' : 'w-3.5 h-3.5')} />
             <span className="truncate flex-1">{post.title || post.content.slice(0, 25)}</span>
             {!compact && post.financial_clients && (
               <span className="flex items-center gap-0.5 text-muted-foreground text-[10px]">
@@ -130,13 +167,13 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
                 {post.financial_clients.name.split(' ')[0]}
               </span>
             )}
-          </button>
+          </div>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs">
           <p className="font-medium">{post.title || 'Sem título'}</p>
           <p className="text-xs text-muted-foreground mt-1">{post.content.slice(0, 100)}</p>
           <div className="flex flex-wrap gap-1.5 mt-1.5">
-            <Badge variant="outline" className="text-[10px] capitalize">{typeLabel}</Badge>
+            <Badge variant="outline" className="text-[10px] capitalize">{tLabel}</Badge>
             <Badge variant="outline" className="text-[10px]">{post.platform}</Badge>
             <Badge variant="outline" className="text-[10px]">{post.status}</Badge>
             {post.approval_status !== 'pending' && (
@@ -144,21 +181,51 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
                 {post.approval_status === 'approved' ? '✓ Aprovado' : '✗ Rejeitado'}
               </Badge>
             )}
-            {post.financial_clients && (
-              <Badge variant="secondary" className="text-[10px]">{post.financial_clients.name}</Badge>
-            )}
           </div>
           {post.scheduled_at && (
             <p className="text-[10px] text-muted-foreground mt-1">
               {format(new Date(post.scheduled_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
             </p>
           )}
+          <p className="text-[10px] text-muted-foreground mt-1 italic">Arraste para reagendar</p>
         </TooltipContent>
       </Tooltip>
     );
   };
 
   const wdLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+  const DayCell = ({ day, dayPosts: dayP, className }: { day: Date; dayPosts: SocialPost[]; className?: string }) => {
+    const key = format(day, 'yyyy-MM-dd');
+    const isToday = isSameDay(day, new Date());
+    const isCurrent = isSameMonth(day, currentDate);
+    const isDragOver = dragOverDay === key;
+
+    return (
+      <div
+        className={cn(
+          'min-h-[100px] border-b border-r border-border p-1.5 transition-colors',
+          !isCurrent && 'bg-muted/30',
+          isToday && 'bg-primary/5',
+          isDragOver && 'bg-primary/10 ring-1 ring-primary/30',
+          className
+        )}
+        onDragOver={e => handleDragOver(e, key)}
+        onDragLeave={handleDragLeave}
+        onDrop={e => handleDrop(e, key)}
+      >
+        <div className={cn('text-xs font-medium mb-1', isToday ? 'text-primary font-bold' : isCurrent ? 'text-foreground' : 'text-muted-foreground')}>
+          {format(day, 'd')}
+        </div>
+        <div className="space-y-0.5">
+          {dayP.slice(0, 3).map(post => <PostCard key={post.id} post={post} compact />)}
+          {dayP.length > 3 && (
+            <span className="text-[10px] text-muted-foreground px-1">+{dayP.length - 3} mais</span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -191,7 +258,12 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
 
       {/* DAY VIEW */}
       {viewMode === 'day' && (
-        <div className="p-4 space-y-2 min-h-[400px]">
+        <div
+          className={cn('p-4 space-y-2 min-h-[400px]', dragOverDay === format(currentDate, 'yyyy-MM-dd') && 'bg-primary/10')}
+          onDragOver={e => handleDragOver(e, format(currentDate, 'yyyy-MM-dd'))}
+          onDragLeave={handleDragLeave}
+          onDrop={e => handleDrop(e, format(currentDate, 'yyyy-MM-dd'))}
+        >
           {dayPosts.length === 0 ? (
             <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm">
               Nenhum conteúdo para este dia
@@ -228,8 +300,19 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
             {weekDays.map((d, i) => {
               const key = format(d, 'yyyy-MM-dd');
               const dayP = weekPostsByDay.get(key) || [];
+              const isDragOver = dragOverDay === key;
               return (
-                <div key={i} className={cn('border-r border-border last:border-r-0 p-1.5 space-y-1', isSameDay(d, new Date()) && 'bg-primary/5')}>
+                <div
+                  key={i}
+                  className={cn(
+                    'border-r border-border last:border-r-0 p-1.5 space-y-1 transition-colors',
+                    isSameDay(d, new Date()) && 'bg-primary/5',
+                    isDragOver && 'bg-primary/10 ring-1 ring-primary/30'
+                  )}
+                  onDragOver={e => handleDragOver(e, key)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={e => handleDrop(e, key)}
+                >
                   {dayP.map(p => <PostCard key={p.id} post={p} />)}
                 </div>
               );
@@ -250,21 +333,7 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
             {monthDays.map((day, i) => {
               const key = format(day, 'yyyy-MM-dd');
               const dayP = monthPostsByDay.get(key) || [];
-              const isToday = isSameDay(day, new Date());
-              const isCurrent = isSameMonth(day, currentDate);
-              return (
-                <div key={i} className={cn('min-h-[100px] border-b border-r border-border p-1.5', !isCurrent && 'bg-muted/30', isToday && 'bg-primary/5')}>
-                  <div className={cn('text-xs font-medium mb-1', isToday ? 'text-primary font-bold' : isCurrent ? 'text-foreground' : 'text-muted-foreground')}>
-                    {format(day, 'd')}
-                  </div>
-                  <div className="space-y-0.5">
-                    {dayP.slice(0, 3).map(post => <PostCard key={post.id} post={post} compact />)}
-                    {dayP.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground px-1">+{dayP.length - 3} mais</span>
-                    )}
-                  </div>
-                </div>
-              );
+              return <DayCell key={i} day={day} dayPosts={dayP} />;
             })}
           </div>
         </>

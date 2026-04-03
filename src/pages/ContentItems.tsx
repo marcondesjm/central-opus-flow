@@ -42,6 +42,7 @@ export default function ContentItems() {
   const [selectedType, setSelectedType] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [detailItem, setDetailItem] = useState<ContentItem | null>(null);
   const { data: items, isLoading } = useContentItems({ status: statusFilter || undefined });
   const deleteMutation = useDeleteContentItem();
 

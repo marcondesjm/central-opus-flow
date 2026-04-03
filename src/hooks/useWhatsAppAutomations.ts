@@ -13,6 +13,7 @@ export interface WhatsAppAutomation {
   target_phase: string | null;
   description: string | null;
   tag: string | null;
+  schedule_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -26,6 +27,7 @@ export const TRIGGER_OPTIONS = [
   { value: 'sale_completed', label: 'Venda concluída', icon: '🎉', description: 'Quando uma venda é finalizada com sucesso' },
   { value: 'deadline_approaching', label: 'Prazo se aproximando', icon: '⏰', description: 'Quando um projeto está perto do prazo' },
   { value: 'post_published', label: 'Post publicado', icon: '📱', description: 'Quando um conteúdo social é publicado' },
+  { value: 'scheduled', label: 'Agendamento', icon: '📅', description: 'Disparo agendado para data e hora específica' },
 ];
 
 export const MESSAGE_VARIABLES = [
@@ -65,6 +67,7 @@ export function useCreateWhatsAppAutomation() {
       target_phase?: string;
       description?: string;
       tag?: string;
+      schedule_date?: string;
     }) => {
       const { data, error } = await supabase
         .from('whatsapp_automations')

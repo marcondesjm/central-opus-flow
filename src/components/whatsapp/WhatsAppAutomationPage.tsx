@@ -161,6 +161,11 @@ export function WhatsAppAutomationPage() {
                           🏷️ {automation.tag}
                         </Badge>
                       )}
+                      {automation.schedule_date && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          📅 {new Date(automation.schedule_date).toLocaleString('pt-BR')}
+                        </Badge>
+                      )}
                       </div>
                       {automation.description && (
                         <p className="text-xs text-muted-foreground mb-1">{automation.description}</p>
@@ -231,7 +236,7 @@ function AutomationFormModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   automation: WhatsAppAutomation | null;
-  onSave: (data: { trigger_type: string; message_template: string; delay_minutes?: number; target_phase?: string; description?: string; tag?: string }) => void;
+  onSave: (data: { trigger_type: string; message_template: string; delay_minutes?: number; target_phase?: string; description?: string; tag?: string; schedule_date?: string }) => void;
 }) {
   const [trigger, setTrigger] = useState(automation?.trigger_type || '');
   const [message, setMessage] = useState(automation?.message_template || '');
@@ -239,6 +244,7 @@ function AutomationFormModal({
   const [phase, setPhase] = useState(automation?.target_phase || '');
   const [description, setDescription] = useState(automation?.description || '');
   const [tag, setTag] = useState(automation?.tag || '');
+  const [scheduleDate, setScheduleDate] = useState(automation?.schedule_date || '');
 
   const { toast } = useToast();
 
@@ -249,6 +255,7 @@ function AutomationFormModal({
     setPhase(automation?.target_phase || '');
     setDescription(automation?.description || '');
     setTag(automation?.tag || '');
+    setScheduleDate(automation?.schedule_date || '');
   };
 
   const handleSubmit = () => {
@@ -260,6 +267,7 @@ function AutomationFormModal({
       target_phase: phase || undefined,
       description: description.trim() || undefined,
       tag: tag.trim() || undefined,
+      schedule_date: scheduleDate || undefined,
     });
   };
 
@@ -312,6 +320,18 @@ function AutomationFormModal({
                 value={phase}
                 onChange={e => setPhase(e.target.value)}
                 placeholder="Ex: Aprovado, Em produção..."
+              />
+            </div>
+          )}
+
+          {/* Schedule date (only for scheduled trigger) */}
+          {trigger === 'scheduled' && (
+            <div>
+              <Label>📅 Data e hora do agendamento</Label>
+              <Input
+                type="datetime-local"
+                value={scheduleDate}
+                onChange={e => setScheduleDate(e.target.value)}
               />
             </div>
           )}

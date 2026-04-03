@@ -5,7 +5,7 @@ import {
   TrendingUp, TrendingDown, DollarSign, Plus, Search,
   Calendar, Loader2, Pencil, Trash2, ArrowUpRight,
   ArrowDownRight, RefreshCw, BarChart3, X, Users, Building2,
-  Receipt, Eye, Repeat, ShoppingCart,
+  Receipt, Eye, Repeat, ShoppingCart, Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +35,7 @@ import {
   formatBRL, CATEGORY_COLORS,
   FinancialTransaction, FinancialCategory,
 } from '@/hooks/useFinancial';
+import { AchievementsModal } from '@/components/achievements/AchievementsModal';
 
 // ─── Venda Rápida Modal ──────────────────────────
 function VendaRapidaModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -483,6 +484,7 @@ export default function BillingPage() {
   const [showDespesa, setShowDespesa] = useState(false);
   const [showCategorias, setShowCategorias] = useState(false);
   const [search, setSearch] = useState('');
+  const [showAchievements, setShowAchievements] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const [clientFilter, setClientFilter] = useState('all');
   const [dateStart, setDateStart] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
@@ -606,6 +608,9 @@ export default function BillingPage() {
           </Button>
           <Button variant="outline" onClick={() => setShowCategorias(true)} className="gap-1.5">
             <Eye className="w-4 h-4" /> Categorias
+          </Button>
+          <Button variant="outline" onClick={() => setShowAchievements(true)} className="gap-1.5">
+            <Trophy className="w-4 h-4" /> Conquistas
           </Button>
         </div>
 
@@ -1058,6 +1063,7 @@ export default function BillingPage() {
       <VendaRapidaModal open={showVenda} onOpenChange={setShowVenda} />
       <LancarDespesaModal open={showDespesa} onOpenChange={setShowDespesa} />
       <CategoriasModal open={showCategorias} onOpenChange={setShowCategorias} />
+      <AchievementsModal open={showAchievements} onOpenChange={setShowAchievements} />
     </AppLayout>
   );
 }

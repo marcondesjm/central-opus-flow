@@ -45,6 +45,8 @@ import {
   FolderOpen,
   Calendar as CalendarIcon,
   MessageSquare,
+  CheckSquare,
+  FileCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

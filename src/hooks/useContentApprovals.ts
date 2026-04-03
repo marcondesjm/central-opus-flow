@@ -12,6 +12,8 @@ export interface ContentApproval {
   approved_at: string | null;
   rejected_at: string | null;
   rejection_reason: string | null;
+  phone: string | null;
+  client_id: string | null;
   created_at: string;
   updated_at: string;
 }

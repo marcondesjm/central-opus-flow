@@ -473,7 +473,9 @@ function TaskCard({ deal, onEdit, onDelete, onPayments, onDetail, onWhatsAppMsg,
         </div>
 
         {deal.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">{deal.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {deal.description.replace(/<[^>]*>/g, '').substring(0, 120)}
+          </p>
         )}
 
         <div className="flex flex-wrap gap-1">

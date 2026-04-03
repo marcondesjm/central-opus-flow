@@ -1,0 +1,1 @@
+ALTER TABLE public.whatsapp_automations ADD COLUMN IF NOT EXISTS tag TEXT DEFAULT NULL;

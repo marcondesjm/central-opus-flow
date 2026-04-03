@@ -187,8 +187,8 @@ export function Sidebar({
   const handleSignOut = async () => { await signOut(); };
 
   // Nav item renderer with active state
-  const NavItem = ({ icon: Icon, label, onClick, active, badge, isNew, className: extraClass }: {
-    icon: any; label: string; onClick: () => void; active?: boolean; badge?: number; isNew?: boolean; className?: string;
+  const NavItem = ({ icon: Icon, label, onClick, active, badge, isNew, isBeta, className: extraClass }: {
+    icon: any; label: string; onClick: () => void; active?: boolean; badge?: number; isNew?: boolean; isBeta?: boolean; className?: string;
   }) => (
     <button
       onClick={onClick}
@@ -208,6 +208,11 @@ export function Sidebar({
       {isNew && (
         <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-md bg-primary text-primary-foreground animate-pulse">
           New
+        </span>
+      )}
+      {isBeta && (
+        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-md bg-amber-500 text-white animate-pulse">
+          Beta
         </span>
       )}
       {badge && badge > 0 ? (
@@ -387,8 +392,8 @@ export function Sidebar({
             <NavItem icon={Receipt} label={t('sidebar.billing')} onClick={() => navigate('/billing')} active={isRouteActive('/billing')} />
           )}
           <NavItem icon={CalendarIcon} label="Agenda" onClick={() => navigate('/agenda')} active={isRouteActive('/agenda')} />
-          <NavItem icon={Share2} label="Social Media" onClick={() => navigate('/social')} active={isRouteActive('/social')} isNew />
-          <NavItem icon={MessageSquare} label="Automações WhatsApp" onClick={() => navigate('/whatsapp-automations')} active={isRouteActive('/whatsapp-automations')} isNew />
+          <NavItem icon={Share2} label="Social Media" onClick={() => navigate('/social')} active={isRouteActive('/social')} isNew isBeta />
+          <NavItem icon={MessageSquare} label="Automações WhatsApp" onClick={() => navigate('/whatsapp-automations')} active={isRouteActive('/whatsapp-automations')} isNew isBeta />
           <NavItem icon={BarChart3} label={t('sidebar.reports')} onClick={() => navigate('/reports')} active={isRouteActive('/reports')} />
         </div>
 

@@ -33,6 +33,7 @@ const Files = lazy(() => import("./pages/Files"));
 const Manual = lazy(() => import("./pages/Manual"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Scheduling = lazy(() => import("./pages/Scheduling"));
+const WhatsAppAutomations = lazy(() => import("./pages/WhatsAppAutomations"));
 const Agenda = lazy(() => import("./pages/Agenda"));
 const BookingPublic = lazy(() => import("./pages/BookingPublic"));
 const Briefings = lazy(() => import("./pages/Briefings"));

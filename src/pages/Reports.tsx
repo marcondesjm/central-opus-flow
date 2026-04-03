@@ -229,7 +229,7 @@ export default function Reports() {
       </div>
 
       {/* Stats Cards */}
-      <div className="px-3 md:px-6 py-4">
+      <div className="px-3 md:px-6 py-4 pb-24 lg:pb-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
             { label: 'Total de Itens', value: allDeals.length, icon: Layers },

@@ -167,7 +167,7 @@ function SchedulingContent() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-4">
+    <div className="max-w-4xl mx-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-4">
       {/* Header + Tabs unified */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="p-6 pb-4">

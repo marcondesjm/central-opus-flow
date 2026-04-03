@@ -791,7 +791,7 @@ function LeadsContent() {
   }, [activeLeads, stages]);
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 md:p-6 space-y-5">
+    <div className="max-w-[1400px] mx-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Leads & Clientes</h1>
         <p className="text-sm text-muted-foreground">Gerencie seu funil de vendas</p>

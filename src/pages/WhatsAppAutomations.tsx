@@ -4,7 +4,7 @@ import { WhatsAppAutomationPage } from '@/components/whatsapp/WhatsAppAutomation
 export default function WhatsAppAutomations() {
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 max-w-5xl mx-auto">
+      <div className="p-4 md:p-6 pb-24 lg:pb-6 max-w-5xl mx-auto">
         <WhatsAppAutomationPage />
       </div>
     </AppLayout>

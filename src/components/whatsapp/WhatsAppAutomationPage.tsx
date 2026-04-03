@@ -205,7 +205,7 @@ export function WhatsAppAutomationPage() {
                 !automation.is_active && 'opacity-60'
               )}>
                 <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                     {/* Icon */}
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-lg flex-shrink-0">
                       {trigger?.icon || '⚡'}
@@ -248,7 +248,7 @@ export function WhatsAppAutomationPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 mt-2 sm:mt-0">
                       <Switch
                         checked={automation.is_active}
                         onCheckedChange={() => handleToggle(automation)}

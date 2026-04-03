@@ -1428,30 +1428,33 @@ export default function PortfolioManager() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-4 md:p-6 pb-24 lg:pb-6 max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Página Pública</h1>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 bg-transparent border-b border-border rounded-none h-auto p-0 gap-0">
-            {[
-              { id: 'portfolio', label: 'Portfólio', icon: Globe },
-              { id: 'public', label: 'Página Pública', icon: Globe },
-              { id: 'bio', label: 'Link da Bio', icon: Link2 },
-              { id: 'forms', label: 'Formulários', icon: FileText },
-              { id: 'schedule', label: 'Agendamento', icon: Calendar },
-              { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
-              { id: 'config', label: 'Configurações', icon: Settings },
-            ].map(tab => (
-              <TabsTrigger key={tab.id} value={tab.id}
-                className={cn(
-                  'rounded-none border-b-2 px-4 py-2 text-sm data-[state=active]:border-primary data-[state=active]:shadow-none',
-                  activeTab === tab.id ? 'border-primary' : 'border-transparent'
-                )}>
-                <tab.icon className="w-3.5 h-3.5 mr-1.5" />
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4">
+            <TabsList className="mb-6 bg-transparent border-b border-border rounded-none h-auto p-0 gap-0 inline-flex w-auto min-w-full sm:min-w-0">
+              {[
+                { id: 'portfolio', label: 'Portfólio', icon: Globe },
+                { id: 'public', label: 'Página Pública', icon: Globe },
+                { id: 'bio', label: 'Link da Bio', icon: Link2 },
+                { id: 'forms', label: 'Formulários', icon: FileText },
+                { id: 'schedule', label: 'Agendamento', icon: Calendar },
+                { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
+                { id: 'config', label: 'Configurações', icon: Settings },
+              ].map(tab => (
+                <TabsTrigger key={tab.id} value={tab.id}
+                  className={cn(
+                    'rounded-none border-b-2 px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap data-[state=active]:border-primary data-[state=active]:shadow-none',
+                    activeTab === tab.id ? 'border-primary' : 'border-transparent'
+                  )}>
+                  <tab.icon className="w-3.5 h-3.5 mr-1 sm:mr-1.5" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
           <TabsContent value="portfolio" className="mt-0">
             <PortfolioItemsTab />

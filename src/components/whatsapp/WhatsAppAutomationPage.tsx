@@ -248,7 +248,7 @@ export function WhatsAppAutomationPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 mt-2 sm:mt-0">
                       <Switch
                         checked={automation.is_active}
                         onCheckedChange={() => handleToggle(automation)}

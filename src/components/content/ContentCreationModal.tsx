@@ -106,6 +106,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
   };
 
   const handleCreate = (asDraft: boolean) => {
+    const cleanId = (v: string) => (!v || v === 'none') ? null : v;
     createMutation.mutate({
       content_type: contentType,
       title: title || null,
@@ -120,8 +121,8 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
       due_time: dueTime || '00:00',
       status: asDraft ? 'draft' : status,
       priority,
-      client_id: clientId || null,
-      project_id: projectId || null,
+      client_id: cleanId(clientId),
+      project_id: cleanId(projectId),
       category: category || null,
       content_subtype: subtype || null,
       checklist,

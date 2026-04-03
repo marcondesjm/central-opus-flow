@@ -318,6 +318,14 @@ function AppContent() {
               }
             />
             <Route
+              path="/whatsapp-automations"
+              element={
+                <ProtectedRoute>
+                  <WhatsAppAutomations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/agenda"
               element={
                 <ProtectedRoute>

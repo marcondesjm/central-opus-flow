@@ -384,7 +384,28 @@ export function WhatsAppAutomationPage() {
                     phone: approvalPhone.trim() || undefined,
                     client_id: approvalClientId || undefined,
                   },
-                  { onSuccess: () => { setApprovalClient(''); setApprovalContent(''); setApprovalPhone(''); setApprovalClientId(null); } }
+                  {
+                    onSuccess: (data: any) => {
+                      const shareToken = data?.share_token;
+                      const approvalUrl = `${window.location.origin}/aprovacao/${shareToken}`;
+                      const phone = approvalPhone.trim();
+
+                      if (phone) {
+                        const whatsMsg = encodeURIComponent(
+                          `Olá ${approvalClient.trim()}! 👋\n\nEnviei um conteúdo para sua aprovação. Por favor, revise e nos dê seu feedback:\n\n${approvalUrl}`
+                        );
+                        window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${whatsMsg}`, '_blank');
+                      } else {
+                        navigator.clipboard?.writeText(approvalUrl);
+                        toast({ title: '🔗 Link copiado!', description: 'Compartilhe com o cliente para aprovação.' });
+                      }
+
+                      setApprovalClient('');
+                      setApprovalContent('');
+                      setApprovalPhone('');
+                      setApprovalClientId(null);
+                    },
+                  }
                 );
               }}
               disabled={!approvalClient.trim() || !approvalContent.trim()}

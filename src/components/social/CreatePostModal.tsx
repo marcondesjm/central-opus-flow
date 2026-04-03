@@ -37,7 +37,12 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
   const [hashtags, setHashtags] = useState('');
   const [notes, setNotes] = useState('');
   const [color, setColor] = useState('#6366f1');
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { user } = useAuth();
   const { data: accounts } = useSocialAccounts();
   const { data: clients } = useClients();
   const createPost = useCreateSocialPost();

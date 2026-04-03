@@ -971,6 +971,45 @@ export type Database = {
         }
         Relationships: []
       }
+      content_approvals: {
+        Row: {
+          approved_at: string | null
+          client_name: string
+          content: string
+          created_at: string
+          id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          client_name: string
+          content: string
+          created_at?: string
+          id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          client_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       coupon_redemptions: {
         Row: {
           coupon_id: string

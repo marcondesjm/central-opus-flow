@@ -1,0 +1,1 @@
+ALTER TABLE public.whatsapp_automations ADD COLUMN IF NOT EXISTS schedule_date TIMESTAMP WITH TIME ZONE DEFAULT NULL;

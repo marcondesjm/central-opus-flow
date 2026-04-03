@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { useLeadPipelines } from '@/hooks/useLeads';
 
 const LINK_ICONS = [
   { id: 'Briefcase', label: 'Portfólio', Icon: Briefcase },

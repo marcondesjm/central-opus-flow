@@ -179,7 +179,7 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
           {clients && clients.length > 0 && (
             <div>
               <Label>Cliente</Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId || 'none'} onValueChange={v => setClientId(v === 'none' ? '' : v)}>
                 <SelectTrigger><SelectValue placeholder="Vincular a um cliente..." /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhum</SelectItem>

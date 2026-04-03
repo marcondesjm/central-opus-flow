@@ -1063,6 +1063,7 @@ export default function BillingPage() {
       <VendaRapidaModal open={showVenda} onOpenChange={setShowVenda} />
       <LancarDespesaModal open={showDespesa} onOpenChange={setShowDespesa} />
       <CategoriasModal open={showCategorias} onOpenChange={setShowCategorias} />
+      <AchievementsModal open={showAchievements} onOpenChange={setShowAchievements} />
     </AppLayout>
   );
 }

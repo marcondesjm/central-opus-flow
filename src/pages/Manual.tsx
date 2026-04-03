@@ -27,6 +27,12 @@ import collaborationImg from '@/assets/manual/collaboration-preview.jpg';
 import settingsImg from '@/assets/manual/settings-preview.jpg';
 import reportsImg from '@/assets/manual/reports-preview.jpg';
 import accountsImg from '@/assets/manual/accounts-preview.jpg';
+import socialImg from '@/assets/manual/social-preview.jpg';
+import portfolioImg from '@/assets/manual/portfolio-preview.jpg';
+import whatsappImg from '@/assets/manual/whatsapp-preview.jpg';
+import briefingsImg from '@/assets/manual/briefings-preview.jpg';
+import agendaImg from '@/assets/manual/agenda-preview.jpg';
+import teamsImg from '@/assets/manual/teams-preview.jpg';
 
 interface ManualStep {
   icon: React.ElementType;

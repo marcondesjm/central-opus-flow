@@ -113,7 +113,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
     }
     setUploading(false);
   };
-
+  const addCheckItem = () => {
     if (!newCheckItem.trim()) return;
     setChecklist(prev => [...prev, { id: crypto.randomUUID(), text: newCheckItem.trim(), done: false }]);
     setNewCheckItem('');

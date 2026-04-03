@@ -287,6 +287,27 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
             </div>
           </div>
 
+          {/* Media upload */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1"><Upload className="w-3 h-3" /> Mídia</Label>
+            {mediaPreviews.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {mediaPreviews.map((url, i) => (
+                  <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border group">
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button onClick={() => removeMedia(i)} className="absolute top-0.5 right-0.5 w-4 h-4 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*" onChange={handleMediaAdd} className="hidden" />
+            <Button type="button" variant="outline" size="sm" className="w-full gap-2" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="w-4 h-4" /> Adicionar arquivos
+            </Button>
+          </div>
+
           <div>
             <Label className="flex items-center gap-1"><Hash className="w-3 h-3" /> Hashtags</Label>
             <Input value={hashtags} onChange={e => setHashtags(e.target.value)} placeholder="#marketing #social #design" />
@@ -298,11 +319,11 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1 gap-2" onClick={() => handleSubmit('draft')} disabled={!content || createPost.isPending}>
+            <Button variant="outline" className="flex-1 gap-2" onClick={() => handleSubmit('draft')} disabled={!content || createPost.isPending || uploading}>
               <Save className="w-4 h-4" /> Rascunho
             </Button>
-            <Button className="flex-1 gap-2" onClick={() => handleSubmit('scheduled')} disabled={!content || !date || createPost.isPending}>
-              <Send className="w-4 h-4" /> Agendar
+            <Button className="flex-1 gap-2" onClick={() => handleSubmit('scheduled')} disabled={!content || !date || createPost.isPending || uploading}>
+              <Send className="w-4 h-4" /> {uploading ? 'Enviando...' : 'Agendar'}
             </Button>
           </div>
         </div>

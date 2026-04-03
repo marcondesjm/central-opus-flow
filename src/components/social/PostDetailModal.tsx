@@ -303,6 +303,28 @@ export function PostDetailModal({ post, open, onOpenChange }: Props) {
               <Button variant="outline" size="sm" className="gap-2 w-full" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                 <Upload className="w-4 h-4" /> {uploading ? 'Enviando...' : 'Adicionar mídia'}
               </Button>
+              <div className="rounded-lg bg-muted/50 border border-border p-3 space-y-1.5">
+                <p className="text-[11px] font-medium text-muted-foreground">📎 Formatos aceitos</p>
+                <p className="text-[11px] text-muted-foreground">
+                  <strong>Imagens:</strong> JPG, PNG, WEBP, GIF · <strong>Vídeos:</strong> MP4, MOV, WEBM
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  <strong>Tamanho máximo:</strong> 50MB por arquivo
+                </p>
+                <div className="pt-1.5 border-t border-border mt-1.5">
+                  <p className="text-[11px] text-muted-foreground mb-1.5">
+                    📁 Arquivo maior que 50MB? Use o Google Drive:
+                  </p>
+                  <a
+                    href="https://drive.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] text-primary hover:underline font-medium"
+                  >
+                    <ExternalLink className="w-3 h-3" /> Abrir Google Drive
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Schedule info */}

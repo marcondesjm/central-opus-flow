@@ -155,7 +155,12 @@ export function WhatsAppAutomationPage() {
                           <Badge variant="outline" className="text-[10px] gap-1">
                             <Clock className="w-2.5 h-2.5" /> {automation.delay_minutes}min
                           </Badge>
-                        )}
+                      )}
+                      {automation.tag && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          🏷️ {automation.tag}
+                        </Badge>
+                      )}
                       </div>
                       {automation.description && (
                         <p className="text-xs text-muted-foreground mb-1">{automation.description}</p>
@@ -226,22 +231,24 @@ function AutomationFormModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   automation: WhatsAppAutomation | null;
-  onSave: (data: { trigger_type: string; message_template: string; delay_minutes?: number; target_phase?: string; description?: string }) => void;
+  onSave: (data: { trigger_type: string; message_template: string; delay_minutes?: number; target_phase?: string; description?: string; tag?: string }) => void;
 }) {
   const [trigger, setTrigger] = useState(automation?.trigger_type || '');
   const [message, setMessage] = useState(automation?.message_template || '');
   const [delay, setDelay] = useState(String(automation?.delay_minutes || 0));
   const [phase, setPhase] = useState(automation?.target_phase || '');
   const [description, setDescription] = useState(automation?.description || '');
+  const [tag, setTag] = useState(automation?.tag || '');
+
   const { toast } = useToast();
 
-  // Reset when automation changes
   const resetForm = () => {
     setTrigger(automation?.trigger_type || '');
     setMessage(automation?.message_template || '');
     setDelay(String(automation?.delay_minutes || 0));
     setPhase(automation?.target_phase || '');
     setDescription(automation?.description || '');
+    setTag(automation?.tag || '');
   };
 
   const handleSubmit = () => {
@@ -252,6 +259,7 @@ function AutomationFormModal({
       delay_minutes: parseInt(delay) || 0,
       target_phase: phase || undefined,
       description: description.trim() || undefined,
+      tag: tag.trim() || undefined,
     });
   };
 
@@ -315,6 +323,16 @@ function AutomationFormModal({
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Ex: Boas-vindas para novos leads"
+            />
+          </div>
+
+          {/* Tag */}
+          <div>
+            <Label>Tag / Etiqueta (opcional)</Label>
+            <Input
+              value={tag}
+              onChange={e => setTag(e.target.value)}
+              placeholder="Ex: vip, urgente, follow-up"
             />
           </div>
 

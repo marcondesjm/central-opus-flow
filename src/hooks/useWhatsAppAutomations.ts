@@ -12,15 +12,18 @@ export interface WhatsAppAutomation {
   delay_minutes: number;
   target_phase: string | null;
   description: string | null;
+  tag: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export const TRIGGER_OPTIONS = [
   { value: 'new_message', label: 'Nova mensagem recebida', icon: '💬', description: 'Quando um novo contato envia uma mensagem' },
+  { value: 'no_reply', label: 'Sem resposta', icon: '🔕', description: 'Quando o contato não responde após um tempo' },
   { value: 'new_lead', label: 'Novo lead criado', icon: '🎯', description: 'Quando um lead é capturado no CRM' },
   { value: 'phase_change', label: 'Mudança de etapa', icon: '📋', description: 'Quando um deal muda de fase no Kanban' },
   { value: 'payment_confirmed', label: 'Pagamento confirmado', icon: '💰', description: 'Quando um pagamento é confirmado' },
+  { value: 'sale_completed', label: 'Venda concluída', icon: '🎉', description: 'Quando uma venda é finalizada com sucesso' },
   { value: 'deadline_approaching', label: 'Prazo se aproximando', icon: '⏰', description: 'Quando um projeto está perto do prazo' },
   { value: 'post_published', label: 'Post publicado', icon: '📱', description: 'Quando um conteúdo social é publicado' },
 ];
@@ -61,6 +64,7 @@ export function useCreateWhatsAppAutomation() {
       delay_minutes?: number;
       target_phase?: string;
       description?: string;
+      tag?: string;
     }) => {
       const { data, error } = await supabase
         .from('whatsapp_automations')

@@ -3961,6 +3961,7 @@ export type Database = {
           id: string
           is_active: boolean
           message_template: string
+          tag: string | null
           target_phase: string | null
           trigger_type: string
           updated_at: string
@@ -3973,6 +3974,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           message_template: string
+          tag?: string | null
           target_phase?: string | null
           trigger_type: string
           updated_at?: string
@@ -3985,6 +3987,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           message_template?: string
+          tag?: string | null
           target_phase?: string | null
           trigger_type?: string
           updated_at?: string

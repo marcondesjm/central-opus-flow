@@ -1027,6 +1027,112 @@ export type Database = {
           },
         ]
       }
+      content_items: {
+        Row: {
+          briefing: string | null
+          category: string | null
+          checklist: Json | null
+          client_id: string | null
+          color: string | null
+          content_subtype: string | null
+          content_type: string
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          due_time: string | null
+          id: string
+          linked_task_id: string | null
+          media_urls: string[] | null
+          notes: string | null
+          platforms: string[] | null
+          priority: string
+          project_id: string | null
+          scheduled_at: string | null
+          status: string
+          title: string | null
+          updated_at: string
+          user_id: string
+          video_link: string | null
+        }
+        Insert: {
+          briefing?: string | null
+          category?: string | null
+          checklist?: Json | null
+          client_id?: string | null
+          color?: string | null
+          content_subtype?: string | null
+          content_type?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          due_time?: string | null
+          id?: string
+          linked_task_id?: string | null
+          media_urls?: string[] | null
+          notes?: string | null
+          platforms?: string[] | null
+          priority?: string
+          project_id?: string | null
+          scheduled_at?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          video_link?: string | null
+        }
+        Update: {
+          briefing?: string | null
+          category?: string | null
+          checklist?: Json | null
+          client_id?: string | null
+          color?: string | null
+          content_subtype?: string | null
+          content_type?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          due_time?: string | null
+          id?: string
+          linked_task_id?: string | null
+          media_urls?: string[] | null
+          notes?: string | null
+          platforms?: string[] | null
+          priority?: string
+          project_id?: string | null
+          scheduled_at?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          video_link?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_linked_task_id_fkey"
+            columns: ["linked_task_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupon_redemptions: {
         Row: {
           coupon_id: string

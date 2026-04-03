@@ -45,6 +45,7 @@ const PortfolioEditor = lazy(() => import("./pages/PortfolioEditor"));
 const PortfolioPublic = lazy(() => import("./pages/PortfolioPublic"));
 const PortfolioManager = lazy(() => import("./pages/PortfolioManager"));
 const BioPublic = lazy(() => import("./pages/BioPublic"));
+const SocialMedia = lazy(() => import("./pages/SocialMedia"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {

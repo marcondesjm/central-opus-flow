@@ -179,10 +179,10 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
           {clients && clients.length > 0 && (
             <div>
               <Label>Cliente</Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId || 'none'} onValueChange={v => setClientId(v === 'none' ? '' : v)}>
                 <SelectTrigger><SelectValue placeholder="Vincular a um cliente..." /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {clients.map(c => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
@@ -258,7 +258,7 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
                     {date ? format(date, 'dd/MM/yyyy', { locale: ptBR }) : 'Selecionar data'}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 z-[60]">
                   <Calendar mode="single" selected={date} onSelect={setDate} className="p-3 pointer-events-auto" locale={ptBR} />
                 </PopoverContent>
               </Popover>

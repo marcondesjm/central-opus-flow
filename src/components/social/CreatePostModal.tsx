@@ -16,15 +16,6 @@ import { useClients } from '@/hooks/useClients';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Clock, Hash, Send, Save, Palette } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { useCreateSocialPost, useSocialAccounts, CONTENT_TYPE_OPTIONS } from '@/hooks/useSocialMedia';
-import { useClients } from '@/hooks/useClients';
-import { Badge } from '@/components/ui/badge';
 
 interface Props {
   open: boolean;

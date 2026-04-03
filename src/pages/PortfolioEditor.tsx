@@ -1387,6 +1387,19 @@ export default function PortfolioEditor() {
           <Button size="sm" onClick={handleSave} className="bg-primary text-primary-foreground">
             <Save className="w-4 h-4 mr-1" /> Salvar
           </Button>
+          {page.is_published && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const url = `${window.location.origin}/portfolio/${page.slug}`;
+                navigator.clipboard?.writeText(url);
+                toast({ title: '🔗 Link copiado!', description: url, duration: 4000 });
+              }}
+            >
+              <ExternalLink className="w-4 h-4 mr-1" /> Link
+            </Button>
+          )}
         </div>
       </div>
 

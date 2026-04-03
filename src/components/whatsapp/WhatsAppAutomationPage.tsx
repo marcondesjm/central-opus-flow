@@ -240,13 +240,15 @@ function AutomationFormModal({
   const [description, setDescription] = useState(automation?.description || '');
   const [tag, setTag] = useState(automation?.tag || '');
 
-  // Reset when automation changes
+  const { toast } = useToast();
+
   const resetForm = () => {
     setTrigger(automation?.trigger_type || '');
     setMessage(automation?.message_template || '');
     setDelay(String(automation?.delay_minutes || 0));
     setPhase(automation?.target_phase || '');
     setDescription(automation?.description || '');
+    setTag(automation?.tag || '');
   };
 
   const handleSubmit = () => {

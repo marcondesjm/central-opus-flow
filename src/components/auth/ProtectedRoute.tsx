@@ -123,44 +123,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const isExpired = effectiveExpiration && effectiveExpiration <= now && !isPaidPlan;
 
   if (isExpired) {
-    const whatsappMessage = encodeURIComponent(
-      `Olá! Meu plano expirou e gostaria de renovar minha assinatura.`
-    );
-    const whatsappUrl = `https://wa.me/5548996029392?text=${whatsappMessage}`;
-
-    return (
-      <>
-        {autoSeed}
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <Card className="w-full max-w-md text-center">
-            <CardHeader>
-              <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                <AlertTriangle className="w-8 h-8 text-destructive" />
-              </div>
-              <CardTitle className="text-xl">Assinatura Expirada</CardTitle>
-              <CardDescription className="text-base mt-2">
-                Seu plano expirou. Renove sua assinatura para continuar utilizando todos os recursos do sistema.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                <Button className="w-full gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Renovar via WhatsApp
-                </Button>
-              </a>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => signOut()}
-              >
-                Sair
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </>
-    );
+    return <ExpiredScreen signOut={signOut} autoSeed={autoSeed} />;
   }
 
   // Check if user is pending approval

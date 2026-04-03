@@ -328,6 +328,13 @@ function AppContent() {
               }
             />
             <Route
+              path="/conteudos"
+              element={
+                <ProtectedRoute>
+                  <ContentItems />
+                </ProtectedRoute>
+              }
+            />
               path="/agenda"
               element={
                 <ProtectedRoute>

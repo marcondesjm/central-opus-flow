@@ -3,23 +3,22 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, CalendarDays, BarChart3, Users, Trash2, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, BarChart } from 'lucide-react';
-import { useSocialPosts, useSocialAccounts, useDeleteSocialAccount } from '@/hooks/useSocialMedia';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, CalendarDays, BarChart3, Users, Trash2, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, BarChart, Filter } from 'lucide-react';
+import { useSocialPosts, useSocialAccounts, useDeleteSocialAccount, SocialPost } from '@/hooks/useSocialMedia';
+import { useClients } from '@/hooks/useClients';
 import { SocialCalendar } from '@/components/social/SocialCalendar';
 import { SocialMetricsDashboard } from '@/components/social/SocialMetricsDashboard';
 import { CreatePostModal } from '@/components/social/CreatePostModal';
 import { AddAccountModal } from '@/components/social/AddAccountModal';
 import { AddMetricModal } from '@/components/social/AddMetricModal';
+import { PostDetailModal } from '@/components/social/PostDetailModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const platformIcons: Record<string, any> = {
-  instagram: Instagram,
-  facebook: Facebook,
-  linkedin: Linkedin,
-  twitter: Twitter,
-  youtube: Youtube,
-  tiktok: Video,
+  instagram: Instagram, facebook: Facebook, linkedin: Linkedin,
+  twitter: Twitter, youtube: Youtube, tiktok: Video,
 };
 
 const platformColors: Record<string, string> = {
@@ -35,16 +34,26 @@ export default function SocialMedia() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
   const [addMetricOpen, setAddMetricOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<SocialPost | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [tab, setTab] = useState('calendar');
+  const [filterClient, setFilterClient] = useState<string>('all');
 
-  const { data: posts = [] } = useSocialPosts();
+  const { data: posts = [] } = useSocialPosts(filterClient !== 'all' ? { clientId: filterClient } : undefined);
   const { data: accounts = [] } = useSocialAccounts();
+  const { data: clients = [] } = useClients();
   const deleteAccount = useDeleteSocialAccount();
 
   const statusCounts = {
     draft: posts.filter(p => p.status === 'draft').length,
     scheduled: posts.filter(p => p.status === 'scheduled').length,
     published: posts.filter(p => p.status === 'published').length,
+    pending_approval: posts.filter(p => p.approval_status === 'pending' && p.status !== 'draft').length,
+  };
+
+  const handlePostClick = (post: SocialPost) => {
+    setSelectedPost(post);
+    setDetailOpen(true);
   };
 
   return (
@@ -53,8 +62,8 @@ export default function SocialMedia() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Social Media</h1>
-            <p className="text-sm text-muted-foreground">Gerencie posts, métricas e relatórios das redes sociais</p>
+            <h1 className="text-2xl font-bold">Conteúdos</h1>
+            <p className="text-sm text-muted-foreground">Gerencie conteúdos, agendamentos e relatórios das redes sociais</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" className="gap-2" onClick={() => setAddAccountOpen(true)}>
@@ -64,22 +73,44 @@ export default function SocialMedia() {
               <BarChart className="w-4 h-4" /> Métricas
             </Button>
             <Button size="sm" className="gap-2" onClick={() => setCreatePostOpen(true)}>
-              <Plus className="w-4 h-4" /> Novo Post
+              <Plus className="w-4 h-4" /> Novo Conteúdo
             </Button>
           </div>
         </div>
 
-        {/* Quick stats */}
-        <div className="flex gap-3 flex-wrap">
-          <Badge variant="outline" className="gap-1.5 py-1 px-3">
-            <span className="w-2 h-2 rounded-full bg-muted-foreground" /> {statusCounts.draft} Rascunhos
-          </Badge>
-          <Badge variant="outline" className="gap-1.5 py-1 px-3">
-            <span className="w-2 h-2 rounded-full bg-primary" /> {statusCounts.scheduled} Agendados
-          </Badge>
-          <Badge variant="outline" className="gap-1.5 py-1 px-3">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" /> {statusCounts.published} Publicados
-          </Badge>
+        {/* Quick stats + Client filter */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex gap-3 flex-wrap">
+            <Badge variant="outline" className="gap-1.5 py-1 px-3">
+              <span className="w-2 h-2 rounded-full bg-muted-foreground" /> {statusCounts.draft} Rascunhos
+            </Badge>
+            <Badge variant="outline" className="gap-1.5 py-1 px-3">
+              <span className="w-2 h-2 rounded-full bg-primary" /> {statusCounts.scheduled} Agendados
+            </Badge>
+            <Badge variant="outline" className="gap-1.5 py-1 px-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" /> {statusCounts.published} Publicados
+            </Badge>
+            {statusCounts.pending_approval > 0 && (
+              <Badge variant="outline" className="gap-1.5 py-1 px-3 border-amber-500/50">
+                <span className="w-2 h-2 rounded-full bg-amber-500" /> {statusCounts.pending_approval} Aguardando aprovação
+              </Badge>
+            )}
+          </div>
+
+          {clients.length > 0 && (
+            <Select value={filterClient} onValueChange={setFilterClient}>
+              <SelectTrigger className="w-[200px] h-8 text-xs">
+                <Filter className="w-3 h-3 mr-1" />
+                <SelectValue placeholder="Filtrar por cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os clientes</SelectItem>
+                {clients.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Accounts */}
@@ -119,7 +150,7 @@ export default function SocialMedia() {
           </TabsList>
 
           <TabsContent value="calendar" className="mt-4">
-            <SocialCalendar posts={posts} />
+            <SocialCalendar posts={posts} onPostClick={handlePostClick} />
           </TabsContent>
 
           <TabsContent value="metrics" className="mt-4">
@@ -131,6 +162,7 @@ export default function SocialMedia() {
       <CreatePostModal open={createPostOpen} onOpenChange={setCreatePostOpen} />
       <AddAccountModal open={addAccountOpen} onOpenChange={setAddAccountOpen} />
       <AddMetricModal open={addMetricOpen} onOpenChange={setAddMetricOpen} />
+      <PostDetailModal post={selectedPost} open={detailOpen} onOpenChange={setDetailOpen} />
     </AppLayout>
   );
 }

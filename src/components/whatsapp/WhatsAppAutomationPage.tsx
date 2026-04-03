@@ -161,6 +161,11 @@ export function WhatsAppAutomationPage() {
                           🏷️ {automation.tag}
                         </Badge>
                       )}
+                      {automation.schedule_date && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          📅 {new Date(automation.schedule_date).toLocaleString('pt-BR')}
+                        </Badge>
+                      )}
                       </div>
                       {automation.description && (
                         <p className="text-xs text-muted-foreground mb-1">{automation.description}</p>

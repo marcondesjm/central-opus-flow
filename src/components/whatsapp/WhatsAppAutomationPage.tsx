@@ -155,7 +155,12 @@ export function WhatsAppAutomationPage() {
                           <Badge variant="outline" className="text-[10px] gap-1">
                             <Clock className="w-2.5 h-2.5" /> {automation.delay_minutes}min
                           </Badge>
-                        )}
+                      )}
+                      {automation.tag && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          🏷️ {automation.tag}
+                        </Badge>
+                      )}
                       </div>
                       {automation.description && (
                         <p className="text-xs text-muted-foreground mb-1">{automation.description}</p>

@@ -162,7 +162,7 @@ export default function ContentItems() {
 
                   {/* Actions */}
                   <button
-                    onClick={() => deleteMutation.mutate(item.id)}
+                    onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(item.id); }}
                     className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <Trash2 className="w-4 h-4" />

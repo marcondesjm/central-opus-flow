@@ -387,7 +387,7 @@ export function Sidebar({
         {/* ── FERRAMENTAS ── */}
         <SectionLabel>Ferramentas</SectionLabel>
         <div className="space-y-0.5">
-          <Collapsible defaultOpen={isRouteActive('/kanban') || isRouteActive('/whatsapp-automations')}>
+          <Collapsible defaultOpen={isRouteActive('/kanban') || isRouteActive('/whatsapp-automations') || isRouteActive('/conteudos')}>
             <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
               <div className="flex items-center gap-3">
                 <CheckSquare className="w-4 h-4" aria-hidden="true" />
@@ -398,6 +398,7 @@ export function Sidebar({
             <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
               <NavItem icon={Kanban} label="Quadro" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
               <NavItem icon={FileCheck} label="Conteúdos" onClick={() => navigate('/whatsapp-automations')} active={isRouteActive('/whatsapp-automations')} isBeta />
+              <NavItem icon={FileText} label="Conteúdos 2" onClick={() => navigate('/conteudos')} active={isRouteActive('/conteudos')} isNew />
             </CollapsibleContent>
           </Collapsible>
           <NavItem icon={FileText} label={t('sidebar.proposals')} onClick={() => navigate('/proposals')} active={isRouteActive('/proposals')} />

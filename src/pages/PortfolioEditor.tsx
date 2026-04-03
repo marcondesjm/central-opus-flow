@@ -1273,12 +1273,26 @@ export default function PortfolioEditor() {
   const selectedSection = localSections.find(s => s.id === selectedId) || null;
 
   const handleSave = async () => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    pendingSaveRef.current.clear();
-    for (const s of localSections) {
-      await upsertSection.mutateAsync(s);
+    try {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      pendingSaveRef.current.clear();
+      for (const s of localSections) {
+        await upsertSection.mutateAsync(s);
+      }
+      const publicUrl = `${window.location.origin}/portfolio/${page.slug}`;
+      toast({
+        title: '✅ Portfólio salvo com sucesso!',
+        description: page.is_published
+          ? `Seu portfólio está publicado em: ${publicUrl}`
+          : 'O portfólio está em rascunho. Ative a publicação para torná-lo público.',
+        duration: 8000,
+      });
+      if (page.is_published) {
+        navigator.clipboard?.writeText(publicUrl).catch(() => {});
+      }
+    } catch (err: any) {
+      toast({ title: 'Erro ao salvar', description: err?.message || 'Tente novamente.', variant: 'destructive' });
     }
-    toast({ title: 'Portfólio salvo com sucesso!' });
   };
 
   const handleAdd = (type: string, customContent?: Record<string, any>) => {

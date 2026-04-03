@@ -17,11 +17,24 @@ export function AddAccountModal({ open, onOpenChange }: Props) {
   const [username, setUsername] = useState('');
   const create = useCreateSocialAccount();
 
-  const handleSubmit = () => {
-    if (!name.trim()) return;
-    create.mutate({ platform, account_name: name.trim(), account_username: username.trim() || undefined }, {
-      onSuccess: () => { onOpenChange(false); setName(''); setUsername(''); },
-    });
+  const handleSubmit = async () => {
+    if (!name.trim() || create.isPending) return;
+
+    await create.mutateAsync(
+      {
+        platform,
+        account_name: name.trim(),
+        account_username: username.trim() || undefined,
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          setName('');
+          setUsername('');
+          setPlatform('instagram');
+        },
+      },
+    );
   };
 
   return (

@@ -113,15 +113,26 @@ export function useCreateSocialAccount() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (input: { platform: string; account_name: string; account_username?: string }) => {
+      if (!user?.id) {
+        throw new Error('Usuário não autenticado');
+      }
+
       const { data, error } = await supabase
         .from('social_accounts')
-        .insert([{ ...input, user_id: user!.id }] as any)
+        .insert([{ ...input, user_id: user.id }] as any)
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as SocialAccount;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['social-accounts'] }); toast({ title: 'Conta adicionada!' }); },
+    onSuccess: (newAccount) => {
+      qc.setQueriesData<SocialAccount[]>({ queryKey: ['social-accounts'] }, (current) => {
+        const accounts = Array.isArray(current) ? current : [];
+        return [newAccount, ...accounts.filter((account) => account.id !== newAccount.id)];
+      });
+      qc.invalidateQueries({ queryKey: ['social-accounts'] });
+      toast({ title: 'Conta adicionada!' });
+    },
     onError: (e: any) => toast({ title: 'Erro', description: e.message, variant: 'destructive' }),
   });
 }

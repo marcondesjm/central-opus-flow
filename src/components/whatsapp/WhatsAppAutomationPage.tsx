@@ -404,7 +404,9 @@ export function WhatsAppAutomationPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {approvals.map(item => (
+            {approvals.map(item => {
+              const phone = (item as any).phone;
+              return (
               <Card key={item.id} className={cn(
                 'transition-all',
                 item.status === 'approved' && 'border-emerald-500/30',
@@ -413,8 +415,13 @@ export function WhatsAppAutomationPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h4 className="font-medium text-sm">{item.client_name}</h4>
+                        {phone && (
+                          <span className="text-[10px] text-emerald-500 flex items-center gap-0.5">
+                            <Phone className="w-2.5 h-2.5" /> {phone}
+                          </span>
+                        )}
                         <Badge
                           variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}
                           className="text-[10px]"
@@ -444,6 +451,20 @@ export function WhatsAppAutomationPage() {
                           </Button>
                         </>
                       )}
+                      {phone && (
+                        <Button
+                          variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
+                          title="Enviar via WhatsApp"
+                          onClick={() => {
+                            const cleanPhone = phone.replace(/\D/g, '');
+                            const statusText = item.status === 'approved' ? '✅ Aprovado' : item.status === 'rejected' ? '❌ Rejeitado' : '⏳ Pendente';
+                            const text = `Olá ${item.client_name}! Atualização sobre seu conteúdo:\n\n${item.content}\n\nStatus: ${statusText}`;
+                            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                          }}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() => deleteApproval.mutate(item.id)}
@@ -454,7 +475,8 @@ export function WhatsAppAutomationPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -94,7 +94,7 @@ export default function SocialMedia() {
   }, [allPosts]);
 
   const handlePostClick = (post: SocialPost) => {
-    setSelectedPost(post);
+    setSelectedPostId(post.id);
     setDetailOpen(true);
   };
 

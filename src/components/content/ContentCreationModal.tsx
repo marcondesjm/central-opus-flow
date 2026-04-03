@@ -54,6 +54,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
   const { data: clients } = useClients();
   const { data: projects } = useProjects();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -99,6 +100,19 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
     setUploading(false);
   };
 
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/cover-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('social-media').upload(path, file);
+    if (!error) {
+      const { data: pub } = supabase.storage.from('social-media').getPublicUrl(path);
+      setCoverUrl(pub.publicUrl);
+    }
+    setUploading(false);
+  };
   const addCheckItem = () => {
     if (!newCheckItem.trim()) return;
     setChecklist(prev => [...prev, { id: crypto.randomUUID(), text: newCheckItem.trim(), done: false }]);
@@ -106,6 +120,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
   };
 
   const handleCreate = (asDraft: boolean) => {
+    const cleanId = (v: string) => (!v || v === 'none') ? null : v;
     createMutation.mutate({
       content_type: contentType,
       title: title || null,
@@ -120,8 +135,8 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
       due_time: dueTime || '00:00',
       status: asDraft ? 'draft' : status,
       priority,
-      client_id: clientId || null,
-      project_id: projectId || null,
+      client_id: cleanId(clientId),
+      project_id: cleanId(projectId),
       category: category || null,
       content_subtype: subtype || null,
       checklist,
@@ -177,9 +192,15 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
                   </div>
                   <div className="w-28">
                     <p className="text-xs font-semibold text-muted-foreground mb-2">CAPA</p>
-                    <button className="w-full aspect-[9/16] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors bg-background">
-                      <Upload className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-[10px] text-muted-foreground">Imagem de capa</span>
+                    <button onClick={() => coverInputRef.current?.click()} className="w-full aspect-[9/16] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-colors bg-background">
+                      {coverUrl ? (
+                        <img src={coverUrl} alt="Capa" className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <>
+                          <Upload className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground">Imagem de capa</span>
+                        </>
+                      )}
                     </button>
                   </div>
                   <div className="flex-1 space-y-3">
@@ -492,6 +513,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
         </div>
 
         <input ref={fileInputRef} type="file" className="hidden" multiple accept="image/*,video/*" onChange={handleUpload} />
+        <input ref={coverInputRef} type="file" className="hidden" accept="image/*" onChange={handleCoverUpload} />
       </DialogContent>
     </Dialog>
   );

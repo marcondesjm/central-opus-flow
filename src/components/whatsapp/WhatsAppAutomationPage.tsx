@@ -326,6 +326,16 @@ function AutomationFormModal({
             />
           </div>
 
+          {/* Tag */}
+          <div>
+            <Label>Tag / Etiqueta (opcional)</Label>
+            <Input
+              value={tag}
+              onChange={e => setTag(e.target.value)}
+              placeholder="Ex: vip, urgente, follow-up"
+            />
+          </div>
+
           {/* Message */}
           <div>
             <Label>Mensagem *</Label>

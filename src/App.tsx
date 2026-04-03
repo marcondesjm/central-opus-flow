@@ -335,6 +335,7 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
               path="/agenda"
               element={
                 <ProtectedRoute>

@@ -48,13 +48,19 @@ export default function SocialMedia() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
   const [addMetricOpen, setAddMetricOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<SocialPost | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [tab, setTab] = useState('calendar');
   const [filterClient, setFilterClient] = useState<string>('all');
 
   const { data: allPosts = [] } = useSocialPosts();
   const filteredPosts = filterClient !== 'all' ? allPosts.filter(p => p.client_id === filterClient) : allPosts;
+
+  // Always derive selectedPost from fresh query data
+  const selectedPost = useMemo(() => {
+    if (!selectedPostId) return null;
+    return allPosts.find(p => p.id === selectedPostId) || null;
+  }, [selectedPostId, allPosts]);
   const { data: accounts = [] } = useSocialAccounts();
   const { data: clients = [] } = useClients();
   const deleteAccount = useDeleteSocialAccount();
@@ -88,7 +94,7 @@ export default function SocialMedia() {
   }, [allPosts]);
 
   const handlePostClick = (post: SocialPost) => {
-    setSelectedPost(post);
+    setSelectedPostId(post.id);
     setDetailOpen(true);
   };
 

@@ -19,7 +19,7 @@ import {
   Users, Plus, Search, Webhook, Copy, Trash2, X, ArrowLeft, Loader2, UserPlus,
   MoreVertical, Tag, Calendar, ArrowRightLeft, UserCheck, Archive,
   MessageSquare, Mail, FileText, CheckSquare, Video, FolderOpen,
-  Phone, Clock, Pencil, GripVertical,
+  Phone, Clock, Pencil, GripVertical, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';

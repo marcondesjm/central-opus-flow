@@ -513,6 +513,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
         </div>
 
         <input ref={fileInputRef} type="file" className="hidden" multiple accept="image/*,video/*" onChange={handleUpload} />
+        <input ref={coverInputRef} type="file" className="hidden" accept="image/*" onChange={handleCoverUpload} />
       </DialogContent>
     </Dialog>
   );

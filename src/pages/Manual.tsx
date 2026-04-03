@@ -389,7 +389,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Equipes',
     icon: Users,
     color: '#14b8a6',
-    image: collaborationImg,
+    image: teamsImg,
     intro: 'Gerencie os membros da sua equipe, visualize papéis e permissões. Mantenha o controle de quem tem acesso a quê dentro da plataforma.',
     items: [
       {

@@ -6,10 +6,8 @@ import {
 import { ptBR } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, User, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { SocialPost, CONTENT_TYPE_OPTIONS, useUpdateSocialPost } from '@/hooks/useSocialMedia';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type ViewMode = 'day' | 'week' | 'month';
 

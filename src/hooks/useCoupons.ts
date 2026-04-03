@@ -119,113 +119,31 @@ export function useRedeemCoupon() {
     mutationFn: async (code: string) => {
       if (!user) throw new Error('Usuário não autenticado');
 
-      // 0. Get user IP
       let userIp = '';
       try {
         const ipRes = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipRes.json();
         userIp = ipData.ip || '';
       } catch {
-        // If IP fetch fails, continue without IP check
+        // continua sem IP se a consulta falhar
       }
 
-      // 1. Find coupon
-      const { data: coupon, error: findError } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', code.toUpperCase().trim())
-        .eq('is_active', true)
-        .single();
+      const { data, error } = await supabase.functions.invoke('redeem-coupon', {
+        body: {
+          code: code.toUpperCase().trim(),
+          ipAddress: userIp || null,
+        },
+      });
 
-      if (findError || !coupon) throw new Error('Cupom inválido ou expirado.');
-
-      // Check expiration
-      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
-        throw new Error('Este cupom já expirou.');
+      if (error) {
+        throw new Error(error.message || 'Não foi possível ativar o cupom.');
       }
 
-      // Check max uses
-      if (coupon.max_uses !== null && coupon.current_uses >= coupon.max_uses) {
-        throw new Error('Este cupom atingiu o limite de usos.');
+      if (data?.error) {
+        throw new Error(data.error);
       }
 
-      // 2. Check if user already redeemed
-      const { data: existing } = await supabase
-        .from('coupon_redemptions')
-        .select('id')
-        .eq('coupon_id', coupon.id)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (existing) throw new Error('Você já utilizou este cupom.');
-
-      // 3. Check if IP already used this coupon
-      if (userIp) {
-        const { data: ipExisting } = await supabase
-          .from('coupon_redemptions')
-          .select('id')
-          .eq('coupon_id', coupon.id)
-          .eq('ip_address', userIp)
-          .maybeSingle();
-
-        if (ipExisting) throw new Error('Este cupom já foi utilizado neste dispositivo/rede.');
-      }
-
-      // 4. Insert redemption with IP
-      const { error: redeemError } = await supabase
-        .from('coupon_redemptions')
-        .insert({ coupon_id: coupon.id, user_id: user.id, ip_address: userIp || null });
-
-      if (redeemError) throw redeemError;
-
-      // 4. Increment coupon uses (best-effort, non-admin users may not have permission)
-      try {
-        await supabase
-          .from('coupons')
-          .update({ current_uses: (coupon.current_uses || 0) + 1 })
-          .eq('id', coupon.id);
-      } catch {
-        // Ignore - redemption record is the source of truth
-      }
-
-      // 5. Activate subscription (upsert)
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + (coupon.duration_days || 30));
-
-      const subPayload = {
-        plan: coupon.plan as any,
-        payment_status: 'paid',
-        payment_verified_at: new Date().toISOString(),
-        is_trial: false,
-        expires_at: expiresAt.toISOString(),
-        max_accounts: 999,
-        max_projects: 999,
-        features: JSON.parse(JSON.stringify(
-          coupon.plan === 'business'
-            ? { advanced_search: true, tags: true, logs: true, export: true, team: true }
-            : { advanced_search: true, tags: true, logs: true, export: true, team: false }
-        )),
-      };
-
-      // Try update first
-      const { data: updated, error: updateErr } = await supabase
-        .from('subscriptions')
-        .update(subPayload)
-        .eq('user_id', user.id)
-        .select()
-        .maybeSingle();
-
-      if (updateErr) throw updateErr;
-
-      // If no row was updated, insert
-      if (!updated) {
-        const { error: insertErr } = await supabase
-          .from('subscriptions')
-          .insert({ ...subPayload, user_id: user.id });
-        if (insertErr) throw insertErr;
-      }
-
-      return { plan: coupon.plan, duration_days: coupon.duration_days };
+      return data as { plan: string; duration_days: number };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscription'] });

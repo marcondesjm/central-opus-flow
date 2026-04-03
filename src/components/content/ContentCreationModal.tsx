@@ -52,7 +52,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
   const { toast } = useToast();
   const createMutation = useCreateContentItem();
   const { data: clients } = useClients();
-  const { projects } = useProjects();
+  const { data: projects } = useProjects();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');

@@ -89,7 +89,7 @@ export const DEFAULT_SECTION_CONTENT: Record<string, Record<string, any>> = {
   },
   timeline: {
     title: 'Como Funciona',
-    steps: [
+    items: [
       { title: 'Descoberta', icon: 'Search', description: 'Entendo profundamente seu negócio, público-alvo e objetivos para criar uma base sólida.' },
       { title: 'Estratégia', icon: 'Lightbulb', description: 'Desenvolvo conceitos criativos alinhados aos seus objetivos de negócio e mercado.' },
       { title: 'Criação', icon: 'Palette', description: 'Executo o design com atenção aos mínimos detalhes, garantindo qualidade excepcional.' },

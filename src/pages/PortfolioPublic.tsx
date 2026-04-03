@@ -475,7 +475,7 @@ export default function PortfolioPublic() {
           ⚠️ Esta página está em modo rascunho e não é visível publicamente.
         </div>
       )}
-      {page.meta_title && <title>{page.meta_title}</title>}
+      
       {sections.map(section => (
         <PublicBlock key={section.id} section={section} page={page} onOpenContact={() => setContactOpen(true)} />
       ))}

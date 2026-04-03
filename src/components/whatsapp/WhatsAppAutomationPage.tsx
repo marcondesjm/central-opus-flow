@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Plus, Trash2, Zap, Clock, MessageSquare, Edit2, Bot,
-  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send
+  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -57,6 +57,42 @@ export function WhatsAppAutomationPage() {
   const handleDelete = (id: string) => {
     deleteMutation.mutate(id);
   };
+
+  const quickActions = [
+    {
+      label: '👋 Mensagem de boas-vindas',
+      action: () => {
+        createMutation.mutate({
+          trigger_type: 'new_message',
+          message_template: 'Olá! Seja bem-vindo 👋 Como posso te ajudar hoje?',
+          delay_minutes: 0,
+          tag: 'boas-vindas',
+        });
+      },
+    },
+    {
+      label: '👀 Follow-up automático',
+      action: () => {
+        createMutation.mutate({
+          trigger_type: 'no_reply',
+          message_template: 'Oi! Só passando pra saber se conseguiu ver minha última mensagem 👀',
+          delay_minutes: 60,
+          tag: 'follow-up',
+        });
+      },
+    },
+    {
+      label: '🙌 Pós-venda automático',
+      action: () => {
+        createMutation.mutate({
+          trigger_type: 'sale_completed',
+          message_template: 'Obrigado pela compra! Qualquer dúvida estou por aqui 🙌',
+          delay_minutes: 0,
+          tag: 'pos-venda',
+        });
+      },
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -125,6 +161,23 @@ export function WhatsAppAutomationPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <h3 className="font-medium text-sm">Ações Rápidas</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {quickActions.map((item, index) => (
+              <Button key={index} variant="outline" size="sm" onClick={item.action} className="text-xs">
+                {item.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Automations list */}
       {isLoading ? (

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, CalendarDays, BarChart3, Users, Trash2, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, BarChart, Filter } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Plus, CalendarDays, BarChart3, Users, Trash2, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, BarChart, Filter, User, List, Calendar } from 'lucide-react';
 import { useSocialPosts, useSocialAccounts, useDeleteSocialAccount, SocialPost } from '@/hooks/useSocialMedia';
 import { useClients } from '@/hooks/useClients';
 import { SocialCalendar } from '@/components/social/SocialCalendar';
@@ -15,6 +16,7 @@ import { AddMetricModal } from '@/components/social/AddMetricModal';
 import { PostDetailModal } from '@/components/social/PostDetailModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 const platformIcons: Record<string, any> = {
   instagram: Instagram, facebook: Facebook, linkedin: Linkedin,
@@ -30,6 +32,18 @@ const platformColors: Record<string, string> = {
   tiktok: 'from-purple-600 to-pink-400',
 };
 
+const statusLabels: Record<string, string> = {
+  draft: 'Rascunho',
+  scheduled: 'Agendado',
+  published: 'Publicado',
+};
+
+const statusColors: Record<string, string> = {
+  draft: 'bg-muted text-muted-foreground',
+  scheduled: 'bg-primary/20 text-primary',
+  published: 'bg-emerald-500/20 text-emerald-600',
+};
+
 export default function SocialMedia() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
@@ -39,17 +53,39 @@ export default function SocialMedia() {
   const [tab, setTab] = useState('calendar');
   const [filterClient, setFilterClient] = useState<string>('all');
 
-  const { data: posts = [] } = useSocialPosts(filterClient !== 'all' ? { clientId: filterClient } : undefined);
+  const { data: allPosts = [] } = useSocialPosts();
+  const filteredPosts = filterClient !== 'all' ? allPosts.filter(p => p.client_id === filterClient) : allPosts;
   const { data: accounts = [] } = useSocialAccounts();
   const { data: clients = [] } = useClients();
   const deleteAccount = useDeleteSocialAccount();
 
   const statusCounts = {
-    draft: posts.filter(p => p.status === 'draft').length,
-    scheduled: posts.filter(p => p.status === 'scheduled').length,
-    published: posts.filter(p => p.status === 'published').length,
-    pending_approval: posts.filter(p => p.approval_status === 'pending' && p.status !== 'draft').length,
+    draft: allPosts.filter(p => p.status === 'draft').length,
+    scheduled: allPosts.filter(p => p.status === 'scheduled').length,
+    published: allPosts.filter(p => p.status === 'published').length,
+    pending_approval: allPosts.filter(p => p.approval_status === 'pending' && p.status !== 'draft').length,
   };
+
+  // Group posts by client for the accordion view
+  const postsByClient = useMemo(() => {
+    const groups: Record<string, { clientName: string; clientId: string; posts: SocialPost[] }> = {};
+    
+    allPosts.forEach(post => {
+      const clientKey = post.client_id || '__no_client__';
+      const clientName = post.financial_clients?.name || 'Sem cliente';
+      if (!groups[clientKey]) {
+        groups[clientKey] = { clientName, clientId: clientKey, posts: [] };
+      }
+      groups[clientKey].posts.push(post);
+    });
+
+    // Sort: named clients first, "Sem cliente" last
+    return Object.values(groups).sort((a, b) => {
+      if (a.clientId === '__no_client__') return 1;
+      if (b.clientId === '__no_client__') return -1;
+      return a.clientName.localeCompare(b.clientName);
+    });
+  }, [allPosts]);
 
   const handlePostClick = (post: SocialPost) => {
     setSelectedPost(post);
@@ -144,13 +180,100 @@ export default function SocialMedia() {
             <TabsTrigger value="calendar" className="gap-2">
               <CalendarDays className="w-4 h-4" /> Calendário
             </TabsTrigger>
+            <TabsTrigger value="clients" className="gap-2">
+              <User className="w-4 h-4" /> Por Cliente
+            </TabsTrigger>
             <TabsTrigger value="metrics" className="gap-2">
               <BarChart3 className="w-4 h-4" /> Relatórios
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="calendar" className="mt-4">
-            <SocialCalendar posts={posts} onPostClick={handlePostClick} />
+            <SocialCalendar posts={filteredPosts} onPostClick={handlePostClick} />
+          </TabsContent>
+
+          <TabsContent value="clients" className="mt-4">
+            {postsByClient.length === 0 ? (
+              <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl">
+                <p className="text-lg font-medium text-muted-foreground mb-2">Nenhum conteúdo cadastrado</p>
+                <p className="text-sm text-muted-foreground mb-4">Crie seu primeiro conteúdo para começar</p>
+                <Button onClick={() => setCreatePostOpen(true)} variant="outline" className="gap-2">
+                  <Plus className="w-4 h-4" /> Novo Conteúdo
+                </Button>
+              </div>
+            ) : (
+              <Accordion type="multiple" className="space-y-2">
+                {postsByClient.map(group => {
+                  const draftCount = group.posts.filter(p => p.status === 'draft').length;
+                  const scheduledCount = group.posts.filter(p => p.status === 'scheduled').length;
+                  const publishedCount = group.posts.filter(p => p.status === 'published').length;
+
+                  return (
+                    <AccordionItem key={group.clientId} value={group.clientId} className="border border-border rounded-xl overflow-hidden bg-card">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-accent/30">
+                        <div className="flex items-center gap-3 flex-1 min-w-0 text-left">
+                          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground truncate">{group.clientName}</p>
+                            <p className="text-xs text-muted-foreground">{group.posts.length} conteúdo{group.posts.length !== 1 ? 's' : ''}</p>
+                          </div>
+                          <div className="flex gap-2 mr-2 flex-shrink-0">
+                            {draftCount > 0 && (
+                              <Badge variant="secondary" className="text-[10px] bg-muted text-muted-foreground">{draftCount} rascunho{draftCount > 1 ? 's' : ''}</Badge>
+                            )}
+                            {scheduledCount > 0 && (
+                              <Badge variant="secondary" className="text-[10px] bg-primary/20 text-primary">{scheduledCount} agendado{scheduledCount > 1 ? 's' : ''}</Badge>
+                            )}
+                            {publishedCount > 0 && (
+                              <Badge variant="secondary" className="text-[10px] bg-emerald-500/20 text-emerald-600">{publishedCount} publicado{publishedCount > 1 ? 's' : ''}</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-3">
+                        <div className="space-y-2 pt-1">
+                          {group.posts.map(post => {
+                            const PlatformIcon = platformIcons[post.platform] || Instagram;
+                            return (
+                              <div
+                                key={post.id}
+                                onClick={() => handlePostClick(post)}
+                                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/30 transition-colors cursor-pointer group"
+                              >
+                                <div className={cn('w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center text-white flex-shrink-0', platformColors[post.platform] || 'from-gray-500 to-gray-400')}>
+                                  <PlatformIcon className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-foreground truncate">{post.title || post.content.slice(0, 40) || 'Sem título'}</p>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span className="capitalize">{post.platform}</span>
+                                    <span>· {post.content_type}</span>
+                                    {post.scheduled_at && (
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        {format(new Date(post.scheduled_at), 'dd/MM/yyyy HH:mm')}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge variant="secondary" className={cn('text-[10px] flex-shrink-0', statusColors[post.status] || '')}>
+                                  {statusLabels[post.status] || post.status}
+                                </Badge>
+                                {post.approval_status === 'pending' && (
+                                  <Badge variant="outline" className="text-[10px] border-amber-500/50 text-amber-500 flex-shrink-0">Aprovação</Badge>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            )}
           </TabsContent>
 
           <TabsContent value="metrics" className="mt-4">

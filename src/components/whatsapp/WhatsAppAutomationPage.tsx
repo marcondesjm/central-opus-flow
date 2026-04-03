@@ -40,6 +40,14 @@ export function WhatsAppAutomationPage() {
   const deleteMutation = useDeleteWhatsAppAutomation();
   const { toast } = useToast();
 
+  // Content Approvals
+  const { data: approvals = [] } = useContentApprovals();
+  const createApproval = useCreateContentApproval();
+  const updateApproval = useUpdateContentApproval();
+  const deleteApproval = useDeleteContentApproval();
+  const [approvalClient, setApprovalClient] = useState('');
+  const [approvalContent, setApprovalContent] = useState('');
+
   const activeCount = automations.filter(a => a.is_active).length;
 
   const handleToggle = (automation: WhatsAppAutomation) => {

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Plus, Trash2, Zap, Clock, MessageSquare, Edit2, Bot,
-  CheckCircle2, AlertTriangle, Copy
+  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {

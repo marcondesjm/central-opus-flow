@@ -23,6 +23,7 @@ export interface PortfolioPage {
   instagram_url: string | null;
   meta_title: string | null;
   meta_description: string | null;
+  pipeline_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -302,8 +303,31 @@ export function useSubmitPortfolioLead() {
 
   return useMutation({
     mutationFn: async (lead: { page_id: string; name: string; email?: string; phone?: string; message?: string; service_interest?: string }) => {
+      // Save to portfolio_leads
       const { error } = await supabase.from('portfolio_leads').insert(lead as any);
       if (error) throw error;
+
+      // Also create lead in pipeline if configured
+      const { data: page } = await supabase
+        .from('portfolio_pages')
+        .select('pipeline_id, user_id')
+        .eq('id', lead.page_id)
+        .single();
+
+      if (page?.pipeline_id) {
+        await supabase.from('leads').insert({
+          user_id: page.user_id,
+          pipeline_id: page.pipeline_id,
+          name: lead.name,
+          email: lead.email || null,
+          phone: lead.phone || null,
+          notes: lead.message || null,
+          project_interest: lead.service_interest || null,
+          phase: 'novo_lead',
+          position: 0,
+          source: 'portfolio',
+        } as any);
+      }
     },
     onSuccess: () => toast({ title: 'Mensagem enviada com sucesso!' }),
     onError: () => toast({ title: 'Erro ao enviar', variant: 'destructive' }),

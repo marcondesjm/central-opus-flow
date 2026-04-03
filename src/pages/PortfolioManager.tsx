@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { useLeadPipelines } from '@/hooks/useLeads';
 
 const LINK_ICONS = [
   { id: 'Briefcase', label: 'Portfólio', Icon: Briefcase },
@@ -719,6 +720,7 @@ function PublicPageTab() {
   const createPage = useCreatePortfolioPage();
   const updatePage = useUpdatePortfolioPage();
   const { toast } = useToast();
+  const { pipelines } = useLeadPipelines();
   const [resetOpen, setResetOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [layoutOpen, setLayoutOpen] = useState(false);
@@ -772,7 +774,7 @@ function PublicPageTab() {
       )}
 
       {/* Warning */}
-      {page && page.lead_capture_type === 'standard' && (
+      {page && !page.pipeline_id && (
         <div className="flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
           <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" />
           <div className="flex-1">
@@ -932,6 +934,19 @@ function PublicPageTab() {
                   <Input value={localPage.lead_capture_url || ''} onChange={e => savePageField('lead_capture_url', e.target.value)} className="h-8 text-sm" placeholder="https://exemplo.com/contato" />
                 </div>
               )}
+              <div>
+                <Label className="text-xs">Pipeline de Leads</Label>
+                <Select value={localPage.pipeline_id || 'none'} onValueChange={v => savePageField('pipeline_id', v === 'none' ? null : v)}>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Selecione um pipeline" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum (sem pipeline)</SelectItem>
+                    {pipelines.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[10px] text-muted-foreground mt-1">Leads capturados serão enviados automaticamente para este pipeline.</p>
+              </div>
               <div>
                 <Label className="text-xs">WhatsApp</Label>
                 <Input value={localPage.whatsapp_number || ''} onChange={e => savePageField('whatsapp_number', e.target.value)} className="h-8 text-sm" placeholder="+55 48 99999-9999" />

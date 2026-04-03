@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Plus, Trash2, Zap, Clock, MessageSquare, Edit2, Bot,
-  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles
+  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles, Phone, Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -29,6 +29,7 @@ import {
   useUpdateContentApproval,
   useDeleteContentApproval,
 } from '@/hooks/useContentApprovals';
+import { useClients } from '@/hooks/useClients';
 
 export function WhatsAppAutomationPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -47,6 +48,11 @@ export function WhatsAppAutomationPage() {
   const deleteApproval = useDeleteContentApproval();
   const [approvalClient, setApprovalClient] = useState('');
   const [approvalContent, setApprovalContent] = useState('');
+  const [approvalPhone, setApprovalPhone] = useState('');
+  const [approvalClientId, setApprovalClientId] = useState<string | null>(null);
+
+  // Clients for selector
+  const { data: clients = [] } = useClients();
 
   const activeCount = automations.filter(a => a.is_active).length;
 

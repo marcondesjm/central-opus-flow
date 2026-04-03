@@ -609,6 +609,9 @@ export default function BillingPage() {
           <Button variant="outline" onClick={() => setShowCategorias(true)} className="gap-1.5">
             <Eye className="w-4 h-4" /> Categorias
           </Button>
+          <Button variant="outline" onClick={() => setShowAchievements(true)} className="gap-1.5">
+            <Trophy className="w-4 h-4" /> Conquistas
+          </Button>
         </div>
 
         {/* Tabs */}

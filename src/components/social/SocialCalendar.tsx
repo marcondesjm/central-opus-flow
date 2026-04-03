@@ -139,26 +139,26 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
 
   const PostCard = ({ post, compact = false }: { post: SocialPost; compact?: boolean }) => {
     const PIcon = platformIcons[post.platform] || Instagram;
-    const [isDragging, setIsDragging] = useState(false);
 
-    const cardEl = (
+    return (
       <div
         draggable
-        onDragStart={e => {
-          setIsDragging(true);
-          handleDragStart(e, post);
+        onDragStart={e => handleDragStart(e, post)}
+        onDragEnd={() => setDraggedPost(null)}
+        onClick={e => {
+          e.stopPropagation();
+          onPostClick?.(post);
         }}
-        onDragEnd={() => setIsDragging(false)}
-        onClick={() => { if (!isDragging) onPostClick?.(post); }}
+        title={`${post.title || 'Sem título'} — Arraste para reagendar`}
         className={cn(
-          'w-full flex items-center gap-1.5 rounded text-left transition-colors hover:opacity-80 border-l-2 cursor-grab active:cursor-grabbing select-none',
+          'w-full flex items-center gap-1.5 rounded text-left transition-colors hover:opacity-80 border-l-2 cursor-pointer select-none',
           compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1.5 text-xs',
           statusColors[post.status],
           approvalColors[post.approval_status] || 'border-l-transparent'
         )}
         style={post.color ? { borderLeftColor: post.color } : undefined}
       >
-        <GripVertical className={cn('flex-shrink-0 text-muted-foreground/50', compact ? 'w-2.5 h-2.5' : 'w-3 h-3')} />
+        <GripVertical className={cn('flex-shrink-0 text-muted-foreground/50 cursor-grab', compact ? 'w-2.5 h-2.5' : 'w-3 h-3')} />
         <PIcon className={cn('flex-shrink-0', compact ? 'w-3 h-3' : 'w-3.5 h-3.5')} />
         <span className="truncate flex-1">{post.title || post.content.slice(0, 25)}</span>
         {!compact && post.financial_clients && (
@@ -168,22 +168,6 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
           </span>
         )}
       </div>
-    );
-
-    // Don't wrap in Tooltip during drag to prevent pointer event interference
-    if (isDragging) return cardEl;
-
-    return (
-      <Tooltip delayDuration={500}>
-        <TooltipTrigger asChild>
-          {cardEl}
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs pointer-events-none">
-          <p className="font-medium">{post.title || 'Sem título'}</p>
-          <p className="text-xs text-muted-foreground mt-1">{post.content.slice(0, 100)}</p>
-          <p className="text-[10px] text-muted-foreground mt-1 italic">Arraste para reagendar</p>
-        </TooltipContent>
-      </Tooltip>
     );
   };
 

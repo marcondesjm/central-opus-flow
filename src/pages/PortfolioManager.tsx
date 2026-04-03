@@ -935,6 +935,19 @@ function PublicPageTab() {
                 </div>
               )}
               <div>
+                <Label className="text-xs">Pipeline de Leads</Label>
+                <Select value={localPage.pipeline_id || 'none'} onValueChange={v => savePageField('pipeline_id', v === 'none' ? null : v)}>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Selecione um pipeline" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum (sem pipeline)</SelectItem>
+                    {pipelines.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[10px] text-muted-foreground mt-1">Leads capturados serão enviados automaticamente para este pipeline.</p>
+              </div>
+              <div>
                 <Label className="text-xs">WhatsApp</Label>
                 <Input value={localPage.whatsapp_number || ''} onChange={e => savePageField('whatsapp_number', e.target.value)} className="h-8 text-sm" placeholder="+55 48 99999-9999" />
               </div>

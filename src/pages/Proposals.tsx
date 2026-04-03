@@ -524,21 +524,21 @@ export default function Proposals() {
                             </Button>
                           )}
                         </div>
-                        <div className="flex items-center gap-0.5">
+                        <div className="flex items-center gap-0">
                           {proposal.status !== 'draft' && proposal.share_token && (
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => window.open(`${window.location.origin}/proposal/${proposal.share_token}`, '_blank')} title="Abrir proposta em nova aba">
-                              <ExternalLink className="w-3.5 h-3.5" />
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => window.open(`${window.location.origin}/proposal/${proposal.share_token}`, '_blank')} title="Abrir proposta em nova aba">
+                              <ExternalLink className="w-3 h-3" />
                             </Button>
                           )}
                           {proposal.client_phone && (
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600 hover:bg-emerald-500/10" onClick={() => sendWhatsApp(proposal)} title="Enviar via WhatsApp">
-                              <MessageCircle className="w-3.5 h-3.5" />
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-emerald-600 hover:bg-emerald-500/10" onClick={() => sendWhatsApp(proposal)} title="Enviar via WhatsApp">
+                              <MessageCircle className="w-3 h-3" />
                             </Button>
                           )}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                                <Trash2 className="w-3.5 h-3.5" />
+                              <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                                <Trash2 className="w-3 h-3" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

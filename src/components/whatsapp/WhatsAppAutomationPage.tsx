@@ -239,6 +239,113 @@ export function WhatsAppAutomationPage() {
           }
         }}
       />
+
+      {/* ─── Aprovação de Conteúdo ─── */}
+      <div className="border-t pt-6 mt-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+            <FileCheck className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Aprovação de Conteúdo</h2>
+            <p className="text-sm text-muted-foreground">Envie posts e conteúdos para aprovação do cliente</p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <Card className="mb-4">
+          <CardContent className="p-4 space-y-3">
+            <Input
+              value={approvalClient}
+              onChange={e => setApprovalClient(e.target.value)}
+              placeholder="Nome do cliente"
+            />
+            <Textarea
+              value={approvalContent}
+              onChange={e => setApprovalContent(e.target.value)}
+              placeholder="Descreva o conteúdo para aprovação..."
+              rows={3}
+            />
+            <Button
+              className="w-full gap-2"
+              onClick={() => {
+                if (!approvalClient.trim() || !approvalContent.trim()) return;
+                createApproval.mutate(
+                  { client_name: approvalClient.trim(), content: approvalContent.trim() },
+                  { onSuccess: () => { setApprovalClient(''); setApprovalContent(''); } }
+                );
+              }}
+              disabled={!approvalClient.trim() || !approvalContent.trim()}
+            >
+              <Send className="w-4 h-4" /> Enviar para Aprovação
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Approvals list */}
+        {approvals.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <FileCheck className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+              <p className="text-sm text-muted-foreground">Nenhum conteúdo enviado para aprovação</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {approvals.map(item => (
+              <Card key={item.id} className={cn(
+                'transition-all',
+                item.status === 'approved' && 'border-emerald-500/30',
+                item.status === 'rejected' && 'border-destructive/30',
+              )}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-sm">{item.client_name}</h4>
+                        <Badge
+                          variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}
+                          className="text-[10px]"
+                        >
+                          {item.status === 'pending' ? '⏳ Pendente' : item.status === 'approved' ? '✅ Aprovado' : '❌ Rejeitado'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground whitespace-pre-wrap">{item.content}</p>
+                      {item.rejection_reason && (
+                        <p className="text-[10px] text-destructive mt-1">Motivo: {item.rejection_reason}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {item.status === 'pending' && (
+                        <>
+                          <Button
+                            variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
+                            onClick={() => updateApproval.mutate({ id: item.id, status: 'approved', approved_at: new Date().toISOString() })}
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive/80"
+                            onClick={() => updateApproval.mutate({ id: item.id, status: 'rejected', rejected_at: new Date().toISOString() })}
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => deleteApproval.mutate(item.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

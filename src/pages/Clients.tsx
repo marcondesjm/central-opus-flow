@@ -570,29 +570,27 @@ function ClientDetailView({ client, onBack }: { client: FullClient; onBack: () =
               Acessar Google Drive
             </Button>
 
-            <div className="text-center py-6">
-              <FolderPlus className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
-              <h3 className="font-semibold mb-1">Nenhuma pasta configurada</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Crie uma pasta no Google Drive para organizar os arquivos deste cliente.
-              </p>
-              {!hasDriveConnected ? (
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-400 flex items-center gap-2 justify-center">
-                  <Info className="w-4 h-4" />
-                  Conecte sua conta do Google Drive nas configurações primeiro.
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="p-4 text-sm space-y-3">
+                <p className="font-semibold flex items-center gap-2">
+                  <FolderPlus className="w-4 h-4 text-primary" />
+                  Como organizar os arquivos de "{client.name}":
+                </p>
+                <div className="space-y-2 text-muted-foreground">
+                  <p>1. Clique em <strong className="text-foreground">"Acessar Google Drive"</strong> acima</p>
+                  <p>2. No Google Drive, clique em <strong className="text-foreground">+ Novo → Nova pasta</strong></p>
+                  <p>3. Nomeie a pasta como: <strong className="text-primary">"{client.name}"</strong></p>
+                  <p>4. Dentro dela, crie as subpastas:</p>
+                  <div className="pl-4 space-y-1">
+                    <p>📁 <strong className="text-foreground">Briefings</strong></p>
+                    <p>📁 <strong className="text-foreground">Artes</strong></p>
+                    <p>📁 <strong className="text-foreground">Contratos</strong></p>
+                    <p>📁 <strong className="text-foreground">Orçamentos</strong></p>
+                  </div>
+                  <p>5. Pronto! Use os links de compartilhamento para acesso rápido</p>
                 </div>
-              ) : (
-                <Button className="gap-1.5">
-                  <FolderPlus className="w-4 h-4" /> Criar Pasta no Drive
-                </Button>
-              )}
-            </div>
-            <Card><CardContent className="p-4 text-sm space-y-1">
-              <p className="font-semibold mb-2">Ao criar a pasta:</p>
-              <p className="text-muted-foreground">• Uma pasta com o nome "{client.name}" será criada</p>
-              <p className="text-muted-foreground">• Subpastas para Briefings, Artes, Contratos e Orçamentos</p>
-              <p className="text-muted-foreground">• O link ficará salvo para acesso rápido</p>
-            </CardContent></Card>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* ── Serviços ── */}

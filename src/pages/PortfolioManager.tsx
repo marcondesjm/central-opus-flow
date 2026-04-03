@@ -1428,7 +1428,7 @@ export default function PortfolioManager() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-4 md:p-6 pb-24 lg:pb-6 max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Página Pública</h1>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

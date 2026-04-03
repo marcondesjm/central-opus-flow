@@ -183,6 +183,13 @@ export default function ContentItems() {
           onBack={() => { setCreationOpen(false); setSelectorOpen(true); }}
         />
       )}
+      {detailItem && (
+        <ContentDetailModal
+          open={!!detailItem}
+          onOpenChange={(open) => { if (!open) setDetailItem(null); }}
+          item={detailItem}
+        />
+      )}
     </AppLayout>
   );
 }

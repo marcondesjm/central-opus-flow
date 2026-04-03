@@ -238,7 +238,7 @@ function AutomationFormModal({
   const [delay, setDelay] = useState(String(automation?.delay_minutes || 0));
   const [phase, setPhase] = useState(automation?.target_phase || '');
   const [description, setDescription] = useState(automation?.description || '');
-  const { toast } = useToast();
+  const [tag, setTag] = useState(automation?.tag || '');
 
   // Reset when automation changes
   const resetForm = () => {

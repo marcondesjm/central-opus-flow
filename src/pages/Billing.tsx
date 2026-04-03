@@ -5,7 +5,7 @@ import {
   TrendingUp, TrendingDown, DollarSign, Plus, Search,
   Calendar, Loader2, Pencil, Trash2, ArrowUpRight,
   ArrowDownRight, RefreshCw, BarChart3, X, Users, Building2,
-  Receipt, Eye, Repeat, ShoppingCart,
+  Receipt, Eye, Repeat, ShoppingCart, Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

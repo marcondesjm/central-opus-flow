@@ -783,12 +783,20 @@ function LeadsContent() {
     activeLeads.forEach(l => {
       if (map[l.phase]) map[l.phase].push(l);
       else if (stages.length > 0) {
-        // Put in first stage if phase doesn't match
         map[stages[0].name]?.push(l);
       }
     });
     return map;
   }, [activeLeads, stages]);
+
+  // Pagination: 3 columns per page
+  const COLS_PER_PAGE = 3;
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(stages.length / COLS_PER_PAGE));
+  const visibleStages = stages.slice(page * COLS_PER_PAGE, (page + 1) * COLS_PER_PAGE);
+
+  const goBack = () => setPage(p => Math.max(0, p - 1));
+  const goForward = () => setPage(p => Math.min(totalPages - 1, p + 1));
 
   return (
     <div className="max-w-[1400px] mx-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-5">
@@ -832,13 +840,28 @@ function LeadsContent() {
         </div>
       )}
 
-      {/* Pipeline columns */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 overflow-x-auto" style={{ gridTemplateColumns: `repeat(${stages.length}, minmax(220px, 1fr))` }}>
-        {stages.map(phase => {
+      {/* Navigation arrows */}
+      {stages.length > COLS_PER_PAGE && (
+        <div className="flex items-center justify-between">
+          <Button variant="outline" size="sm" className="gap-1" onClick={goBack} disabled={page === 0}>
+            <ChevronLeft className="w-4 h-4" /> Anterior
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Página {page + 1} de {totalPages} ({stages.length} etapas)
+          </span>
+          <Button variant="outline" size="sm" className="gap-1" onClick={goForward} disabled={page >= totalPages - 1}>
+            Próximo <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Pipeline columns — 3 per row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {visibleStages.map(phase => {
           const phaseLeads = leadsByPhase[phase.name] || [];
           const stageColor = STAGE_COLORS[phase.color] || phase.color;
           return (
-            <div key={phase.name} className="bg-card border border-border rounded-xl overflow-hidden min-w-[220px]"
+            <div key={phase.name} className="bg-card border border-border rounded-xl overflow-hidden"
               onDragOver={e => e.preventDefault()}
               onDrop={e => { const leadId = e.dataTransfer.getData('leadId'); if (leadId) updateLead.mutate({ id: leadId, phase: phase.name }); }}>
               <div className="p-3 border-b border-border flex items-center justify-between" style={{ borderTopColor: stageColor, borderTopWidth: 3 }}>
@@ -848,7 +871,7 @@ function LeadsContent() {
                 </div>
                 <Badge variant="secondary" className="text-xs">{phaseLeads.length}</Badge>
               </div>
-              <div className="p-2 min-h-[200px] space-y-2">
+              <div className="p-2 min-h-[200px] space-y-2 max-h-[500px] overflow-y-auto scrollbar-highlight">
                 {phaseLeads.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-8">Arraste leads para cá</p>
                 ) : phaseLeads.map(lead => (

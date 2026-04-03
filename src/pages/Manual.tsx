@@ -672,7 +672,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Briefings',
     icon: FileText,
     color: '#f59e0b',
-    image: proposalsImg,
+    image: briefingsImg,
     intro: 'Crie e envie briefings profissionais para seus clientes preencherem. O link público permite que o cliente responda sem precisar criar conta.',
     items: [
       {

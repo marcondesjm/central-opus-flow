@@ -1073,12 +1073,35 @@ function EstatisticasTab() {
   const { data: page } = usePortfolioPage();
   const { data: leads } = usePortfolioLeads(page?.id);
   const { data: bio } = useBioLink();
+  const [bioClicks, setBioClicks] = useState(0);
+  const [leadsThisMonth, setLeadsThisMonth] = useState(0);
+
+  // Fetch bio link click count
+  useEffect(() => {
+    if (!bio?.id) return;
+    supabase
+      .from('bio_link_clicks')
+      .select('id', { count: 'exact', head: true })
+      .eq('bio_link_id', bio.id)
+      .then(({ count }) => setBioClicks(count || 0));
+  }, [bio?.id]);
+
+  // Calculate leads this month
+  useEffect(() => {
+    if (!leads?.length) { setLeadsThisMonth(0); return; }
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const count = leads.filter((l: any) => new Date(l.created_at) >= firstDay).length;
+    setLeadsThisMonth(count);
+  }, [leads]);
 
   const totalLeads = leads?.length || 0;
   const stats = [
-    { label: 'Leads Capturados', value: totalLeads, icon: FileText, color: 'text-blue-500' },
-    { label: 'Bio Link', value: bio ? '● Ativo' : '● Inativo', icon: Link2, color: bio?.is_published ? 'text-green-500' : 'text-yellow-500' },
-    { label: 'Página Pública', value: page?.is_published ? '● Publicada' : '● Rascunho', icon: Globe, color: page?.is_published ? 'text-green-500' : 'text-yellow-500' },
+    { label: 'Leads Capturados', value: totalLeads, icon: FileText, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { label: 'Leads este Mês', value: leadsThisMonth, icon: FileText, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { label: 'Cliques no Bio', value: bioClicks, icon: Link2, color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    { label: 'Bio Link', value: bio?.is_published ? '● Ativo' : '● Inativo', icon: Link2, color: bio?.is_published ? 'text-green-500' : 'text-yellow-500', bg: bio?.is_published ? 'bg-green-500/10' : 'bg-yellow-500/10' },
+    { label: 'Página Pública', value: page?.is_published ? '● Publicada' : '● Rascunho', icon: Globe, color: page?.is_published ? 'text-green-500' : 'text-yellow-500', bg: page?.is_published ? 'bg-green-500/10' : 'bg-yellow-500/10' },
   ];
 
   return (
@@ -1087,15 +1110,15 @@ function EstatisticasTab() {
         <h2 className="text-lg font-bold">Estatísticas</h2>
         <p className="text-xs text-muted-foreground">Acompanhe o desempenho da sua presença online</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {stats.map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-5">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className={cn('w-10 h-10 rounded-lg bg-muted flex items-center justify-center', s.color)}>
-                <s.icon className="w-5 h-5" />
+              <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', s.bg)}>
+                <s.icon className={cn('w-4 h-4', s.color)} />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-[10px] text-muted-foreground">{s.label}</p>
                 <p className="text-lg font-bold">{s.value}</p>
               </div>
             </div>
@@ -1109,11 +1132,19 @@ function EstatisticasTab() {
           <div className="space-y-2">
             {(leads || []).slice(0, 5).map((lead: any) => (
               <div key={lead.id} className="flex items-center justify-between text-sm py-2 border-b border-border/50 last:border-0">
-                <div>
-                  <span className="font-medium">{lead.name}</span>
-                  <span className="text-muted-foreground ml-2">{lead.email}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                    {lead.name?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <div>
+                    <span className="font-medium">{lead.name}</span>
+                    <span className="text-muted-foreground ml-2 text-xs">{lead.email}</span>
+                  </div>
                 </div>
-                <span className="text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</span>
+                <div className="text-right">
+                  {lead.service_interest && <p className="text-[10px] text-primary">{lead.service_interest}</p>}
+                  <span className="text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
               </div>
             ))}
           </div>

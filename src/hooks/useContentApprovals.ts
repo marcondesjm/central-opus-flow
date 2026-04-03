@@ -39,7 +39,7 @@ export function useCreateContentApproval() {
   const { toast } = useToast();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (input: { client_name: string; content: string }) => {
+    mutationFn: async (input: { client_name: string; content: string; phone?: string; client_id?: string }) => {
       const { data, error } = await supabase
         .from('content_approvals')
         .insert([{ ...input, user_id: user!.id }] as any)

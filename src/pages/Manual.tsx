@@ -638,7 +638,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Automações WhatsApp',
     icon: MessageCircle,
     color: '#25d366',
-    image: kanbanImg,
+    image: whatsappImg,
     intro: 'Configure automações inteligentes para enviar mensagens via WhatsApp de forma automática em diferentes momentos do seu fluxo de trabalho.',
     items: [
       {

@@ -267,6 +267,7 @@ function AutomationFormModal({
       target_phase: phase || undefined,
       description: description.trim() || undefined,
       tag: tag.trim() || undefined,
+      schedule_date: scheduleDate || undefined,
     });
   };
 

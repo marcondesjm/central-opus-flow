@@ -325,8 +325,8 @@ export default function Auth() {
       setChangeNewPassword('');
       setChangeConfirmPassword('');
       setChangeEmail('');
-    } catch (err: any) {
-      const message = err?.message || 'Tente novamente.';
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Tente novamente.';
       if (message.toLowerCase().includes('senha temporária')) {
         toast({ title: 'Senha temporária inválida', description: message, variant: 'destructive' });
       } else {

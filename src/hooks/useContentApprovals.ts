@@ -41,7 +41,7 @@ export function useCreateContentApproval() {
   const { toast } = useToast();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (input: { client_name: string; content: string; phone?: string; client_id?: string }) => {
+    mutationFn: async (input: { client_name: string; content: string; phone?: string; client_id?: string; content_item_id?: string }) => {
       const share_token = crypto.randomUUID();
       const { data, error } = await supabase
         .from('content_approvals')

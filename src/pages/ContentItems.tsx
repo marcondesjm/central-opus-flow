@@ -110,7 +110,7 @@ export default function ContentItems() {
             {filteredItems.map(item => {
               const typeInfo = getTypeInfo(item.content_type);
               return (
-                <div key={item.id} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors group">
+                <div key={item.id} onClick={() => setDetailItem(item)} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors group cursor-pointer">
                   {/* Type icon */}
                   <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-lg flex-shrink-0">
                     {typeInfo?.icon || '📄'}

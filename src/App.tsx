@@ -47,6 +47,7 @@ const PortfolioPublic = lazy(() => import("./pages/PortfolioPublic"));
 const PortfolioManager = lazy(() => import("./pages/PortfolioManager"));
 const BioPublic = lazy(() => import("./pages/BioPublic"));
 const SocialMedia = lazy(() => import("./pages/SocialMedia"));
+const ApprovalPublic = lazy(() => import("./pages/ApprovalPublic"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -344,6 +345,7 @@ function AppContent() {
             />
             <Route path="/briefing/:token" element={<BriefingPublic />} />
             <Route path="/orcamento/:token" element={<QuotePublic />} />
+            <Route path="/aprovacao/:token" element={<ApprovalPublic />} />
             <Route
               path="/leads"
               element={

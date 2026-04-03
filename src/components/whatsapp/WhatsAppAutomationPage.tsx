@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Plus, Trash2, Zap, Clock, MessageSquare, Edit2, Bot,
-  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles, Phone, Users
+  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles, Phone, Users, ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -384,7 +384,28 @@ export function WhatsAppAutomationPage() {
                     phone: approvalPhone.trim() || undefined,
                     client_id: approvalClientId || undefined,
                   },
-                  { onSuccess: () => { setApprovalClient(''); setApprovalContent(''); setApprovalPhone(''); setApprovalClientId(null); } }
+                  {
+                    onSuccess: (data: any) => {
+                      const shareToken = data?.share_token;
+                      const approvalUrl = `${window.location.origin}/aprovacao/${shareToken}`;
+                      const phone = approvalPhone.trim();
+
+                      if (phone) {
+                        const whatsMsg = encodeURIComponent(
+                          `Olá ${approvalClient.trim()}! 👋\n\nEnviei um conteúdo para sua aprovação. Por favor, revise e nos dê seu feedback:\n\n${approvalUrl}`
+                        );
+                        window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${whatsMsg}`, '_blank');
+                      } else {
+                        navigator.clipboard?.writeText(approvalUrl);
+                        toast({ title: '🔗 Link copiado!', description: 'Compartilhe com o cliente para aprovação.' });
+                      }
+
+                      setApprovalClient('');
+                      setApprovalContent('');
+                      setApprovalPhone('');
+                      setApprovalClientId(null);
+                    },
+                  }
                 );
               }}
               disabled={!approvalClient.trim() || !approvalContent.trim()}
@@ -451,14 +472,28 @@ export function WhatsAppAutomationPage() {
                           </Button>
                         </>
                       )}
+                      {(item as any).share_token && (
+                        <Button
+                          variant="ghost" size="icon" className="h-8 w-8 text-blue-400 hover:text-blue-500"
+                          title="Copiar link de aprovação"
+                          onClick={() => {
+                            const url = `${window.location.origin}/aprovacao/${(item as any).share_token}`;
+                            navigator.clipboard?.writeText(url);
+                            toast({ title: '🔗 Link copiado!' });
+                          }}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       {phone && (
                         <Button
                           variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
                           title="Enviar via WhatsApp"
                           onClick={() => {
                             const cleanPhone = phone.replace(/\D/g, '');
-                            const statusText = item.status === 'approved' ? '✅ Aprovado' : item.status === 'rejected' ? '❌ Rejeitado' : '⏳ Pendente';
-                            const text = `Olá ${item.client_name}! Atualização sobre seu conteúdo:\n\n${item.content}\n\nStatus: ${statusText}`;
+                            const shareToken = (item as any).share_token;
+                            const approvalUrl = shareToken ? `${window.location.origin}/aprovacao/${shareToken}` : '';
+                            const text = `Olá ${item.client_name}! 👋\n\nEnviei um conteúdo para sua aprovação:\n\n${item.content}\n\n${approvalUrl ? `Acesse o link para aprovar ou rejeitar:\n${approvalUrl}` : ''}`;
                             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
                           }}
                         >

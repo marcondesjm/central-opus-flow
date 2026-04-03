@@ -40,9 +40,10 @@ export function useCreateContentApproval() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (input: { client_name: string; content: string; phone?: string; client_id?: string }) => {
+      const share_token = crypto.randomUUID();
       const { data, error } = await supabase
         .from('content_approvals')
-        .insert([{ ...input, user_id: user!.id }] as any)
+        .insert([{ ...input, user_id: user!.id, share_token }] as any)
         .select()
         .single();
       if (error) throw error;

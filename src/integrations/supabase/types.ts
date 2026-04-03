@@ -982,6 +982,7 @@ export type Database = {
           phone: string | null
           rejected_at: string | null
           rejection_reason: string | null
+          share_token: string | null
           status: string
           updated_at: string
           user_id: string
@@ -996,6 +997,7 @@ export type Database = {
           phone?: string | null
           rejected_at?: string | null
           rejection_reason?: string | null
+          share_token?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -1010,6 +1012,7 @@ export type Database = {
           phone?: string | null
           rejected_at?: string | null
           rejection_reason?: string | null
+          share_token?: string | null
           status?: string
           updated_at?: string
           user_id?: string

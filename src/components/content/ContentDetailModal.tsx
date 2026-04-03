@@ -2,10 +2,13 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type ContentItem, ALL_CONTENT_TYPES, useUpdateContentItem } from '@/hooks/useContentItems';
+import { useCreateContentApproval, useContentApprovals } from '@/hooks/useContentApprovals';
+import { useClients } from '@/hooks/useClients';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User, FolderOpen, ExternalLink, CheckCircle2, Circle } from 'lucide-react';
+import { Calendar, User, FolderOpen, ExternalLink, CheckCircle2, Circle, Send, Copy, Check, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Props {
   open: boolean;
@@ -28,11 +31,42 @@ const STATUS_COLORS: Record<string, string> = {
 export function ContentDetailModal({ open, onOpenChange, item }: Props) {
   const typeInfo = ALL_CONTENT_TYPES.find(t => t.value === item.content_type);
   const updateMutation = useUpdateContentItem();
+  const createApproval = useCreateContentApproval();
+  const { data: approvals } = useContentApprovals();
+  const { data: clients } = useClients();
+  const { toast } = useToast();
   const [status, setStatus] = useState(item.status);
+  const [copied, setCopied] = useState(false);
+
+  // Find existing approval for this content item
+  const existingApproval = approvals?.find((a: any) => a.content_item_id === item.id);
+  const approvalLink = existingApproval?.share_token
+    ? `${window.location.origin}/aprovacao/${(existingApproval as any).share_token}`
+    : null;
 
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
     updateMutation.mutate({ id: item.id, status: newStatus });
+  };
+
+  const handleSendApproval = () => {
+    const clientName = item.financial_clients?.name || 'Cliente';
+    const contentText = item.description || item.title || 'Conteúdo sem descrição';
+    createApproval.mutate({
+      client_name: clientName,
+      content: contentText,
+      client_id: item.client_id || undefined,
+      content_item_id: item.id,
+    });
+  };
+
+  const handleCopyLink = () => {
+    if (approvalLink) {
+      navigator.clipboard.writeText(approvalLink);
+      setCopied(true);
+      toast({ title: 'Link copiado!' });
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleChecklistToggle = (idx: number) => {
@@ -217,6 +251,38 @@ export function ContentDetailModal({ open, onOpenChange, item }: Props) {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Approval section */}
+        <div className="px-6 py-4 border-t border-border">
+          <p className="text-xs font-semibold text-muted-foreground mb-3">APROVAÇÃO DO CLIENTE</p>
+          {existingApproval ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge className={
+                  existingApproval.status === 'approved' ? 'bg-emerald-500/20 text-emerald-600' :
+                  existingApproval.status === 'rejected' ? 'bg-red-500/20 text-red-600' :
+                  'bg-amber-500/20 text-amber-600'
+                }>
+                  {existingApproval.status === 'approved' ? '✅ Aprovado' : existingApproval.status === 'rejected' ? '❌ Rejeitado' : '⏳ Aguardando aprovação'}
+                </Badge>
+                {existingApproval.rejection_reason && (
+                  <span className="text-xs text-muted-foreground">Motivo: {existingApproval.rejection_reason}</span>
+                )}
+              </div>
+              {approvalLink && (
+                <Button variant="outline" size="sm" onClick={handleCopyLink} className="gap-2 text-xs">
+                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {copied ? 'Copiado!' : 'Copiar link de aprovação'}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" onClick={handleSendApproval} disabled={createApproval.isPending} className="gap-2">
+              {createApproval.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Enviar para aprovação do cliente
+            </Button>
+          )}
         </div>
 
         <div className="flex justify-end px-6 py-3 border-t border-border">

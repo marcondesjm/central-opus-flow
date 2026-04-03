@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, XCircle, FileCheck, Loader2, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, FileCheck, Loader2, Clock, AlertCircle, Image as ImageIcon } from 'lucide-react';
 
 export default function ApprovalPublic() {
   const { token } = useParams<{ token: string }>();
@@ -23,6 +23,21 @@ export default function ApprovalPublic() {
       return data;
     },
     enabled: !!token,
+  });
+
+  // Fetch linked content item if exists
+  const { data: contentItem } = useQuery({
+    queryKey: ['approval-content-item', approval?.content_item_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('content_items')
+        .select('*')
+        .eq('id', approval!.content_item_id!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!approval?.content_item_id,
   });
 
   const approve = useMutation({
@@ -75,6 +90,13 @@ export default function ApprovalPublic() {
   const isApproved = approval.status === 'approved';
   const isRejected = approval.status === 'rejected';
 
+  const mediaUrls: string[] = contentItem?.media_urls || [];
+  const description = contentItem?.description || approval.content;
+  const title = contentItem?.title;
+  const coverUrl = contentItem?.cover_url;
+  const videoLink = contentItem?.video_link;
+  const platforms: string[] = contentItem?.platforms || [];
+
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white">
       <div className="max-w-2xl mx-auto px-4 py-12">
@@ -88,15 +110,56 @@ export default function ApprovalPublic() {
         </div>
 
         {/* Content Card */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6 space-y-4">
+          <div className="flex items-center gap-2">
             <span className="text-xs text-white/40">Enviado para:</span>
             <span className="text-sm font-medium">{approval.client_name}</span>
           </div>
+
+          {title && (
+            <h2 className="text-lg font-semibold">{title}</h2>
+          )}
+
+          {/* Media gallery */}
+          {(coverUrl || mediaUrls.length > 0) && (
+            <div className="space-y-3">
+              {coverUrl && (
+                <img src={coverUrl} alt="Capa" className="w-full max-h-80 object-cover rounded-xl border border-white/10" />
+              )}
+              {mediaUrls.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {mediaUrls.map((url, i) => (
+                    <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                      <img src={url} alt={`Mídia ${i + 1}`} className="w-32 h-32 object-cover rounded-lg border border-white/10 hover:ring-2 hover:ring-purple-400 transition-all" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Description/Content */}
           <div className="bg-white/5 rounded-xl p-5 border border-white/5">
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{approval.content}</p>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">{description}</p>
           </div>
-          <div className="flex items-center gap-2 mt-4 text-xs text-white/30">
+
+          {/* Video link */}
+          {videoLink && (
+            <a href={videoLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-purple-400 hover:underline">
+              🎬 Ver vídeo
+            </a>
+          )}
+
+          {/* Platforms */}
+          {platforms.length > 0 && (
+            <div className="flex gap-2 flex-wrap">
+              {platforms.map(p => (
+                <span key={p} className="px-3 py-1 text-xs rounded-full border border-purple-500/30 text-purple-300 bg-purple-500/10">{p}</span>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-white/30">
             <Clock className="w-3 h-3" />
             <span>Enviado em {new Date(approval.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
           </div>

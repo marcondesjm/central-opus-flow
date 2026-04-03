@@ -977,6 +977,7 @@ export type Database = {
           client_id: string | null
           client_name: string
           content: string
+          content_item_id: string | null
           created_at: string
           id: string
           phone: string | null
@@ -992,6 +993,7 @@ export type Database = {
           client_id?: string | null
           client_name: string
           content: string
+          content_item_id?: string | null
           created_at?: string
           id?: string
           phone?: string | null
@@ -1007,6 +1009,7 @@ export type Database = {
           client_id?: string | null
           client_name?: string
           content?: string
+          content_item_id?: string | null
           created_at?: string
           id?: string
           phone?: string | null
@@ -1023,6 +1026,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_approvals_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
             referencedColumns: ["id"]
           },
         ]

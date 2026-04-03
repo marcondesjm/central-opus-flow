@@ -35,6 +35,7 @@ import {
   formatBRL, CATEGORY_COLORS,
   FinancialTransaction, FinancialCategory,
 } from '@/hooks/useFinancial';
+import { AchievementsModal } from '@/components/achievements/AchievementsModal';
 
 // ─── Venda Rápida Modal ──────────────────────────
 function VendaRapidaModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {

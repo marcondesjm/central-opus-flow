@@ -210,6 +210,11 @@ export function Sidebar({
           New
         </span>
       )}
+      {isBeta && (
+        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-md bg-amber-500 text-white animate-pulse">
+          Beta
+        </span>
+      )}
       {badge && badge > 0 ? (
         <Badge variant="default" className="text-[10px] px-1.5 py-0 h-5 min-w-[20px] flex items-center justify-center">
           {badge > 99 ? '99+' : badge}

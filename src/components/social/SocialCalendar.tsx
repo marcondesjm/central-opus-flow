@@ -141,52 +141,48 @@ export function SocialCalendar({ posts, onPostClick }: Props) {
 
   const PostCard = ({ post, compact = false }: { post: SocialPost; compact?: boolean }) => {
     const PIcon = platformIcons[post.platform] || Instagram;
-    const tLabel = CONTENT_TYPE_OPTIONS.find(t => t.value === post.content_type)?.label || post.content_type;
+    const [isDragging, setIsDragging] = useState(false);
+
+    const cardEl = (
+      <div
+        draggable
+        onDragStart={e => {
+          setIsDragging(true);
+          handleDragStart(e, post);
+        }}
+        onDragEnd={() => setIsDragging(false)}
+        onClick={() => { if (!isDragging) onPostClick?.(post); }}
+        className={cn(
+          'w-full flex items-center gap-1.5 rounded text-left transition-colors hover:opacity-80 border-l-2 cursor-grab active:cursor-grabbing select-none',
+          compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1.5 text-xs',
+          statusColors[post.status],
+          approvalColors[post.approval_status] || 'border-l-transparent'
+        )}
+        style={post.color ? { borderLeftColor: post.color } : undefined}
+      >
+        <GripVertical className={cn('flex-shrink-0 text-muted-foreground/50', compact ? 'w-2.5 h-2.5' : 'w-3 h-3')} />
+        <PIcon className={cn('flex-shrink-0', compact ? 'w-3 h-3' : 'w-3.5 h-3.5')} />
+        <span className="truncate flex-1">{post.title || post.content.slice(0, 25)}</span>
+        {!compact && post.financial_clients && (
+          <span className="flex items-center gap-0.5 text-muted-foreground text-[10px]">
+            <User className="w-2.5 h-2.5" />
+            {post.financial_clients.name.split(' ')[0]}
+          </span>
+        )}
+      </div>
+    );
+
+    // Don't wrap in Tooltip during drag to prevent pointer event interference
+    if (isDragging) return cardEl;
 
     return (
-      <Tooltip>
+      <Tooltip delayDuration={500}>
         <TooltipTrigger asChild>
-          <div
-            draggable
-            onDragStart={e => handleDragStart(e, post)}
-            onClick={() => onPostClick?.(post)}
-            className={cn(
-              'w-full flex items-center gap-1.5 rounded text-left transition-colors hover:opacity-80 border-l-2 cursor-grab active:cursor-grabbing',
-              compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1.5 text-xs',
-              statusColors[post.status],
-              approvalColors[post.approval_status] || 'border-l-transparent'
-            )}
-            style={post.color ? { borderLeftColor: post.color } : undefined}
-          >
-            <GripVertical className={cn('flex-shrink-0 text-muted-foreground/50', compact ? 'w-2.5 h-2.5' : 'w-3 h-3')} />
-            <PIcon className={cn('flex-shrink-0', compact ? 'w-3 h-3' : 'w-3.5 h-3.5')} />
-            <span className="truncate flex-1">{post.title || post.content.slice(0, 25)}</span>
-            {!compact && post.financial_clients && (
-              <span className="flex items-center gap-0.5 text-muted-foreground text-[10px]">
-                <User className="w-2.5 h-2.5" />
-                {post.financial_clients.name.split(' ')[0]}
-              </span>
-            )}
-          </div>
+          {cardEl}
         </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs">
+        <TooltipContent side="top" className="max-w-xs pointer-events-none">
           <p className="font-medium">{post.title || 'Sem título'}</p>
           <p className="text-xs text-muted-foreground mt-1">{post.content.slice(0, 100)}</p>
-          <div className="flex flex-wrap gap-1.5 mt-1.5">
-            <Badge variant="outline" className="text-[10px] capitalize">{tLabel}</Badge>
-            <Badge variant="outline" className="text-[10px]">{post.platform}</Badge>
-            <Badge variant="outline" className="text-[10px]">{post.status}</Badge>
-            {post.approval_status !== 'pending' && (
-              <Badge variant={post.approval_status === 'approved' ? 'default' : 'destructive'} className="text-[10px]">
-                {post.approval_status === 'approved' ? '✓ Aprovado' : '✗ Rejeitado'}
-              </Badge>
-            )}
-          </div>
-          {post.scheduled_at && (
-            <p className="text-[10px] text-muted-foreground mt-1">
-              {format(new Date(post.scheduled_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-            </p>
-          )}
           <p className="text-[10px] text-muted-foreground mt-1 italic">Arraste para reagendar</p>
         </TooltipContent>
       </Tooltip>

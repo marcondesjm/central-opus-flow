@@ -12,6 +12,8 @@ export interface ContentApproval {
   approved_at: string | null;
   rejected_at: string | null;
   rejection_reason: string | null;
+  phone: string | null;
+  client_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -37,7 +39,7 @@ export function useCreateContentApproval() {
   const { toast } = useToast();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (input: { client_name: string; content: string }) => {
+    mutationFn: async (input: { client_name: string; content: string; phone?: string; client_id?: string }) => {
       const { data, error } = await supabase
         .from('content_approvals')
         .insert([{ ...input, user_id: user!.id }] as any)

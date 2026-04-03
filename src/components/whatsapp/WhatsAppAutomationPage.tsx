@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Plus, Trash2, Zap, Clock, MessageSquare, Edit2, Bot,
-  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles
+  CheckCircle2, AlertTriangle, Copy, FileCheck, XCircle, Send, Sparkles, Phone, Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -29,6 +29,7 @@ import {
   useUpdateContentApproval,
   useDeleteContentApproval,
 } from '@/hooks/useContentApprovals';
+import { useClients } from '@/hooks/useClients';
 
 export function WhatsAppAutomationPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -47,6 +48,11 @@ export function WhatsAppAutomationPage() {
   const deleteApproval = useDeleteContentApproval();
   const [approvalClient, setApprovalClient] = useState('');
   const [approvalContent, setApprovalContent] = useState('');
+  const [approvalPhone, setApprovalPhone] = useState('');
+  const [approvalClientId, setApprovalClientId] = useState<string | null>(null);
+
+  // Clients for selector
+  const { data: clients = [] } = useClients();
 
   const activeCount = automations.filter(a => a.is_active).length;
 
@@ -308,11 +314,59 @@ export function WhatsAppAutomationPage() {
         {/* Form */}
         <Card className="mb-4">
           <CardContent className="p-4 space-y-3">
+            {/* Client selector */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Selecionar cliente cadastrado (opcional)</Label>
+              <Select
+                value={approvalClientId || 'manual'}
+                onValueChange={(v) => {
+                  if (v === 'manual') {
+                    setApprovalClientId(null);
+                    setApprovalClient('');
+                    setApprovalPhone('');
+                  } else {
+                    const client = clients.find(c => c.id === v);
+                    if (client) {
+                      setApprovalClientId(client.id);
+                      setApprovalClient(client.name);
+                      setApprovalPhone(client.phone || '');
+                    }
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um cliente ou digite manualmente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">
+                    <span className="flex items-center gap-2"><Edit2 className="w-3 h-3" /> Digitar manualmente</span>
+                  </SelectItem>
+                  {clients.map(client => (
+                    <SelectItem key={client.id} value={client.id}>
+                      <span className="flex items-center gap-2">
+                        <Users className="w-3 h-3" /> {client.name}
+                        {client.phone && <span className="text-muted-foreground text-[10px]">({client.phone})</span>}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <Input
               value={approvalClient}
-              onChange={e => setApprovalClient(e.target.value)}
+              onChange={e => { setApprovalClient(e.target.value); if (approvalClientId) setApprovalClientId(null); }}
               placeholder="Nome do cliente"
             />
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+              <Input
+                value={approvalPhone}
+                onChange={e => setApprovalPhone(e.target.value)}
+                placeholder="WhatsApp (ex: 5511999999999)"
+                type="tel"
+              />
+            </div>
             <Textarea
               value={approvalContent}
               onChange={e => setApprovalContent(e.target.value)}
@@ -324,8 +378,13 @@ export function WhatsAppAutomationPage() {
               onClick={() => {
                 if (!approvalClient.trim() || !approvalContent.trim()) return;
                 createApproval.mutate(
-                  { client_name: approvalClient.trim(), content: approvalContent.trim() },
-                  { onSuccess: () => { setApprovalClient(''); setApprovalContent(''); } }
+                  {
+                    client_name: approvalClient.trim(),
+                    content: approvalContent.trim(),
+                    phone: approvalPhone.trim() || undefined,
+                    client_id: approvalClientId || undefined,
+                  },
+                  { onSuccess: () => { setApprovalClient(''); setApprovalContent(''); setApprovalPhone(''); setApprovalClientId(null); } }
                 );
               }}
               disabled={!approvalClient.trim() || !approvalContent.trim()}
@@ -345,7 +404,9 @@ export function WhatsAppAutomationPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {approvals.map(item => (
+            {approvals.map(item => {
+              const phone = (item as any).phone;
+              return (
               <Card key={item.id} className={cn(
                 'transition-all',
                 item.status === 'approved' && 'border-emerald-500/30',
@@ -354,8 +415,13 @@ export function WhatsAppAutomationPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h4 className="font-medium text-sm">{item.client_name}</h4>
+                        {phone && (
+                          <span className="text-[10px] text-emerald-500 flex items-center gap-0.5">
+                            <Phone className="w-2.5 h-2.5" /> {phone}
+                          </span>
+                        )}
                         <Badge
                           variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}
                           className="text-[10px]"
@@ -385,6 +451,20 @@ export function WhatsAppAutomationPage() {
                           </Button>
                         </>
                       )}
+                      {phone && (
+                        <Button
+                          variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
+                          title="Enviar via WhatsApp"
+                          onClick={() => {
+                            const cleanPhone = phone.replace(/\D/g, '');
+                            const statusText = item.status === 'approved' ? '✅ Aprovado' : item.status === 'rejected' ? '❌ Rejeitado' : '⏳ Pendente';
+                            const text = `Olá ${item.client_name}! Atualização sobre seu conteúdo:\n\n${item.content}\n\nStatus: ${statusText}`;
+                            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                          }}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() => deleteApproval.mutate(item.id)}
@@ -395,7 +475,8 @@ export function WhatsAppAutomationPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

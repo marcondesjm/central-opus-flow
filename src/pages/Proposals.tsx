@@ -390,11 +390,11 @@ export default function Proposals() {
               { label: 'Enviadas', value: proposals.filter(p => p.status === 'sent').length, color: 'text-blue-500' },
               { label: 'Valor Total', value: `R$ ${proposals.reduce((s, p) => s + (p.services || []).reduce((sum, sv) => sum + (Number(sv.quantity) || 0) * (Number(sv.unit_price) || 0), 0) - (Number(p.discount) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, color: 'text-amber-500', isText: true },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-border bg-card p-4 text-center">
-                <p className={cn('text-2xl font-bold tabular-nums', stat.color)}>
+              <div key={stat.label} className="rounded-lg border border-border bg-card p-3 text-center">
+                <p className={cn('text-xl font-bold tabular-nums', stat.color)}>
                   {stat.isText ? stat.value : stat.value}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wider font-medium">{stat.label}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider font-medium">{stat.label}</p>
               </div>
             ))}
           </div>

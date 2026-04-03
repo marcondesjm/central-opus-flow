@@ -696,7 +696,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Agenda e Agendamentos',
     icon: Calendar,
     color: '#06b6d4',
-    image: dashboardImg,
+    image: agendaImg,
     intro: 'Configure uma página de agendamento pública para que clientes marquem reuniões com você. Funciona como um Calendly integrado ao sistema.',
     items: [
       {

@@ -2,10 +2,13 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type ContentItem, ALL_CONTENT_TYPES, useUpdateContentItem } from '@/hooks/useContentItems';
+import { useCreateContentApproval, useContentApprovals } from '@/hooks/useContentApprovals';
+import { useClients } from '@/hooks/useClients';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User, FolderOpen, ExternalLink, CheckCircle2, Circle } from 'lucide-react';
+import { Calendar, User, FolderOpen, ExternalLink, CheckCircle2, Circle, Send, Copy, Check, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Props {
   open: boolean;

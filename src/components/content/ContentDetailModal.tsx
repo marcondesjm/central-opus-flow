@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function ContentDetailModal({ open, onOpenChange, item }: Props) {
   const typeInfo = ALL_CONTENT_TYPES.find(t => t.value === item.content_type);
-  const updateMutation = useUpdateContentItem();
+  const { user } = useAuth();
   const createApproval = useCreateContentApproval();
   const { data: approvals } = useContentApprovals();
   const { data: clients } = useClients();

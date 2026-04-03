@@ -186,8 +186,8 @@ export function Sidebar({
   const handleSignOut = async () => { await signOut(); };
 
   // Nav item renderer with active state
-  const NavItem = ({ icon: Icon, label, onClick, active, badge, className: extraClass }: {
-    icon: any; label: string; onClick: () => void; active?: boolean; badge?: number; className?: string;
+  const NavItem = ({ icon: Icon, label, onClick, active, badge, isNew, className: extraClass }: {
+    icon: any; label: string; onClick: () => void; active?: boolean; badge?: number; isNew?: boolean; className?: string;
   }) => (
     <button
       onClick={onClick}
@@ -204,6 +204,11 @@ export function Sidebar({
     >
       <Icon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
       <span className="flex-1 text-left truncate">{label}</span>
+      {isNew && (
+        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-md bg-primary text-primary-foreground animate-pulse">
+          New
+        </span>
+      )}
       {badge && badge > 0 ? (
         <Badge variant="default" className="text-[10px] px-1.5 py-0 h-5 min-w-[20px] flex items-center justify-center">
           {badge > 99 ? '99+' : badge}

@@ -3574,9 +3574,15 @@ export type Database = {
       }
       social_posts: {
         Row: {
+          approval_notes: string | null
+          approval_status: string
+          checklist: Json | null
           client_approved: boolean
           client_approved_at: string | null
+          client_id: string | null
+          color: string | null
           content: string
+          content_type: string
           created_at: string
           external_post_id: string | null
           hashtags: string[] | null
@@ -3589,14 +3595,21 @@ export type Database = {
           scheduled_at: string | null
           social_account_id: string | null
           status: string
+          subtasks: Json | null
           title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          approval_notes?: string | null
+          approval_status?: string
+          checklist?: Json | null
           client_approved?: boolean
           client_approved_at?: string | null
+          client_id?: string | null
+          color?: string | null
           content?: string
+          content_type?: string
           created_at?: string
           external_post_id?: string | null
           hashtags?: string[] | null
@@ -3609,14 +3622,21 @@ export type Database = {
           scheduled_at?: string | null
           social_account_id?: string | null
           status?: string
+          subtasks?: Json | null
           title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          approval_notes?: string | null
+          approval_status?: string
+          checklist?: Json | null
           client_approved?: boolean
           client_approved_at?: string | null
+          client_id?: string | null
+          color?: string | null
           content?: string
+          content_type?: string
           created_at?: string
           external_post_id?: string | null
           hashtags?: string[] | null
@@ -3629,11 +3649,19 @@ export type Database = {
           scheduled_at?: string | null
           social_account_id?: string | null
           status?: string
+          subtasks?: Json | null
           title?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "social_posts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "social_posts_social_account_id_fkey"
             columns: ["social_account_id"]

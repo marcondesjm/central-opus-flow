@@ -23,6 +23,7 @@ export interface PortfolioPage {
   instagram_url: string | null;
   meta_title: string | null;
   meta_description: string | null;
+  pipeline_id: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -90,9 +90,12 @@ export default function ApprovalPublic() {
   const isApproved = approval.status === 'approved';
   const isRejected = approval.status === 'rejected';
 
-  const mediaUrls: string[] = contentItem?.media_urls || [];
+  // Merge data from content_item (if linked) and direct approval fields
+  const approvalAny = approval as any;
+  const mediaUrls: string[] = contentItem?.media_urls || approvalAny.media_urls || [];
+  const checklist: { id: string; text: string; done: boolean }[] = contentItem?.checklist || approvalAny.checklist || [];
   const description = contentItem?.description || approval.content;
-  const title = contentItem?.title;
+  const title = contentItem?.title || approvalAny.title;
   const coverUrl = contentItem?.cover_url;
   const videoLink = contentItem?.video_link;
   const platforms: string[] = contentItem?.platforms || [];

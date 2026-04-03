@@ -545,6 +545,170 @@ const MANUAL_SECTIONS: ManualSection[] = [
       },
     ],
   },
+  {
+    id: 'social-media',
+    title: 'Social Media',
+    icon: Globe,
+    color: '#e1306c',
+    image: dashboardImg,
+    intro: 'O módulo de Social Media permite gerenciar todo o ciclo de vida dos seus conteúdos para redes sociais: criação, agendamento, aprovação e análise de métricas — tudo em um só lugar.',
+    items: [
+      {
+        title: 'Calendário de Conteúdos',
+        description: 'Visualize todos os seus posts em um calendário interativo com modos Dia, Semana e Mês. Arraste e solte posts para reagendá-los facilmente.',
+        steps: [
+          { icon: Calendar, text: 'Acesse "Social Media" no menu lateral' },
+          { icon: Plus, text: 'Clique em "Novo Conteúdo" para criar um post' },
+          { icon: GripHorizontal, text: 'Arraste posts no calendário para mudar a data de publicação' },
+        ],
+        tips: ['Use os filtros por conta e status para organizar a visualização.'],
+      },
+      {
+        title: 'Criação de Posts',
+        description: 'Crie conteúdos com texto, imagens e vídeos. Selecione a conta, defina data e hora de agendamento, e adicione checklists para garantir qualidade.',
+        steps: [
+          { icon: Plus, text: 'Clique em "Novo Conteúdo"' },
+          { icon: Pencil, text: 'Preencha título, legenda e faça upload de mídias' },
+          { icon: Calendar, text: 'Selecione data e hora de publicação' },
+          { icon: CheckSquare, text: 'Salve como rascunho ou agende diretamente' },
+        ],
+      },
+      {
+        title: 'Workflow de Aprovação',
+        description: 'Envie conteúdos para aprovação do cliente antes da publicação. O cliente pode aprovar ou solicitar alterações diretamente.',
+        tips: ['Posts aprovados mudam automaticamente para o status "Aprovado" e ficam prontos para publicação.'],
+      },
+      {
+        title: 'Dashboard de Métricas',
+        description: 'Acompanhe o desempenho dos seus posts com gráficos de engajamento, alcance e impressões. Insira métricas manualmente até integrar APIs externas.',
+        steps: [
+          { icon: BarChart3, text: 'Clique na aba "Métricas" dentro de Social Media' },
+          { icon: Plus, text: 'Adicione métricas manualmente por post' },
+          { icon: Download, text: 'Exporte relatórios em PDF para enviar ao cliente' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'portfolio',
+    title: 'Portfólio e Bio Link',
+    icon: Globe,
+    color: '#8b5cf6',
+    image: settingsImg,
+    intro: 'Crie páginas profissionais para mostrar seu trabalho. O Editor Visual permite montar sua página com blocos arrastáveis, e o Bio Link é uma mini página de links para redes sociais.',
+    items: [
+      {
+        title: 'Editor de Portfólio',
+        description: 'Monte sua página pública com blocos de Hero, Estatísticas, Galeria, Depoimentos, Timeline e CTA. Escolha entre 7 templates temáticos prontos.',
+        steps: [
+          { icon: ArrowRight, text: 'Acesse "Meus Projetos" → aba "Página Pública"' },
+          { icon: MousePointer, text: 'Clique em "Abrir Editor Visual"' },
+          { icon: Layers, text: 'Adicione, remova e reordene seções arrastando-as' },
+          { icon: Eye, text: 'Clique em "Visualizar" para ver como ficará ao vivo' },
+        ],
+        tips: ['Escolha um template para começar rápido, depois personalize cores e conteúdo.'],
+      },
+      {
+        title: 'Bio Link',
+        description: 'Crie uma mini página de links (como Linktree) com seus botões, redes sociais e formulário de contato. Ideal para usar na bio do Instagram.',
+        steps: [
+          { icon: ArrowRight, text: 'Vá em "Meus Projetos" → aba "Link da Bio"' },
+          { icon: Pencil, text: 'Adicione botões com links para suas redes e serviços' },
+          { icon: Palette, text: 'Personalize cores, fontes e estilo dos botões' },
+        ],
+      },
+      {
+        title: 'Captura de Leads',
+        description: 'Configure formulários de contato na sua página pública. Os leads são salvos automaticamente e podem ser direcionados para um pipeline do CRM.',
+        steps: [
+          { icon: ArrowRight, text: 'Na aba "Captura de Leads", selecione o pipeline de destino' },
+          { icon: CheckSquare, text: 'Os leads que preencherem o formulário aparecem no seu Kanban automaticamente' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'whatsapp',
+    title: 'Automações WhatsApp',
+    icon: MessageCircle,
+    color: '#25d366',
+    image: kanbanImg,
+    intro: 'Configure automações inteligentes para enviar mensagens via WhatsApp de forma automática em diferentes momentos do seu fluxo de trabalho.',
+    items: [
+      {
+        title: 'Criando Automações',
+        description: 'Defina gatilhos como "Novo lead", "Mudança de etapa", "Pagamento confirmado" ou "Prazo se aproximando" para disparar mensagens automáticas.',
+        steps: [
+          { icon: ArrowRight, text: 'Acesse "Automações WhatsApp" no menu' },
+          { icon: Plus, text: 'Clique em "Nova Automação"' },
+          { icon: Zap, text: 'Escolha o gatilho e configure a mensagem com variáveis dinâmicas' },
+          { icon: CheckSquare, text: 'Ative a automação' },
+        ],
+        tips: ['Use variáveis como {nome}, {empresa} e {valor} para personalizar as mensagens.'],
+      },
+      {
+        title: 'Atalhos Inteligentes',
+        description: 'Use templates prontos (Boas-vindas, Follow-up, Pós-venda) para criar automações em segundos.',
+      },
+      {
+        title: 'Aprovação de Conteúdo',
+        description: 'Envie conteúdos para aprovação do cliente via WhatsApp. Selecione um cliente cadastrado ou insira o número manualmente.',
+        steps: [
+          { icon: ArrowRight, text: 'Na seção "Aprovação de Conteúdo", adicione o texto' },
+          { icon: Users, text: 'Selecione um cliente ou digite o número do WhatsApp' },
+          { icon: MessageCircle, text: 'Use o botão de envio rápido para notificar via WhatsApp' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'briefings',
+    title: 'Briefings',
+    icon: FileText,
+    color: '#f59e0b',
+    image: proposalsImg,
+    intro: 'Crie e envie briefings profissionais para seus clientes preencherem. O link público permite que o cliente responda sem precisar criar conta.',
+    items: [
+      {
+        title: 'Criando Briefings',
+        description: 'Monte questionários personalizados com campos de texto, seleção e upload. Defina o tipo de briefing (identidade visual, site, social media, etc.).',
+        steps: [
+          { icon: ArrowRight, text: 'Acesse "Briefings" no menu lateral' },
+          { icon: Plus, text: 'Clique em "Novo Briefing"' },
+          { icon: Pencil, text: 'Preencha informações do cliente e perguntas' },
+          { icon: Share2, text: 'Copie o link público e envie ao cliente' },
+        ],
+      },
+      {
+        title: 'Templates de Briefing',
+        description: 'Salve modelos de perguntas para reutilizar em diferentes tipos de projeto. Cada tipo de briefing pode ter seu template padrão.',
+      },
+    ],
+  },
+  {
+    id: 'agenda',
+    title: 'Agenda e Agendamentos',
+    icon: Calendar,
+    color: '#06b6d4',
+    image: dashboardImg,
+    intro: 'Configure uma página de agendamento pública para que clientes marquem reuniões com você. Funciona como um Calendly integrado ao sistema.',
+    items: [
+      {
+        title: 'Configurando Disponibilidade',
+        description: 'Defina seus horários disponíveis por dia da semana. Configure antecedência mínima e limite de dias futuros.',
+        steps: [
+          { icon: ArrowRight, text: 'Acesse "Agenda" no menu lateral' },
+          { icon: Settings, text: 'Configure horários de início e fim para cada dia' },
+          { icon: CheckSquare, text: 'Ative os dias em que está disponível' },
+        ],
+      },
+      {
+        title: 'Link Público de Agendamento',
+        description: 'Compartilhe o link da sua página de agendamento para clientes escolherem um horário. Os agendamentos aparecem automaticamente na sua lista.',
+        tips: ['Os leads de agendamento podem ser enviados automaticamente para o seu pipeline do CRM.'],
+      },
+    ],
+  },
 ];
 
 export default function Manual() {

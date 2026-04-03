@@ -502,7 +502,7 @@ export default function Proposals() {
                       </div>
 
                       {/* Actions footer */}
-                      <div className="border-t border-border/60 bg-muted/30 px-3 py-2.5 flex items-center justify-between gap-1">
+                      <div className="border-t border-border/60 bg-muted/30 px-2 py-1.5 flex items-center justify-between gap-1">
                         <div className="flex items-center gap-0.5">
                           <Button size="sm" variant="ghost" className="h-8 px-3 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary" onClick={() => handlePreview(proposal)}>
                             <Eye className="w-3.5 h-3.5" />

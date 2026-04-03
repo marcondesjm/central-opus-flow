@@ -153,6 +153,29 @@ export default function ApprovalPublic() {
             </a>
           )}
 
+          {/* Checklist */}
+          {checklist.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-medium">Checklist</span>
+                <span className="text-xs text-white/40">
+                  {checklist.filter((c: any) => c.done).length}/{checklist.length}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {checklist.map((item: any) => (
+                  <div key={item.id} className="flex items-center gap-2 text-sm">
+                    <span className={`w-4 h-4 rounded border flex items-center justify-center text-xs ${item.done ? 'bg-emerald-500/30 border-emerald-500 text-emerald-400' : 'border-white/20'}`}>
+                      {item.done && '✓'}
+                    </span>
+                    <span className={item.done ? 'text-white/50 line-through' : ''}>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Platforms */}
           {platforms.length > 0 && (
             <div className="flex gap-2 flex-wrap">

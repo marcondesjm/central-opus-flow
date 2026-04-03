@@ -259,6 +259,7 @@ function AutomationFormModal({
       delay_minutes: parseInt(delay) || 0,
       target_phase: phase || undefined,
       description: description.trim() || undefined,
+      tag: tag.trim() || undefined,
     });
   };
 

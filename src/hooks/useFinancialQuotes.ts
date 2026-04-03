@@ -119,3 +119,84 @@ export function useSignQuote() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['financial-quotes'] }); qc.invalidateQueries({ queryKey: ['quote-public'] }); },
   });
 }
+
+export function useApproveAndGeneratePayment() {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (quoteId: string) => {
+      // 1. Fetch the quote
+      const { data: quote, error: fetchErr } = await supabase
+        .from('financial_quotes' as any)
+        .select('*')
+        .eq('id', quoteId)
+        .single();
+      if (fetchErr) throw fetchErr;
+      const q = quote as any;
+
+      if (q.status === 'approved') throw new Error('Orçamento já aprovado');
+
+      // 2. Approve quote
+      const { error: updateErr } = await supabase
+        .from('financial_quotes' as any)
+        .update({ status: 'approved' } as any)
+        .eq('id', quoteId);
+      if (updateErr) throw updateErr;
+
+      // 3. Generate payment transaction
+      const { error: txErr } = await supabase
+        .from('financial_transactions')
+        .insert({
+          user_id: user!.id,
+          type: 'receita',
+          description: `Orçamento aprovado: ${q.title}`,
+          amount: q.total,
+          due_date: new Date().toISOString().split('T')[0],
+          status: 'pendente',
+          payment_mode: 'avista',
+          client_id: q.client_id || null,
+        });
+      if (txErr) throw txErr;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['financial-quotes'] });
+      qc.invalidateQueries({ queryKey: ['financial-transactions'] });
+      toast({ title: 'Orçamento aprovado e pagamento gerado!' });
+    },
+    onError: (e: any) => {
+      toast({ title: 'Erro', description: e?.message, variant: 'destructive' });
+    },
+  });
+}
+
+export function useRejectQuote() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (quoteId: string) => {
+      const { error } = await supabase
+        .from('financial_quotes' as any)
+        .update({ status: 'rejected' } as any)
+        .eq('id', quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['financial-quotes'] });
+      toast({ title: 'Orçamento rejeitado' });
+    },
+    onError: (e: any) => {
+      toast({ title: 'Erro', description: e?.message, variant: 'destructive' });
+    },
+  });
+}
+
+export function useQuoteRevenue() {
+  const { data: transactions } = useFinancialTransactions('receita');
+  const total = (transactions || []).reduce((sum, t) => sum + t.amount, 0);
+  return total;
+}
+
+// Re-export for convenience
+import { useFinancialTransactions } from './useFinancial';

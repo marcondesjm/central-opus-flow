@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useContentItems, useDeleteContentItem, ALL_CONTENT_TYPES } from '@/hooks/useContentItems';
 import { ContentTypeSelectorModal } from '@/components/content/ContentTypeSelectorModal';
 import { ContentCreationModal } from '@/components/content/ContentCreationModal';
+import { ContentDetailModal } from '@/components/content/ContentDetailModal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Calendar, User, FolderOpen, Search, Filter } from 'lucide-react';
@@ -10,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import type { ContentItem } from '@/hooks/useContentItems';
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
@@ -40,6 +42,7 @@ export default function ContentItems() {
   const [selectedType, setSelectedType] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [detailItem, setDetailItem] = useState<ContentItem | null>(null);
   const { data: items, isLoading } = useContentItems({ status: statusFilter || undefined });
   const deleteMutation = useDeleteContentItem();
 
@@ -107,7 +110,7 @@ export default function ContentItems() {
             {filteredItems.map(item => {
               const typeInfo = getTypeInfo(item.content_type);
               return (
-                <div key={item.id} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors group">
+                <div key={item.id} onClick={() => setDetailItem(item)} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors group cursor-pointer">
                   {/* Type icon */}
                   <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-lg flex-shrink-0">
                     {typeInfo?.icon || '📄'}
@@ -159,7 +162,7 @@ export default function ContentItems() {
 
                   {/* Actions */}
                   <button
-                    onClick={() => deleteMutation.mutate(item.id)}
+                    onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(item.id); }}
                     className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -178,6 +181,13 @@ export default function ContentItems() {
           onOpenChange={setCreationOpen}
           contentType={selectedType}
           onBack={() => { setCreationOpen(false); setSelectorOpen(true); }}
+        />
+      )}
+      {detailItem && (
+        <ContentDetailModal
+          open={!!detailItem}
+          onOpenChange={(open) => { if (!open) setDetailItem(null); }}
+          item={detailItem}
         />
       )}
     </AppLayout>

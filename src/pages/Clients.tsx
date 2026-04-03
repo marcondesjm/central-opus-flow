@@ -560,7 +560,17 @@ function ClientDetailView({ client, onBack }: { client: FullClient; onBack: () =
 
           {/* ── Arquivos (Google Drive) ── */}
           <TabsContent value="files" className="space-y-4 mt-0">
-            <div className="text-center py-8">
+            {/* Botão de acesso rápido ao Google Drive */}
+            <Button
+              variant="outline"
+              className="w-full gap-2 border-primary/30 hover:bg-primary/10"
+              onClick={() => window.open('https://drive.google.com', '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 text-primary" />
+              Acessar Google Drive
+            </Button>
+
+            <div className="text-center py-6">
               <FolderPlus className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
               <h3 className="font-semibold mb-1">Nenhuma pasta configurada</h3>
               <p className="text-sm text-muted-foreground mb-4">

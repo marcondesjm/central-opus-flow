@@ -55,39 +55,76 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
     }
   }, [contentType]);
 
-  const handleSubmit = (status: 'draft' | 'scheduled') => {
-    let scheduledAt: string | undefined;
-    if (status === 'scheduled' && date) {
-      const [h, m] = time.split(':').map(Number);
-      const d = new Date(date);
-      d.setHours(h, m, 0, 0);
-      scheduledAt = d.toISOString();
-    }
-
-    createPost.mutate({
-      title: title || undefined,
-      content,
-      content_type: contentType,
-      platform,
-      post_type: postType,
-      social_account_id: accountId || undefined,
-      client_id: clientId || undefined,
-      scheduled_at: scheduledAt,
-      hashtags: hashtags ? hashtags.split(/[\s,]+/).filter(Boolean).map(h => h.startsWith('#') ? h : `#${h}`) : [],
-      status,
-      notes: notes || undefined,
-      color,
-    }, {
-      onSuccess: () => {
-        onOpenChange(false);
-        resetForm();
-      }
+  const handleMediaAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    setMediaFiles(prev => [...prev, ...newFiles]);
+    newFiles.forEach(f => {
+      const url = URL.createObjectURL(f);
+      setMediaPreviews(prev => [...prev, url]);
     });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeMedia = (idx: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== idx));
+    setMediaPreviews(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = async (status: 'draft' | 'scheduled') => {
+    setUploading(true);
+    try {
+      let scheduledAt: string | undefined;
+      if (status === 'scheduled' && date) {
+        const [h, m] = time.split(':').map(Number);
+        const d = new Date(date);
+        d.setHours(h, m, 0, 0);
+        scheduledAt = d.toISOString();
+      }
+
+      // Upload media files
+      const mediaUrls: string[] = [];
+      if (user && mediaFiles.length > 0) {
+        for (const file of mediaFiles) {
+          const ext = file.name.split('.').pop();
+          const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+          const { error } = await supabase.storage.from('social-media').upload(path, file);
+          if (error) throw error;
+          const { data: urlData } = supabase.storage.from('social-media').getPublicUrl(path);
+          mediaUrls.push(urlData.publicUrl);
+        }
+      }
+
+      createPost.mutate({
+        title: title || undefined,
+        content,
+        content_type: contentType,
+        platform,
+        post_type: postType,
+        social_account_id: accountId || undefined,
+        client_id: clientId || undefined,
+        scheduled_at: scheduledAt,
+        hashtags: hashtags ? hashtags.split(/[\s,]+/).filter(Boolean).map(h => h.startsWith('#') ? h : `#${h}`) : [],
+        status,
+        notes: notes || undefined,
+        color,
+        media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
+      }, {
+        onSuccess: () => {
+          onOpenChange(false);
+          resetForm();
+        }
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const resetForm = () => {
     setTitle(''); setContent(''); setContentType('post'); setPlatform('instagram'); setPostType('feed');
     setAccountId(''); setClientId(''); setDate(undefined); setTime('12:00'); setHashtags(''); setNotes(''); setColor('#6366f1');
+    setMediaFiles([]); setMediaPreviews([]);
   };
 
   return (

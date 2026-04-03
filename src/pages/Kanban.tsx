@@ -109,8 +109,8 @@ function TaskDetailModal({ deal, open, onOpenChange }: { deal: KanbanDeal; open:
           </div>
 
           {deal.description && (
-            <div className="text-sm bg-muted/50 rounded-lg p-3">
-              <p className="whitespace-pre-wrap">{deal.description}</p>
+            <div className="text-sm bg-muted/50 rounded-lg p-3 prose prose-sm dark:prose-invert max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: deal.description }} />
             </div>
           )}
 

@@ -600,7 +600,7 @@ const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Portfólio e Bio Link',
     icon: Globe,
     color: '#8b5cf6',
-    image: settingsImg,
+    image: portfolioImg,
     intro: 'Crie páginas profissionais para mostrar seu trabalho. O Editor Visual permite montar sua página com blocos arrastáveis, e o Bio Link é uma mini página de links para redes sociais.',
     items: [
       {

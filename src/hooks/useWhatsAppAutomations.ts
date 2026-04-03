@@ -27,6 +27,7 @@ export const TRIGGER_OPTIONS = [
   { value: 'sale_completed', label: 'Venda concluída', icon: '🎉', description: 'Quando uma venda é finalizada com sucesso' },
   { value: 'deadline_approaching', label: 'Prazo se aproximando', icon: '⏰', description: 'Quando um projeto está perto do prazo' },
   { value: 'post_published', label: 'Post publicado', icon: '📱', description: 'Quando um conteúdo social é publicado' },
+  { value: 'scheduled', label: 'Agendamento', icon: '📅', description: 'Disparo agendado para data e hora específica' },
 ];
 
 export const MESSAGE_VARIABLES = [

@@ -187,8 +187,8 @@ export function Sidebar({
   const handleSignOut = async () => { await signOut(); };
 
   // Nav item renderer with active state
-  const NavItem = ({ icon: Icon, label, onClick, active, badge, isNew, className: extraClass }: {
-    icon: any; label: string; onClick: () => void; active?: boolean; badge?: number; isNew?: boolean; className?: string;
+  const NavItem = ({ icon: Icon, label, onClick, active, badge, isNew, isBeta, className: extraClass }: {
+    icon: any; label: string; onClick: () => void; active?: boolean; badge?: number; isNew?: boolean; isBeta?: boolean; className?: string;
   }) => (
     <button
       onClick={onClick}

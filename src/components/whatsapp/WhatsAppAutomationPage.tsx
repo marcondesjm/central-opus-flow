@@ -244,6 +244,7 @@ function AutomationFormModal({
   const [phase, setPhase] = useState(automation?.target_phase || '');
   const [description, setDescription] = useState(automation?.description || '');
   const [tag, setTag] = useState(automation?.tag || '');
+  const [scheduleDate, setScheduleDate] = useState(automation?.schedule_date || '');
 
   const { toast } = useToast();
 
@@ -254,6 +255,7 @@ function AutomationFormModal({
     setPhase(automation?.target_phase || '');
     setDescription(automation?.description || '');
     setTag(automation?.tag || '');
+    setScheduleDate(automation?.schedule_date || '');
   };
 
   const handleSubmit = () => {

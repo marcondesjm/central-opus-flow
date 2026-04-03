@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, XCircle, FileCheck, Loader2, Clock, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { CheckCircle, XCircle, FileCheck, Loader2, Clock, AlertCircle, Image as ImageIcon, ListChecks } from 'lucide-react';
 
 export default function ApprovalPublic() {
   const { token } = useParams<{ token: string }>();

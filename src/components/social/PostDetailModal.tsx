@@ -374,9 +374,12 @@ export function PostDetailModal({ post, open, onOpenChange }: Props) {
                       user_id: user!.id,
                       client_name: clientName,
                       content: post.content,
+                      title: post.title || null,
                       client_id: post.client_id || null,
                       share_token: token,
                       status: 'pending',
+                      media_urls: post.media_urls || [],
+                      checklist: post.checklist || [],
                     }] as any);
                     if (error) throw error;
                     const link = `${window.location.origin}/aprovacao/${token}`;

@@ -974,49 +974,58 @@ export type Database = {
       content_approvals: {
         Row: {
           approved_at: string | null
+          checklist: Json | null
           client_id: string | null
           client_name: string
           content: string
           content_item_id: string | null
           created_at: string
           id: string
+          media_urls: string[] | null
           phone: string | null
           rejected_at: string | null
           rejection_reason: string | null
           share_token: string | null
           status: string
+          title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           approved_at?: string | null
+          checklist?: Json | null
           client_id?: string | null
           client_name: string
           content: string
           content_item_id?: string | null
           created_at?: string
           id?: string
+          media_urls?: string[] | null
           phone?: string | null
           rejected_at?: string | null
           rejection_reason?: string | null
           share_token?: string | null
           status?: string
+          title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           approved_at?: string | null
+          checklist?: Json | null
           client_id?: string | null
           client_name?: string
           content?: string
           content_item_id?: string | null
           created_at?: string
           id?: string
+          media_urls?: string[] | null
           phone?: string | null
           rejected_at?: string | null
           rejection_reason?: string | null
           share_token?: string | null
           status?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
         }

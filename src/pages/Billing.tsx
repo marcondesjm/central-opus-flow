@@ -484,6 +484,7 @@ export default function BillingPage() {
   const [showDespesa, setShowDespesa] = useState(false);
   const [showCategorias, setShowCategorias] = useState(false);
   const [search, setSearch] = useState('');
+  const [showAchievements, setShowAchievements] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const [clientFilter, setClientFilter] = useState('all');
   const [dateStart, setDateStart] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));

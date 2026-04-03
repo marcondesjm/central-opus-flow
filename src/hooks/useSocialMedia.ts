@@ -205,6 +205,37 @@ export function useUpdateSocialPost() {
   });
 }
 
+export function useDuplicateSocialPost() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: async (post: SocialPost) => {
+      const { id, created_at, updated_at, social_accounts, financial_clients, ...rest } = post;
+      const { data, error } = await supabase
+        .from('social_posts')
+        .insert([{
+          ...rest,
+          user_id: user!.id,
+          title: rest.title ? `${rest.title} (cópia)` : null,
+          status: 'draft',
+          published_at: null,
+          approval_status: 'pending',
+          client_approved: false,
+          client_approved_at: null,
+          checklist: (rest.checklist || []) as unknown as Json,
+          subtasks: (rest.subtasks || []) as unknown as Json,
+        }] as any)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['social-posts'] }); toast({ title: 'Conteúdo duplicado!' }); },
+    onError: (e: any) => toast({ title: 'Erro', description: e.message, variant: 'destructive' }),
+  });
+}
+
 export function useDeleteSocialPost() {
   const qc = useQueryClient();
   const { toast } = useToast();

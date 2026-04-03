@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,13 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Clock, Hash, Send, Save, Palette } from 'lucide-react';
+import { CalendarIcon, Clock, Hash, Send, Save, Palette, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useCreateSocialPost, useSocialAccounts, CONTENT_TYPE_OPTIONS } from '@/hooks/useSocialMedia';
 import { useClients } from '@/hooks/useClients';
+import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Props {
   open: boolean;
@@ -35,7 +37,12 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
   const [hashtags, setHashtags] = useState('');
   const [notes, setNotes] = useState('');
   const [color, setColor] = useState('#6366f1');
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { user } = useAuth();
   const { data: accounts } = useSocialAccounts();
   const { data: clients } = useClients();
   const createPost = useCreateSocialPost();
@@ -48,39 +55,76 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
     }
   }, [contentType]);
 
-  const handleSubmit = (status: 'draft' | 'scheduled') => {
-    let scheduledAt: string | undefined;
-    if (status === 'scheduled' && date) {
-      const [h, m] = time.split(':').map(Number);
-      const d = new Date(date);
-      d.setHours(h, m, 0, 0);
-      scheduledAt = d.toISOString();
-    }
-
-    createPost.mutate({
-      title: title || undefined,
-      content,
-      content_type: contentType,
-      platform,
-      post_type: postType,
-      social_account_id: accountId || undefined,
-      client_id: clientId || undefined,
-      scheduled_at: scheduledAt,
-      hashtags: hashtags ? hashtags.split(/[\s,]+/).filter(Boolean).map(h => h.startsWith('#') ? h : `#${h}`) : [],
-      status,
-      notes: notes || undefined,
-      color,
-    }, {
-      onSuccess: () => {
-        onOpenChange(false);
-        resetForm();
-      }
+  const handleMediaAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    setMediaFiles(prev => [...prev, ...newFiles]);
+    newFiles.forEach(f => {
+      const url = URL.createObjectURL(f);
+      setMediaPreviews(prev => [...prev, url]);
     });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeMedia = (idx: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== idx));
+    setMediaPreviews(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = async (status: 'draft' | 'scheduled') => {
+    setUploading(true);
+    try {
+      let scheduledAt: string | undefined;
+      if (status === 'scheduled' && date) {
+        const [h, m] = time.split(':').map(Number);
+        const d = new Date(date);
+        d.setHours(h, m, 0, 0);
+        scheduledAt = d.toISOString();
+      }
+
+      // Upload media files
+      const mediaUrls: string[] = [];
+      if (user && mediaFiles.length > 0) {
+        for (const file of mediaFiles) {
+          const ext = file.name.split('.').pop();
+          const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+          const { error } = await supabase.storage.from('social-media').upload(path, file);
+          if (error) throw error;
+          const { data: urlData } = supabase.storage.from('social-media').getPublicUrl(path);
+          mediaUrls.push(urlData.publicUrl);
+        }
+      }
+
+      createPost.mutate({
+        title: title || undefined,
+        content,
+        content_type: contentType,
+        platform,
+        post_type: postType,
+        social_account_id: accountId || undefined,
+        client_id: clientId || undefined,
+        scheduled_at: scheduledAt,
+        hashtags: hashtags ? hashtags.split(/[\s,]+/).filter(Boolean).map(h => h.startsWith('#') ? h : `#${h}`) : [],
+        status,
+        notes: notes || undefined,
+        color,
+        media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
+      }, {
+        onSuccess: () => {
+          onOpenChange(false);
+          resetForm();
+        }
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const resetForm = () => {
     setTitle(''); setContent(''); setContentType('post'); setPlatform('instagram'); setPostType('feed');
     setAccountId(''); setClientId(''); setDate(undefined); setTime('12:00'); setHashtags(''); setNotes(''); setColor('#6366f1');
+    setMediaFiles([]); setMediaPreviews([]);
   };
 
   return (
@@ -243,6 +287,27 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
             </div>
           </div>
 
+          {/* Media upload */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1"><Upload className="w-3 h-3" /> Mídia</Label>
+            {mediaPreviews.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {mediaPreviews.map((url, i) => (
+                  <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border group">
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button onClick={() => removeMedia(i)} className="absolute top-0.5 right-0.5 w-4 h-4 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*" onChange={handleMediaAdd} className="hidden" />
+            <Button type="button" variant="outline" size="sm" className="w-full gap-2" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="w-4 h-4" /> Adicionar arquivos
+            </Button>
+          </div>
+
           <div>
             <Label className="flex items-center gap-1"><Hash className="w-3 h-3" /> Hashtags</Label>
             <Input value={hashtags} onChange={e => setHashtags(e.target.value)} placeholder="#marketing #social #design" />
@@ -254,11 +319,11 @@ export function CreatePostModal({ open, onOpenChange }: Props) {
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1 gap-2" onClick={() => handleSubmit('draft')} disabled={!content || createPost.isPending}>
+            <Button variant="outline" className="flex-1 gap-2" onClick={() => handleSubmit('draft')} disabled={!content || createPost.isPending || uploading}>
               <Save className="w-4 h-4" /> Rascunho
             </Button>
-            <Button className="flex-1 gap-2" onClick={() => handleSubmit('scheduled')} disabled={!content || !date || createPost.isPending}>
-              <Send className="w-4 h-4" /> Agendar
+            <Button className="flex-1 gap-2" onClick={() => handleSubmit('scheduled')} disabled={!content || !date || createPost.isPending || uploading}>
+              <Send className="w-4 h-4" /> {uploading ? 'Enviando...' : 'Agendar'}
             </Button>
           </div>
         </div>

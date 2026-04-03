@@ -53,6 +53,7 @@ const allNavItems = [
   { path: '/collaborations', label: 'Colaborações', icon: Share2 },
   { path: '/ideas', label: 'Ideias', icon: Sparkles },
   { path: '/agenda', label: 'Agenda', icon: Calendar },
+  { path: '/social', label: 'Social Media', icon: Share2 },
   { path: '/manual', label: 'Manual', icon: BookOpen },
 ];
 

@@ -23,6 +23,12 @@ import {
   WhatsAppAutomation,
 } from '@/hooks/useWhatsAppAutomations';
 import { useToast } from '@/hooks/use-toast';
+import {
+  useContentApprovals,
+  useCreateContentApproval,
+  useUpdateContentApproval,
+  useDeleteContentApproval,
+} from '@/hooks/useContentApprovals';
 
 export function WhatsAppAutomationPage() {
   const [createOpen, setCreateOpen] = useState(false);

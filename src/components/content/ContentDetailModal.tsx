@@ -31,11 +31,42 @@ const STATUS_COLORS: Record<string, string> = {
 export function ContentDetailModal({ open, onOpenChange, item }: Props) {
   const typeInfo = ALL_CONTENT_TYPES.find(t => t.value === item.content_type);
   const updateMutation = useUpdateContentItem();
+  const createApproval = useCreateContentApproval();
+  const { data: approvals } = useContentApprovals();
+  const { data: clients } = useClients();
+  const { toast } = useToast();
   const [status, setStatus] = useState(item.status);
+  const [copied, setCopied] = useState(false);
+
+  // Find existing approval for this content item
+  const existingApproval = approvals?.find((a: any) => a.content_item_id === item.id);
+  const approvalLink = existingApproval?.share_token
+    ? `${window.location.origin}/aprovacao/${(existingApproval as any).share_token}`
+    : null;
 
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
     updateMutation.mutate({ id: item.id, status: newStatus });
+  };
+
+  const handleSendApproval = () => {
+    const clientName = item.financial_clients?.name || 'Cliente';
+    const contentText = item.description || item.title || 'Conteúdo sem descrição';
+    createApproval.mutate({
+      client_name: clientName,
+      content: contentText,
+      client_id: item.client_id || undefined,
+      content_item_id: item.id,
+    });
+  };
+
+  const handleCopyLink = () => {
+    if (approvalLink) {
+      navigator.clipboard.writeText(approvalLink);
+      setCopied(true);
+      toast({ title: 'Link copiado!' });
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleChecklistToggle = (idx: number) => {

@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useContentItems, useDeleteContentItem, ALL_CONTENT_TYPES } from '@/hooks/useContentItems';
 import { ContentTypeSelectorModal } from '@/components/content/ContentTypeSelectorModal';
 import { ContentCreationModal } from '@/components/content/ContentCreationModal';
+import { ContentDetailModal } from '@/components/content/ContentDetailModal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Calendar, User, FolderOpen, Search, Filter } from 'lucide-react';

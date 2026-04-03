@@ -2666,6 +2666,7 @@ export type Database = {
           logo_url: string | null
           meta_description: string | null
           meta_title: string | null
+          pipeline_id: string | null
           primary_color: string | null
           secondary_color: string | null
           slug: string
@@ -2691,6 +2692,7 @@ export type Database = {
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          pipeline_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
           slug: string
@@ -2716,6 +2718,7 @@ export type Database = {
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          pipeline_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
           slug?: string
@@ -2725,7 +2728,15 @@ export type Database = {
           user_id?: string
           whatsapp_number?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_pages_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "lead_pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       portfolio_sections: {
         Row: {

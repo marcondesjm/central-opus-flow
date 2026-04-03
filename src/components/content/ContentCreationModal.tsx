@@ -54,6 +54,7 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
   const { data: clients } = useClients();
   const { data: projects } = useProjects();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

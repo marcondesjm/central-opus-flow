@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   CheckCircle2, XCircle, Clock, Plus, Trash2, Instagram, Facebook,
   Linkedin, Twitter, Youtube, Video, User, ListChecks, Maximize2,
-  Copy, Pencil, X, Upload, Image as ImageIcon
+  Copy, Pencil, X, Upload, Image as ImageIcon, Link2, ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

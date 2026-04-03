@@ -100,7 +100,20 @@ export function ContentCreationModal({ open, onOpenChange, contentType, onBack }
     setUploading(false);
   };
 
-  const addCheckItem = () => {
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/cover-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('social-media').upload(path, file);
+    if (!error) {
+      const { data: pub } = supabase.storage.from('social-media').getPublicUrl(path);
+      setCoverUrl(pub.publicUrl);
+    }
+    setUploading(false);
+  };
+
     if (!newCheckItem.trim()) return;
     setChecklist(prev => [...prev, { id: crypto.randomUUID(), text: newCheckItem.trim(), done: false }]);
     setNewCheckItem('');

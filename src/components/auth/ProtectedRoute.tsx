@@ -1,12 +1,13 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useRoles';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Clock, Mail, AlertTriangle, MessageCircle } from 'lucide-react';
+import { Loader2, Clock, Mail, AlertTriangle, MessageCircle, Ticket } from 'lucide-react';
 import { addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CompleteProfileGate } from './CompleteProfileGate';
 import { ClippyAssistant } from '@/components/assistant/ClippyAssistant';
@@ -16,6 +17,8 @@ import { AutoVersionBump } from '@/components/version/AutoVersionBump';
 import { ActivitySync } from '@/components/activity/ActivitySync';
 import { AutoSeedNewUser } from '@/components/onboarding/AutoSeedNewUser';
 import { useGlobalSync } from '@/hooks/useGlobalSync';
+import { useRedeemCoupon } from '@/hooks/useCoupons';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -120,44 +123,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const isExpired = effectiveExpiration && effectiveExpiration <= now && !isPaidPlan;
 
   if (isExpired) {
-    const whatsappMessage = encodeURIComponent(
-      `Olá! Meu plano expirou e gostaria de renovar minha assinatura.`
-    );
-    const whatsappUrl = `https://wa.me/5548996029392?text=${whatsappMessage}`;
-
-    return (
-      <>
-        {autoSeed}
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <Card className="w-full max-w-md text-center">
-            <CardHeader>
-              <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                <AlertTriangle className="w-8 h-8 text-destructive" />
-              </div>
-              <CardTitle className="text-xl">Assinatura Expirada</CardTitle>
-              <CardDescription className="text-base mt-2">
-                Seu plano expirou. Renove sua assinatura para continuar utilizando todos os recursos do sistema.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                <Button className="w-full gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Renovar via WhatsApp
-                </Button>
-              </a>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => signOut()}
-              >
-                Sair
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </>
-    );
+    return <ExpiredScreen signOut={signOut} autoSeed={autoSeed} />;
   }
 
   // Check if user is pending approval
@@ -270,6 +236,99 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <VersionChecker />
       <ActivitySync />
       {autoSeed}
+    </>
+  );
+}
+
+function ExpiredScreen({ signOut, autoSeed }: { signOut: () => void; autoSeed: ReactNode }) {
+  const [couponCode, setCouponCode] = useState('');
+  const [showCoupon, setShowCoupon] = useState(false);
+  const redeemCoupon = useRedeemCoupon();
+  const { toast } = useToast();
+
+  const whatsappMessage = encodeURIComponent(
+    `Olá! Meu plano expirou e gostaria de renovar minha assinatura.`
+  );
+  const whatsappUrl = `https://wa.me/5548996029392?text=${whatsappMessage}`;
+
+  const handleRedeem = () => {
+    if (!couponCode.trim()) return;
+    redeemCoupon.mutate(couponCode.trim(), {
+      onSuccess: () => {
+        toast({ title: '🎉 Cupom ativado com sucesso!', description: 'Seu plano foi atualizado.' });
+        window.location.reload();
+      },
+      onError: (err: Error) => {
+        toast({ title: 'Erro ao ativar cupom', description: err.message, variant: 'destructive' });
+      },
+    });
+  };
+
+  return (
+    <>
+      {autoSeed}
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-8 h-8 text-destructive" />
+            </div>
+            <CardTitle className="text-xl">Assinatura Expirada</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Seu plano expirou. Renove sua assinatura para continuar utilizando todos os recursos do sistema.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <Button className="w-full gap-2">
+                <MessageCircle className="w-4 h-4" />
+                Renovar via WhatsApp
+              </Button>
+            </a>
+
+            {!showCoupon ? (
+              <Button
+                variant="ghost"
+                className="w-full gap-2 text-muted-foreground"
+                onClick={() => setShowCoupon(true)}
+              >
+                <Ticket className="w-4 h-4" />
+                Tenho um cupom
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Digite o código do cupom"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === 'Enter' && handleRedeem()}
+                    className="uppercase"
+                  />
+                  <Button
+                    onClick={handleRedeem}
+                    disabled={redeemCoupon.isPending || !couponCode.trim()}
+                  >
+                    {redeemCoupon.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Ativar'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => signOut()}
+            >
+              Sair
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </>
   );
 }

@@ -387,7 +387,19 @@ export function Sidebar({
         {/* ── FERRAMENTAS ── */}
         <SectionLabel>Ferramentas</SectionLabel>
         <div className="space-y-0.5">
-          <NavItem icon={Kanban} label="Kanban" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
+          <Collapsible defaultOpen={isRouteActive('/kanban') || isRouteActive('/whatsapp-automations')}>
+            <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <div className="flex items-center gap-3">
+                <CheckSquare className="w-4 h-4" aria-hidden="true" />
+                <span>Tarefas</span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=closed]:-rotate-90" aria-hidden="true" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-0.5 mt-0.5 ml-1">
+              <NavItem icon={Kanban} label="Quadro" onClick={() => navigate('/kanban')} active={isRouteActive('/kanban')} badge={scheduledCount} />
+              <NavItem icon={FileCheck} label="Conteúdos" onClick={() => navigate('/whatsapp-automations')} active={isRouteActive('/whatsapp-automations')} isBeta />
+            </CollapsibleContent>
+          </Collapsible>
           <NavItem icon={FileText} label={t('sidebar.proposals')} onClick={() => navigate('/proposals')} active={isRouteActive('/proposals')} />
           <NavItem icon={FileCode2} label="Briefings" onClick={() => navigate('/briefings')} active={isRouteActive('/briefings')} />
           {sidebarVisibility.billing && (

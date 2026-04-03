@@ -162,6 +162,23 @@ export function WhatsAppAutomationPage() {
         </Card>
       </div>
 
+      {/* Quick Actions */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <h3 className="font-medium text-sm">Ações Rápidas</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {quickActions.map((item, index) => (
+              <Button key={index} variant="outline" size="sm" onClick={item.action} className="text-xs">
+                {item.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Automations list */}
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">Carregando...</div>

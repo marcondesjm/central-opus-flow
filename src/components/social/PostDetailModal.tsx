@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   CheckCircle2, XCircle, Clock, Plus, Trash2, Instagram, Facebook,
   Linkedin, Twitter, Youtube, Video, User, ListChecks, Maximize2,
-  Copy, Pencil, X, Upload, Image as ImageIcon
+  Copy, Pencil, X, Upload, Image as ImageIcon, Link2, ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -338,6 +338,36 @@ export function PostDetailModal({ post, open, onOpenChange }: Props) {
                 {post.approval_status === 'rejected' && <Badge variant="destructive" className="gap-1"><XCircle className="w-3 h-3" /> Rejeitado</Badge>}
               </div>
               {post.approval_notes && <p className="text-xs text-muted-foreground">{post.approval_notes}</p>}
+
+              {/* Generate approval link button */}
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full gap-2 text-xs"
+                onClick={async () => {
+                  try {
+                    const token = crypto.randomUUID();
+                    const clientName = post.financial_clients?.name || 'Cliente';
+                    const { error } = await supabase.from('content_approvals').insert([{
+                      user_id: user!.id,
+                      client_name: clientName,
+                      content: post.content,
+                      client_id: post.client_id || null,
+                      share_token: token,
+                      status: 'pending',
+                    }] as any);
+                    if (error) throw error;
+                    const link = `${window.location.origin}/aprovacao/${token}`;
+                    await navigator.clipboard.writeText(link);
+                    toast({ title: 'Link copiado!', description: 'Envie ao cliente para aprovação.' });
+                  } catch (err: any) {
+                    toast({ title: 'Erro', description: err.message, variant: 'destructive' });
+                  }
+                }}
+              >
+                <Link2 className="w-3.5 h-3.5" /> Gerar Link de Aprovação
+              </Button>
+
               <Textarea value={approvalNotes} onChange={e => setApprovalNotes(e.target.value)} placeholder="Observações da aprovação..." rows={2} className="text-xs" />
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" className="flex-1 gap-1 text-emerald-600" onClick={() => handleApproval('approved')}>

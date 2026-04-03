@@ -82,13 +82,13 @@ const accountColorMap: Record<string, string> = {
   violet: 'bg-account-violet',
 };
 
-function BlogSidebarPreview() {
+const BlogSidebarPreview = React.forwardRef<HTMLDivElement>(function BlogSidebarPreview(_props, ref) {
   const { data: posts } = useBlogPosts('pt');
   const latestPosts = posts?.slice(0, 3);
   if (!latestPosts || latestPosts.length === 0) return null;
 
   return (
-    <div className="mt-1 space-y-1 px-1">
+    <div ref={ref} className="mt-1 space-y-1 px-1">
       {latestPosts.map(post => (
         <Link
           key={post.id}
@@ -109,7 +109,7 @@ function BlogSidebarPreview() {
       ))}
     </div>
   );
-}
+});
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (

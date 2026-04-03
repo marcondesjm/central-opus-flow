@@ -231,7 +231,7 @@ function AutomationFormModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   automation: WhatsAppAutomation | null;
-  onSave: (data: { trigger_type: string; message_template: string; delay_minutes?: number; target_phase?: string; description?: string }) => void;
+  onSave: (data: { trigger_type: string; message_template: string; delay_minutes?: number; target_phase?: string; description?: string; tag?: string }) => void;
 }) {
   const [trigger, setTrigger] = useState(automation?.trigger_type || '');
   const [message, setMessage] = useState(automation?.message_template || '');

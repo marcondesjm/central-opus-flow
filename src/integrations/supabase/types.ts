@@ -3953,6 +3953,45 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_automations: {
+        Row: {
+          created_at: string
+          delay_minutes: number
+          description: string | null
+          id: string
+          is_active: boolean
+          message_template: string
+          target_phase: string | null
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delay_minutes?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          message_template: string
+          target_phase?: string | null
+          trigger_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delay_minutes?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          message_template?: string
+          target_phase?: string | null
+          trigger_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wordpress_connections: {
         Row: {
           app_password: string
